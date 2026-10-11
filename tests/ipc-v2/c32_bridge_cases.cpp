@@ -139,6 +139,33 @@ template<class B> void surfaceBoundaries() {
   }
   std::puts("C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring");
 }
+template<class B> void surfaceSmall(bool declared) {
+  ULONG64 first=0,last=0;QueryThreadCycleTime(GetCurrentThread(),&first);
+  const auto begin=std::chrono::steady_clock::now();
+  const std::array<uint32_t,4> rect {{0,0,4,4}};
+  for(unsigned i=0;i<Count;++i) {
+#ifdef REMIX_BRIDGE_CLIENT
+    auto encode=[&](typename B::Command& c) {
+      c.send_data(sizeof(rect),rect.data());c.send_many(0,21,16);
+      auto* data=c.begin_data_blob(64);require(data!=nullptr,"small Surface reserve");
+      std::memset(data,static_cast<uint8_t>(i),64);c.end_data_blob();require(c.finish()==Result::Success,"small Surface finish");
+    };
+    if(declared) {typename B::Command c(Commands::IDirect3DSurface9_UnlockRect,i,0,uint64_t{25});encode(c);}
+    else {typename B::Command c(Commands::IDirect3DSurface9_UnlockRect,i);encode(c);}
+#else
+    require(B::waitForCommand(Commands::Bridge_Any,2000)==Result::Success,"small Surface wait");
+    const auto h=B::pop_front();require(h.command==Commands::IDirect3DSurface9_UnlockRect&&h.pHandle==i,"small Surface order");
+    require(B::get_data()==i,"small Surface UID");void* data=nullptr;
+    require(B::get_data(&data)==16&&std::memcmp(data,rect.data(),16)==0,"small Surface RECT");
+    require(B::get_data()==0&&B::get_data()==21&&B::get_data()==16,"small Surface fields");
+    require(B::get_data(&data)==64,"small Surface length");for(unsigned j=0;j<64;++j)require(static_cast<uint8_t*>(data)[j]==static_cast<uint8_t>(i),"small Surface byte");
+    B::end_read_data();
+#endif
+  }
+  QueryThreadCycleTime(GetCurrentThread(),&last);
+  const auto ns=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
+  std::printf("C32_SURFACE_TIMING declared=%u cycles=%llu commands=%u wall_ns=%lld\n",declared?1u:0u,static_cast<unsigned long long>(last-first),Count,static_cast<long long>(ns));
+}
 #ifdef REMIX_BRIDGE_CLIENT
 int faultCase(const std::wstring& mode) {
   GlobalOptions::timeout=2;GlobalOptions::retries=2;
@@ -185,7 +212,9 @@ int wmain(int argc,wchar_t** argv) {
     Device::install(&dw,&dr);Module::install(&mw,&mr);
     if (std::wstring(argv[2])==L"upload-wrap") { uploadWrap<Device>();uploadWrap<Module>(); }
     else if (std::wstring(argv[2])==L"surface-boundaries") { surfaceBoundaries<Device>();surfaceBoundaries<Module>(); }
-    else { transfer<Device>();transfer<Module>(); }
+    else if (std::wstring(argv[2])==L"surface-small-generic" || std::wstring(argv[2])==L"surface-small-declared") {
+      const bool declared=std::wstring(argv[2])==L"surface-small-declared";surfaceSmall<Device>(declared);surfaceSmall<Module>(declared);
+    } else { transfer<Device>();transfer<Module>(); }
     std::puts("C32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host");return 0;
   } catch (...) {std::puts("C32_BRIDGE_EXCEPTION");return 3;}
 }
