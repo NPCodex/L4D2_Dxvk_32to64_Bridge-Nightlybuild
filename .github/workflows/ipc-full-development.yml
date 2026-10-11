@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['codex/ipc-v2-full-integration']
-    paths: ['patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'tests/ipc-v2/full*', 'tests/buffer*', 'scripts/test_buffer_shadow_arena.ps1', '.github/workflows/ipc-full-development.yml']
+    paths: ['patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'tests/ipc-v2/full*', 'tests/buffer*', 'scripts/test_buffer*.ps1', '.github/workflows/ipc-full-development.yml']
 permissions:
   contents: read
 jobs:

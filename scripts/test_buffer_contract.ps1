@@ -9,11 +9,15 @@ SetupVS -Platform x86 -VcVarsVer '14.29'
 $output = Join-Path $repoRoot '.deps/buffer-contract-test'
 New-Item -ItemType Directory -Force $output | Out-Null
 $generated = Join-Path $output 'actual_buffer_contract.cpp'
+$allocatorFlags = @()
+if (Select-String -Path "$source/bridge/src/client/buffer_shadow.h" -Pattern 'using Storage =' -Quiet) {
+  $allocatorFlags += '/DLDB_SHADOW_ARENA'
+}
 & python "$repoRoot/scripts/generate_buffer_contract_test.py" --source $source --output $generated
 if ($LASTEXITCODE -ne 0) { throw 'Buffer contract source generation failed' }
 Push-Location $output
 try {
-  & cl.exe /nologo /std:c++17 /EHsc /W4 /WX /DNOMINMAX "/I$source/bridge/src/util" "/I$source/bridge/src/client" "/I$repoRoot/tests" $generated "$source/bridge/src/util/data_diagnostics.cpp" /Fe:buffer-contract.exe
+  & cl.exe /nologo /std:c++17 /EHsc /W4 /WX /DNOMINMAX @allocatorFlags "/I$source/bridge/src/util" "/I$source/bridge/src/client" "/I$repoRoot/tests" $generated "$source/bridge/src/util/data_diagnostics.cpp" /Fe:buffer-contract.exe
   if ($LASTEXITCODE -ne 0) { throw 'Buffer contract test compilation failed' }
   & .\buffer-contract.exe
   if ($LASTEXITCODE -ne 0) { throw 'Buffer contract regression test failed' }
