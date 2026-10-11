@@ -25,6 +25,14 @@ int main(){try{
    r.pull(result,1000);void* retained=nullptr;check(r.readBlob(&retained)==80000,"lease length");r.pin(7);check(r.readWord()==123,"footer");r.finishRead();
    for(unsigned i=0;i<5000;++i){send(w,i);read(r,i);check(static_cast<uint8_t*>(retained)[79999]==0xa5,"pin overwrite");}
    r.unpin(7);for(unsigned i=0;i<300;++i){check(w.begin({Commands::Bridge_Response,0,0,i}),"pool reuse begin");p=w.beginBlob(80000,true);check(p!=nullptr,"pool reuse allocation");std::memset(p,i,80000);check(w.endBlob() && w.finish(true),"pool reuse publish");r.pull(result,1000);void* q=nullptr;check(r.readBlob(&q)==80000 && static_cast<uint8_t*>(q)[79999]==static_cast<uint8_t>(i),"pool reuse bytes");r.finishRead();}}
+  {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);Result result;
+   check(w.begin({Commands::IDirect3DVertexBuffer9_Lock,0,0,7}),"mutable Lock begin");check(w.scalar(1),"Lock UID");auto* p=w.beginBlob(1024,true);check(p!=nullptr,"Lock lease");check(w.endBlob() && w.finish(true),"Lock publication");
+   // Application writes after Lock publication, before the later Unlock record.
+   std::memset(p,0x5a,1024);const auto reference=static_cast<uint32_t>(reinterpret_cast<uint32_t*>(p)-w.dataBase());
+   r.pull(result,1000);check(r.readWord()==1,"Lock UID read");void* q=nullptr;check(r.readBlob(&q)==1024,"Lock body");r.pin(7);r.finishRead();
+   check(w.begin({Commands::IDirect3DVertexBuffer9_Unlock,Commands::DataIsReserved,0,7}),"Unlock begin");check(w.scalar(reference) && w.finish(true),"Unlock publication");
+   r.pull(result,1000);check(r.readWord()==reference,"Unlock reference");q=r.reservedData(7,reference,1024);check(std::memcmp(p,q,1024)==0,"mutable reserved bytes");
+   bool rejected=false;try{r.reservedData(7,reference+256,1);}catch(...){rejected=true;}check(rejected,"reserved range overrun");r.unpin(7);r.finishRead();}
   {auto n=name();ldb_ipc_v2::Config c;ldb_full::UploadPool w(n,2*1024*1024,true,c),r(n,2*1024*1024,false,c);ldb_full::Descriptor d{};check(w.allocate(80000,d),"pool allocate");d.bytes=80000;w.publish(d);r.acquire(d);r.retain(d);check(!r.release(d),"early release");check(r.release(d),"last release");bool rejected=false;try{r.acquire(d);}catch(...){rejected=true;}check(rejected,"stale descriptor accepted");}
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);check(w.begin({Commands::Bridge_Response,0,0,0}),"abort begin");check(w.scalar(1),"abort scalar");w.abort();check(w.flush(),"abort flush");Result result;r.peek(result,1);check(result==Result::Timeout,"aborted visible");}
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);check(w.begin({Commands::Bridge_Response,0,0,0}),"underfill begin");check(w.declare(8),"declare");check(w.scalar(1),"underfill scalar");check(!w.finish(true),"underfill accepted");w.abort();}
