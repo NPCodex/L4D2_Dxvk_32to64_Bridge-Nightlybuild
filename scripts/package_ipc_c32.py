@@ -42,7 +42,7 @@ for name,(path,arch) in files.items():
     hashes[name]=hashlib.sha256(dest.read_bytes()).hexdigest()
 receipt.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
                distribution='experimental',build_type='Release',compiler='MSVC 14.29',
-               kind='matched-update',default_batch=1,lazy_check_ms=1,
+               kind='matched-update',default_batch=1,supported_batches=[1,2,4,8,16,32],lazy_check_ms=1,
                files=hashes,gameplay_validated=False,status='AWAITING GAME VALIDATION')
 (out/'config').mkdir()
 shutil.copy2(ROOT/'config/bridge.conf',out/'config/bridge.conf')

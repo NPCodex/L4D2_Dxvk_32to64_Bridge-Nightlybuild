@@ -170,7 +170,11 @@ template<class B> void surfaceSmall(bool declared) {
 int faultCase(const std::wstring& mode) {
   GlobalOptions::timeout=2;GlobalOptions::retries=2;
   const size_t memory=256+256*sizeof(Header)+32768*sizeof(uint32_t);
-  WriterChannel w("FaultForward",memory,256,32768);ReaderChannel r("FaultReply",memory,256,32768);Device::install(&w,&r);
+  WriterChannel w("FaultForward",memory,256,32768);ReaderChannel r("FaultReply",memory,256,32768);
+  const auto* setting=std::getenv("LDB_TEST_IPC_BATCH");
+  const uint32_t batch=setting ? static_cast<uint32_t>(std::strtoul(setting,nullptr,10)) : 1;
+  w.commands->configureBatch(batch);require(w.commands->batchSize()==batch,"fault gear selection");
+  Device::install(&w,&r);
   if (mode==L"surface-oversize" || mode==L"surface-underfill" || mode==L"surface-overrun") {
     const auto before=w.data->cursor();
     const uint64_t body=mode==L"surface-oversize" ? 32768 : 1;
@@ -212,7 +216,7 @@ int wmain(int argc,wchar_t** argv) {
 #ifdef REMIX_BRIDGE_CLIENT
     // Test-only configuration injection; production reads bridge.conf once in Bridge::init.
     const auto* setting=std::getenv("LDB_TEST_IPC_BATCH");
-    const uint32_t batch=setting && std::string(setting)=="32" ? 32 : 1;
+    const uint32_t batch=setting ? static_cast<uint32_t>(std::strtoul(setting,nullptr,10)) : 1;
     dw.commands->configureBatch(batch);mw.commands->configureBatch(batch);
     require(dw.commands->batchSize()==batch && mw.commands->batchSize()==batch,"Device/Module config selection");
 #endif

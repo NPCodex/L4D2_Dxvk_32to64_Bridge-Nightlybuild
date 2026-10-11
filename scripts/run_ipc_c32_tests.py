@@ -10,12 +10,19 @@ ROOT=Path(__file__).resolve().parents[1]
 out=ROOT/'work/ipc-c32-native'
 for arch in ('x86','x64'):
     subprocess.run([out/f'c32-{arch}.exe'],check=True,timeout=20)
-for mode in ('abort','timeout','surface-oversize','surface-underfill','surface-overrun'):
-    subprocess.run([out/'transport-client32.exe',mode],check=True,timeout=10)
+batches=('1','2','4','8','16','32')
+faults=[]
+for batch in batches:
+    for mode in ('abort','timeout','surface-oversize','surface-underfill','surface-overrun'):
+        result=subprocess.run([out/'transport-client32.exe',mode],env=dict(os.environ,LDB_TEST_IPC_BATCH=batch),
+                              capture_output=True,text=True,timeout=10)
+        faults.append(dict(batch=batch,mode=mode,rc=result.returncode,stdout=result.stdout,stderr=result.stderr))
+        (out/'c32-native-fault-results.json').write_text(json.dumps(faults,indent=2)+'\n')
+        result.check_returncode()
 rows=[]
 modes=('stream','mixed','threaded','upload-wrap','surface-boundaries','surface-small-generic','surface-small-declared')
 for iteration in range(3):
-    for batch in (('1','32') if iteration%2==0 else ('32','1')):
+    for batch in (batches if iteration%2==0 else tuple(reversed(batches))):
         for arch in ('32','64'):
             for mode in (modes if iteration%2==0 else tuple(reversed(modes))):
                 guid=str(uuid.uuid4())

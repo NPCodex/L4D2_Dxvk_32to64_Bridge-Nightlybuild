@@ -93,7 +93,8 @@ public:
   MessageQueue(const MessageQueue&) = delete;
   void configureBatch(uint32_t batch) {
     if (m_pending || m_encoder) { throw std::logic_error("IPC batch configured after encoding"); }
-    m_batch = batch == 32 ? 32 : 1;
+    // C1/C2/C4/C8/C16/C32; normalization only runs at channel setup.
+    m_batch = batch && batch <= 32 && !(batch & (batch - 1)) ? batch : 1;
   }
   uint32_t batchSize() const { return m_batch; }
   bool pending() const { return m_deadline.load(std::memory_order_acquire) != 0; }
