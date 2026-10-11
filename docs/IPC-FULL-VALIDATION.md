@@ -16,6 +16,8 @@
 - 三端构建 ID：`ldb-ipc-full-dev+9f30cbf7ddabdb95`，协议 ABI `0x00020004`。
 - 最终包：`l4d2-bridge-ipc-full-dev-9f30cbf7ddabdb95.zip`。
 - ZIP SHA-256：`5c5043f09d9eb1eccf32463f46b6cd10fba1a9605ba02b8909c661f0f0c06c42`。
+- [直接下载测试 ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/9af1c7c976d1e8a51a6c94cd6ddc3d303f211853/l4d2-bridge-ipc-full-dev-9f30cbf7ddabdb95.zip)：上传到现有下载分支，仅新增 ZIP、校验文件和中文说明；下载回读 SHA-256 已匹配。上传凭据见 `ipc-full-evidence/download-receipt.json`。
+- [中文安装与回退说明](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/blob/9af1c7c976d1e8a51a6c94cd6ddc3d303f211853/l4d2-bridge-ipc-full-dev-9f30cbf7ddabdb95-INSTALL.zh-CN.md)，[Draft PR #8](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/pull/8)。
 - 最终 [Windows CI / 下载构件](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38129726737)，artifact `11698342747`。
 - 首次完整通过的 [独立 CI](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38128983338)，源码 `d0dd21c`，相同生产传输标识，artifact `11698201946`。最终源码仅更新安装/结构说明。
 
