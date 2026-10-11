@@ -86,7 +86,7 @@ template<class B> void uploadWrap() {
         typename B::Command c(Commands::IDirect3DDevice9Ex_SetRenderState, i);
         c.send_data(bytes.size(), bytes.data()); require(c.finish()==Result::Success,"wrap positioning upload");
       } }
-    { typename B::Command c(Commands::IDirect3DSurface9_UnlockRect, i);
+    { typename B::Command c(Commands::IDirect3DSurface9_UnlockRect, i, 0, uint64_t{9 + Bytes / 4});
       const std::array<uint32_t,4> rect {{0,0,100,200}};
       c.send_data(sizeof(rect), rect.data()); c.send_many(0,21,400);
       auto* data=c.begin_data_blob(Bytes);require(data!=nullptr,"Surface wrap blob reservation");
@@ -110,12 +110,49 @@ template<class B> void uploadWrap() {
   }
   std::puts("C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch");
 }
+template<class B> void surfaceBoundaries() {
+  const std::array<unsigned, 7> lengths {{0,1,3,4,17,80000,(32768-10)*4}};
+  for (unsigned i=0;i<42;++i) {
+    const bool shared=i%8==3;
+    const unsigned bytes=lengths[i%lengths.size()];
+    const uint32_t format=i%2 ? 0x31495441u : 21u; // ATI1 / ordinary descriptor.
+    const std::array<uint32_t,4> rect {{4,8,104,208}};
+#ifdef REMIX_BRIDGE_CLIENT
+    const uint64_t body=shared ? 9 : 9+(static_cast<uint64_t>(bytes)+3)/4;
+    typename B::Command c(Commands::IDirect3DSurface9_UnlockRect,i,shared?Commands::DataInSharedHeap:0,body);
+    require(c.status()==Result::Success,"Surface preflight failed");
+    c.send_data(sizeof(rect),rect.data());c.send_many(i,format,400);
+    if(shared) {c.send_data(77);}
+    else {auto* data=c.begin_data_blob(bytes);require(data!=nullptr,"Surface boundary blob");std::memset(data,static_cast<uint8_t>(i),bytes);c.end_data_blob();}
+    require(c.finish()==Result::Success,"Surface exact layout finish");
+#else
+    require(B::waitForCommand(Commands::Bridge_Any,2000)==Result::Success,"Surface boundary wait");
+    const auto h=B::pop_front();require(h.command==Commands::IDirect3DSurface9_UnlockRect&&h.pHandle==i,"Surface boundary header");
+    require(Commands::IsDataInSharedHeap(h.flags)==shared,"shared heap flag");
+    require(B::get_data()==i,"Surface boundary UID");void* data=nullptr;require(B::get_data(&data)==sizeof(rect),"Surface boundary RECT size");
+    require(std::memcmp(data,rect.data(),sizeof(rect))==0,"Surface boundary RECT content");
+    require(B::get_data()==i&&B::get_data()==format&&B::get_data()==400,"Surface boundary fields");
+    if(shared){require(B::get_data()==77,"shared heap id");}
+    else {require(B::get_data(&data)==bytes,"Surface boundary length");for(unsigned j=0;j<bytes;++j)require(static_cast<uint8_t*>(data)[j]==static_cast<uint8_t>(i),"Surface boundary every byte");}
+    B::end_read_data();
+#endif
+  }
+  std::puts("C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring");
+}
 #ifdef REMIX_BRIDGE_CLIENT
 int faultCase(const std::wstring& mode) {
   GlobalOptions::timeout=2;GlobalOptions::retries=2;
   const size_t memory=256+256*sizeof(Header)+32768*sizeof(uint32_t);
   WriterChannel w("FaultForward",memory,256,32768);ReaderChannel r("FaultReply",memory,256,32768);Device::install(&w,&r);
-  if (mode==L"abort") {
+  if (mode==L"surface-oversize" || mode==L"surface-underfill" || mode==L"surface-overrun") {
+    const auto before=w.data->cursor();
+    const uint64_t body=mode==L"surface-oversize" ? 32768 : 1;
+    Device::Command c(Commands::IDirect3DSurface9_UnlockRect,0,0,body);
+    if(mode==L"surface-oversize") {require(w.data->cursor()==before,"oversize Surface wrote UID/prefix");}
+    else if(mode==L"surface-overrun") {c.send_many(1,2);require(w.data->cursor()==before+1,"overrun wrote past declared interval");}
+    require(c.finish()!=Result::Success,"bad Surface layout accepted");
+    require(w.control->published.load()==before,"bad Surface published data");
+  } else if (mode==L"abort") {
     Device::Command c(Commands::IDirect3DDevice9Ex_SetRenderState);
     c.send_data(7);unsigned before=0;w.commands->inlinePrefix(before);
     c.abort();c.send_data(99);unsigned after=0;w.commands->inlinePrefix(after);
@@ -147,6 +184,7 @@ int wmain(int argc,wchar_t** argv) {
 #endif
     Device::install(&dw,&dr);Module::install(&mw,&mr);
     if (std::wstring(argv[2])==L"upload-wrap") { uploadWrap<Device>();uploadWrap<Module>(); }
+    else if (std::wstring(argv[2])==L"surface-boundaries") { surfaceBoundaries<Device>();surfaceBoundaries<Module>(); }
     else { transfer<Device>();transfer<Module>(); }
     std::puts("C32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host");return 0;
   } catch (...) {std::puts("C32_BRIDGE_EXCEPTION");return 3;}
