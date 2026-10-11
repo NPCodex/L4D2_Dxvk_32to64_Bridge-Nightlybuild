@@ -27,3 +27,7 @@ Compiled source: `3607ceda2ec1dac2376864609984c2b8c44cd516`. Build: `ldb-ipc-c32
 ZIP SHA-256: `1322ee966d84abb3c4764b9d3779f43d5e8a1dbc62fe7710b411bb65c79a3041`.
 
 Exit both processes and back up/replace all three bridge binaries together using [the install/rollback instructions](IPC-C32-DEVELOPMENT.md). Retest the same failing map with default C32 first; preserve complete logs if it still fails. Oversized uploads can still fail with a meaningful requested size. The old ZIP is retained for reproducibility, not recommended for use. No main, PR6, VERSION, tag or release modification.
+
+## Surface follow-up
+
+The Surface-specific prefix migration path is superseded by [complete-layout preflight](IPC-C32-SURFACE-PREFLIGHT.md). The earlier artifact and evidence remain preserved; use the matched follow-up ZIP for testing this correction.
