@@ -1,0 +1,8 @@
+{
+  "util_bridgecommand.h": "adef13e1320711bfcf3e85d203bd8b276d96c5f81239ec16744dded942a23ef3",
+  "util_bridgecommand.cpp": "021722cd99b04728e549b5631c998906d058d4ab09c777164e2231484344773d",
+  "util_ipcchannel.h": "606a471548ff95acf6d6c38f9f91837a0727474cc6ded86d8868baa806889b44",
+  "frozen_build_id": "ldb-ipc-c32-dev+ec19f9c2780fa8c1",
+  "frozen_commit": "00007e8762385704afdacabea6e48444d798d27a",
+  "caller_sha256": "a4e79daaa8c6ed713f479b63f7ea8a5a5d5a48191ebc1494e04b322fea946466"
+}
