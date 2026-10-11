@@ -1,6 +1,6 @@
 # Steam Overlay input investigation after v1.1
 
-Status: **Steam remains unusable. Query-chain and combined configurations are verified but ineffective. The combined run establishes initial Host mouse delivery, Host focus, full shortcut state and query delegation together. Steam input/window association evidence is now required.**
+Status: **Steam remains unusable. Combined input conditions are verified but ineffective. Static analysis of an uploaded Steam renderer now identifies a concrete same-process window-selection gate reachable from Vulkan presentation; its actual runtime rejection still requires confirmation.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
@@ -259,3 +259,7 @@ The user has now tested the combination and reports it ineffective. Matched `629
 The initial eight samples before switching away retain game foreground and Host focus, with 319 Host mouse/11 keyboard/3 Shift+Tab observations. Three Tab dispatches have both keys down in queue/async/keyboard-array readings. The first interval crosses activation and repeated observations are not distinct attempts. All active samples total 796 Host mouse/81 keyboard; subsequent focus loss after switching away is independently visible, but does not explain the initially unresponsive state. No Steam closure callback occurs before successful shutdown.
 
 This [combined hardware result](STEAM-POLL-CHAIN-EXPERIMENT.md#combined-hardware-result-concurrent-bridge-conditions-achieved-still-ineffective) replaces the pending comparison. Further configuration cycling is not supported by new evidence. Obtain Steam's own renderer/UI input/window association evidence before another behavior-changing candidate. DLL presence, the game-owned foreground root, Host focus and Bridge WndProc counters do not identify the actual proprietary input receiver or establish its rejection predicate. No new binary, main modification or gameplay/FPS claim accompanies this report.
+
+### Renderer DLL supplied: specific process-ownership gate found
+
+The user supplied GameOverlayRenderer64.dll rather than a log. [Static analysis](STEAM-RENDERER-WINDOW-GATE.md) identifies a Vulkan-reachable input-window selector that takes GetActiveWindow or GetForegroundWindow and rejects windows whose owner PID differs from its current process. This concrete gate is consistent with the Bridge's game-owned root and Host-owned child arrangement, but existing logs do not prove the actual loaded sample or returned candidate on Steam's call thread. The next narrowly scoped evidence is that window-query return and PID comparison, before any compatibility mapping or new behavioral candidate. The proprietary DLL is not executed, modified or uploaded to the fork.

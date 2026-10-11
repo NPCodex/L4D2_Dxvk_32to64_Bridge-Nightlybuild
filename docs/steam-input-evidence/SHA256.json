@@ -13,5 +13,6 @@
   "hook-chain-upload-receipt.json": "0099a8402b8e20aed2b96301ccf9072fad873cf7e71c2efe8646a92040dcf3ec",
   "mouse-capture-superseded-upload-receipt.json": "ddf685d5db73debadad52c54e8e423379ba84facf7c9d5b462542e8a837fcd6a",
   "mouse-capture-upload-receipt.json": "0be0755e98ba7205138d37976d2bdda07a2513767faa326a4057cb451c170006",
-  "poll-chain-upload-receipt.json": "d1d115d1261426d7e6fcec9094be7a0c8b877cb7fb3a80be79b75f7bfd0827de"
+  "poll-chain-upload-receipt.json": "d1d115d1261426d7e6fcec9094be7a0c8b877cb7fb3a80be79b75f7bfd0827de",
+  "renderer64-static-sample.json": "786365452c0e944eb0ce0f2bafbad3d06e3a1000ed2917e45d93d1c4e85f4a5c"
 }

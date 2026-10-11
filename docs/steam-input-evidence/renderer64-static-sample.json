@@ -1,0 +1,36 @@
+{
+  "bytes": 1576600,
+  "sha256": "59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee",
+  "machine": "0x8664",
+  "image_base": "0x180000000",
+  "exports": {
+    "BOverlayNeedsPresent": "0xae4d0",
+    "IsOverlayEnabled": "0xb08a0",
+    "OverlayHookD3D3": "0x800e0",
+    "SetNotificationInset": "0xb08b0",
+    "SetNotificationPosition": "0xb08d0",
+    "SteamOverlayIsUsingGamepad": "0xb08e0",
+    "SteamOverlayIsUsingKeyboard": "0xb0900",
+    "SteamOverlayIsUsingMouse": "0xb0900",
+    "ValveHookScreenshots": "0xc2460",
+    "ValveIsScreenshotsHooked": "0xc2470",
+    "VulkanSteamOverlayPresent": "0xc6ae0",
+    "VulkanSteamOverlayProcessCapturedFrame": "0xc6bc0",
+    "VulkanSteamOverlaySetWindowType": "0x3ded0"
+  },
+  "known_sample": true,
+  "executed": false,
+  "known_sample_annotations": {
+    "window_selection_rva": "0xa69f0",
+    "get_active_window_return_rva": "0xa6ad4",
+    "get_foreground_window_return_rva": "0xa6ae2",
+    "owner_pid_failure_branch_rva": "0xa6b22 -> 0xa6b28",
+    "render_update_rva": "0xbfd60",
+    "selection_call_rva": "0xc04fb",
+    "vulkan_present_export_rva": "0xc6ae0",
+    "selection_bytes_sha256": "864a939bee4fa255748b67b4e3f2b41542c1a37179049d4f5781051c6ba0684b",
+    "keyboard_mouse_exports_alias": true,
+    "set_window_type_first_bytes": "c20000",
+    "claim_scope": "static sample only; actual runtime branch and loaded DLL identity unverified"
+  }
+}
