@@ -35,6 +35,7 @@ template<class B> void concurrentReplies() {
   std::puts("IPC_FULL_CONCURRENT_UID_PASS 4 threads x 64 replies");
 }
 template<class B> void transfer() {
+  std::printf("TRANSPORT_CAPACITY upload_bytes=%llu\n",static_cast<unsigned long long>(B::getWriterChannel().data->get_total_size()*4));
   ULONG64 cyclesBefore=0,cyclesAfter=0;QueryThreadCycleTime(GetCurrentThread(),&cyclesBefore);
   const auto begin=std::chrono::steady_clock::now();
 #ifdef REMIX_BRIDGE_CLIENT
@@ -186,9 +187,9 @@ int wmain(int argc,wchar_t** argv) {
 #endif
     require(argc==3,"GUID/mode argument");streamOnly=std::wstring(argv[2])==L"stream";threaded=std::wstring(argv[2])==L"threaded";
     require(gUniqueIdentifier.setGuid(&argv[1]),"GUID valid");
-    // C32: 32768 DWORDs. Full: 65600-byte lease metadata + 128 KiB payload.
-    // Equal usable payload capacity, mapping budget, block geometry and caller.
-    const size_t memory=196672;
+    // Preserve the existing C32 fixture budget. QueueSize is not DataQueue
+    // capacity: production derives capacity from bytes minus its metadata.
+    const size_t memory=2*1024*1024;
 #ifdef REMIX_BRIDGE_CLIENT
     WriterChannel dw("DeviceForward",memory,256,32768),mw("ModuleForward",memory,256,32768);
     ReaderChannel dr("DeviceReply",memory,256,32768),mr("ModuleReply",memory,256,32768);

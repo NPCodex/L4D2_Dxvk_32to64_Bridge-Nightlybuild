@@ -20,10 +20,11 @@ for iteration in range(6):
                         client=subprocess.Popen([folder/'transport-client32.exe',guid,mode],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
                         ct=client.communicate(timeout=30)[0];ht=host.communicate(timeout=30)[0]
                         row=dict(iteration=iteration,warmup=iteration==0,batch=batch,host_arch=arch,mode=mode,variant=variant,
-                                 client_rc=client.returncode,host_rc=host.returncode,client_raw=ct,host_raw=ht)
+                             client_rc=client.returncode,host_rc=host.returncode,client_raw=ct,host_raw=ht)
                         for role,raw in (('client',ct),('host',ht)):
                             values=pattern.findall(raw)
                             row[role+'_timing']=values
+                            row[role+'_upload_capacities']=[int(v) for v in re.findall(r'TRANSPORT_CAPACITY upload_bytes=(\d+)',raw)]
                             if len(values)==2:
                                 commands=sum(int(v[1]) for v in values)
                                 row[role+'_cycles_per_command']=sum(int(v[0]) for v in values)/commands
@@ -45,8 +46,9 @@ for batch in ('1','32'):
                 entry[metric]=dict(medians,full_change_percent=(medians['Full']/medians['C32']-1)*100)
             summary.append(entry)
 checksums={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in dirs.values() for p in folder.glob('transport-*.exe')}
-receipt=dict(baseline='published C32 2ce9f9b',rounds=5,warmup_rounds=1,usable_upload_bytes=131072,mapping_budget_bytes=196672,
+receipt=dict(baseline='published C32 2ce9f9b',rounds=5,warmup_rounds=1,mapping_budget_bytes=2097152,
+             usable_upload_bytes={variant:{role:next(r[role+'_upload_capacities'] for r in rows if r['variant']==variant) for role in ('client','host')} for variant in dirs},
              compiler='MSVC 14.29 /O2 /DNDEBUG /LARGEADDRESSAWARE',caller='identical full_bridge_cases.cpp',
-             limitations=['Host Sleep(1) every 1024 calls; RPC every 101 calls; outer wall includes these waits','not FPS or GPU timing','synthetic mixed mode uses 512-byte upload on one third of calls'],
+             limitations=['Host Sleep(1) every 1024 calls; RPC every 101 calls; outer wall includes these waits','not FPS or GPU timing','synthetic mixed mode uses 512-byte upload on one third of calls','same mapping budget; Full lease metadata reduces usable payload capacity relative to C32'],
              binary_sha256=checksums,results=summary)
 (out/'comparison-summary.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(summary,indent=2))

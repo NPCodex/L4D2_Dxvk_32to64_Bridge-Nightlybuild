@@ -46,7 +46,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'PageBlock GC failed' }
           & powershell.exe -NoProfile -File ./scripts/test_host_diagnostics.ps1 -Platform x86
           if ($LASTEXITCODE -ne 0) { throw 'Host32 diagnostics failed' }
-      - name: Repeat published C1 C32 versus full with equal capacity and identical caller
+      - name: Repeat published C1 C32 versus full with same budget and identical caller
         shell: powershell
         run: ./scripts/test_ipc_full_comparison.ps1
       - name: Python contracts
