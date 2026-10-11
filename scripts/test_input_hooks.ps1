@@ -25,7 +25,7 @@ try {
   & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /WX $generated /Fe:input-hooks-test.exe
   if ($LASTEXITCODE -ne 0) { throw 'Input hook regression compilation failed' }
   Assert-NativeArchitecture -Path (Join-Path $output 'input-hooks-test.exe') -Architecture $Platform
-  foreach ($mode in @('steam-off','steam-on','steam-master-off','steam-mouse-only')) {
+  foreach ($mode in @('steam-off','steam-on','steam-master-off','steam-mouse-only','steam-poll-only','steam-all-on')) {
     & .\input-hooks-test.exe $mode
     if ($LASTEXITCODE -ne 0) { throw "Input hook/log classification regression failed: $mode" }
   }

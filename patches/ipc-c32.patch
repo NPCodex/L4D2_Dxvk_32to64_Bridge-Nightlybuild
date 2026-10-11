@@ -2739,12 +2739,10 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
      }
    }
  
-@@ -1062,6 +1075,50 @@
-   DirectInputForwarder::resetMouseState();
-   DirectInput8Hook::flushPendingMouseInput();
+@@ -1064,6 +1077,50 @@
    DirectInput7Hook::flushPendingMouseInput();
-+}
-+
+ }
+ 
 +static bool steamMouseHandoffActive() {
 +  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
 +    && Config::getOption<bool>("client.steamMouseCaptureHandoff", false);
@@ -2787,10 +2785,75 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
 +  }
 +  SetLastError(error);
 +  return OrigSetCapture(window);
- }
- 
++}
++
  static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
-@@ -1261,6 +1318,11 @@
+   LogStaticFunctionCall();
+ 
+@@ -1073,7 +1130,14 @@
+   }
+ 
+   if (RemixState::isUIActive()) {
+-    observeInputSuppression("GetCursorPos", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      POINT observed {};
++      OrigGetCursorPos(&observed);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetCursorPos", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
+     *lp = g_uiActiveCursorPos;
+     return TRUE;
+   }
+@@ -1113,7 +1177,13 @@
+   LogStaticFunctionCall();
+   // Block if Remix UI is active
+   if (RemixState::isUIActive()) {
+-    observeInputSuppression("GetAsyncKeyState", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      OrigGetAsyncKeyState(vk);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetAsyncKeyState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
+     return 0;
+   }
+   return OrigGetAsyncKeyState(vk);
+@@ -1123,7 +1193,13 @@
+   LogStaticFunctionCall();
+   // Block if Remix UI is active
+   if (RemixState::isUIActive()) {
+-    observeInputSuppression("GetKeyState", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      OrigGetKeyState(vk);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetKeyState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
+     return 0;
+   }
+   return OrigGetKeyState(vk);
+@@ -1133,7 +1209,15 @@
+   LogStaticFunctionCall();
+   // Block if Remix UI is active
+   if (RemixState::isUIActive()) {
+-    observeInputSuppression("GetKeyboardState", _ReturnAddress());
++    if (!lpKeyState) { SetLastError(ERROR_INVALID_PARAMETER); return FALSE; }
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      BYTE observed[256] {};
++      OrigGetKeyboardState(observed);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetKeyboardState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
+     memset(lpKeyState, 0, 256);
+     return TRUE;
+   }
+@@ -1261,6 +1345,11 @@
  
    API_ATTACH(GetCursorPos);
    API_ATTACH(SetCursorPos);
@@ -2802,7 +2865,7 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
    API_ATTACH(GetKeyState);
    API_ATTACH(GetAsyncKeyState);
    API_ATTACH(GetKeyboardState);
-@@ -1286,6 +1348,7 @@
+@@ -1286,6 +1375,7 @@
  static void DetachConventionalInput() {
    API_DETACH(GetCursorPos);
    API_DETACH(SetCursorPos);
@@ -2957,7 +3020,7 @@ diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
      if (!uiWasActive && RemixState::isUIActive()) {
        // Remix UI has been activated - unstick modifier keys at application side
        auto unstick = [hWnd](uint32_t vk) {
-@@ -328,6 +329,17 @@
+@@ -328,6 +329,23 @@
  ////////////////////
  // External funcs //
  ////////////////////
@@ -2972,18 +3035,25 @@ diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
 +    && Config::getOption<bool>("client.steamHookChainPassThrough", false);
 +  return enabled && isSteamOverlayActive();
 +}
++
++bool allowSteamInputPollingChain() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamPollChainPassThrough", false);
++  return enabled && isSteamOverlayActive();
++}
  
  bool init() {
    if(!attach()) {
 diff --git a/bridge/src/client/window.h b/bridge/src/client/window.h
 --- a/bridge/src/client/window.h
 +++ b/bridge/src/client/window.h
-@@ -67,6 +67,9 @@
+@@ -67,6 +67,10 @@
  extern bool init();
  // Optional Steam input diagnostics, sampled by Present without injecting input.
  extern void sampleSteamInput();
 +// Opt-in: preserve downstream hooks only during a real Steam activation.
 +extern bool allowSteamInputHookChain();
++extern bool allowSteamInputPollingChain();
 +extern bool isSteamOverlayActive();
  // Undo the hooks established in init()
  extern bool terminate();
@@ -3017,6 +3087,17 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    return hresult;
  }
  
+@@ -525,8 +526,8 @@
+ 
+         IDirect3DDevice9* pD3DDevice = nullptr;
+         Logger::info(format_string(
+-          "L4D2 CreateDevice: focus=%p window=%p adapter=%u windowed=%u size=%ux%u flags=0x%x",
+-          TRUNCATE_HANDLE(HWND, hFocusWindow), PresentationParameters.hDeviceWindow,
++          "L4D2 CreateDevice: game_focus=%p backend_focus=%p window=%p adapter=%u windowed=%u size=%ux%u flags=0x%x",
++          TRUNCATE_HANDLE(HWND, hFocusWindow), overlayFocus, PresentationParameters.hDeviceWindow,
+           Adapter, PresentationParameters.Windowed, PresentationParameters.BackBufferWidth,
+           PresentationParameters.BackBufferHeight, BehaviorFlags));
+         const auto hresult = gpD3D->CreateDevice(IN Adapter, IN DeviceType, IN overlayFocus, IN BehaviorFlags, IN OUT & PresentationParameters, OUT & pD3DDevice);
 @@ -1779,10 +1780,11 @@
        case IDirect3DDevice9Ex_SetStreamSource:
        {
@@ -3438,6 +3519,37 @@ diff --git a/bridge/src/util/meson.build b/bridge/src/util/meson.build
    'exception_diagnostics.h',
    'adapter_information.h',
    'api_wait_commands.h',
+diff --git a/bridge/src/util/overlay_input_diagnostics.h b/bridge/src/util/overlay_input_diagnostics.h
+--- a/bridge/src/util/overlay_input_diagnostics.h
++++ b/bridge/src/util/overlay_input_diagnostics.h
+@@ -13,7 +13,7 @@
+ namespace l4d2_overlay {
+ // One instance per input thread; bounded observations of immediate callers only.
+ class SuppressionDiagnostics {
+-  struct Site { const char* api; const void* caller; };
++  struct Site { const char* api; const void* caller; const char* action; };
+   Site m_sites[128] {};
+   size_t m_count = 0;
+   bool m_overflow = false;
+@@ -25,7 +25,8 @@
+       ~ErrorGuard() { SetLastError(value); }
+     } guard;
+     for (size_t i = 0; i < m_count; ++i) {
+-      if (std::strcmp(m_sites[i].api, api) == 0 && m_sites[i].caller == caller) { return; }
++      if (std::strcmp(m_sites[i].api, api) == 0 && m_sites[i].caller == caller
++        && std::strcmp(m_sites[i].action, action) == 0) { return; }
+     }
+     if (m_count == 128) {
+       if (!m_overflow) {
+@@ -34,7 +35,7 @@
+       }
+       return;
+     }
+-    m_sites[m_count++] = { api, caller };
++    m_sites[m_count++] = { api, caller, action };
+     HMODULE module = nullptr;
+     char path[MAX_PATH] {}, line[1200] {};
+     if (caller && GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
 diff --git a/bridge/src/util/util_atomiccircularqueue.h b/bridge/src/util/util_atomiccircularqueue.h
 --- a/bridge/src/util/util_atomiccircularqueue.h
 +++ b/bridge/src/util/util_atomiccircularqueue.h

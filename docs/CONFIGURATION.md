@@ -117,6 +117,7 @@ PR #4 第二轮进一步分离存储与失败：关闭 API wait 不分配线程�
 | `server.steamNativeInput` | `False` | Host 原生焦点/输入实验，只有 Host Overlay 实验及输入路径生效才采用。 | **新增、未解决的实验** |
 | `client.steamHookChainPassThrough` | `False` | 仅在 Client Steam 实验启用且收到真实 Steam 激活通知时，保留三个线程 Win32 输入钩子的下游调用；不取消游戏消息、键盘轮询或 DirectInput 抑制。需 overrideCustomWinHooks 与既有实验路径；尚待实机验证。 | **新增、未验证的实验** |
 | `client.steamMouseCaptureHandoff` | `False` | Steam 激活、Bridge UI 捕获及游戏前台同时满足时，在所属窗口线程释放游戏鼠标捕获，并阻止游戏窗口树重新 SetCapture；不释放 Host/其他线程捕获，不改变 ClipCursor、焦点或键盘状态。默认不安装此 API hook；重启生效。 | **新增、未验证的实验** |
+| `client.steamPollChainPassThrough` | `False` | 已知真实 Steam 激活且 UI 活动时，四个查询调用原有 API 一次；游戏仍收到零键盘状态/虚拟鼠标位置。需 client.steamOverlayInput，重启生效。 | **新增、未验证的实验** |
 
 [API-WAIT-DIAGNOSTICS.conf](../config/API-WAIT-DIAGNOSTICS.conf) 会开启两端等待诊断并将输出周期设为 1000 ms。[NETWORK-COLOR-DIAGNOSTICS.conf](../config/NETWORK-COLOR-DIAGNOSTICS.conf) 及偏色安装脚本会开启两端偏色诊断（5000 ms）；测试结束后将两个 `colorDiagnostics` 改为 False 并重启。异步写日志只把磁盘写入移出生产路径，不能消除生产路径中的哈希、状态锁、查询和记录构造成本。
 
