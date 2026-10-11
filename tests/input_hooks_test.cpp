@@ -9,6 +9,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <atomic>
+#include <cstring>
+#include <array>
 
 // Deterministic Win32/COM adapters; production method bodies are inserted below.
 using DWORD = unsigned long;
@@ -16,13 +19,22 @@ using ULONG = unsigned long;
 using HRESULT = int32_t;
 using HINSTANCE = void*;
 using HHOOK = void*;
-using HOOKPROC = void(*)();
+using WPARAM = uintptr_t;
+using LPARAM = intptr_t;
+using LRESULT = intptr_t;
+using SHORT = int16_t;
+using BYTE = unsigned char;
+using PBYTE = BYTE*;
+using HOOKPROC = LRESULT(*)(int, WPARAM, LPARAM);
 using LPDIRECTINPUTA = void*;
 using LPDIRECTINPUTW = void*;
 using LPUNKNOWN = void*;
 using Create = HRESULT(*)(HINSTANCE, DWORD, void**, LPUNKNOWN);
+#define CALLBACK
+#define _ReturnAddress() nullptr
 #define WINAPI
 #define FAILED(result) ((result) < 0)
+constexpr int TRUE = 1;
 constexpr int WH_CALLWNDPROC = 4, WH_GETMESSAGE = 3, WH_KEYBOARD = 2, WH_KEYBOARD_LL = 13;
 
 static unsigned formats = 0, lastErrorReads = 0, functionCalls = 0, missingCalls = 0;
@@ -61,9 +73,39 @@ struct ClientOptions {
 };
 static DWORD GetCurrentThreadId() { return 73; }
 static DWORD GetLastError() { ++lastErrorReads; return lastError; }
-static void HookedCallWndProc() {}
-static void HookedGetMsgProc() {}
-static void HookedKeyboardProc() {}
+static LRESULT CALLBACK HookedCallWndProc(int, WPARAM, LPARAM);
+static LRESULT CALLBACK HookedGetMsgProc(int, WPARAM, LPARAM);
+static LRESULT CALLBACK HookedKeyboardProc(int, WPARAM, LPARAM);
+namespace WndProc {
+  std::atomic<bool> g_steamActive{false}, g_steamKnown{false};
+  bool allowSteamInputHookChain();
+}
+struct RemixState {
+  inline static bool active=false;
+  static bool isUIActive() { return active; }
+};
+struct Config {
+  inline static bool steamInput=true, passChain=false;
+  template<class T> static T getOption(const char* key,T fallback) {
+    if(std::strcmp(key,"client.steamOverlayInput")==0) return static_cast<T>(steamInput);
+    if(std::strcmp(key,"client.steamHookChainPassThrough")==0) return static_cast<T>(passChain);
+    return fallback;
+  }
+};
+static unsigned nextCalls=0,polled=0;
+static int nextCode=0;
+static WPARAM nextW=0;
+static LPARAM nextL=0;
+static HHOOK nextHandle=nullptr;
+static std::string hookAction;
+static HHOOK accessWinHook(int hook) { return gWinHooks.at(hook); }
+static LRESULT CallNextHookEx(HHOOK hook,int code,WPARAM w,LPARAM l) {
+  ++nextCalls;nextHandle=hook;nextCode=code;nextW=w;nextL=l;return 47;
+}
+static void observeInputSuppression(const char*,void*,const char* action="neutralize") { hookAction=action; }
+static SHORT OrigGetAsyncKeyState(int) { ++polled; return 42; }
+static SHORT OrigGetKeyState(int) { ++polled; return 43; }
+static SHORT OrigGetKeyboardState(PBYTE keys) { ++polled;std::memset(keys,0x80,256);return 1; }
 static HHOOK SetWindowsHookEx(int id, HOOKPROC proc, HINSTANCE module, DWORD thread) {
   if (id == WH_KEYBOARD_LL || !proc || module || thread != 73) {
     throw std::runtime_error("Unexpected global hook or installation arguments");
@@ -116,8 +158,33 @@ static void check(bool success, const char* message) {
   if (!success) { throw std::runtime_error(message); }
 }
 static void clearLogs() { warnings.clear(); debugMessages.clear(); formats = 0; }
-int main() {
+int main(int argc,char** argv) {
   try {
+    const bool master=!(argc>1 && std::strcmp(argv[1],"steam-master-off")==0);
+    const bool option=argc>1 && std::strcmp(argv[1],"steam-off")!=0;
+    Config::steamInput=master;Config::passChain=option;
+    const std::array<HOOKPROC,3> hooks{{HookedCallWndProc,HookedGetMsgProc,HookedKeyboardProc}};
+    const std::array<int,3> ids{{WH_CALLWNDPROC,WH_GETMESSAGE,WH_KEYBOARD}};
+    for(int id:ids) gWinHooks[id]=reinterpret_cast<HHOOK>(static_cast<uintptr_t>(id));
+    for(bool ui:{false,true}) for(bool known:{false,true}) for(bool steam:{false,true}) {
+      RemixState::active=ui;WndProc::g_steamKnown.store(known);WndProc::g_steamActive.store(steam);
+      for(unsigned i=0;i<hooks.size();++i) for(int code:{-1,0,1}) {
+        nextCalls=0;hookAction.clear();
+        const auto result=hooks[i](code,123,456);
+        const bool pass=code<0 || !ui || (master && option && known && steam);
+        check(result==(pass?47:0) && nextCalls==(pass?1u:0u),"hook-chain result/count changed");
+        if(pass) check(nextHandle==gWinHooks.at(ids[i]) && nextCode==code && nextW==123 && nextL==456,"downstream arguments changed");
+        if(code>=0 && ui) check(hookAction==(pass?"pass-hook-chain":"stop-hook-chain"),"capture decision not observable");
+      }
+      // Steam passthrough must never bypass gameplay's polling suppression.
+      polled=0;std::array<BYTE,256> keys{};
+      check(HookedGetAsyncKeyState(1)==(ui?0:42),"Steam bypassed asynchronous suppression");
+      check(HookedGetKeyState(1)==(ui?0:43),"Steam bypassed queue-state suppression");
+      check(HookedGetKeyboardState(keys.data())==1 && polled==(ui?0u:3u),"keyboard suppression or original calls changed");
+      for(auto key:keys) check(key==(ui?0:0x80),"keyboard state contents changed");
+    }
+    RemixState::active=false;gWinHooks.clear();
+
     InputWinHooksAttach();
     check(installed.empty() && formats == 0 && lastErrorReads == 0, "OFF installed or observed hooks");
     ClientOptions::customHooks = true;
@@ -180,7 +247,7 @@ int main() {
       "Query failed to delegate reference operations/results");
     check(query.additions == 1 && query.releases == 2 && query.destructions == 1
       && missingCalls == 0 && functionCalls == before + 3, "Query lifecycle delegation or log classification changed");
-    std::puts("PASS: hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation");
+    std::puts("PASS: Steam hook chain gating/arguments/results; gameplay polling still suppressed; hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation");
     return 0;
   } catch (const std::exception& error) {
     std::fprintf(stderr, "FAIL: %s\n", error.what());

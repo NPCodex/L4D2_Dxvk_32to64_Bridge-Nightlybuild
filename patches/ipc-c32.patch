@@ -2683,6 +2683,54 @@ diff --git a/bridge/src/client/d3d9_volumetexture.cpp b/bridge/src/client/d3d9_v
  }
  
  HRESULT Direct3DVolumeTexture9_LSS::LockBox(UINT Level, D3DLOCKED_BOX* pLockedVolume, CONST D3DBOX* pBox, DWORD Flags) {
+diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
+--- a/bridge/src/client/di_hook.cpp
++++ b/bridge/src/client/di_hook.cpp
+@@ -991,8 +991,12 @@
+   
+   if (nCode >= 0) {
+     if (RemixState::isUIActive()) {
+-      observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "stop-hook-chain");
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "pass-hook-chain");
+     }
+   }
+ 
+@@ -1004,8 +1008,12 @@
+   
+   if (nCode >= 0) {
+     if (RemixState::isUIActive()) {
+-      observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "stop-hook-chain");
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "pass-hook-chain");
+     }
+   }
+ 
+@@ -1017,8 +1025,12 @@
+ 
+   if (nCode >= 0) {
+     if (RemixState::isUIActive()) {
+-      observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "stop-hook-chain");
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "pass-hook-chain");
+     }
+   }
+ 
 diff --git a/bridge/src/client/lockable_buffer.h b/bridge/src/client/lockable_buffer.h
 --- a/bridge/src/client/lockable_buffer.h
 +++ b/bridge/src/client/lockable_buffer.h
@@ -2808,6 +2856,35 @@ diff --git a/bridge/src/client/retention_runtime.h b/bridge/src/client/retention
          const auto wait = temporary.wait(20000);
          elapsed = 0;
          if (l4d2_observation::recoveryTiming) { QueryPerformanceCounter(&end); elapsed = l4d2_readback::microseconds(begin, end); }
+diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
+--- a/bridge/src/client/window.cpp
++++ b/bridge/src/client/window.cpp
+@@ -329,6 +329,13 @@
+ // External funcs //
+ ////////////////////
+ 
++bool allowSteamInputHookChain() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamHookChainPassThrough", false);
++  return enabled && g_steamKnown.load(std::memory_order_acquire)
++    && g_steamActive.load(std::memory_order_acquire);
++}
++
+ bool init() {
+   if(!attach()) {
+     Logger::err(kStr_init_attachErr);
+diff --git a/bridge/src/client/window.h b/bridge/src/client/window.h
+--- a/bridge/src/client/window.h
++++ b/bridge/src/client/window.h
+@@ -67,6 +67,8 @@
+ extern bool init();
+ // Optional Steam input diagnostics, sampled by Present without injecting input.
+ extern void sampleSteamInput();
++// Opt-in: preserve downstream hooks only during a real Steam activation.
++extern bool allowSteamInputHookChain();
+ // Undo the hooks established in init()
+ extern bool terminate();
+ // Set RemixWndProc for hwnd. Only one allowed at a time. Calling again implicitly undoes the previous
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp

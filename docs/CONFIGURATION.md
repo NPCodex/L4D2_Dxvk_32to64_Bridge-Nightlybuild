@@ -115,6 +115,7 @@ PR #4 第二轮进一步分离存储与失败：关闭 API wait 不分配线程�
 | `client.steamOverlayInput` | `False` | 尝试将 Overlay 激活状态与 Client 输入协调；会改变输入行为，诊断开关本身不启用此项。 | **新增、未解决的实验** |
 | `server.steamOverlayInput` | `False` | Host Overlay 输入捕获实验；需相关 Presenter 输入路径，不作日常推荐。 | **新增、未解决的实验** |
 | `server.steamNativeInput` | `False` | Host 原生焦点/输入实验，只有 Host Overlay 实验及输入路径生效才采用。 | **新增、未解决的实验** |
+| `client.steamHookChainPassThrough` | `False` | 仅在 Client Steam 实验启用且收到真实 Steam 激活通知时，保留三个线程 Win32 输入钩子的下游调用；不取消游戏消息、键盘轮询或 DirectInput 抑制。需 overrideCustomWinHooks 与既有实验路径；尚待实机验证。 | **新增、未验证的实验** |
 
 [API-WAIT-DIAGNOSTICS.conf](../config/API-WAIT-DIAGNOSTICS.conf) 会开启两端等待诊断并将输出周期设为 1000 ms。[NETWORK-COLOR-DIAGNOSTICS.conf](../config/NETWORK-COLOR-DIAGNOSTICS.conf) 及偏色安装脚本会开启两端偏色诊断（5000 ms）；测试结束后将两个 `colorDiagnostics` 改为 False 并重启。异步写日志只把磁盘写入移出生产路径，不能消除生产路径中的哈希、状态锁、查询和记录构造成本。
 

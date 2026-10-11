@@ -2,7 +2,7 @@ name: IPC C32 experimental bridge
 on:
   workflow_dispatch:
   push:
-    branches: ['codex/ipc-c32-development']
+    branches: ['codex/ipc-c32-development', 'codex/steam-overlay-hook-chain']
     paths: ['patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'tests/ipc-v2/c32*']
 permissions:
   contents: read
@@ -37,6 +37,7 @@ jobs:
           ./scripts/test_device_reset.ps1
           ./scripts/test_readback_recovery.ps1
           ./scripts/test_input_hooks.ps1
+          ./scripts/test_overlay_presenter.ps1
           ./scripts/test_adapter_information.ps1
           ./scripts/test_ati_texture_layout.ps1
           ./scripts/test_command_queue.ps1

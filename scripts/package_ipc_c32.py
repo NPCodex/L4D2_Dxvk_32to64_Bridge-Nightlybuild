@@ -46,6 +46,9 @@ receipt.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],
                files=hashes,gameplay_validated=False,status='AWAITING GAME VALIDATION')
 (out/'config').mkdir()
 shutil.copy2(ROOT/'config/bridge.conf',out/'config/bridge.conf')
+if (ROOT/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf').exists():
+    shutil.copy2(ROOT/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf',out/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf')
+    shutil.copy2(ROOT/'docs/STEAM-INPUT-INVESTIGATION.md',out/'STEAM-INPUT-INVESTIGATION.md')
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')
