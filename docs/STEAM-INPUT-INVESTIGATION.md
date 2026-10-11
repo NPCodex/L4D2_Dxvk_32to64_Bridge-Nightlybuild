@@ -1,6 +1,6 @@
 # Steam Overlay input investigation after v1.1
 
-Status: **Steam remains unusable. Query-chain delegation is verified but ineffective. Its hardware run again has game mouse capture; a one-option combination of existing mechanisms is pending, without a new binary or claimed fix.**
+Status: **Steam remains unusable. Query-chain and combined configurations are verified but ineffective. The combined run establishes initial Host mouse delivery, Host focus, full shortcut state and query delegation together. Steam input/window association evidence is now required.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
@@ -251,3 +251,11 @@ The next paired logs verify new build `62934c05672b373c`, enabled polling/WH cha
 During 34 post-activation samples, game capture remains present with Host focus: Host mouse observations are 0, versus 99 keyboard and 9 complete shortcut observations; Client mouse observations are 1,745. After switching away, 6 capture-free sample intervals provide 224 Host mouse observations, but no Host keyboard observations and no restored Host focus in the four foreground-game samples. Thus this run does not establish all mouse/keyboard/polling boundaries working together. Source/backend focus routing is independently confirmed by the corrected device log. No Steam deactivation callback occurs before clean shutdown.
 
 The bounded next comparison [combines the existing mechanisms](STEAM-POLL-CHAIN-EXPERIMENT.md#next-controlled-comparison-existing-binary-one-option-change) by changing only mouse handoff False -> True on the same binary, keeping C8 and other effective settings. This does not establish capture as the unique cause or promise a keyboard fix. If the combined boundary conditions execute and Steam still fails, obtain Steam's own renderer/UI or input-hook association evidence before additional behavioral patches. No new bridge binary is compiled solely for this feedback.
+
+### Combined comparison completed: still ineffective with initial routing conditions satisfied
+
+The user has now tested the combination and reports it ineffective. Matched `62934c05672b373c` binaries and C8 run with both passthrough flags and mouse handoff True; full uploaded config matches effective settings. All four query API delegation markers and all three WH_* delegation markers are observed. Capture is empty in all 24 active samples; no actual capture release/denial action is observed or claimed.
+
+The initial eight samples before switching away retain game foreground and Host focus, with 319 Host mouse/11 keyboard/3 Shift+Tab observations. Three Tab dispatches have both keys down in queue/async/keyboard-array readings. The first interval crosses activation and repeated observations are not distinct attempts. All active samples total 796 Host mouse/81 keyboard; subsequent focus loss after switching away is independently visible, but does not explain the initially unresponsive state. No Steam closure callback occurs before successful shutdown.
+
+This [combined hardware result](STEAM-POLL-CHAIN-EXPERIMENT.md#combined-hardware-result-concurrent-bridge-conditions-achieved-still-ineffective) replaces the pending comparison. Further configuration cycling is not supported by new evidence. Obtain Steam's own renderer/UI input/window association evidence before another behavior-changing candidate. DLL presence, the game-owned foreground root, Host focus and Bridge WndProc counters do not identify the actual proprietary input receiver or establish its rejection predicate. No new binary, main modification or gameplay/FPS claim accompanies this report.
