@@ -59,6 +59,6 @@ MSVC 14.29 `/O2 /MT /DNDEBUG /LARGEADDRESSAWARE`，x86 实际 Windows API。四�
 - [最终 CI 和构件](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38183934718)，artifact `11719400512`：全部上述测试、40 项 Python 和三个实际 Release 构建通过。
 - ZIP `l4d2-bridge-vbib-map-dev-0064e06ff547c453.zip`，SHA-256 `f40b0e248b661933f034a2dfd0e84f9015ddf25009557170df8f31cb3e9db8b3`。
 - 构件已下载验证三端 SHA、嵌入构建 ID、PE x86/x86/x64、x86 Host LAA 及实际 Release /O2/NDEBUG 编译记录。包内不含配置、DXVK、ReShade 或 retention DB。
-- <!-- DOWNLOAD_LINK -->
+- [直接下载测试 ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/ca40004aa39469e68088f415bf8356ea77f99b95/l4d2-bridge-vbib-map-dev-0064e06ff547c453.zip)；[中文安装/回退](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/blob/ca40004aa39469e68088f415bf8356ea77f99b95/l4d2-bridge-vbib-map-dev-0064e06ff547c453-INSTALL.zh-CN.md)。下载分支仅新增本次三个资产，上传后回读 SHA 验证通过。[Draft PR #9](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/pull/9)，上传记录见 download-receipt.json。
 
 建议先以同一包、同一 IPC 档位比较 mapped=True/False，默认 cache=32；AV 阶段开启现有 memoryMonitoring，FPS 阶段保持双方诊断一致。只有目标用户的实际 AV、连续空闲区、FPS/低帧及加载时间综合收益通过，才考虑后续采用。当前仅用于实机验证，不合并或发布正式 Release。

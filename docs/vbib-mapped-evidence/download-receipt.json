@@ -1,0 +1,12 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "ca40004aa39469e68088f415bf8356ea77f99b95",
+  "file": "l4d2-bridge-vbib-map-dev-0064e06ff547c453.zip",
+  "bytes": 1313642,
+  "sha256": "f40b0e248b661933f034a2dfd0e84f9015ddf25009557170df8f31cb3e9db8b3",
+  "immutable_download": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/ca40004aa39469e68088f415bf8356ea77f99b95/l4d2-bridge-vbib-map-dev-0064e06ff547c453.zip",
+  "readback_verified": true,
+  "source_commit": "eaeee728f2b09d71a213d0e113d66a8cd9f1d29b",
+  "build": "ldb-vbib-map-dev+0064e06ff547c453",
+  "draft_pr": 9
+}
