@@ -274,7 +274,7 @@ index 506c594..af333df 100644
            data = SharedHeap::getBuf(reference) + OffsetToLock;
          }
 diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridgecommand.cpp
-index 417eef3..d8199c3 100644
+index 417eef3..f4b8dcb 100644
 --- a/bridge/src/util/util_bridgecommand.cpp
 +++ b/bridge/src/util/util_bridgecommand.cpp
 @@ -1,248 +1,43 @@
@@ -503,7 +503,7 @@ index 417eef3..d8199c3 100644
 -  return channel.data->end_batch();
 +DECL_BRIDGE_FUNC(size_t,end_read_data){
 +  if(!s_readActive)failRead();
-+  s_readActive=false; // Publish packet teardown before the queue returns its credit.
++  s_readActive.store(false,std::memory_order_release); // Publish packet teardown before the queue returns its credit.
 +  try{getReaderChannel().commands->finishRead();return 0;}catch(...){failRead();}
  }
 -
@@ -828,7 +828,7 @@ index 417eef3..d8199c3 100644
  template class Bridge<BridgeId::Module>;
  template class Bridge<BridgeId::Device>;
 diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgecommand.h
-index d58aa13..89ad424 100644
+index d58aa13..82b71d2 100644
 --- a/bridge/src/util/util_bridgecommand.h
 +++ b/bridge/src/util/util_bridgecommand.h
 @@ -38,7 +38,7 @@
@@ -1383,10 +1383,10 @@ index d58aa13..89ad424 100644
 -  static inline bool s_inlineRead = false;
 -  static inline const DataT* s_inlineCursor = nullptr;
 -  static inline const DataT* s_inlineEnd = nullptr;
-+  static void startRead(const Header& h){if(!s_readActive){s_readHeader=h;s_readActive=true;}}
++  static void startRead(const Header& h){if(!s_readActive){s_readHeader=h;s_readActive.store(true,std::memory_order_release);}}
 +  static void startPendingRead(){Result r;auto h=getReaderChannel().commands->peek(r,1);if(r!=Result::Success)failRead();startRead(h);}
 +  [[noreturn]]static void failRead(){reportFault("invalid-message-body",0,0);throw BridgeReadFailure{};}
-+  static inline bool s_readActive=false;
++  static inline std::atomic<bool> s_readActive{false};
 +  static inline Header s_readHeader{};
 +  static inline thread_local bool s_commandOwned=false;
 +  static inline WriterChannel* s_pWriterChannel=nullptr;

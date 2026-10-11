@@ -6,6 +6,34 @@ using Module = Bridge<BridgeId::Module>;
 void require(bool b, const char* text) { if(!b) {std::fprintf(stderr,"C32_BRIDGE_FAIL %s\n",text);std::exit(2);} }
 constexpr unsigned Count=12000;
 bool streamOnly=false, threaded=false;
+template<class B> void concurrentReplies() {
+  constexpr unsigned Threads=4, PerThread=64;
+#ifdef REMIX_BRIDGE_CLIENT
+  std::vector<std::thread> callers;
+  for(unsigned t=0;t<Threads;++t) callers.emplace_back([t] {
+    for(unsigned n=0;n<PerThread;++n) {
+      const unsigned value=t*PerThread+n;
+      UID uid;
+      {typename B::Command c(Commands::IDirect3DQuery9_GetData,value);
+       uid=static_cast<UID>(c.get_uid());c.send_data(value);
+       require(c.finish()==Result::Success,"concurrent request finish");}
+      require(B::waitForCommand(Commands::Bridge_Response,1,nullptr,true,uid,10000)==Result::Success,"concurrent UID wait");
+      require(B::get_data()==value,"concurrent response ownership");
+      require(B::pop_front().pHandle==uid,"concurrent response header");
+    }
+  });
+  for(auto& caller:callers)caller.join();
+#else
+  for(unsigned n=0;n<Threads*PerThread;++n) {
+    require(B::waitForCommand(Commands::Bridge_Any,2000)==Result::Success,"concurrent request wait");
+    const auto h=B::pop_front();const auto uid=B::get_data();const auto value=B::get_data();
+    require(value==h.pHandle,"concurrent request ownership");B::end_read_data();
+    typename B::Command c(Commands::Bridge_Response,uid);c.send_data(value);
+    require(c.finish()==Result::Success,"concurrent reply finish");
+  }
+#endif
+  std::puts("IPC_FULL_CONCURRENT_UID_PASS 4 threads x 64 replies");
+}
 template<class B> void transfer() {
   ULONG64 cyclesBefore=0,cyclesAfter=0;QueryThreadCycleTime(GetCurrentThread(),&cyclesBefore);
   const auto begin=std::chrono::steady_clock::now();
@@ -158,7 +186,9 @@ int wmain(int argc,wchar_t** argv) {
 #endif
     require(argc==3,"GUID/mode argument");streamOnly=std::wstring(argv[2])==L"stream";threaded=std::wstring(argv[2])==L"threaded";
     require(gUniqueIdentifier.setGuid(&argv[1]),"GUID valid");
-    const size_t memory=2*1024*1024;
+    // C32: 32768 DWORDs. Full: 65600-byte lease metadata + 128 KiB payload.
+    // Equal usable payload capacity, mapping budget, block geometry and caller.
+    const size_t memory=196672;
 #ifdef REMIX_BRIDGE_CLIENT
     WriterChannel dw("DeviceForward",memory,256,32768),mw("ModuleForward",memory,256,32768);
     ReaderChannel dr("DeviceReply",memory,256,32768),mr("ModuleReply",memory,256,32768);
@@ -171,6 +201,7 @@ int wmain(int argc,wchar_t** argv) {
     Device::install(&dw,&dr);Module::install(&mw,&mr);
     if(std::wstring(argv[2])==L"upload-wrap"){uploadWrap<Device>();uploadWrap<Module>();}
     else if(std::wstring(argv[2])==L"surface-boundaries"){surfaceBoundaries<Device>();surfaceBoundaries<Module>();}
+    else if(std::wstring(argv[2])==L"concurrent-replies"){concurrentReplies<Device>();concurrentReplies<Module>();}
     else {transfer<Device>();transfer<Module>();}
     std::puts("IPC_FULL_BRIDGE_PASS");return 0;
   }catch(const std::exception& e){std::fprintf(stderr,"IPC_FULL_BRIDGE_EXCEPTION %s\n",e.what());return 3;}catch(...){std::puts("IPC_FULL_BRIDGE_EXCEPTION non-std");return 3;}

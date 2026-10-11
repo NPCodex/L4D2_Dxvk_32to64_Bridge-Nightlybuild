@@ -17,6 +17,11 @@ jobs:
           repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
           ref: 8730d84b77c596efdabfad54b7458a8f0aeb01a4
           path: .deps/ipc-v2-pr6
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 2ce9f9b0e50ca9bc9af592478769fa8374596344
+          path: .deps/c32-frozen
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -33,10 +38,17 @@ jobs:
       - name: Existing resource and native regressions
         shell: powershell
         run: |
-          foreach ($test in @('buffer_contract','buffer_shadow_arena','volume_layout','device_reset','readback_recovery','input_hooks','adapter_information','ati_texture_layout','command_queue')) {
+          foreach ($test in @('buffer_contract','buffer_shadow_arena','volume_layout','device_reset','readback_recovery','input_hooks','adapter_information','ati_texture_layout','command_queue','runtime_observation','exception_diagnostics','color_diagnostics','data_diagnostics','diagnostics','host_diagnostics','x86_backend','overlay_presenter','api_wait_diagnostics')) {
             & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
             if ($LASTEXITCODE -ne 0) { throw "$test failed" }
           }
+          & powershell.exe -NoProfile -File ./scripts/test_pageblock_gc.ps1 -SkipPluginTests
+          if ($LASTEXITCODE -ne 0) { throw 'PageBlock GC failed' }
+          & powershell.exe -NoProfile -File ./scripts/test_host_diagnostics.ps1 -Platform x86
+          if ($LASTEXITCODE -ne 0) { throw 'Host32 diagnostics failed' }
+      - name: Repeat published C1 C32 versus full with equal capacity and identical caller
+        shell: powershell
+        run: ./scripts/test_ipc_full_comparison.ps1
       - name: Python contracts
         run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Build and verify matched experimental Release bridge
@@ -52,6 +64,7 @@ jobs:
             dist/SHA256SUMS.txt
             work/ipc-full-build.json
             work/ipc-full-native/
+            work/ipc-full-comparison/
             .deps/dxvk-remix/bridge/_ipcFull_*/meson-logs/
           include-hidden-files: true
           if-no-files-found: error

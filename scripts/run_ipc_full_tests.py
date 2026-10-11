@@ -10,10 +10,12 @@ ROOT=Path(__file__).resolve().parents[1]
 out=ROOT/'work/ipc-full-native'
 for arch in ('x86','x64'):
     subprocess.run([out/f'full-{arch}.exe'],check=True,timeout=20)
+    peer='x64' if arch=='x86' else 'x86'
+    subprocess.run([out/f'core-{arch}.exe','--host',out/f'core-{peer}.exe'],check=True,timeout=120)
 for mode in ('abort','oversize','underfill','overrun'):
     subprocess.run([out/'transport-client32.exe',mode],check=True,timeout=10)
 rows=[]
-modes=('stream','mixed','threaded','upload-wrap','surface-boundaries')
+modes=('stream','mixed','threaded','upload-wrap','surface-boundaries','concurrent-replies')
 for iteration in range(3):
     for batch in (('1','32') if iteration%2==0 else ('32','1')):
         for arch in ('32','64'):

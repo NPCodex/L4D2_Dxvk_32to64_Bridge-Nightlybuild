@@ -17,6 +17,8 @@ if ($CompileRole) {
     if ($LASTEXITCODE -ne 0) { throw "Full transport compile: $CompileRole" }
     & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /wd4324 /DNOMINMAX "/I$out" "$root/tests/ipc-v2/full.cpp" "/Fe:full-$arch.exe"
     if ($LASTEXITCODE -ne 0) { throw 'Full policy compile' }
+    & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /wd4324 /DNOMINMAX "/I$out/ipc_v2" "$root/tests/ipc-v2/native.cpp" "/Fe:core-$arch.exe"
+    if ($LASTEXITCODE -ne 0) { throw 'Existing v2 core regression compile' }
   } finally { Pop-Location }
 } else {
   python "$PSScriptRoot/generate_ipc_full_test.py"
