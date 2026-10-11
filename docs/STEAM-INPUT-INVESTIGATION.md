@@ -1,6 +1,6 @@
 # Steam Overlay input investigation after v1.1
 
-Status: **resumed with a default-off Client hook-chain correction experiment; Steam support is not yet hardware validated.**
+Status: **the resumed hook-chain candidate did not fix Steam according to user hardware feedback; execution and route diagnostics are pending.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
@@ -215,3 +215,9 @@ Rollback by restoring the matched three old binaries and configuration, or disab
 Evidence: [native pass excerpts](steam-input-evidence/38129815967-native-pass.log), [complete IPC repetitions](steam-input-evidence/38129815967-ipc-raw.json), [fault cases](steam-input-evidence/38129815967-ipc-faults.json), [upload/checksum receipt](steam-input-evidence/hook-chain-upload-receipt.json).
 
 main remains `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`; the IPC development branch remains `00007e8762385704afdacabea6e48444d798d27a`. No formal version, tag, release or earlier ZIP was overwritten. Status: **AWAITING GAME VALIDATION** for Steam; the source defect in downstream hook delegation is corrected, while Steam opening/closing/input compatibility is still unproven.
+
+### Hardware feedback: hook-chain candidate ineffective
+
+The user reports the resumed candidate is ineffective. This establishes that the offered experiment did not resolve the reported Steam problem; it must not be presented as working Steam support. No paired logs or effective configuration accompany this feedback, so actual build identity, activation delivery, pass-hook-chain execution, foreground/focus and mouse capture in this run are not yet verified. The report does not prove either that hook-chain delegation never executed or that no relevant hook lies downstream.
+
+Keep the experimental branch unmerged. Revert the new flag and client/server Steam capture plus native-input flags, or restore the previous matched IPC bridge/config. Preserve this failed run's Client log, corresponding Host log and actual bridge.conf before restarting. The next investigation must first distinguish missing activation/relay from executed-but-insufficient delegation, then inspect actual input receiver and mouse capture. Previous failed keyboard-state/focus experiments remain excluded as default next steps. No new speculative input change or binary is offered solely from this brief feedback. Native test results remain mechanics evidence, not game acceptance.
