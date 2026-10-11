@@ -64,6 +64,7 @@ class Mapping {
   void* m_data = nullptr;
   size_t m_bytes = 0;
   bool m_owner = false;
+  bool m_created = false;
   std::string m_name;
 #ifdef _WIN32
   HANDLE m_handle = nullptr;
@@ -71,34 +72,41 @@ class Mapping {
   int m_handle = -1;
 #endif
 public:
-  Mapping(const std::string& name, size_t bytes, bool create)
+  Mapping(const std::string& name, size_t bytes, bool create, bool allowExisting = false)
     : m_bytes(bytes), m_owner(create) {
 #ifdef _WIN32
     m_name = "Local\\LDB-IPC-V2-" + name;
     m_handle = create ? CreateFileMappingA(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
       0, static_cast<DWORD>(bytes), m_name.c_str()) : OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, m_name.c_str());
     if (!m_handle) { throw std::runtime_error("mapping open/create failed"); }
-    if (create && GetLastError() == ERROR_ALREADY_EXISTS) {
+    m_created = create && GetLastError() != ERROR_ALREADY_EXISTS;
+    if (create && !m_created && !allowExisting) {
       CloseHandle(m_handle); m_handle = nullptr;
       throw std::runtime_error("mapping already exists");
     }
+    m_owner = m_created;
     m_data = MapViewOfFile(m_handle, FILE_MAP_ALL_ACCESS, 0, 0, bytes);
     if (!m_data) { CloseHandle(m_handle); m_handle = nullptr; throw std::runtime_error("mapping view failed"); }
 #else
     m_name = "/LDB-IPC-V2-" + name;
     m_handle = shm_open(m_name.c_str(), create ? O_CREAT | O_EXCL | O_RDWR : O_RDWR, 0600);
+    m_created = create && m_handle >= 0;
+    if (m_handle < 0 && create && allowExisting && errno == EEXIST) {
+      m_handle = shm_open(m_name.c_str(), O_RDWR, 0600);
+    }
+    m_owner = m_created;
     if (m_handle < 0) { throw std::runtime_error("mapping open/create failed"); }
-    if (create && ftruncate(m_handle, static_cast<off_t>(bytes))) {
+    if (m_created && ftruncate(m_handle, static_cast<off_t>(bytes))) {
       close(m_handle); shm_unlink(m_name.c_str()); throw std::runtime_error("mapping resize failed");
     }
     struct stat info {};
     if (fstat(m_handle, &info) || info.st_size != static_cast<off_t>(bytes)) {
-      close(m_handle); if (create) { shm_unlink(m_name.c_str()); }
+      close(m_handle); if (m_created) { shm_unlink(m_name.c_str()); }
       throw std::runtime_error("mapping size mismatch");
     }
     m_data = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, m_handle, 0);
     if (m_data == MAP_FAILED) {
-      close(m_handle); if (create) { shm_unlink(m_name.c_str()); }
+      close(m_handle); if (m_created) { shm_unlink(m_name.c_str()); }
       throw std::runtime_error("mapping view failed");
     }
 #endif
@@ -115,6 +123,7 @@ public:
     if (m_owner) { shm_unlink(m_name.c_str()); }
 #endif
   }
+  bool created() const { return m_created; }
   void* data() const { return m_data; }
   size_t bytes() const { return m_bytes; }
 };

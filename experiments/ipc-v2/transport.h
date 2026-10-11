@@ -7,6 +7,7 @@
 #include <cstring>
 #include <limits>
 #include <new>
+#include <mutex>
 #include <utility>
 #if __has_include("ipc_v2_build.h")
 #include "ipc_v2_build.h"
@@ -21,7 +22,7 @@
 
 namespace ldb_ipc_v2 {
 constexpr uint32_t kMagic = 0x32504349;
-constexpr uint32_t kVersion = 0x00020002;
+constexpr uint32_t kVersion = 0x00020004;
 constexpr uint32_t kAlignment = 64;
 constexpr uint32_t aligned(uint32_t n, uint32_t alignment = 4) {
   return (n + alignment - 1) & ~(alignment - 1);
@@ -104,17 +105,22 @@ class Channel {
     if (bytes > 256 * 1024 * 1024) { throw std::invalid_argument("IPC v2 mapping budget"); }
     return static_cast<uint32_t>(bytes);
   }
+#ifdef _WIN32
+  HANDLE m_peerHandle = nullptr;
+  uint32_t m_peerPid = 0;
+#endif
+  std::timed_mutex m_waitMutex;
   Mapping m_mapping;
   Shared& m_shared;
   Event m_messages;
   Event m_credits;
 public:
-  Channel(const std::string& name, const Config& config, bool create)
-    : m_mapping(name, mappingBytes(config), create)
+  Channel(const std::string& name, const Config& config, bool create, bool createIfAbsent = false)
+    : m_mapping(name, mappingBytes(config), create || createIfAbsent, createIfAbsent)
     , m_shared(*static_cast<Shared*>(m_mapping.data()))
     , m_messages(m_shared.messages, name + "-messages")
     , m_credits(m_shared.credits, name + "-credits") {
-    if (create) {
+    if (m_mapping.created()) {
       new (&m_shared) Shared {};
       m_shared.config = config;
       m_shared.bytes = static_cast<uint32_t>(m_mapping.bytes());
@@ -134,6 +140,25 @@ public:
         throw std::runtime_error("IPC v2 protocol/build/config mismatch");
       }
     }
+  }
+  ~Channel() {
+#ifdef _WIN32
+    if (m_peerHandle) CloseHandle(m_peerHandle);
+#endif
+  }
+  bool peerIsAlive(uint32_t pid) {
+#ifdef _WIN32
+    // Keep a handle to the original process object; PID reuse cannot resurrect it.
+    if (pid && !m_peerHandle) {
+      m_peerHandle = OpenProcess(SYNCHRONIZE, FALSE, pid);
+      if (!m_peerHandle) return GetLastError() != ERROR_INVALID_PARAMETER;
+      m_peerPid = pid;
+    }
+    if (m_peerHandle) return pid == m_peerPid && WaitForSingleObject(m_peerHandle, 0) == WAIT_TIMEOUT;
+    return true;
+#else
+    return peerAlive(pid);
+#endif
   }
   Shared& shared() { return m_shared; }
   uint32_t bytes() const { return static_cast<uint32_t>(m_mapping.bytes()); }
@@ -157,6 +182,12 @@ public:
       uint32_t timeoutMs, uint32_t spinCount, uint32_t peerPid, Metrics& metrics) {
     if (!timeoutMs) { return Result::Invalid; }
     const uint64_t start = milliseconds();
+    if (predicate()) return Result::Success;
+    // Production reply waiters may be different Client threads. Only one may
+    // register on this single-waiter event at a time; no lock on ready data.
+    std::unique_lock<std::timed_mutex> waitLock(m_waitMutex, std::defer_lock);
+    if (!waitLock.try_lock_for(std::chrono::milliseconds(timeoutMs))) return Result::Timeout;
+    if (predicate()) return Result::Success;
     for (uint32_t i = 0; i < spinCount; ++i) {
       if (predicate()) { return Result::Success; }
       count(metrics.spins); pauseCpu();
@@ -173,7 +204,7 @@ public:
       if (predicate()) { return Result::Success; }
       const uint64_t elapsed = milliseconds() - start;
       if (elapsed >= timeoutMs) { return predicate() ? Result::Success : Result::Timeout; }
-      if (!peerAlive(peerPid)) { fault(Fault::PeerExited); return Result::Fault; }
+      if (!peerIsAlive(peerPid)) { fault(Fault::PeerExited); return Result::Fault; }
       count(metrics.waits);
       if (!event.wait(epoch, static_cast<uint32_t>(std::min<uint64_t>(10, timeoutMs - elapsed)))) {
         if (predicate()) { return Result::Success; }
@@ -202,9 +233,8 @@ public:
     , m_record(other.m_record), m_valid(other.m_valid) { other.m_writer = nullptr; other.m_valid = false; }
   ~Encoder();
   bool valid() const { return m_valid; }
-  // Borrowed only while this encoder owns its unpublished record.
-  const uint8_t* bodyData() const { return m_valid ? m_begin + sizeof(Record) : nullptr; }
   uint32_t bodyBytes() const { return m_offset - sizeof(Record); }
+  uint8_t* bodyData() const { return m_begin + sizeof(Record); }
   bool scalar(uint32_t value) {
     if (!m_valid || sizeof(value) > m_limit - m_offset) { m_valid = false; return false; }
     std::memcpy(m_begin + m_offset, &value, sizeof(value)); m_offset += sizeof(value); return true;
