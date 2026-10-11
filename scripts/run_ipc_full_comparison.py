@@ -44,7 +44,12 @@ for batch in batches:
             entry=dict(batch=batch,host_arch=arch,mode=mode)
             for metric in ('client_cycles_per_command','host_cycles_per_command','client_wall_ns_per_command','host_wall_ns_per_command'):
                 medians={variant:statistics.median(r[metric] for r in rows if not r['warmup'] and r['variant']==variant and r['batch']==batch and r['host_arch']==arch and r['mode']==mode) for variant in dirs}
-                entry[metric]=dict(medians,full_change_percent=(medians['Full']/medians['C32']-1)*100)
+                paired=[]
+                for iteration in range(1,6):
+                    values={r['variant']:r[metric] for r in rows if r['iteration']==iteration and r['batch']==batch and r['host_arch']==arch and r['mode']==mode}
+                    paired.append((values['Full']/values['C32']-1)*100)
+                entry[metric]=dict(medians,full_change_percent=(medians['Full']/medians['C32']-1)*100,
+                                   paired_median_percent=statistics.median(paired),paired_change_percent=paired)
             summary.append(entry)
 checksums={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in dirs.values() for p in folder.glob('transport-*.exe')}
 receipt=dict(baseline='published all-gear C32 00007e8 (production d59493c)',rounds=5,warmup_rounds=1,mapping_budget_bytes=2097152,

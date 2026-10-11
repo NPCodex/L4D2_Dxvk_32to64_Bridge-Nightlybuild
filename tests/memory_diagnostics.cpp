@@ -94,16 +94,16 @@ int main(int argc, char** argv) {
   for (size_t i = 0; i < 8192; ++i) {
     if (vertex[i] != 0) { return 3; }
   }
-  delete[] surface; released(4096, Kind::Surface);
-  delete[] vertex; released(8192, Kind::Vertex);
-  delete[] index; released(2048, Kind::Index);
+  surface.reset(); released(4096, Kind::Surface);
+  vertex.reset(); released(8192, Kind::Vertex);
+  index.reset(); released(2048, Kind::Index);
   if (bytes[0] != 0 || bytes[1] != 0 || bytes[2] != 0 ||
       objects[0] != 0 || objects[1] != 0 || objects[2] != 0) { return 4; }
   if (freedBytes[1] != 8192 || freedBytes[2] != 2048 || freeCount[1] != 1 || freeCount[2] != 1) { return 34; }
   bool failed = false;
   try {
     auto impossible = l4d2_buffer::allocate(std::numeric_limits<size_t>::max(), Kind::Surface);
-    delete[] impossible;
+    impossible.reset();
   } catch (const std::bad_alloc&) { failed = true; }
   if (!failed || bytes[0] != 0 || objects[0] != 0) { return 5; }
   const auto shadowResult = testShadowCache();
