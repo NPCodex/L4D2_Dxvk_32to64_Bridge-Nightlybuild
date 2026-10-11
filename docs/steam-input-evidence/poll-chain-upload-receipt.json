@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "9c5bceaf9dde7007e5aa18e057a345aba7521c8e",
+  "zip": "l4d2-bridge-steam-poll-chain-dev-62934c05672b373c-r38182245577.zip",
+  "sha256": "2479e270aa8b7d26b9587f183e7fc589c55582c1885315e587feb1cd128bc484",
+  "bytes": 1359397,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/9c5bceaf9dde7007e5aa18e057a345aba7521c8e/l4d2-bridge-steam-poll-chain-dev-62934c05672b373c-r38182245577.zip",
+  "build": "ldb-ipc-c32-dev+62934c05672b373c"
+}

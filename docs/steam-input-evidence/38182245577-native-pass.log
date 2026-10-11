@@ -1,0 +1,295 @@
+2026-10-11T22:55:55.3633464Z C32_PASS batches/boundaries/lazy/abort/external/wrap/cancel/fault/protocol/malformed/full-pool
+2026-10-11T22:55:57.6480155Z C32_PASS batches/boundaries/lazy/abort/external/wrap/cancel/fault/protocol/malformed/full-pool
+2026-10-11T22:55:58.4187588Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=stream
+2026-10-11T22:55:58.8100696Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=mixed
+2026-10-11T22:55:59.1997361Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=threaded
+2026-10-11T22:55:59.2267266Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=upload-wrap
+2026-10-11T22:55:59.2415356Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=surface-boundaries
+2026-10-11T22:55:59.2732291Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=surface-small-generic
+2026-10-11T22:55:59.3066430Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x32 mode=surface-small-declared
+2026-10-11T22:55:59.6855007Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=stream
+2026-10-11T22:56:00.0763742Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=mixed
+2026-10-11T22:56:00.4664474Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=threaded
+2026-10-11T22:56:00.4923650Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=upload-wrap
+2026-10-11T22:56:00.5085405Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:00.5395420Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:00.5711371Z C32_CROSS_PROCESS_PASS iteration=0 batch=1 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:00.9526742Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=stream
+2026-10-11T22:56:01.3444879Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=mixed
+2026-10-11T22:56:01.7189952Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=threaded
+2026-10-11T22:56:01.7469659Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=upload-wrap
+2026-10-11T22:56:01.7616816Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:01.7935282Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:01.8258488Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:02.2057393Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=stream
+2026-10-11T22:56:02.5988261Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=mixed
+2026-10-11T22:56:02.9888257Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=threaded
+2026-10-11T22:56:03.0158037Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=upload-wrap
+2026-10-11T22:56:03.0307444Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:03.0585689Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:03.0907468Z C32_CROSS_PROCESS_PASS iteration=0 batch=2 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:03.4585254Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=stream
+2026-10-11T22:56:03.8500172Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=mixed
+2026-10-11T22:56:04.2396702Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=threaded
+2026-10-11T22:56:04.2665986Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=upload-wrap
+2026-10-11T22:56:04.2817670Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:04.3116838Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:04.3446859Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:04.7097873Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=stream
+2026-10-11T22:56:05.1008448Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=mixed
+2026-10-11T22:56:05.4909784Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=threaded
+2026-10-11T22:56:05.5184937Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=upload-wrap
+2026-10-11T22:56:05.5341864Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:05.5656166Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:05.5977635Z C32_CROSS_PROCESS_PASS iteration=0 batch=4 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:05.9761677Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=stream
+2026-10-11T22:56:06.3668748Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=mixed
+2026-10-11T22:56:06.7572410Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=threaded
+2026-10-11T22:56:06.7850228Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=upload-wrap
+2026-10-11T22:56:06.8002557Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:06.8325031Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:06.8648187Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:07.2420298Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=stream
+2026-10-11T22:56:07.6342090Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=mixed
+2026-10-11T22:56:08.0247669Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=threaded
+2026-10-11T22:56:08.0537045Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=upload-wrap
+2026-10-11T22:56:08.0689587Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:08.0977951Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:08.1311814Z C32_CROSS_PROCESS_PASS iteration=0 batch=8 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:08.5103488Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=stream
+2026-10-11T22:56:08.9020071Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=mixed
+2026-10-11T22:56:09.2916338Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=threaded
+2026-10-11T22:56:09.3200334Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=upload-wrap
+2026-10-11T22:56:09.3356244Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:09.3640526Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:09.3983576Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:09.7767740Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=stream
+2026-10-11T22:56:10.1682616Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=mixed
+2026-10-11T22:56:10.5585512Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=threaded
+2026-10-11T22:56:10.5867278Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=upload-wrap
+2026-10-11T22:56:10.6027931Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:10.6295747Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:10.6586924Z C32_CROSS_PROCESS_PASS iteration=0 batch=16 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:11.0456496Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=stream
+2026-10-11T22:56:11.4363807Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=mixed
+2026-10-11T22:56:11.8260523Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=threaded
+2026-10-11T22:56:11.8524141Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=upload-wrap
+2026-10-11T22:56:11.8676951Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:11.9001965Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:11.9333115Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:12.3110019Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=stream
+2026-10-11T22:56:12.6877637Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=mixed
+2026-10-11T22:56:13.0775887Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=threaded
+2026-10-11T22:56:13.1065538Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=upload-wrap
+2026-10-11T22:56:13.1232047Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:13.1563626Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:13.1904407Z C32_CROSS_PROCESS_PASS iteration=0 batch=32 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:13.2223235Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:13.2540862Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:13.2700390Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:13.2954990Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=upload-wrap
+2026-10-11T22:56:13.6872388Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=threaded
+2026-10-11T22:56:14.0791918Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=mixed
+2026-10-11T22:56:14.4697829Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x32 mode=stream
+2026-10-11T22:56:14.4977532Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:14.5275490Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:14.5438952Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:14.5686949Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=upload-wrap
+2026-10-11T22:56:14.9537261Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=threaded
+2026-10-11T22:56:15.3448824Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=mixed
+2026-10-11T22:56:15.7361849Z C32_CROSS_PROCESS_PASS iteration=1 batch=32 x86->x64 mode=stream
+2026-10-11T22:56:15.7694493Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:15.8028817Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:15.8183506Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:15.8419403Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=upload-wrap
+2026-10-11T22:56:16.2191274Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=threaded
+2026-10-11T22:56:16.6114966Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=mixed
+2026-10-11T22:56:17.0017676Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x32 mode=stream
+2026-10-11T22:56:17.0295089Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:17.0630199Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:17.0794715Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:17.1044684Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=upload-wrap
+2026-10-11T22:56:17.4704657Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=threaded
+2026-10-11T22:56:17.8622857Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=mixed
+2026-10-11T22:56:18.2533655Z C32_CROSS_PROCESS_PASS iteration=1 batch=16 x86->x64 mode=stream
+2026-10-11T22:56:18.2872880Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:18.3199812Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:18.3366377Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:18.3603609Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=upload-wrap
+2026-10-11T22:56:18.7374998Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=threaded
+2026-10-11T22:56:19.1294148Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=mixed
+2026-10-11T22:56:19.5195322Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x32 mode=stream
+2026-10-11T22:56:19.5540106Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:19.5868874Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:19.6030305Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:19.6277511Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=upload-wrap
+2026-10-11T22:56:20.0206757Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=threaded
+2026-10-11T22:56:20.4120775Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=mixed
+2026-10-11T22:56:20.7891697Z C32_CROSS_PROCESS_PASS iteration=1 batch=8 x86->x64 mode=stream
+2026-10-11T22:56:20.8231089Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:20.8567555Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:20.8728474Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:20.8983940Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=upload-wrap
+2026-10-11T22:56:21.2894065Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=threaded
+2026-10-11T22:56:21.6659123Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=mixed
+2026-10-11T22:56:22.0559509Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x32 mode=stream
+2026-10-11T22:56:22.0895556Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:22.1240456Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:22.1411064Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:22.1665632Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=upload-wrap
+2026-10-11T22:56:22.5571883Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=threaded
+2026-10-11T22:56:22.9024233Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=mixed
+2026-10-11T22:56:23.2777980Z C32_CROSS_PROCESS_PASS iteration=1 batch=4 x86->x64 mode=stream
+2026-10-11T22:56:23.3130420Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:23.3458953Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:23.3623074Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:23.3875712Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=upload-wrap
+2026-10-11T22:56:23.7781312Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=threaded
+2026-10-11T22:56:24.1694689Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=mixed
+2026-10-11T22:56:24.5598090Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x32 mode=stream
+2026-10-11T22:56:24.5951400Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:24.6265522Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:24.6431869Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:24.6684175Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=upload-wrap
+2026-10-11T22:56:25.0602368Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=threaded
+2026-10-11T22:56:25.4515817Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=mixed
+2026-10-11T22:56:25.8420387Z C32_CROSS_PROCESS_PASS iteration=1 batch=2 x86->x64 mode=stream
+2026-10-11T22:56:25.8758374Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:25.9047874Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:25.9211163Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:25.9458965Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=upload-wrap
+2026-10-11T22:56:26.3264173Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=threaded
+2026-10-11T22:56:26.7178069Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=mixed
+2026-10-11T22:56:27.1084788Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x32 mode=stream
+2026-10-11T22:56:27.1440561Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:27.1778321Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:27.1946935Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:27.2206181Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=upload-wrap
+2026-10-11T22:56:27.5625908Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=threaded
+2026-10-11T22:56:27.9538354Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=mixed
+2026-10-11T22:56:28.3446527Z C32_CROSS_PROCESS_PASS iteration=1 batch=1 x86->x64 mode=stream
+2026-10-11T22:56:28.7358678Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=stream
+2026-10-11T22:56:29.1269250Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=mixed
+2026-10-11T22:56:29.5164923Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=threaded
+2026-10-11T22:56:29.5445640Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=upload-wrap
+2026-10-11T22:56:29.5612963Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:29.5946882Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:29.6284042Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:30.0176613Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=stream
+2026-10-11T22:56:30.4085134Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=mixed
+2026-10-11T22:56:30.7992355Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=threaded
+2026-10-11T22:56:30.8306500Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=upload-wrap
+2026-10-11T22:56:30.8519163Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:30.8846724Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:30.9198752Z C32_CROSS_PROCESS_PASS iteration=2 batch=1 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:31.3001671Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=stream
+2026-10-11T22:56:31.6761356Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=mixed
+2026-10-11T22:56:32.0651748Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=threaded
+2026-10-11T22:56:32.0940776Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=upload-wrap
+2026-10-11T22:56:32.1127432Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:32.1471553Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:32.1815335Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:32.5681394Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=stream
+2026-10-11T22:56:32.9594826Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=mixed
+2026-10-11T22:56:33.3348737Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=threaded
+2026-10-11T22:56:33.3664846Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=upload-wrap
+2026-10-11T22:56:33.3886611Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:33.4325778Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:33.4645886Z C32_CROSS_PROCESS_PASS iteration=2 batch=2 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:33.8501172Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=stream
+2026-10-11T22:56:34.2414832Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=mixed
+2026-10-11T22:56:34.6307695Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=threaded
+2026-10-11T22:56:34.6595429Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=upload-wrap
+2026-10-11T22:56:34.6766474Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:34.7095932Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:34.7436089Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:35.1314349Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=stream
+2026-10-11T22:56:35.5226871Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=mixed
+2026-10-11T22:56:35.9120749Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=threaded
+2026-10-11T22:56:35.9407822Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=upload-wrap
+2026-10-11T22:56:35.9583367Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:35.9932047Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:36.0280041Z C32_CROSS_PROCESS_PASS iteration=2 batch=4 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:36.4131938Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=stream
+2026-10-11T22:56:36.8043081Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=mixed
+2026-10-11T22:56:37.1944151Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=threaded
+2026-10-11T22:56:37.2220844Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=upload-wrap
+2026-10-11T22:56:37.2387700Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:37.2683954Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:37.3026038Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:37.6797695Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=stream
+2026-10-11T22:56:38.0705791Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=mixed
+2026-10-11T22:56:38.4614807Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=threaded
+2026-10-11T22:56:38.4898588Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=upload-wrap
+2026-10-11T22:56:38.5081094Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:38.5364840Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:38.5717384Z C32_CROSS_PROCESS_PASS iteration=2 batch=8 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:38.9636791Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=stream
+2026-10-11T22:56:39.3546059Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=mixed
+2026-10-11T22:56:39.7443825Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=threaded
+2026-10-11T22:56:39.7742047Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=upload-wrap
+2026-10-11T22:56:39.7913420Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:39.8245070Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:39.8574044Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:40.2457178Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=stream
+2026-10-11T22:56:40.6371509Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=mixed
+2026-10-11T22:56:40.9962090Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=threaded
+2026-10-11T22:56:41.0246315Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=upload-wrap
+2026-10-11T22:56:41.0428721Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:41.0774212Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:41.1125186Z C32_CROSS_PROCESS_PASS iteration=2 batch=16 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:41.4967876Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=stream
+2026-10-11T22:56:41.8881352Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=mixed
+2026-10-11T22:56:42.2775394Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=threaded
+2026-10-11T22:56:42.3076296Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=upload-wrap
+2026-10-11T22:56:42.3255143Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=surface-boundaries
+2026-10-11T22:56:42.3602625Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=surface-small-generic
+2026-10-11T22:56:42.3934784Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x32 mode=surface-small-declared
+2026-10-11T22:56:42.7799653Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=stream
+2026-10-11T22:56:43.1708254Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=mixed
+2026-10-11T22:56:43.5455993Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=threaded
+2026-10-11T22:56:43.5740393Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=upload-wrap
+2026-10-11T22:56:43.5921382Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=surface-boundaries
+2026-10-11T22:56:43.6268687Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=surface-small-generic
+2026-10-11T22:56:43.6619655Z C32_CROSS_PROCESS_PASS iteration=2 batch=32 x86->x64 mode=surface-small-declared
+2026-10-11T22:56:53.0732787Z PASS: 59 Volume layout/transfer cases, game writes through API pitches, unchanged wire, padded backend and partial-box guards; padded source and invalid stride rejection.
+2026-10-11T22:56:55.3648579Z PASS: 59 Volume layout/transfer cases, game writes through API pitches, unchanged wire, padded backend and partial-box guards; padded source and invalid stride rejection.
+2026-10-11T22:56:58.0275803Z PASS: failed reset, repeated failure, success retry, preserved cache, timeout without read/pop, late success rejected
+2026-10-11T22:56:58.0276678Z PASS: backbuffers 1->2->1, aliased RT0, depth, ordered teardown, repeated unlink, retained external reference
+2026-10-11T22:56:58.0277670Z PASS: first-candidate query leak negative control, 150000 query references balanced, RT/depth/explicit targets, COM identity aliases, null/mismatch/failure results
+2026-10-11T22:57:00.4602174Z PASS: failed reset, repeated failure, success retry, preserved cache, timeout without read/pop, late success rejected
+2026-10-11T22:57:00.4603338Z PASS: backbuffers 1->2->1, aliased RT0, depth, ordered teardown, repeated unlink, retained external reference
+2026-10-11T22:57:00.4604739Z PASS: first-candidate query leak negative control, 150000 query references balanced, RT/depth/explicit targets, COM identity aliases, null/mismatch/failure results
+2026-10-11T22:57:05.7090570Z PASS: compressed block layout, logical rows without padding, mismatch offsets and deterministic selection
+2026-10-11T22:57:10.1145489Z PASS: 18 separate-process Q8W8V8U8/ATI1/ATI2 unload/reconstruction cases and explicit read/pitch/unlock failures; child has no original Client backing
+2026-10-11T22:57:10.1146570Z PASS: 25 independent child-process mock readbacks, reference-only corruption detection, failure stages and original backing retained
+2026-10-11T22:57:10.1147925Z PASS: real backing deletion, hash-only child-process recovery, complete mip restoration, permanent KEEP, cross-run Strong/Content DB hits, overwrite without promotion, hash/readback failures and session fallback (independent mock backend)
+2026-10-11T22:57:13.3728772Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\input-hooks-test-x86\input-hooks-test.exe
+2026-10-11T22:57:13.3828477Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:13.3901581Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:13.3968436Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:13.4035960Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:13.4102770Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:13.4170028Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3599770Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\input-hooks-test-x64\input-hooks-test.exe
+2026-10-11T22:57:16.3672975Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3726444Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3777255Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3828427Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3879938Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:16.3931760Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-11T22:57:19.9719404Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\fake-x86.dll
+2026-10-11T22:57:19.9735556Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\overlay-x86.exe
+2026-10-11T22:57:23.1469163Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\fake-x64.dll
+2026-10-11T22:57:23.1490207Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\overlay-x64.exe
+2026-10-11T22:57:23.9499838Z PASS: host-owned cross-process child, capture, reset routing, resizing and teardown (64-bit)
+2026-10-11T22:57:24.4026755Z PASS: host-owned cross-process child, capture, reset routing, resizing and teardown (32-bit)
+2026-10-11T22:57:29.4479711Z PASS: native 32-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x86 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-11T22:57:29.4551627Z PASS: native 32-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x64 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-11T22:57:29.4610966Z PASS: native 64-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x86 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-11T22:57:29.4665003Z PASS: native 64-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x64 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-11T22:57:32.1202648Z PASS: ATI1/ATI2 native API pitch, full mip chains, partial copies, shared storage and guarded upload/readback bounds
+2026-10-11T22:57:34.5283605Z PASS: ATI1/ATI2 native API pitch, full mip chains, partial copies, shared storage and guarded upload/readback bounds
+2026-10-11T22:57:43.2754430Z Ran 39 tests in 0.378s
+2026-10-11T22:57:43.2754976Z OK
+2026-10-11T22:59:30.6023725Z l4d2-bridge-ipc-c32-dev-62934c05672b373c.zip 2479e270aa8b7d26b9587f183e7fc589c55582c1885315e587feb1cd128bc484
