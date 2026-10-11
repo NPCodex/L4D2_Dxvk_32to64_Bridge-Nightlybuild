@@ -28,6 +28,9 @@ template<class B> void handshake() {
 }
 template<class B> void concurrentReplies() {
   constexpr unsigned Threads=4, PerThread=64;
+  // A waiter can repeatedly observe another thread's UID at the queue head.
+  // The existing retry limit is configurable; retain the 10 s hard deadline.
+  GlobalOptions::retries=10000;
 #ifdef REMIX_BRIDGE_CLIENT
   std::vector<std::thread> callers;
   for(unsigned t=0;t<Threads;++t) callers.emplace_back([t, PerThread] {
@@ -53,6 +56,7 @@ template<class B> void concurrentReplies() {
   }
 #endif
   std::puts("IPC_FULL_CONCURRENT_UID_PASS 4 threads x 64 replies");
+  GlobalOptions::retries=2;
 }
 template<class B> void transfer() {
   std::printf("TRANSPORT_CAPACITY upload_bytes=%llu\n",static_cast<unsigned long long>(B::getWriterChannel().data->get_total_size()*4));
