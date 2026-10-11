@@ -1,6 +1,6 @@
 # Steam query API chain experiment
 
-Status: **AWAITING GAME VALIDATION**. This is a default-off Client input-hook experiment, not working Steam support. IPC, backend window routing, Host focus and resource behavior are unchanged.
+Status: **NOT FIXED: hardware confirms the query-chain candidate executed and was ineffective.** A combined existing-mechanism configuration remains unvalidated. IPC, backend window routing, Host focus and resource behavior are unchanged.
 
 ## Paired hardware evidence
 
@@ -43,3 +43,21 @@ Retained six-gear production IPC passed 252 cross-process pairs and 30 fail-clos
 Evidence: [native PE/pass excerpts](steam-input-evidence/38182245577-native-pass.log), [all IPC repetitions](steam-input-evidence/38182245577-ipc-raw.json), [faults](steam-input-evidence/38182245577-ipc-faults.json), [binary inspection](steam-input-evidence/38182245577-artifact-inspection.json), [public upload receipt](steam-input-evidence/poll-chain-upload-receipt.json). Raw user attachments are not published.
 
 The independent source branch is `codex/steam-overlay-poll-chain`. main remains `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`; tested IPC branch remains `00007e8762385704afdacabea6e48444d798d27a`. The preceding mouse experiment branch is preserved. No merge, VERSION/tag/release update or earlier ZIP overwrite. Status: **AWAITING GAME VALIDATION**.
+
+## Hardware result: delegation executed, no improvement
+
+The next paired logs match build `62934c05672b373c` and C8. Effective startup settings enable client.steamPollChainPassThrough and the old WH_* chain; mouse handoff is explicitly False. All four getters log poll-chain-neutralize, with 11 asynchronous-key, 9 queue-key, 1 keyboard-array and 2 cursor immediate-call sites observed. These are bounded unique-site observations, not total API calls. Real Client activation, Host relay/capture and native focus acquisition execute. The new cold device log directly confirms backend_focus and presentation window are the Host child. The user reports no difference: the isolated polling candidate is ineffective and must not be described as working Steam support.
+
+The separately attached bridge.conf is an older short configuration lacking the experimental flags and is not the effective configuration printed by these logs. Execution is established by startup settings and runtime actions, not by assuming that short file was applied. Raw files and paths are not published.
+
+Both processes have 40 post-activation GUI samples: 34 with game mouse capture and Host focus, then 6 with no capture after switching away. In the 34 captured sample intervals, Host counters record **0 mouse / 99 keyboard / 9 Shift+Tab**, while Client records **1,745 mouse / 2,741 raw**. In the 6 uncaptured intervals, Host records **224 mouse / 0 keyboard**, and Client 349 raw. Counts are interval observations and capture status is the sampled boundary, not proof of every event's instantaneous ownership. Ten Tab dispatches comprise nine complete Shift/Tab-down states and one all-up observation after foreground return. The four game-foreground samples after return have Client focus, not restored Host focus. There is no Client deactivation callback before clean shutdown; Host capture clearing at teardown is not evidence of successful Steam closure.
+
+This run therefore does not demonstrate simultaneous sustained mouse delivery, Host keyboard focus and delegated polling. Unlike the previous no-capture control, the new run again has a concrete mouse-routing obstruction. It also confirms the polling change by itself is insufficient; absence of mouse delivery does not prove capture is the reason Shift+Tab fails. Steam's own tracked window/API/input consumer remains unknown.
+
+### Next controlled comparison: existing binary, one option change
+
+Use [STEAM-COMBINED-INPUT-EXPERIMENT.conf](../config/STEAM-COMBINED-INPUT-EXPERIMENT.conf) with the already installed matched `62934c05672b373c` binaries. Relative to this run's effective settings, change only client.steamMouseCaptureHandoff=False to True; retain polling/WH delegation, native-input flags and C8. Restart because option caches are initialized once. No production code, new binary, default config, backend, focus or IPC change is introduced. Extracted production-method fixtures passed the combined enabled configuration locally; the preceding Windows run validates individual mechanisms, not this combined Steam/game arrangement.
+
+Test opening from the game entry and mouse/Shift+Tab before Alt+Tab. Both-process logs must establish release-game-capture or deny-game-capture, empty/appropriate capture ownership, Host mouse observations, Host focus and complete shortcut states in the same foreground interval. Then test normal closure/game controls and Alt+Tab separately; the known post-Alt+Tab focus loss must not substitute for the initial comparison. If actual release fails or is on an ineligible thread, the existing diagnostic reports that boundary rather than a successful handoff.
+
+The combination is not a promised fix. If all these Bridge conditions execute together and Steam remains unusable, the next required evidence is Steam's own renderer/UI log or direct observation of its input-hook/window association. More root-focus/keyboard-state changes or an additional test binary without such evidence are not justified. Existing Steam logs may be found under the Steam installation (`GameOverlayRenderer*.log`, if present, and `logs/gameoverlayui.log`); filenames/availability vary. Do not substitute earlier-session logs or publish raw user logs. Roll back this comparison by setting only mouse handoff False and restarting.

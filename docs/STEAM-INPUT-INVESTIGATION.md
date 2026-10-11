@@ -1,6 +1,6 @@
 # Steam Overlay input investigation after v1.1
 
-Status: **Steam remains unusable. Later paired logs establish Host mouse/key delivery and matching shortcut states without sampled mouse capture; query API chain delegation is now a separate default-off experiment awaiting game validation.**
+Status: **Steam remains unusable. Query-chain delegation is verified but ineffective. Its hardware run again has game mouse capture; a one-option combination of existing mechanisms is pending, without a new binary or claimed fix.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
@@ -243,3 +243,11 @@ The supplied Host log matches the Client's `edc0a4d32de8ff07` build, C8, game/pr
 Source audit confirms configureOverlayPresenter already returns the Host child as non-null backend focus and assigns it as hDeviceWindow. The earlier CreateDevice `focus` log printed the original game argument; it must not be used to infer backend focus routing failure. The diagnostic label now distinguishes game_focus from backend_focus without changing routing.
 
 Four Client polling getters still stop before the stored original API chain while UI-active, even though the earlier WH_* policy delegates. Immediate caller logs naming game/MOD modules do not prove no Steam hook is downstream. The next [query API chain experiment](STEAM-POLL-CHAIN-EXPERIMENT.md) delegates these originals into scratch storage and continues returning neutralized/virtual values to the game. It does not change setters, raw input, DirectInput, Host focus, backend or IPC. This tests a concrete remaining suppression boundary; it does not identify Steam's actual receiver or establish the unique cause. Mouse-handoff retesting is not a prerequisite. Raw user attachments remain private and are not committed.
+
+### Query candidate hardware failure and renewed capture obstruction
+
+The next paired logs verify new build `62934c05672b373c`, enabled polling/WH chain flags and poll-chain-neutralize observations for all four getters. The user reports no improvement. This is an executed-but-ineffective candidate, not a missing-toggle explanation. The runtime config disables mouse handoff; its separately uploaded short configuration does not match effective startup settings.
+
+During 34 post-activation samples, game capture remains present with Host focus: Host mouse observations are 0, versus 99 keyboard and 9 complete shortcut observations; Client mouse observations are 1,745. After switching away, 6 capture-free sample intervals provide 224 Host mouse observations, but no Host keyboard observations and no restored Host focus in the four foreground-game samples. Thus this run does not establish all mouse/keyboard/polling boundaries working together. Source/backend focus routing is independently confirmed by the corrected device log. No Steam deactivation callback occurs before clean shutdown.
+
+The bounded next comparison [combines the existing mechanisms](STEAM-POLL-CHAIN-EXPERIMENT.md#next-controlled-comparison-existing-binary-one-option-change) by changing only mouse handoff False -> True on the same binary, keeping C8 and other effective settings. This does not establish capture as the unique cause or promise a keyboard fix. If the combined boundary conditions execute and Steam still fails, obtain Steam's own renderer/UI or input-hook association evidence before additional behavioral patches. No new bridge binary is compiled solely for this feedback.
