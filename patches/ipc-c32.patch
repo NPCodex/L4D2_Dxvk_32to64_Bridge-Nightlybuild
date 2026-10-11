@@ -2686,7 +2686,15 @@ diff --git a/bridge/src/client/d3d9_volumetexture.cpp b/bridge/src/client/d3d9_v
 diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
 --- a/bridge/src/client/di_hook.cpp
 +++ b/bridge/src/client/di_hook.cpp
-@@ -991,8 +991,12 @@
+@@ -876,6 +876,7 @@
+ 
+ API_HOOK_DECL(GetCursorPos);
+ API_HOOK_DECL(SetCursorPos);
++API_HOOK_DECL(SetCapture);
+ API_HOOK_DECL(GetAsyncKeyState);
+ API_HOOK_DECL(GetKeyState);
+ API_HOOK_DECL(GetKeyboardState);
+@@ -991,8 +992,12 @@
    
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
@@ -2701,7 +2709,7 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
      }
    }
  
-@@ -1004,8 +1008,12 @@
+@@ -1004,8 +1009,12 @@
    
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
@@ -2716,7 +2724,7 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
      }
    }
  
-@@ -1017,8 +1025,12 @@
+@@ -1017,8 +1026,12 @@
  
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
@@ -2731,6 +2739,88 @@ diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
      }
    }
  
+@@ -1062,6 +1075,50 @@
+   DirectInputForwarder::resetMouseState();
+   DirectInput8Hook::flushPendingMouseInput();
+   DirectInput7Hook::flushPendingMouseInput();
++}
++
++static bool steamMouseHandoffActive() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamMouseCaptureHandoff", false);
++  if (!enabled || !RemixState::isUIActive() || !WndProc::isSteamOverlayActive()) { return false; }
++  const HWND game = WndProc::getHwnd();
++  const HWND foreground = GetForegroundWindow();
++  if (!game || !foreground) { return false; }
++  const HWND root = GetAncestor(game, GA_ROOT);
++  return root && GetAncestor(foreground, GA_ROOT) == root;
++}
++
++static bool steamGameCaptureWindow(HWND target) {
++  const HWND game = WndProc::getHwnd();
++  if (!game || !target || !IsWindow(target)) { return false; }
++  DWORD pid = 0;
++  GetWindowThreadProcessId(target, &pid);
++  const HWND root = GetAncestor(game, GA_ROOT);
++  return root && pid == GetCurrentProcessId() && GetAncestor(target, GA_ROOT) == root;
++}
++
++void DI::releaseSteamMouseCapture() {
++  const DWORD error = GetLastError();
++  if (!steamMouseHandoffActive()) { SetLastError(error); return; }
++  const HWND captured = GetCapture();
++  // ReleaseCapture is a thread operation: never release a Host or another thread's capture.
++  if (steamGameCaptureWindow(captured) && GetWindowThreadProcessId(captured, nullptr) == GetCurrentThreadId()) {
++    const BOOL released = ReleaseCapture();
++    observeInputSuppression("ReleaseCapture", _ReturnAddress(), released ? "release-game-capture" : "release-game-capture-failed");
++  }
++  SetLastError(error);
++}
++
++static HWND WINAPI HookedSetCapture(HWND window) {
++  const DWORD error = GetLastError();
++  if (steamMouseHandoffActive() && steamGameCaptureWindow(window)) {
++    const HWND previous = GetCapture();
++    observeInputSuppression("SetCapture", _ReturnAddress(), "deny-game-capture");
++    SetLastError(error);
++    return previous;
++  }
++  SetLastError(error);
++  return OrigSetCapture(window);
+ }
+ 
+ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
+@@ -1261,6 +1318,11 @@
+ 
+   API_ATTACH(GetCursorPos);
+   API_ATTACH(SetCursorPos);
++  if (Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamMouseCaptureHandoff", false)) {
++    OrigSetCapture = SetCapture;
++    API_ATTACH(SetCapture);
++  }
+   API_ATTACH(GetKeyState);
+   API_ATTACH(GetAsyncKeyState);
+   API_ATTACH(GetKeyboardState);
+@@ -1286,6 +1348,7 @@
+ static void DetachConventionalInput() {
+   API_DETACH(GetCursorPos);
+   API_DETACH(SetCursorPos);
++  if (OrigSetCapture) { API_DETACH(SetCapture); }
+   API_DETACH(GetKeyState);
+   API_DETACH(GetAsyncKeyState);
+   API_DETACH(GetKeyboardState);
+diff --git a/bridge/src/client/di_hook.h b/bridge/src/client/di_hook.h
+--- a/bridge/src/client/di_hook.h
++++ b/bridge/src/client/di_hook.h
+@@ -56,5 +56,7 @@
+ // Seed the cursor echoed to the game while Remix UI is open, and hand the OS cursor back on close.
+ extern void onRemixUIActivated();
+ extern void onRemixUIDeactivated();
++// Called on the game window thread after UI activation, only for the opt-in Steam handoff.
++extern void releaseSteamMouseCapture();
+ 
+ }
 diff --git a/bridge/src/client/lockable_buffer.h b/bridge/src/client/lockable_buffer.h
 --- a/bridge/src/client/lockable_buffer.h
 +++ b/bridge/src/client/lockable_buffer.h
@@ -2859,29 +2949,42 @@ diff --git a/bridge/src/client/retention_runtime.h b/bridge/src/client/retention
 diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
 --- a/bridge/src/client/window.cpp
 +++ b/bridge/src/client/window.cpp
-@@ -329,6 +329,13 @@
+@@ -221,6 +221,7 @@
+ 
+   // Process remix renderer-related messages
+   if (gpRemixMessageChannel->onMessage(msg, wParam, lParam)) {
++    DI::releaseSteamMouseCapture();
+     if (!uiWasActive && RemixState::isUIActive()) {
+       // Remix UI has been activated - unstick modifier keys at application side
+       auto unstick = [hWnd](uint32_t vk) {
+@@ -328,6 +329,17 @@
+ ////////////////////
  // External funcs //
  ////////////////////
- 
-+bool allowSteamInputHookChain() {
-+  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
-+    && Config::getOption<bool>("client.steamHookChainPassThrough", false);
-+  return enabled && g_steamKnown.load(std::memory_order_acquire)
++
++bool isSteamOverlayActive() {
++  return g_steamKnown.load(std::memory_order_acquire)
 +    && g_steamActive.load(std::memory_order_acquire);
 +}
 +
++bool allowSteamInputHookChain() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamHookChainPassThrough", false);
++  return enabled && isSteamOverlayActive();
++}
+ 
  bool init() {
    if(!attach()) {
-     Logger::err(kStr_init_attachErr);
 diff --git a/bridge/src/client/window.h b/bridge/src/client/window.h
 --- a/bridge/src/client/window.h
 +++ b/bridge/src/client/window.h
-@@ -67,6 +67,8 @@
+@@ -67,6 +67,9 @@
  extern bool init();
  // Optional Steam input diagnostics, sampled by Present without injecting input.
  extern void sampleSteamInput();
 +// Opt-in: preserve downstream hooks only during a real Steam activation.
 +extern bool allowSteamInputHookChain();
++extern bool isSteamOverlayActive();
  // Undo the hooks established in init()
  extern bool terminate();
  // Set RemixWndProc for hwnd. Only one allowed at a time. Calling again implicitly undoes the previous

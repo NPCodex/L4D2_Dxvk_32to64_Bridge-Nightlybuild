@@ -1,0 +1,21 @@
+# Steam game-thread mouse-capture handoff experiment
+
+Status: **AWAITING GAME VALIDATION**. Prior hook-chain delegation executed and did not make Steam usable. This new default-off candidate addresses the observed game-window mouse capture; it is not a demonstrated Shift+Tab or full Steam fix.
+
+## Behavior and scope
+
+`client.steamMouseCaptureHandoff=False` means no new SetCapture detour is installed. With both this flag and client.steamOverlayInput enabled, the Client installs the detour with its existing input setup/teardown. Actual behavior requires known active Steam, Bridge UI-active state, and the game's foreground root. No new Steam API initialization/activation, window, thread, keyboard-state write, focus/foreground change, ClipCursor hook or resource change is introduced. Existing native-focus behavior is retained as the control setting, not modified further.
+
+After UI activation is processed in the game window's message route, release only a current capture whose window belongs to the game's root/current process AND current window thread. Never release Host capture, another window tree or another thread's capture. The target-window SetCapture detour prevents reacquisition in that same game window tree while the above guard holds, returns the previous GetCapture HWND and preserves caller LastError on the denied path. Other targets/states delegate to the original API exactly once with original arguments/results/errors. Release failures are observed and not retried in a loop. Capture-change callbacks cannot reacquire via the intercepted API while active. The experiment never assigns capture to the Host and never forcibly restores capture when Steam closes or foreground changes; ordinary game acquisition is allowed again.
+
+This policy applies to any caller targeting the game window tree, potentially including Steam code in the Client. Logs have not identified the capture API caller or proven whether the correct Steam receiver is the Client or Host. New SetCapture/ReleaseCapture observations preserve immediate caller attribution without logging mouse positions or payloads. If the proprietary overlay requires game capture, this policy may be insufficient or incompatible; require a controlled hardware comparison rather than assume the Host is the only correct receiver. The unresolved polling neutralization and cross-process foreground/window assumptions are not bypassed here.
+
+## Hardware comparison
+
+Install the matched three-binary update over a backed-up existing bridge. Preserve DXVK, Host selection, resource policy and IPC batch. Merge config/STEAM-MOUSE-CAPTURE-EXPERIMENT.conf into the actual bin/.l4d2bridge/bridge.conf. Do not replace the full config. The old chain-only toggle stays False for this experiment. Restart after changing the new flag. Confirm effective startup configuration and both embedded build IDs.
+
+Use the same build first with client.steamMouseCaptureHandoff=False, then True; keep every other setting fixed. Start in the menu. Open Steam through the game entry, move/click the mouse, try Shift+Tab closure, and verify ordinary game input after closing. Save both full logs. Opening from closed state is a separate keyboard acceptance test. Prefer an unloaded ReShade baseline for the first comparison, while recognizing prior ReShade-off failures already occurred; do not infer a ReShade cause from this experiment.
+
+The direct native target is: after actual Steam activation, game capture is released/denied and sustained Host mouse observations appear while game is foreground. Observe release-game-capture or release-game-capture-failed, deny-game-capture and GUI mouse_capture ownership. Those events validate execution, not Steam acceptance. If mouse routing improves but Steam still cannot operate/close, record the receiver/polling/keyboard gap instead of broadening the capture policy blindly. Verify no gameplay clicks/movement leak, no stuck input, repeated open/close and Alt+Tab behavior.
+
+Rollback: exit game and Hosts; restore all three previous binaries and previous config, or disable the new flag plus both steamOverlayInput flags and server.steamNativeInput and restart. Diagnostics are independently removable. Never mix Client/Host versions. main and the tested IPC branch remain unchanged.

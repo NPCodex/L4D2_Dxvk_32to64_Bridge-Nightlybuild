@@ -14,8 +14,14 @@ def generate(source, output):
     di = (client / 'di_hook.cpp').read_text(encoding='utf-8')
     query = (client / 'd3d9_query.cpp').read_text(encoding='utf-8')
     window = (client / 'window.cpp').read_text(encoding='utf-8')
-    start, end = method(window, 'bool allowSteamInputHookChain()')
-    pieces = [window[start:end].replace('bool allowSteamInputHookChain()', 'bool WndProc::allowSteamInputHookChain()')]
+    pieces = []
+    for name in ('isSteamOverlayActive', 'allowSteamInputHookChain'):
+        start, end = method(window, f'bool {name}()')
+        pieces.append(window[start:end].replace(f'bool {name}()', f'bool WndProc::{name}()'))
+    for marker in ['static bool steamMouseHandoffActive()', 'static bool steamGameCaptureWindow(',
+                   'void DI::releaseSteamMouseCapture()', 'static HWND WINAPI HookedSetCapture(']:
+        start, end = method(di, marker)
+        pieces.append(di[start:end])
     for marker in ['static void InputWinHooksAttach()', 'static void InputWinHooksDetach()']:
         start, end = method(di, marker)
         pieces.append(di[start:end])

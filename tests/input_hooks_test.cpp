@@ -19,6 +19,8 @@ using ULONG = unsigned long;
 using HRESULT = int32_t;
 using HINSTANCE = void*;
 using HHOOK = void*;
+using HWND = void*;
+using BOOL = int;
 using WPARAM = uintptr_t;
 using LPARAM = intptr_t;
 using LRESULT = intptr_t;
@@ -79,16 +81,19 @@ static LRESULT CALLBACK HookedKeyboardProc(int, WPARAM, LPARAM);
 namespace WndProc {
   std::atomic<bool> g_steamActive{false}, g_steamKnown{false};
   bool allowSteamInputHookChain();
+  bool isSteamOverlayActive();
+  HWND getHwnd();
 }
 struct RemixState {
   inline static bool active=false;
   static bool isUIActive() { return active; }
 };
 struct Config {
-  inline static bool steamInput=true, passChain=false;
+  inline static bool steamInput=true, passChain=false, mouseHandoff=false;
   template<class T> static T getOption(const char* key,T fallback) {
     if(std::strcmp(key,"client.steamOverlayInput")==0) return static_cast<T>(steamInput);
     if(std::strcmp(key,"client.steamHookChainPassThrough")==0) return static_cast<T>(passChain);
+    if(std::strcmp(key,"client.steamMouseCaptureHandoff")==0) return static_cast<T>(mouseHandoff);
     return fallback;
   }
 };
@@ -102,7 +107,40 @@ static HHOOK accessWinHook(int hook) { return gWinHooks.at(hook); }
 static LRESULT CallNextHookEx(HHOOK hook,int code,WPARAM w,LPARAM l) {
   ++nextCalls;nextHandle=hook;nextCode=code;nextW=w;nextL=l;return 47;
 }
-static void observeInputSuppression(const char*,void*,const char* action="neutralize") { hookAction=action; }
+static void observeInputSuppression(const char* api,void*,const char* action="neutralize") {
+  hookAction=action;
+  if(std::strcmp(api,"SetCapture")==0 || std::strcmp(api,"ReleaseCapture")==0) lastError=998;
+}
+namespace DI { void releaseSteamMouseCapture(); }
+static HWND WINAPI HookedSetCapture(HWND);
+static HWND window(unsigned id) { return reinterpret_cast<HWND>(static_cast<uintptr_t>(id)); }
+static HWND captureWindow=nullptr,foregroundWindow=window(1);
+static unsigned captureCalls=0,releaseCalls=0;
+static bool failedRelease=false,reacquire=false,failedAncestor=false;
+constexpr unsigned GA_ROOT=2;
+static DWORD GetCurrentProcessId() { return 1; }
+static void SetLastError(DWORD error) { lastError=error; }
+HWND WndProc::getHwnd() { return window(1); }
+static bool IsWindow(HWND hwnd) { const auto id=reinterpret_cast<uintptr_t>(hwnd);return id>=1 && id<=6; }
+static HWND GetForegroundWindow() { lastError=777;return foregroundWindow; }
+static HWND GetAncestor(HWND hwnd,unsigned) {
+  if(failedAncestor) { lastError=777;return nullptr; }
+  if(hwnd==window(2) || hwnd==window(4) || hwnd==window(5)) return window(1);
+  return hwnd;
+}
+static DWORD GetWindowThreadProcessId(HWND hwnd,DWORD* pid) {
+  if(pid) *pid=hwnd==window(5) || hwnd==window(6) ? 2 : 1;
+  return hwnd==window(4) || hwnd==window(5) || hwnd==window(6) ? 74 : 73;
+}
+static HWND GetCapture() { return captureWindow; }
+static BOOL ReleaseCapture() {
+  ++releaseCalls;lastError=444;
+  if(failedRelease) return 0;
+  captureWindow=nullptr;
+  if(reacquire) HookedSetCapture(window(1));
+  return 1;
+}
+static HWND OrigSetCapture(HWND hwnd) { ++captureCalls;const HWND previous=captureWindow;captureWindow=hwnd;lastError=444;return previous; }
 static SHORT OrigGetAsyncKeyState(int) { ++polled; return 42; }
 static SHORT OrigGetKeyState(int) { ++polled; return 43; }
 static SHORT OrigGetKeyboardState(PBYTE keys) { ++polled;std::memset(keys,0x80,256);return 1; }
@@ -161,8 +199,9 @@ static void clearLogs() { warnings.clear(); debugMessages.clear(); formats = 0; 
 int main(int argc,char** argv) {
   try {
     const bool master=!(argc>1 && std::strcmp(argv[1],"steam-master-off")==0);
-    const bool option=argc>1 && std::strcmp(argv[1],"steam-off")!=0;
-    Config::steamInput=master;Config::passChain=option;
+    const bool option=argc>1 && std::strcmp(argv[1],"steam-off")!=0 && std::strcmp(argv[1],"steam-mouse-only")!=0;
+    const bool mouse=argc>1 && std::strcmp(argv[1],"steam-off")!=0;
+    Config::steamInput=master;Config::passChain=option;Config::mouseHandoff=mouse;
     const std::array<HOOKPROC,3> hooks{{HookedCallWndProc,HookedGetMsgProc,HookedKeyboardProc}};
     const std::array<int,3> ids{{WH_CALLWNDPROC,WH_GETMESSAGE,WH_KEYBOARD}};
     for(int id:ids) gWinHooks[id]=reinterpret_cast<HHOOK>(static_cast<uintptr_t>(id));
@@ -183,7 +222,44 @@ int main(int argc,char** argv) {
       check(HookedGetKeyboardState(keys.data())==1 && polled==(ui?0u:3u),"keyboard suppression or original calls changed");
       for(auto key:keys) check(key==(ui?0:0x80),"keyboard state contents changed");
     }
-    RemixState::active=false;gWinHooks.clear();
+    for(bool ui:{false,true}) for(bool known:{false,true}) for(bool steam:{false,true}) for(bool foreground:{false,true}) {
+      RemixState::active=ui;WndProc::g_steamKnown.store(known);WndProc::g_steamActive.store(steam);
+      foregroundWindow=foreground ? window(1) : window(3);
+      const bool active=master && mouse && ui && known && steam && foreground;
+      for(unsigned target=0;target<=6;++target) {
+        captureWindow=window(5);captureCalls=0;lastError=88;hookAction.clear();
+        const bool denied=active && (target==1 || target==2 || target==4);
+        const HWND previous=HookedSetCapture(window(target));
+        check(previous==window(5) && captureCalls==(denied?0u:1u),"capture delegation/previous HWND changed");
+        check(captureWindow==(denied?window(5):window(target)),"capture targeted wrong window");
+        check(lastError==(denied?88u:444u),"capture error state changed");
+        if(denied) check(hookAction=="deny-game-capture","missing capture denial observation");
+        captureWindow=window(target);releaseCalls=0;lastError=88;hookAction.clear();
+        const bool release=active && (target==1 || target==2);
+        DI::releaseSteamMouseCapture();
+        check(releaseCalls==(release?1u:0u) && captureWindow==(release?nullptr:window(target)),"release crossed process/thread/root boundary");
+        check(lastError==88,"release changed caller error state");
+        if(release) check(hookAction=="release-game-capture","missing release observation");
+      }
+    }
+    RemixState::active=true;WndProc::g_steamKnown=true;WndProc::g_steamActive=true;foregroundWindow=window(1);
+    failedAncestor=true;captureWindow=window(1);captureCalls=0;releaseCalls=0;lastError=88;
+    DI::releaseSteamMouseCapture();
+    check(releaseCalls==0 && captureWindow==window(1) && lastError==88,"unknown root released capture or changed error");
+    HookedSetCapture(window(1));
+    check(captureCalls==1 && lastError==444,"unknown root denied original capture");
+    failedAncestor=false;
+    if(master && mouse) {
+      captureWindow=window(1);releaseCalls=0;lastError=88;failedRelease=true;
+      DI::releaseSteamMouseCapture();
+      check(releaseCalls==1 && captureWindow==window(1) && lastError==88 && hookAction=="release-game-capture-failed","failed release hidden or retried");
+      failedRelease=false;reacquire=true;captureCalls=0;releaseCalls=0;
+      DI::releaseSteamMouseCapture();
+      check(releaseCalls==1 && captureCalls==0 && captureWindow==nullptr,"capture-change recapture loop allowed");
+      reacquire=false;WndProc::g_steamActive=false;
+      HookedSetCapture(window(1));check(captureCalls==1 && captureWindow==window(1),"game capture not restored after Steam deactivation");
+    }
+    RemixState::active=false;gWinHooks.clear();lastErrorReads=0;lastError=0;
 
     InputWinHooksAttach();
     check(installed.empty() && formats == 0 && lastErrorReads == 0, "OFF installed or observed hooks");
@@ -247,7 +323,7 @@ int main(int argc,char** argv) {
       "Query failed to delegate reference operations/results");
     check(query.additions == 1 && query.releases == 2 && query.destructions == 1
       && missingCalls == 0 && functionCalls == before + 3, "Query lifecycle delegation or log classification changed");
-    std::puts("PASS: Steam hook chain gating/arguments/results; gameplay polling still suppressed; hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation");
+    std::puts("PASS: Steam mouse handoff ownership/foreground/failure/recapture; Steam hook chain gating/arguments/results; gameplay polling still suppressed; hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation");
     return 0;
   } catch (const std::exception& error) {
     std::fprintf(stderr, "FAIL: %s\n", error.what());

@@ -49,6 +49,10 @@ shutil.copy2(ROOT/'config/bridge.conf',out/'config/bridge.conf')
 if (ROOT/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf').exists():
     shutil.copy2(ROOT/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf',out/'config/STEAM-HOOK-CHAIN-EXPERIMENT.conf')
     shutil.copy2(ROOT/'docs/STEAM-INPUT-INVESTIGATION.md',out/'STEAM-INPUT-INVESTIGATION.md')
+if (ROOT/'config/STEAM-MOUSE-CAPTURE-EXPERIMENT.conf').exists():
+    shutil.copy2(ROOT/'config/STEAM-MOUSE-CAPTURE-EXPERIMENT.conf',out/'config/STEAM-MOUSE-CAPTURE-EXPERIMENT.conf')
+    shutil.copy2(ROOT/'docs/STEAM-MOUSE-CAPTURE-EXPERIMENT.md',out/'STEAM-MOUSE-CAPTURE-EXPERIMENT.md')
+    receipt['steam_experiment']='mouse-capture-handoff'
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')
