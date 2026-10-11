@@ -106,6 +106,38 @@ static void learnedLoop(const char* mode) {
 int main(int argc, char** argv) {
   assert(argc == 2);
   using namespace diagnostic_work;
+  if (!std::strcmp(argv[1], "ipc-submit-failure")) {
+    using namespace l4d2_readback;
+    failIpcSubmission=true;
+    l4d2_residency::Runtime residency;
+    l4d2_residency::Context& c=residency.context;
+    // Retained-reference production selection includes 256, not tiny mip 64.
+    const D3DSURFACE_DESC desc {D3DFMT_DXT1,D3DRTYPE_SURFACE,0,D3DPOOL_MANAGED,D3DMULTISAMPLE_NONE,0,256,256};
+    Layout layout;assert(l4d2_readback::layout(256,256,D3DFMT_DXT1,layout));
+    PagefileShadow backing;auto* original=backing.acquire(layout.bytes,0);assert(original);std::memset(original,0x71,layout.bytes);backing.release(0);
+    l4d2_residency::Entry entry(c,backing,19,desc);entry.type=l4d2_shadow::Type::Texture2DLevel;entry.uploaded(layout.bytes);
+    LARGE_INTEGER begin{},end{},frequency{};QueryPerformanceFrequency(&frequency);QueryPerformanceCounter(&begin);
+    assert(!entry.synchronize() && entry.pendingSynchronization());
+    assert(backing.backingBytes()==layout.bytes && !backing.recoveryMissing());
+    auto& reference=l4d2_readback::context();reference.enabled=true;reference.repeats=3;
+    l4d2_readback::test(19,18,desc,backing);
+    assert(!reference.enabled && reference.attempts==1 && reference.failures==1 && reference.recovered==0);
+    assert(backing.backingBytes()==layout.bytes && !backing.recoveryMissing());
+    configuredPolicy="learned-aggressive";configuredDb="ipc-submit-failure.db";std::filesystem::remove(configuredDb);
+    l4d2_retention::Runtime retention;assert(retention.context.enabled && !retention.context.fallback);
+    Request request;request.resourceId=19;request.parentId=18;request.width=request.height=256;request.format=D3DFMT_DXT1;request.bytes=layout.bytes;request.operation=3;
+    swprintf_s(request.name,L"Local\\L4D2Recovery-%lu-submit-failure",GetCurrentProcessId());
+    DWORD beforeHandles=0,afterHandles=0;GetProcessHandleCount(GetCurrentProcess(),&beforeHandles);
+    for(unsigned i=0;i<100;++i){
+      Temporary temporary;Response response;uint64_t elapsed=0;
+      assert(retention.context.exchange(request,temporary,response,elapsed)==D3DERR_DEVICELOST);
+      assert(response.stage==Stage::Pending && response.bytes==0 && retention.context.db.records()==0);
+    }
+    GetProcessHandleCount(GetCurrentProcess(),&afterHandles);assert(afterHandles==beforeHandles);
+    QueryPerformanceCounter(&end);assert(static_cast<double>(end.QuadPart-begin.QuadPart)/frequency.QuadPart<2.0);
+    assert(ipcSubmissions==102 && backing.backingBytes()==layout.bytes);
+    std::puts("IPC_REQUEST_FAILURE_PASS retained reference+default residency+retention exchange no-wait no-completion no-eviction no-handle-leak");return 0;
+  }
   if (!std::strcmp(argv[1], "observer-failure")) {
     std::atomic<unsigned> calls { 0 };
     l4d2_observation::Observer observer;
@@ -132,7 +164,7 @@ int main(int argc, char** argv) {
     assert(!l4d2_api_wait::initialize(true, "client") && !l4d2_api_wait::state);
     assert(!l4d2_data::initialize("client", "test"));
     assert(!l4d2_color::initialize("client", "test"));
-    auto* core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); assert(core); delete[] core;
+    auto core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); assert(core); core.reset();
     std::puts("init-failure: file/thread failures isolated; no published ApiWait state; core allocation succeeds");
     return 0;
   }
@@ -150,11 +182,11 @@ int main(int argc, char** argv) {
     assert(!l4d2_color::initialize("client", "test"));
     assert(!l4d2_data::initialize("client", "test"));
     bool failed = false;
-    try { delete[] l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); }
+    try { auto discarded = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); }
     catch (const std::bad_alloc&) { failed = true; }
     assert(failed && !l4d2_memory::nextSample);
     failAllocation = false;
-    auto* core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Index, true); assert(core && !core[0]); delete[] core;
+    auto core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Index, true); assert(core && !core[0]); core.reset();
     std::puts("allocation-failure: optional state unavailable; core allocation/exception contract preserved");
     return 0;
   }
@@ -287,9 +319,9 @@ int main(int argc, char** argv) {
   assert(!l4d2_api_wait::state && !bridge_exception::testHistoryState());
   assert(!scans && !files && !clocks && !threads && !hooks && !windows && !modules && !locks && !allocations);
   for (const auto kind : { l4d2_memory::Kind::Vertex, l4d2_memory::Kind::Index }) {
-    auto* shadow = l4d2_buffer::allocate(64, kind, true); assert(shadow);
+    auto shadow = l4d2_buffer::allocate(64, kind, true); assert(shadow);
     for (unsigned i = 0; i < 64; ++i) { assert(shadow[i] == 0); shadow[i] = static_cast<uint8_t>(i); }
-    delete[] shadow; l4d2_memory::released(64, kind);
+    shadow.reset(); l4d2_memory::released(64, kind);
   }
   assert(!files && !clocks && !scans && !l4d2_memory::nextSample && !l4d2_memory::bytes[1] && !l4d2_memory::bytes[2]);
   // Real shadow allocation and GC still work with the monitor off. Intrinsic

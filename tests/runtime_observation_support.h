@@ -15,12 +15,19 @@
 #include "data_diagnostics.h"
 #include "exception_diagnostics.h"
 #include "api_wait_diagnostics.h"
+inline LPVOID observationShadowVirtualAlloc(LPVOID address, SIZE_T bytes, DWORD type, DWORD protect) {
+  if (diagnostic_work::failAllocation) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return nullptr; }
+  return ::VirtualAlloc(address, bytes, type, protect);
+}
+#define VirtualAlloc observationShadowVirtualAlloc
 #include "buffer_shadow.h"
+#undef VirtualAlloc
 #include "readback_backend.h"
 #include "pageblock_residency.h"
 #include "retention_policy.h"
 #include "steam_activity_diagnostics.h"
 #include "util_commands.h"
+#include "util_common.h"
 
 using l4d2_observation::InputDemand;
 inline InputDemand requestedInput;
@@ -68,9 +75,12 @@ struct Config {
   }
 };
 namespace bridge_util { using Config = ::Config; using Logger = ::Logger; }
+inline bool failIpcSubmission=false;
+inline unsigned ipcSubmissions=0;
 struct ClientMessage {
   ClientMessage(Commands::D3D9Command, uint32_t) {}
   void send_data(uint32_t, const void*) {}
+  bridge_util::Result finish() { ++ipcSubmissions; return failIpcSubmission ? bridge_util::Result::Failure : bridge_util::Result::Success; }
 };
 namespace l4d2_retention {
 inline std::filesystem::path clientDirectory() { return std::filesystem::current_path(); }
@@ -115,3 +125,5 @@ namespace l4d2_residency {
 inline Context& context() { assert(controlContext); return *controlContext; }
 inline bool setPolicy(Policy policy) { context().policy = policy; return true; }
 }
+
+using bridge_util::Result;
