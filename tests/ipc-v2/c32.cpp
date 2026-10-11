@@ -20,7 +20,16 @@ void read(ldb_c32::MessageQueue& q, unsigned uid) {
 int main() {
   try {
     {
+      const auto n=name(); ldb_c32::MessageQueue w(n,nullptr,0,0,true),r(n,nullptr,0,0,false);
+      check(w.batchSize()==1); write(w,0); check(!w.pending()); read(r,0);
+      for (auto invalid : {0u,2u,31u,33u,UINT32_MAX}) { w.configureBatch(invalid); check(w.batchSize()==1); }
+      w.configureBatch(32); write(w,1);
+      bool rejected=false;try {w.configureBatch(1);} catch (const std::logic_error&) {rejected=true;}
+      check(rejected && w.batchSize()==32);check(w.flush());read(r,1);
+    }
+    {
       const auto n=name();ldb_c32::MessageQueue w(n,nullptr,0,0,true), r(n,nullptr,0,0,false);
+      w.configureBatch(32); check(w.batchSize()==32);
       for(unsigned i=0;i<31;i++) write(w,i);
       Result result;r.peek(result,2);check(result==Result::Timeout);
       write(w,31);for(unsigned i=0;i<32;i++) read(r,i);
@@ -68,6 +77,7 @@ int main() {
     }
     {
       const auto n=name();ldb_c32::MessageQueue w(n,nullptr,0,0,true);
+      w.configureBatch(32);
       for(unsigned i=0;i<64*32;i++) {write(w,i);}
       ldb_ipc_v2::Config cfg;cfg.blockCount=64;cfg.blockBytes=4096;
       ldb_ipc_v2::Channel observe(n,cfg,false);

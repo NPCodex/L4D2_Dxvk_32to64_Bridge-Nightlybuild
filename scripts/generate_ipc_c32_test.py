@@ -14,6 +14,9 @@ out = ROOT / 'work/ipc-c32-native'
 generate(source, out)
 shutil.copytree(source / 'bridge/src/util/ipc_v2', out / 'ipc_v2', dirs_exist_ok=True)
 shutil.copy2(source / 'bridge/src/util/ipc_c32_message_queue.h', out / 'ipc_c32_message_queue.h')
+# Initialization is compiled even though this fixture installs isolated channels directly.
+options = out / 'config/global_options.h'
+options.write_text(options.read_text().replace('struct GlobalOptions {', 'struct GlobalOptions {\n static uint32_t getIpcBatchSize() { return 1; }'))
 code = (out / 'ipc_transport.cpp').read_text()
 code = code.replace('#include "ipc_transport_cases.cpp"', '#include "c32_bridge_cases.cpp"')
 (out / 'ipc_transport.cpp').write_text(code)

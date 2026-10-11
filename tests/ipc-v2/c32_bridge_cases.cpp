@@ -209,6 +209,13 @@ int wmain(int argc,wchar_t** argv) {
     ReaderChannel dr("DeviceForward",memory,256,32768),mr("ModuleForward",memory,256,32768);
     WriterChannel dw("DeviceReply",memory,256,32768),mw("ModuleReply",memory,256,32768);
 #endif
+#ifdef REMIX_BRIDGE_CLIENT
+    // Test-only configuration injection; production reads bridge.conf once in Bridge::init.
+    const auto* setting=std::getenv("LDB_TEST_IPC_BATCH");
+    const uint32_t batch=setting && std::string(setting)=="32" ? 32 : 1;
+    dw.commands->configureBatch(batch);mw.commands->configureBatch(batch);
+    require(dw.commands->batchSize()==batch && mw.commands->batchSize()==batch,"Device/Module config selection");
+#endif
     Device::install(&dw,&dr);Module::install(&mw,&mr);
     if (std::wstring(argv[2])==L"upload-wrap") { uploadWrap<Device>();uploadWrap<Module>(); }
     else if (std::wstring(argv[2])==L"surface-boundaries") { surfaceBoundaries<Device>();surfaceBoundaries<Module>(); }

@@ -3066,6 +3066,21 @@ diff --git a/bridge/src/server/module_processing.cpp b/bridge/src/server/module_
    }
    // Check if we exited the command processing loop unexpectedly while the bridge is still enabled
    if (!destroyReceived && gbBridgeRunning) {
+diff --git a/bridge/src/util/config/global_options.h b/bridge/src/util/config/global_options.h
+--- a/bridge/src/util/config/global_options.h
++++ b/bridge/src/util/config/global_options.h
+@@ -46,6 +46,11 @@
+   };
+ 
+ public:
++  // Read once at Client channel initialization; unsupported values select C1.
++  static uint32_t getIpcBatchSize() {
++    return bridge_util::Config::getOption<uint32_t>("client.ipcBatchSize", 1);
++  }
++
+   static void init() {
+     get().initialize();
+   }
 diff --git a/bridge/src/util/data_ring_contract.h b/bridge/src/util/data_ring_contract.h
 new file mode 100644
 --- /dev/null
@@ -3352,11 +3367,12 @@ diff --git a/bridge/src/util/util_atomiccircularqueue.h b/bridge/src/util/util_a
 diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridgecommand.cpp
 --- a/bridge/src/util/util_bridgecommand.cpp
 +++ b/bridge/src/util/util_bridgecommand.cpp
-@@ -57,70 +57,155 @@
+@@ -57,70 +57,156 @@
    s_pReaderChannel = new ReaderChannel(
      baseName + kReaderChannelName,
      readerChannelMemSize, readerChannelCmdQueueSize, readerChannelDataQueueSize);
 +#ifdef REMIX_BRIDGE_CLIENT
++  s_pWriterChannel->commands->configureBatch(GlobalOptions::getIpcBatchSize());
 +  Logger::info(format_string("IPC_C32 channel=%s batch=%u inline_bytes=256 block_bytes=4096 lazy_check_ms=1",
 +    baseName.c_str(), s_pWriterChannel->commands->batchSize()));
 +#endif
@@ -3569,7 +3585,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
  
  DECL_BRIDGE_FUNC(Header, pop_front) {
    ZoneScoped;
-@@ -129,12 +214,25 @@
+@@ -129,12 +215,25 @@
  #ifdef REMIX_BRIDGE_CLIENT
    l4d2_api_wait::Span apiResponseTiming(l4d2_api_wait::Metric::ResponseWait);
  #endif
@@ -3595,7 +3611,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
      // NV-DXVK start: Optional data/resource tracing.
      l4d2_data::received(static_cast<uint16_t>(response.command), std::is_same<BridgeId, ::BridgeId::Module>::value);
      // NV-DXVK end
-@@ -175,6 +273,14 @@
+@@ -175,6 +274,14 @@
    l4d2_api_wait::Span apiResponseTiming(l4d2_api_wait::Metric::ResponseWait);
  #endif
    ZoneScoped;
@@ -3610,7 +3626,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
    DWORD peekTimeoutMS = overrideTimeoutMS > 0 ? overrideTimeoutMS : GlobalOptions::getCommandTimeout();
    uint32_t maxAttempts = GlobalOptions::getCommandRetries();
  #ifdef ENABLE_WAIT_FOR_COMMAND_TRACE
-@@ -194,7 +300,12 @@
+@@ -194,7 +301,12 @@
    do {
      if (hardTimeoutMS) {
        peekTimeoutMS = bridge_reset::waitSlice(waitStart, hardTimeoutMS, GetTickCount64(), peekTimeoutMS);
@@ -3624,7 +3640,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
      }
      Result result;
      Header header = getReaderChannel().commands->peek(result, peekTimeoutMS, pbEarlyOutSignal);
-@@ -203,6 +314,18 @@
+@@ -203,6 +315,18 @@
  
      case Result::Success:
      {
@@ -3643,7 +3659,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
        bool uidVerified = true;
        if (verifyUID) {
          if (header.pHandle != uidToVerify) {
-@@ -215,6 +338,7 @@
+@@ -215,6 +339,7 @@
            Logger::traceLazy([&]() { return format_string("...success, command %s received!", Commands::toString(command).c_str()); });
          }
  #endif
@@ -3651,7 +3667,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
          return Result::Success;
        } else {
  #if defined(_DEBUG) || defined(DEBUGOPT)
-@@ -272,6 +396,9 @@
+@@ -272,6 +397,9 @@
    } while (!bEarlyOut &&
              attemptNum++ <= maxAttempts &&
              gbBridgeRunning);
@@ -3661,7 +3677,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
    return Result::Timeout;
  }
  
-@@ -281,7 +408,8 @@
+@@ -281,7 +409,8 @@
  
  DECL_COMMAND_FUNC(,Command,const Commands::D3D9Command command,
                             uintptr_t pHandle,
@@ -3671,7 +3687,7 @@ diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridg
    : m_exceptionContext(std::is_same<BridgeId, ::BridgeId::Device>::value ? bridge_exception::Queue::Device : bridge_exception::Queue::Module,
                         static_cast<uint16_t>(command), static_cast<uint32_t>(pHandle), "serialize_command")
    , m_command(command)
-@@ -307,105 +435,178 @@
+@@ -307,105 +436,178 @@
    {
      l4d2_api_wait::Span apiMutexTiming(l4d2_api_wait::Metric::CommandMutexWait);
      s_pWriterChannel->m_mutex.lock();

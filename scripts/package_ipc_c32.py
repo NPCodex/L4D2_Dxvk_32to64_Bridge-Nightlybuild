@@ -42,8 +42,10 @@ for name,(path,arch) in files.items():
     hashes[name]=hashlib.sha256(dest.read_bytes()).hexdigest()
 receipt.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
                distribution='experimental',build_type='Release',compiler='MSVC 14.29',
-               kind='matched-update',default_batch=32,lazy_check_ms=1,
+               kind='matched-update',default_batch=1,lazy_check_ms=1,
                files=hashes,gameplay_validated=False,status='AWAITING GAME VALIDATION')
+(out/'config').mkdir()
+shutil.copy2(ROOT/'config/bridge.conf',out/'config/bridge.conf')
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')

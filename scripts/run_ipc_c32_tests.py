@@ -19,7 +19,7 @@ for iteration in range(3):
         for arch in ('32','64'):
             for mode in (modes if iteration%2==0 else tuple(reversed(modes))):
                 guid=str(uuid.uuid4())
-                env=dict(os.environ,LDB_IPC_BATCH=batch)
+                env=dict(os.environ,LDB_TEST_IPC_BATCH=batch)
                 host=subprocess.Popen([out/f'transport-host{arch}.exe',guid,mode],env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
                 client=None
                 try:

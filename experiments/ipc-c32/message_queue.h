@@ -47,7 +47,7 @@ class MessageQueue {
   std::unique_ptr<ldb_ipc_v2::Writer> m_writer;
   std::optional<ldb_ipc_v2::Encoder> m_encoder;
   std::atomic<uint64_t> m_deadline {0};
-  uint32_t m_pending = 0, m_batch = 32;
+  uint32_t m_pending = 0, m_batch = 1;
   uint32_t m_sequence = 0, m_offset = 0, m_recordsRead = 0;
   bool m_current = false;
   Header m_header {};
@@ -81,13 +81,6 @@ public:
   MessageQueue(const std::string& name, void*, size_t, size_t, bool writer)
     : m_name(name), m_writerSide(writer) {
     if (writer) {
-#ifdef _WIN32
-      char batch[8] {};
-      if (GetEnvironmentVariableA("LDB_IPC_BATCH", batch, sizeof(batch)) == 1 && batch[0] == '1') { m_batch = 1; }
-#else
-      const auto* batch = std::getenv("LDB_IPC_BATCH");
-      if (batch && std::string(batch) == "1") { m_batch = 1; }
-#endif
       open();
     }
   }
@@ -98,6 +91,10 @@ public:
     }
   }
   MessageQueue(const MessageQueue&) = delete;
+  void configureBatch(uint32_t batch) {
+    if (m_pending || m_encoder) { throw std::logic_error("IPC batch configured after encoding"); }
+    m_batch = batch == 32 ? 32 : 1;
+  }
   uint32_t batchSize() const { return m_batch; }
   bool pending() const { return m_deadline.load(std::memory_order_acquire) != 0; }
   bool due(uint64_t now) const {
