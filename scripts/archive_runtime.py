@@ -100,7 +100,7 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本次同步上游 1.2.2 的 IPC 修复。相同运行补丁候选的一轮本机对照中，平均 FPS 比 v1.1.10 低约 8%，low 帧未显示明确收益，官方地图切换约 10–11 秒；不代表所有配置或长期稳定性。重建包未重复游戏测试，详情见仓库 docs/UPSTREAM-1.2.2-INTEGRATION.md。\n"
+        "本候选优化五类高频标量命令的预留与编码，保留 IPC 3 正确性修复和逐条即时提交。尚未进行本补丁的游戏帧率测试，不承诺 FPS 或 low 帧提升，详情见仓库 docs/HOT-COMMAND-PACKETS.md。\n"
         "IPC 协议为 3：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"
