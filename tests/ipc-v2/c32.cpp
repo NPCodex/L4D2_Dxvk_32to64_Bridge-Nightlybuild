@@ -22,10 +22,32 @@ int main() {
     {
       const auto n=name(); ldb_c32::MessageQueue w(n,nullptr,0,0,true),r(n,nullptr,0,0,false);
       check(w.batchSize()==1); write(w,0); check(!w.pending()); read(r,0);
-      for (auto invalid : {0u,2u,31u,33u,UINT32_MAX}) { w.configureBatch(invalid); check(w.batchSize()==1); }
+      for (auto invalid : {0u,3u,5u,15u,31u,33u,64u,UINT32_MAX}) { w.configureBatch(invalid); check(w.batchSize()==1); }
       w.configureBatch(32); write(w,1);
       bool rejected=false;try {w.configureBatch(1);} catch (const std::logic_error&) {rejected=true;}
       check(rejected && w.batchSize()==32);check(w.flush());read(r,1);
+    }
+    for (auto batch : {1u,2u,4u,8u,16u,32u}) {
+      const auto n=name();ldb_c32::MessageQueue w(n,nullptr,0,0,true),r(n,nullptr,0,0,false);
+      w.configureBatch(batch);check(w.batchSize()==batch);
+      // Each batch becomes visible on its last record, and preserves all UIDs.
+      for(unsigned cycle=0;cycle<3;++cycle) {
+        for(unsigned i=0;i<batch-1;++i) write(w,cycle*batch+i);
+        if(batch>1) {Result result;r.peek(result,2);check(result==Result::Timeout && w.pending());}
+        write(w,cycle*batch+batch-1);check(!w.pending());
+        for(unsigned i=0;i<batch;++i) read(r,cycle*batch+i);
+      }
+      // Incomplete tails at semantic boundaries publish immediately in every gear.
+      for(auto cmd:{Commands::Bridge_Terminate,Commands::IDirect3DDevice9Ex_Present,
+                    Commands::IDirect3DDevice9Ex_Reset,Commands::IDirect3DTexture9_Destroy,
+                    Commands::IDirect3DQuery9_GetData}) {
+        const unsigned prefix=batch>2 ? batch-2 : 0;
+        for(unsigned i=0;i<prefix;++i) write(w,100+i);
+        write(w,100+prefix,cmd);check(!w.pending());
+        for(unsigned i=0;i<=prefix;++i) read(r,100+i);
+      }
+      write(w,200);if(batch>1) {check(w.pending() && w.due(UINT64_MAX));check(w.flush());}
+      read(r,200);check(r.isEmpty());
     }
     {
       const auto n=name();ldb_c32::MessageQueue w(n,nullptr,0,0,true), r(n,nullptr,0,0,false);
