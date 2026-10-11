@@ -20,7 +20,7 @@ for batch in batches:
         faults.append(dict(batch=batch,mode=mode,rc=result.returncode,stdout=result.stdout,stderr=result.stderr))
         (out/'full-native-fault-results.json').write_text(json.dumps(faults,indent=2)+'\n');result.check_returncode()
 rows=[]
-modes=('stream','mixed','threaded','upload-wrap','surface-boundaries','surface-small-generic','surface-small-declared','concurrent-replies')
+modes=('stream','mixed','threaded','upload-wrap','surface-boundaries','surface-small-generic','surface-small-declared','concurrent-replies','handshake')
 for iteration in range(3):
     for batch in (batches if iteration%2==0 else tuple(reversed(batches))):
         for arch in ('32','64'):

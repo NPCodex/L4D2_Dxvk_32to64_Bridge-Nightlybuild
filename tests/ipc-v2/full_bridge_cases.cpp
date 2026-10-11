@@ -6,6 +6,26 @@ using Module = Bridge<BridgeId::Module>;
 void require(bool b, const char* text) { if(!b) {std::fprintf(stderr,"C32_BRIDGE_FAIL %s\n",text);std::exit(2);} }
 constexpr unsigned Count=12000;
 bool streamOnly=false, threaded=false;
+template<class B> void handshake() {
+#ifdef REMIX_BRIDGE_CLIENT
+  {typename B::Command c(Commands::Bridge_Syn,123);require(c.finish()==Result::Success,"SYN finish");}
+  require(B::waitForCommand(Commands::Bridge_Ack,2000)==Result::Success,"zero-body ACK wait");
+  require(B::pop_front().pHandle==456,"zero-body ACK consumption");
+  {typename B::Command c(Commands::Bridge_Continue);require(c.finish()==Result::Success,"CONTINUE finish");}
+  {typename B::Command c(Commands::Bridge_Terminate);require(c.finish()==Result::Success,"TERMINATE finish");}
+  require(B::waitForCommandAndDiscard(Commands::Bridge_Ack,2000)==Result::Success,"shutdown ACK discard");
+#else
+  require(B::waitForCommand(Commands::Bridge_Syn,2000)==Result::Success,"SYN wait");
+  require(B::pop_front().pHandle==123&&B::get_data()==0,"SYN handle and UID");B::end_read_data();
+  {typename B::Command c(Commands::Bridge_Ack,456);require(c.finish()==Result::Success,"zero-body ACK finish");}
+  require(B::waitForCommandAndDiscard(Commands::Bridge_Continue,2000)==Result::Success,"CONTINUE discard");
+  require(B::get_data()==1,"CONTINUE UID");B::end_read_data();
+  require(B::waitForCommand(Commands::Bridge_Terminate,2000)==Result::Success,"TERMINATE wait");
+  B::pop_front();require(B::get_data()==2,"TERMINATE UID");B::end_read_data();
+  {typename B::Command c(Commands::Bridge_Ack);require(c.finish()==Result::Success,"shutdown ACK finish");}
+#endif
+  std::puts("IPC_FULL_HANDSHAKE_PASS SYN/ACK/CONTINUE/TERMINATE/zero-body");
+}
 template<class B> void concurrentReplies() {
   constexpr unsigned Threads=4, PerThread=64;
 #ifdef REMIX_BRIDGE_CLIENT
@@ -224,13 +244,13 @@ int wmain(int argc,wchar_t** argv) {
     // capacity: production derives capacity from bytes minus its metadata.
     const size_t memory=2*1024*1024;
 #ifdef REMIX_BRIDGE_CLIENT
-    WriterChannel dw("DeviceForward",memory,256,32768),mw("ModuleForward",memory,256,32768);
-    ReaderChannel dr("DeviceReply",memory,256,32768),mr("ModuleReply",memory,256,32768);
+    WriterChannel dw("DeviceClient2Server",memory,256,32768),mw("ModuleClient2Server",memory,256,32768);
+    ReaderChannel dr("DeviceServer2Client",memory,256,32768),mr("ModuleServer2Client",memory,256,32768);
     const auto* setting=std::getenv("LDB_TEST_IPC_BATCH");const uint32_t batch=setting?static_cast<uint32_t>(std::strtoul(setting,nullptr,10)):1;
     dw.commands->configureBatch(batch);mw.commands->configureBatch(batch);
 #else
-    ReaderChannel dr("DeviceForward",memory,256,32768),mr("ModuleForward",memory,256,32768);
-    WriterChannel dw("DeviceReply",memory,256,32768),mw("ModuleReply",memory,256,32768);
+    ReaderChannel dr("DeviceClient2Server",memory,256,32768),mr("ModuleClient2Server",memory,256,32768);
+    WriterChannel dw("DeviceServer2Client",memory,256,32768),mw("ModuleServer2Client",memory,256,32768);
 #endif
     Device::install(&dw,&dr);Module::install(&mw,&mr);
     if(std::wstring(argv[2])==L"upload-wrap"){uploadWrap<Device>();uploadWrap<Module>();}
@@ -238,6 +258,7 @@ int wmain(int argc,wchar_t** argv) {
     else if(std::wstring(argv[2])==L"surface-small-generic"){surfaceSmall<Device>(false);surfaceSmall<Module>(false);}
     else if(std::wstring(argv[2])==L"surface-small-declared"){surfaceSmall<Device>(true);surfaceSmall<Module>(true);}
     else if(std::wstring(argv[2])==L"concurrent-replies"){concurrentReplies<Device>();concurrentReplies<Module>();}
+    else if(std::wstring(argv[2])==L"handshake"){handshake<Device>();handshake<Module>();}
     else {transfer<Device>();transfer<Module>();}
     std::puts("IPC_FULL_BRIDGE_PASS");return 0;
   }catch(const std::exception& e){std::fprintf(stderr,"IPC_FULL_BRIDGE_EXCEPTION %s\n",e.what());return 3;}catch(...){std::puts("IPC_FULL_BRIDGE_EXCEPTION non-std");return 3;}
