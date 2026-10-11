@@ -15,11 +15,13 @@ def prepare(source):
         for p in sorted((ROOT/'experiments'/folder).glob('*.h')):shutil.copy2(p,target/p.name)
     digest=hashlib.sha256()
     paths=[ROOT/'patches/l4d2-bridge.patch',ROOT/'patches/ipc-c32.patch',patch]
-    paths+=sorted((ROOT/'experiments/ipc-full').glob('*.h'))+sorted((ROOT/'experiments/ipc-v2').glob('*.h'))
+    paths+=sorted((ROOT/'experiments/ipc-c32').glob('*.h'))+sorted((ROOT/'experiments/ipc-full').glob('*.h'))+sorted((ROOT/'experiments/ipc-v2').glob('*.h'))
     for p in paths:digest.update(p.relative_to(ROOT).as_posix().encode()+b'\0'+p.read_bytes().replace(b'\r\n',b'\n')+b'\0')
     sha=digest.hexdigest()
     (util/'ipc_v2/ipc_v2_build.h').write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x{sha[i*8:i*8+8]}u\n' for i in range(4)))
-    receipt=dict(build_id='ldb-ipc-full-dev+'+sha[:16],protocol_source_sha256=sha,foundation='C1/C2/C4/C8/C16/C32 production d59493c + VA allocator b90d056',legacy_data_ring=False,reply_v2=True,upload_leases=True,reply_slots=False,gameplay_validated=False)
+    receipt=dict(build_id='ldb-ipc-full-dev+'+sha[:16],protocol_source_sha256=sha,foundation='C1/C2/C4/C8/C16/C32 production d59493c + VA allocator b90d056',
+                 protocol_version='0x00020004',message_blocks=64,message_block_bytes=4096,upload_page_bytes=4096,upload_slots=1024,
+                 supported_batches=[1,2,4,8,16,32],legacy_data_ring=False,reply_v2=True,upload_leases=True,reply_slots=False,gameplay_validated=False)
     (ROOT/'work').mkdir(exist_ok=True);(ROOT/'work/ipc-full-build.json').write_text(json.dumps(receipt,indent=2)+'\n');print(receipt['build_id'])
 if __name__=='__main__':
     import argparse
