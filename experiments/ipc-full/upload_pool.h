@@ -110,7 +110,8 @@ public:
     if(d.slot>=Slots || !d.bytes || d.offset>m_capacity || d.bytes>m_capacity-d.offset)throw std::runtime_error("upload descriptor bounds");
     const auto& l=m_leases[d.slot];
     if(l.state.load(std::memory_order_acquire)!=2 || l.generation!=d.generation || l.offset!=d.offset
-      || l.bytes!=d.bytes || d.bytes>l.pages*PageBytes || m_refs[d.slot])throw std::runtime_error("stale upload descriptor");
+      || !d.generation || l.offset%PageBytes || !l.pages || l.pages>m_capacity/PageBytes
+      || l.pages>(m_capacity-l.offset)/PageBytes || l.bytes!=d.bytes || d.bytes>l.pages*PageBytes || m_refs[d.slot])throw std::runtime_error("stale upload descriptor");
     m_refs[d.slot]=1;return pointer(d);
   }
   void retain(const Descriptor& d) {

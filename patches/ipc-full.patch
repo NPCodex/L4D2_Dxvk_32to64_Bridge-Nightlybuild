@@ -1425,10 +1425,10 @@ index d58aa13..95278b2 100644
  // once at their outer entry; uninstrumented callers retain a constructor check.
  namespace ldb_c32 {
 diff --git a/bridge/src/util/util_ipcchannel.h b/bridge/src/util/util_ipcchannel.h
-index 8099e80..197f850 100644
+index 8099e80..9339af6 100644
 --- a/bridge/src/util/util_ipcchannel.h
 +++ b/bridge/src/util/util_ipcchannel.h
-@@ -1,125 +1,39 @@
+@@ -1,125 +1,40 @@
 -/*
 - * Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
 - *
@@ -1469,6 +1469,7 @@ index 8099e80..197f850 100644
 +#include "ipc_full/message_queue.h"
 +#include <memory>
 +#include <mutex>
++extern bridge_util::Guid gUniqueIdentifier;
 +namespace bridge_util {
 +// Compatibility observations only: no PR6 ring, reservation or credit protocol.
 +class FullDataView {

@@ -176,7 +176,7 @@ public:
            || m_recordsRead>=b.records || m_offset>b.bytes || b.bytes-m_offset<sizeof(ldb_ipc_v2::Record))throw std::runtime_error("invalid message block");
         ldb_ipc_v2::Record record{};const auto* base=m_channel.data(m_channel.block(m_sequence))+m_offset;std::memcpy(&record,base,sizeof(record));
         if(record.bytes<sizeof(record) || record.bytes%4 || record.bytes>b.bytes-m_offset || record.bodyBytes!=record.bytes-sizeof(record)
-           || record.generation || record.uid || ((record.flags&(Inline|External))!=Inline && (record.flags&(Inline|External))!=External))throw std::runtime_error("invalid full record");
+           || record.generation || record.uid || (record.flags & ~(Inline|External|Commands::DataInSharedHeap|Commands::DataIsReserved)) || ((record.flags&(Inline|External))!=Inline && (record.flags&(Inline|External))!=External))throw std::runtime_error("invalid full record");
         m_readExternal=(record.flags&External)!=0;
         m_header={static_cast<Commands::D3D9Command>(record.command),static_cast<uint16_t>(record.flags&~(Inline|External)),0,record.resource};
         if(m_readExternal) {
