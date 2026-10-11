@@ -1,6 +1,6 @@
 # Nightly 构建与验收
 
-当前源码完整同步原项目 1.2.1，同时保留 Nightly 修复；对应关系见 [更新跟踪](ORIGINAL-PROJECT-UPDATES.md)。下载、备份与 ThinFlex 精确版本核对见 [README](../README.md)。本次合并的自动测试不等于已经完成本地 L4N 长时间实测。
+当前源码完整同步原项目 1.2.2，同时保留 Nightly 修复；对应关系见 [更新跟踪](ORIGINAL-PROJECT-UPDATES.md)。下载、备份与 ThinFlex 精确版本核对见 [README](../README.md)。本次合并的自动测试不等于已经完成本地 L4N 长时间实测。
 
 ## 构建
 
@@ -19,6 +19,7 @@ python -m pip install meson==1.3.2 ninja==1.11.1.1
 
 准备源码后，CI 运行 Python 发布、精确源码保护、打包及分析器测试，并编译运行以下生产代码回归：
 
+- 协议 3 数据环完整预留/大包回绕、Device/Module 双向传输、等待唤醒、失败批次中止与 API 请求/回复所有权。
 - PageBlock residency / GC / retention / readback recovery、L4N modern/legacy/missing ABI 和配置保存。
 - runtime observation 关闭门与失败隔离、memory/host/exception/data/color/API-wait 诊断、VA schema=3。
 - Reset 状态机、adapter 信息、真实 x86 后端载入和跨进程 Presenter。
@@ -35,6 +36,8 @@ Nightly 已有负对照继续作为门槛，不以纯粹的固定代码字符串
 以 [GAME-VALIDATION.md](GAME-VALIDATION.md) 为准，保留同场景、配置、画质及驱动条件。关闭 VSync/GSYNC 等外部限制后才能测量未封顶帧率。按菜单、进图、联机过图、切换窗口/分辨率、退出顺序检查，分别记录 x64/x86 Host；可选 Presenter/ReShade 和 L4N 菜单要另验。
 
 性能目标仍为 1%/0.1% low、平均帧和最高帧，实测需要重复对照与帧时间分布。既有 [三对 L4N 回放](PERFORMANCE-2026-10-10.md) 属于早前 v1.0.11，不能外推为完整上游合并的性能收益。后续经用户授权完成的 [手电专项对照](FLASHLIGHT-PERFORMANCE-2026-10-10.md) 明确区分临时 CPU 控制、自然调度波动和代码改动，未证实稳定 FPS 提升；游戏安装与临时设置已恢复。
+
+本次 [上游 1.2.2 单轮对照](UPSTREAM-1.2.2-INTEGRATION.md) 使用同生产补丁的 v1.2.1 候选，平均 FPS 比 v1.1.10 低约 8%，官方地图往返均约 10～11 秒。维护者了解这一取舍后批准采用 IPC 修复；最终 v1.2.2 重建包仍按自身 Actions 与附件校验判定，未重新游戏复测。
 
 ## 诊断分离回归
 

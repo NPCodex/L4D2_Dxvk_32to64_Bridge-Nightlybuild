@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**默认下载仍为 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/latest)。本隔离候选 v1.2.1 完整同步上游 1.2.2，正在评估，尚未合入正式版或发布。** 主要修复进图、切图时的 IPC 覆盖、遗漏唤醒、失败提交和大包回绕问题。上游初步截图对照出现约 **1%～19% 的平均 FPS 下降**，另有切图多耗时约 20 秒的反馈；不是本分支实测数据，low 帧尚无一致结论。没有这些加载问题的玩家可以继续使用 v1.1.10，详情见 [本分支合并与验证说明](docs/UPSTREAM-1.2.2-INTEGRATION.md)。
+**v1.2.2 完整同步上游 1.2.2 的 IPC 稳定性修复。** 本机使用同生产补丁的 v1.2.1 候选与 v1.1.10 做了一轮对照：平均 FPS 下降约 **8%**，1% low 未显示明显改善，官方地图往返均约 **10～11 秒**。维护者在了解这一取舍后决定采用更新；本版不宣称提帧，也不代表长期稳定性已验证。详细数据、测试条件与最终重建边界见 [本分支合并与验证说明](docs/UPSTREAM-1.2.2-INTEGRATION.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -34,7 +34,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 本次 IPC 协议升级为 **3**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-[手电性能对照](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 记录本次命令热路径优化与调度影响：受控条件下手电降幅接近无桥，尚未证实稳定 FPS 或 low 帧提升。[早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+[本次 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录本机 GPLALL + x64 Host 的帧率与地图切换结果。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
