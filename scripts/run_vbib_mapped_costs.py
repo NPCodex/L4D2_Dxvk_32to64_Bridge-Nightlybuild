@@ -20,11 +20,11 @@ for iteration in range(6):
         samples.append(dict(iteration=iteration, variant=variant, rc=run.returncode,
                             rows=[json.loads(line) for line in run.stdout.splitlines() if line.startswith('{')]))
         (out / 'cost-raw.json').write_text(json.dumps(samples, indent=2) + '\n')
-        if run.returncode or len(samples[-1]['rows']) != 16:
+        if run.returncode or len(samples[-1]['rows']) != 20:
             raise RuntimeError(f'Native cost process failed: {iteration}/{variant}')
 summary = []
 for size in [65536, 262144, 1048576, 8388608]:
-    for mode in ['static-hot', 'dynamic-hot', 'create-upload-destroy', 'loaded-idle']:
+    for mode in ['static-hot', 'dynamic-hot', 'static-churn', 'create-upload-destroy', 'loaded-idle']:
         group = dict(bytes=size, mode=mode, variants={})
         for variant in variants:
             rows = [row for sample in samples if sample['iteration'] and sample['variant'] == variant

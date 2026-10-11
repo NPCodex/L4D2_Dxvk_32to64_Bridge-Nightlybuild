@@ -134,6 +134,31 @@ static void benchmark(const char* variant) {
         std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count(), 0, 0, 0, 0);
     }
     desc.Usage = 0;
+    // A large rotating working set distinguishes cache hits from mapping churn.
+    {
+      std::vector<std::unique_ptr<MappedTestBuffer<IDirect3DVertexBuffer9>>> buffers;
+      const unsigned count = (std::min)(256u, (64u * 1024 * 1024) / bytes);
+      for (unsigned i = 0; i < count; ++i) {
+        buffers.push_back(std::make_unique<MappedTestBuffer<IDirect3DVertexBuffer9>>(desc));
+        void* pointer = nullptr;
+        requireMapped(buffers.back()->lock(0, 0, &pointer, 0) == S_OK, "churn warmup Lock");
+        std::memset(pointer, 0x5b, bytes);
+        requireMapped(buffers.back()->unlock() == S_OK, "churn warmup Unlock"); updates.clear();
+      }
+      ULONG64 beginCycles = 0, endCycles = 0;
+      QueryThreadCycleTime(GetCurrentThread(), &beginCycles);
+      const auto begin = std::chrono::steady_clock::now();
+      for (unsigned i = 0; i < HotCount; ++i) {
+        auto& buffer = *buffers[i % count]; void* pointer = nullptr;
+        requireMapped(buffer.lock(0, 64, &pointer, 0) == S_OK, "churn Lock");
+        static_cast<uint8_t*>(pointer)[0] = static_cast<uint8_t>(i);
+        requireMapped(buffer.unlock() == S_OK, "churn Unlock"); updates.clear();
+      }
+      const auto elapsed = std::chrono::steady_clock::now() - begin;
+      QueryThreadCycleTime(GetCurrentThread(), &endCycles);
+      printCost(variant, "static-churn", bytes, HotCount, endCycles - beginCycles,
+        std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count(), 0, 0, 0, 0);
+    }
     constexpr unsigned ColdCount = 16;
     ULONG64 beginCycles = 0, endCycles = 0;
     QueryThreadCycleTime(GetCurrentThread(), &beginCycles);

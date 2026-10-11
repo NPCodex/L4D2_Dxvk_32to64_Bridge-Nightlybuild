@@ -16,7 +16,7 @@ client.vbibShadowCacheMB = 32
 
 热映射命中仍有 acquire/release 的缓存 mutex 与计数成本；冷访问增加 MapViewOfFile、UnmapViewOfFile 和可能的缺页；创建/销毁增加 section 句柄操作。静态 Usage 不是低频证明，LRU 不预测未来访问频率，频繁但超过缓存预算的工作集仍可能反复映射。没有新增 Host 取回 RPC、后台线程或资源恢复 generation 状态机。内核 section backing 仍消耗系统提交量；这是 AV 方案，不是消除 CPU 副本或减少整个系统 RAM 的保证。
 
-client.memoryMonitoring=True 时，原有 vertex/index 字节字段继续表示逻辑 FULL_SHADOW 存活量；新增 `vbib_section_backing_bytes/count`（实际键为 vbib_section_count）、`vbib_mapped_va_bytes/count`（实际键为 vbib_mapped_count）、`vbib_idle_view_budget_bytes`、`vbib_active_locks`、maps/unmaps 与失败计数。用 va_free、largest_free 和这些新字段核对真实效果，不能把 backing 字节视为 Client VA。关闭监控不扫描 VA、不记录日志；缓存自身必须维护安全与预算计数。
+client.memoryMonitoring=True 时，原有 vertex/index 字节字段继续表示逻辑 FULL_SHADOW 存活量；新增 `vbib_section_backing_bytes`、`vbib_section_count`、`vbib_mapped_va_bytes`、`vbib_mapped_count`、`vbib_idle_view_budget_bytes`、`vbib_active_locks`、maps/unmaps 与失败计数。用 va_free、largest_free 和这些新字段核对真实效果，不能把 backing 字节视为 Client VA。关闭监控不扫描 VA、不记录日志；缓存自身必须维护安全与预算计数。
 
 Windows 成本对照使用冻结的原生产 LockableBuffer 和新生产模板，相同 MSVC 14.29 Release /O2、相同调用与上传捕获适配器。比较 old、新实现禁用、零缓存和 32 MiB 缓存；64 KiB/256 KiB/1 MiB/8 MiB，动态/静态热点、完整创建上传销毁、加载后资源存活空闲。外层批次计时，不逐调用计时；原始结果保存，不能推导游戏 FPS。真实 IPC 回归另验证 Client 解除映射后，慢 Host 仍读取正确的已复制 payload。
 
