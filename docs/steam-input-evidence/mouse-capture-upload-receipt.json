@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "589ab14b320275024b623d2ffb4af34a04141383",
+  "zip": "l4d2-bridge-steam-mouse-capture-dev-edc0a4d32de8ff07-r38176402172.zip",
+  "sha256": "7c8b172176f1dd01e4017760be4d33d49131ef45fe0660f09b639b145243bf7a",
+  "bytes": 1351424,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/589ab14b320275024b623d2ffb4af34a04141383/l4d2-bridge-steam-mouse-capture-dev-edc0a4d32de8ff07-r38176402172.zip",
+  "build": "ldb-ipc-c32-dev+edc0a4d32de8ff07"
+}

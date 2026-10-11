@@ -1,6 +1,12 @@
 {
-  "38129815967-native-pass.log": "3de0823c34a946cf080badd703e2b8dfbcef82bff91bfdc1920177b52a5c240b",
-  "hook-chain-upload-receipt.json": "0099a8402b8e20aed2b96301ccf9072fad873cf7e71c2efe8646a92040dcf3ec",
   "38129815967-ipc-faults.json": "13fd7d0813c34d9a8e5f37f474d7f062e2e0049690554aec2f70519f52b308af",
-  "38129815967-ipc-raw.json": "1593faf747ac3ba1daacdfbf8fdd73f1c785c95f4246648bb7b972cf7abf028f"
+  "38129815967-ipc-raw.json": "1593faf747ac3ba1daacdfbf8fdd73f1c785c95f4246648bb7b972cf7abf028f",
+  "38129815967-native-pass.log": "3de0823c34a946cf080badd703e2b8dfbcef82bff91bfdc1920177b52a5c240b",
+  "38176402172-artifact-inspection.json": "bd1d17a4b5c1af3d6837245d706a250d233969f5d30826469402a9c5b6f4ec21",
+  "38176402172-ipc-faults.json": "13fd7d0813c34d9a8e5f37f474d7f062e2e0049690554aec2f70519f52b308af",
+  "38176402172-ipc-raw.json": "94850b024dd102103bfeeeb38e2a1513b989241c15090641dd25f837b4a79879",
+  "38176402172-native-pass.log": "c616d93732764ff326376224833a8ff1add9f202bbf3b6334d91511e0b1c913e",
+  "hook-chain-upload-receipt.json": "0099a8402b8e20aed2b96301ccf9072fad873cf7e71c2efe8646a92040dcf3ec",
+  "mouse-capture-superseded-upload-receipt.json": "ddf685d5db73debadad52c54e8e423379ba84facf7c9d5b462542e8a837fcd6a",
+  "mouse-capture-upload-receipt.json": "0be0755e98ba7205138d37976d2bdda07a2513767faa326a4057cb451c170006"
 }
