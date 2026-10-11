@@ -159,6 +159,7 @@ jobs:
             .deps/memory-sampling-test/**
             .deps/hot-command-packets/*.json
             .deps/hot-command-packets/*.exe
+            .deps/shader-texture-packets/**
           include-hidden-files: true
           if-no-files-found: warn
       - name: Build and verify the native ThinFlex repair tool
@@ -183,7 +184,7 @@ jobs:
           COMMITS_AFTER_TAG: ${{ matrix.distance }}
           THINFLEX_TEST: ${{ inputs.thinflex_test }}
         run: |
-          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Same-patch candidate 1b903b7 compared with v1.2.2 in one controlled local round: flashlight ON average/1% low/0.1% low +1.61%/+0.57%/-0.75%; OFF +5.50%/-1.10%/-7.84%. Maintainer accepted publication after review; stable low-FPS benefit is not established. This rebuilt package was not replayed. See docs/HOT-COMMAND-PACKETS.md'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
+          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Shader constant and SetTexture packet encoding candidate. This new runtime patch has not yet completed gameplay evaluation against v1.2.3; prior hot scalar measurements are not this candidate result. See docs/SHADER-TEXTURE-PACKETS.md'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
           if ($env:THINFLEX_TEST -eq 'true') { $metadata.release_channel = 'thinflex-test' }
           $original = Get-Content config/original-project.json -Raw | ConvertFrom-Json
           $metadata.original_project = $original.repository

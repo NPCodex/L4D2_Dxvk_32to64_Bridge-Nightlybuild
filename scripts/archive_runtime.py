@@ -100,7 +100,7 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本版优化五类高频标量命令的预留与编码。同补丁候选对 v1.2.2 的一轮本机测试：开灯平均帧 +1.61%、1% low +0.57%、0.1% low -0.75%；关灯分别 +5.50%、-1.10%、-7.84%。未证明稳定 low 帧收益，正式重建包未重复游戏测试，详情见仓库 docs/HOT-COMMAND-PACKETS.md。\n"
+        "本候选优化 Shader 常量与 SetTexture 命令的预留和编码，保留全部上传与即时提交。尚未完成此运行补丁对 v1.2.3 的游戏评估，不能套用此前标量命令的帧率成绩，详情见仓库 docs/SHADER-TEXTURE-PACKETS.md。\n"
         "IPC 协议为 3：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"
