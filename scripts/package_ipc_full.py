@@ -28,7 +28,8 @@ for directory in ('_ipcFull_x86','_ipcFull_x64','_ipcFull_x86_server'):
         raise RuntimeError(f'Expected actual Release /O2 + NDEBUG compilation: {directory}')
     compile_receipts[directory]=actual[0]
 receipt['compile_examples']=compile_receipts
-out=ROOT/'dist/ipc-full' 
+variant=receipt.get('variant','ipc-full')
+out=ROOT/'dist'/variant
 out.mkdir(parents=True,exist_ok=False)
 hashes={}
 for name,(path,arch) in files.items():
@@ -46,13 +47,13 @@ receipt.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],
                files=hashes,gameplay_validated=False,status='AWAITING GAME VALIDATION')
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
-shutil.copy2(ROOT/'docs/IPC-FULL-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')
+shutil.copy2(ROOT/receipt.get('install_document','docs/IPC-FULL-DEVELOPMENT.md'),out/'INSTALL-AND-TEST.md')
 for filename in ('LICENSE','THIRD_PARTY.md'):
     shutil.copy2(ROOT/filename,out/filename)
 (out/'licenses').mkdir()
 for filename in ('LICENSE-MIT','ThirdPartyLicenses.txt'):
     shutil.copy2(source/filename,out/'licenses'/filename)
-zip_path=out.parent/f'l4d2-bridge-ipc-full-dev-{build.split("+")[1]}.zip'
+zip_path=out.parent/f'l4d2-bridge-{variant}-dev-{build.split("+")[1]}.zip'
 with zipfile.ZipFile(zip_path,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
     for path in sorted(out.rglob('*')):
         if path.is_file():archive.write(path,path.relative_to(out))

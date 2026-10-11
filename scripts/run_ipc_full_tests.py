@@ -21,6 +21,7 @@ for batch in batches:
         (out/'full-native-fault-results.json').write_text(json.dumps(faults,indent=2)+'\n');result.check_returncode()
 rows=[]
 modes=('stream','mixed','threaded','upload-wrap','surface-boundaries','surface-small-generic','surface-small-declared','concurrent-replies','handshake')
+if (out/'mapped_buffer_template.h').exists(): modes+=('vbib-mapped',)
 for iteration in range(3):
     for batch in (batches if iteration%2==0 else tuple(reversed(batches))):
         for arch in ('32','64'):

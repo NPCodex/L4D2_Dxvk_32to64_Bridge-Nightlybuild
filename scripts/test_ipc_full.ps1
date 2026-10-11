@@ -13,6 +13,7 @@ if ($CompileRole) {
   Push-Location $out
   try {
     [string[]]$flags = if ($CompileRole -eq 'host32') { @('/DREMIX_BRIDGE_X86_SERVER','/DREMIX_BRIDGE_SERVER') } else { @() }
+    if (Test-Path "$out/mapped_buffer_template.h") { $flags += '/DLDB_MAPPED_BUFFER_TRANSPORT' }
     & cl.exe /nologo /std:c++17 /EHsc /O2 /DNDEBUG /W3 /DNOMINMAX /DWIN32 @flags "/I$out" ipc_transport.cpp util_sharedmemory.cpp util_semaphore.cpp data_diagnostics.cpp exception_diagnostics.cpp "/Fe:transport-$CompileRole.exe" /link /LARGEADDRESSAWARE ole32.lib psapi.lib
     if ($LASTEXITCODE -ne 0) { throw "Full transport compile: $CompileRole" }
     & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /wd4324 /DNOMINMAX "/I$out" "$root/tests/ipc-v2/full.cpp" "/Fe:full-$arch.exe"

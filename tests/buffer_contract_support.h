@@ -28,14 +28,22 @@ template<typename T> struct Direct3DResource9_LSS {
   Direct3DResource9_LSS(T*, BaseDirect3DDevice9Ex_LSS*) {}
   uint32_t getId() const { return 1; }
 };
+inline bool wholeStaticTest = false;
 struct GlobalOptions {
   static bool getUseSharedHeap() { return false; }
   static bool getUseSharedHeapForDynamicBuffers() { return false; }
   static bool getUseSharedHeapForStaticBuffers() { return false; }
-  static bool getAlwaysCopyEntireStaticBuffer() { return false; }
+  static bool getAlwaysCopyEntireStaticBuffer() { return wholeStaticTest; }
 };
 inline bool optimizedLockTest = false;
-struct ClientOptions { static bool getOptimizedDynamicLock() { return optimizedLockTest; } };
+inline bool mappedShadowTest = true;
+inline size_t mappedMinimumTest = 256 * 1024, mappedBudgetTest = 32 * 1024 * 1024;
+struct ClientOptions {
+  static bool getOptimizedDynamicLock() { return optimizedLockTest; }
+  static bool getMappedBufferShadow() { return mappedShadowTest; }
+  static size_t getMappedBufferMinimum() { return mappedMinimumTest; }
+  static size_t getMappedBufferCacheBudget() { return mappedBudgetTest; }
+};
 namespace buffer_contract {
 inline uint64_t liveBytes = 0;
 inline bool failAllocation = false;
