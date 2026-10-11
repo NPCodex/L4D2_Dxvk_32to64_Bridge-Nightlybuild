@@ -1,0 +1,2522 @@
+[
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15213638 commands=12000 wall_ns=180739800 threaded=0\nC32_TIMING cycles=13808568 commands=12000 wall_ns=187583800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13881701 commands=12000 wall_ns=180068000 threaded=0\nC32_TIMING cycles=14739591 commands=12000 wall_ns=187574200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=21552965 commands=12000 wall_ns=188721000 threaded=0\nC32_TIMING cycles=19590171 commands=12000 wall_ns=188218700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26958847 commands=12000 wall_ns=188776500 threaded=0\nC32_TIMING cycles=25253067 commands=12000 wall_ns=188225700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=585403 commands=12000 wall_ns=188585300 threaded=1\nC32_TIMING cycles=508031 commands=12000 wall_ns=268646500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24795003 commands=12000 wall_ns=189480300 threaded=1\nC32_TIMING cycles=26978468 commands=12000 wall_ns=268662300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14588084 commands=12000 wall_ns=6070100\nC32_SURFACE_TIMING declared=0 cycles=14919348 commands=12000 wall_ns=6148600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=14840125 commands=12000 wall_ns=6126200\nC32_SURFACE_TIMING declared=0 cycles=15013012 commands=12000 wall_ns=6145200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15236966 commands=12000 wall_ns=6234200\nC32_SURFACE_TIMING declared=1 cycles=14912341 commands=12000 wall_ns=6135400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15807669 commands=12000 wall_ns=6743400\nC32_SURFACE_TIMING declared=1 cycles=14997871 commands=12000 wall_ns=6133400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14832812 commands=12000 wall_ns=175251100 threaded=0\nC32_TIMING cycles=13173893 commands=12000 wall_ns=187869700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13977399 commands=12000 wall_ns=175655100 threaded=0\nC32_TIMING cycles=13051520 commands=12000 wall_ns=187846100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=18431083 commands=12000 wall_ns=174533100 threaded=0\nC32_TIMING cycles=14836742 commands=12000 wall_ns=187626900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26950748 commands=12000 wall_ns=177502400 threaded=0\nC32_TIMING cycles=20434054 commands=12000 wall_ns=187629200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=545003 commands=12000 wall_ns=174803300 threaded=1\nC32_TIMING cycles=594149 commands=12000 wall_ns=187387400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25561855 commands=12000 wall_ns=177167500 threaded=1\nC32_TIMING cycles=21586483 commands=12000 wall_ns=187387600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14583502 commands=12000 wall_ns=5963300\nC32_SURFACE_TIMING declared=0 cycles=14567260 commands=12000 wall_ns=6024400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=20135129 commands=12000 wall_ns=8569900\nC32_SURFACE_TIMING declared=0 cycles=14591099 commands=12000 wall_ns=6024100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15212711 commands=12000 wall_ns=6222200\nC32_SURFACE_TIMING declared=1 cycles=15102976 commands=12000 wall_ns=6176100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=20703675 commands=12000 wall_ns=8802200\nC32_SURFACE_TIMING declared=1 cycles=15084675 commands=12000 wall_ns=6168800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11619688 commands=12000 wall_ns=180561500 threaded=0\nC32_TIMING cycles=12965599 commands=12000 wall_ns=187621800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12530353 commands=12000 wall_ns=180976000 threaded=0\nC32_TIMING cycles=13697780 commands=12000 wall_ns=187621800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15760313 commands=12000 wall_ns=174999400 threaded=0\nC32_TIMING cycles=15372376 commands=12000 wall_ns=187475300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21838758 commands=12000 wall_ns=175607600 threaded=0\nC32_TIMING cycles=22143349 commands=12000 wall_ns=187487400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=561247 commands=12000 wall_ns=174920600 threaded=1\nC32_TIMING cycles=724832 commands=12000 wall_ns=187941800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24977000 commands=12000 wall_ns=175611400 threaded=1\nC32_TIMING cycles=24510118 commands=12000 wall_ns=187934300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=18699233 commands=12000 wall_ns=7649200\nC32_SURFACE_TIMING declared=0 cycles=18786257 commands=12000 wall_ns=7737200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=19806828 commands=12000 wall_ns=8398600\nC32_SURFACE_TIMING declared=0 cycles=18914024 commands=12000 wall_ns=7737200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15064070 commands=12000 wall_ns=6162000\nC32_SURFACE_TIMING declared=1 cycles=14831320 commands=12000 wall_ns=6085600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15109811 commands=12000 wall_ns=6183300\nC32_SURFACE_TIMING declared=1 cycles=14877405 commands=12000 wall_ns=6084300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11830126 commands=12000 wall_ns=183281700 threaded=0\nC32_TIMING cycles=11271397 commands=12000 wall_ns=187836600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=17138322 commands=12000 wall_ns=185666900 threaded=0\nC32_TIMING cycles=11764435 commands=12000 wall_ns=187832800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=17900119 commands=12000 wall_ns=190370600 threaded=0\nC32_TIMING cycles=15989360 commands=12000 wall_ns=188103300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25253203 commands=12000 wall_ns=192925000 threaded=0\nC32_TIMING cycles=18862108 commands=12000 wall_ns=188105000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=656917 commands=12000 wall_ns=189892200 threaded=1\nC32_TIMING cycles=603555 commands=12000 wall_ns=187500600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=28412256 commands=12000 wall_ns=192482300 threaded=1\nC32_TIMING cycles=18003188 commands=12000 wall_ns=187515300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15206146 commands=12000 wall_ns=6218400\nC32_SURFACE_TIMING declared=0 cycles=15028103 commands=12000 wall_ns=6157100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=20583553 commands=12000 wall_ns=8726900\nC32_SURFACE_TIMING declared=0 cycles=15048072 commands=12000 wall_ns=6157400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=16151575 commands=12000 wall_ns=6606700\nC32_SURFACE_TIMING declared=1 cycles=15477581 commands=12000 wall_ns=6329300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=21522466 commands=12000 wall_ns=9047500\nC32_SURFACE_TIMING declared=1 cycles=15477312 commands=12000 wall_ns=6331700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11457228 commands=12000 wall_ns=178338800 threaded=0\nC32_TIMING cycles=12484357 commands=12000 wall_ns=187662100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12942175 commands=12000 wall_ns=179042700 threaded=0\nC32_TIMING cycles=13361391 commands=12000 wall_ns=187662000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=19928766 commands=12000 wall_ns=185187600 threaded=0\nC32_TIMING cycles=15786152 commands=12000 wall_ns=188094100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26761767 commands=12000 wall_ns=185623200 threaded=0\nC32_TIMING cycles=23886709 commands=12000 wall_ns=188103800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=536012 commands=12000 wall_ns=158712400 threaded=1\nC32_TIMING cycles=520576 commands=12000 wall_ns=188032200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=27928168 commands=12000 wall_ns=159051400 threaded=1\nC32_TIMING cycles=21934972 commands=12000 wall_ns=188066300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14396715 commands=12000 wall_ns=5887300\nC32_SURFACE_TIMING declared=0 cycles=14179670 commands=12000 wall_ns=5825300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15609024 commands=12000 wall_ns=6638900\nC32_SURFACE_TIMING declared=0 cycles=14238567 commands=12000 wall_ns=5822900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15243974 commands=12000 wall_ns=6247600\nC32_SURFACE_TIMING declared=1 cycles=15083597 commands=12000 wall_ns=6168100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15365051 commands=12000 wall_ns=6571000\nC32_SURFACE_TIMING declared=1 cycles=15083155 commands=12000 wall_ns=6168000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11811007 commands=12000 wall_ns=183173200 threaded=0\nC32_TIMING cycles=11958720 commands=12000 wall_ns=187356100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=17486946 commands=12000 wall_ns=185753000 threaded=0\nC32_TIMING cycles=12185099 commands=12000 wall_ns=187358100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15458552 commands=12000 wall_ns=175232800 threaded=0\nC32_TIMING cycles=13677321 commands=12000 wall_ns=187148000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23329737 commands=12000 wall_ns=177593000 threaded=0\nC32_TIMING cycles=15565826 commands=12000 wall_ns=187149600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=506047 commands=12000 wall_ns=172270300 threaded=1\nC32_TIMING cycles=736250 commands=12000 wall_ns=187999000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26861526 commands=12000 wall_ns=176199100 threaded=1\nC32_TIMING cycles=18725371 commands=12000 wall_ns=187922600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=17057170 commands=12000 wall_ns=7170700\nC32_SURFACE_TIMING declared=0 cycles=16617246 commands=12000 wall_ns=7013800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=23477494 commands=12000 wall_ns=9964000\nC32_SURFACE_TIMING declared=0 cycles=16147705 commands=12000 wall_ns=7035400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=17738196 commands=12000 wall_ns=7262100\nC32_SURFACE_TIMING declared=1 cycles=15769670 commands=12000 wall_ns=6449600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22576234 commands=12000 wall_ns=10238400\nC32_SURFACE_TIMING declared=1 cycles=15454062 commands=12000 wall_ns=6452300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11712521 commands=12000 wall_ns=179306400 threaded=0\nC32_TIMING cycles=10179899 commands=12000 wall_ns=187879800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12627987 commands=12000 wall_ns=179472200 threaded=0\nC32_TIMING cycles=10926906 commands=12000 wall_ns=187879600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=17417686 commands=12000 wall_ns=188987400 threaded=0\nC32_TIMING cycles=15733761 commands=12000 wall_ns=187866200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25846737 commands=12000 wall_ns=189684000 threaded=0\nC32_TIMING cycles=24385376 commands=12000 wall_ns=187872800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=571977 commands=12000 wall_ns=189479700 threaded=1\nC32_TIMING cycles=717924 commands=12000 wall_ns=172362500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=35080614 commands=12000 wall_ns=189453600 threaded=1\nC32_TIMING cycles=23319294 commands=12000 wall_ns=172470300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15088129 commands=12000 wall_ns=6169800\nC32_SURFACE_TIMING declared=0 cycles=15433335 commands=12000 wall_ns=6366600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=16156574 commands=12000 wall_ns=6864800\nC32_SURFACE_TIMING declared=0 cycles=15374412 commands=12000 wall_ns=6363900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15521191 commands=12000 wall_ns=6349600\nC32_SURFACE_TIMING declared=1 cycles=15281238 commands=12000 wall_ns=6249000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=16062568 commands=12000 wall_ns=6864400\nC32_SURFACE_TIMING declared=1 cycles=15277342 commands=12000 wall_ns=6247500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9754280 commands=12000 wall_ns=178039900 threaded=0\nC32_TIMING cycles=10192835 commands=12000 wall_ns=187706200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15172362 commands=12000 wall_ns=180537800 threaded=0\nC32_TIMING cycles=10548966 commands=12000 wall_ns=187704900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15380024 commands=12000 wall_ns=189828200 threaded=0\nC32_TIMING cycles=16312225 commands=12000 wall_ns=187183000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24473490 commands=12000 wall_ns=192365600 threaded=0\nC32_TIMING cycles=21035111 commands=12000 wall_ns=187189600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=651970 commands=12000 wall_ns=188279000 threaded=1\nC32_TIMING cycles=584767 commands=12000 wall_ns=187766100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26037149 commands=12000 wall_ns=191583200 threaded=1\nC32_TIMING cycles=20908473 commands=12000 wall_ns=187677400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15120371 commands=12000 wall_ns=6185100\nC32_SURFACE_TIMING declared=0 cycles=14544596 commands=12000 wall_ns=5947700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=22668256 commands=12000 wall_ns=9701000\nC32_SURFACE_TIMING declared=0 cycles=14548222 commands=12000 wall_ns=5949200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15295571 commands=12000 wall_ns=6336700\nC32_SURFACE_TIMING declared=1 cycles=20047835 commands=12000 wall_ns=8284500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=19521085 commands=12000 wall_ns=8240900\nC32_SURFACE_TIMING declared=1 cycles=20099384 commands=12000 wall_ns=8277300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12363385 commands=12000 wall_ns=178633500 threaded=0\nC32_TIMING cycles=13557456 commands=12000 wall_ns=187435700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15676423 commands=12000 wall_ns=180394700 threaded=0\nC32_TIMING cycles=14084954 commands=12000 wall_ns=187435100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16687271 commands=12000 wall_ns=188798100 threaded=0\nC32_TIMING cycles=16000556 commands=12000 wall_ns=187820500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=28094417 commands=12000 wall_ns=189943500 threaded=0\nC32_TIMING cycles=24482929 commands=12000 wall_ns=187839300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=696805 commands=12000 wall_ns=187826900 threaded=1\nC32_TIMING cycles=699549 commands=12000 wall_ns=187627500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23138534 commands=12000 wall_ns=187936200 threaded=1\nC32_TIMING cycles=21757029 commands=12000 wall_ns=187532300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15178412 commands=12000 wall_ns=6283000\nC32_SURFACE_TIMING declared=0 cycles=14922730 commands=12000 wall_ns=6117900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15073087 commands=12000 wall_ns=6394400\nC32_SURFACE_TIMING declared=0 cycles=14958769 commands=12000 wall_ns=6117100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15245983 commands=12000 wall_ns=6234200\nC32_SURFACE_TIMING declared=1 cycles=14988683 commands=12000 wall_ns=6145800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15270066 commands=12000 wall_ns=6513700\nC32_SURFACE_TIMING declared=1 cycles=14879536 commands=12000 wall_ns=6143700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10930967 commands=12000 wall_ns=185944000 threaded=0\nC32_TIMING cycles=12416033 commands=12000 wall_ns=187469200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=10104682 commands=12000 wall_ns=185641100 threaded=0\nC32_TIMING cycles=11645799 commands=12000 wall_ns=187467400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=18018405 commands=12000 wall_ns=187628700 threaded=0\nC32_TIMING cycles=17339925 commands=12000 wall_ns=186946100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=31324357 commands=12000 wall_ns=192015800 threaded=0\nC32_TIMING cycles=19541709 commands=12000 wall_ns=186947600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=577441 commands=12000 wall_ns=188500000 threaded=1\nC32_TIMING cycles=629404 commands=12000 wall_ns=187488900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24350037 commands=12000 wall_ns=190923300 threaded=1\nC32_TIMING cycles=19985508 commands=12000 wall_ns=187474300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14915429 commands=12000 wall_ns=6101800\nC32_SURFACE_TIMING declared=0 cycles=14663617 commands=12000 wall_ns=5996500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=20716931 commands=12000 wall_ns=8852200\nC32_SURFACE_TIMING declared=0 cycles=14664573 commands=12000 wall_ns=5996900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15331806 commands=12000 wall_ns=6269400\nC32_SURFACE_TIMING declared=1 cycles=16381852 commands=12000 wall_ns=6728500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=21607701 commands=12000 wall_ns=9121700\nC32_SURFACE_TIMING declared=1 cycles=16274395 commands=12000 wall_ns=6727600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12434607 commands=12000 wall_ns=187868300 threaded=0\nC32_TIMING cycles=12645581 commands=12000 wall_ns=187434700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12594884 commands=12000 wall_ns=188055900 threaded=0\nC32_TIMING cycles=12864457 commands=12000 wall_ns=187467100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=18259146 commands=12000 wall_ns=188955900 threaded=0\nC32_TIMING cycles=15746715 commands=12000 wall_ns=187320900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26933736 commands=12000 wall_ns=189110500 threaded=0\nC32_TIMING cycles=21445541 commands=12000 wall_ns=187323800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=536796 commands=12000 wall_ns=189634100 threaded=1\nC32_TIMING cycles=593782 commands=12000 wall_ns=172700400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=29088142 commands=12000 wall_ns=189841400 threaded=1\nC32_TIMING cycles=24391929 commands=12000 wall_ns=172608900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14592788 commands=12000 wall_ns=5967300\nC32_SURFACE_TIMING declared=0 cycles=16287281 commands=12000 wall_ns=6713700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=14573654 commands=12000 wall_ns=6144400\nC32_SURFACE_TIMING declared=0 cycles=16105786 commands=12000 wall_ns=6711100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15309978 commands=12000 wall_ns=6345700\nC32_SURFACE_TIMING declared=1 cycles=14686622 commands=12000 wall_ns=6042000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15909490 commands=12000 wall_ns=6889300\nC32_SURFACE_TIMING declared=1 cycles=14772079 commands=12000 wall_ns=6041500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15874776 commands=12000 wall_ns=189590500 threaded=0\nC32_TIMING cycles=12677867 commands=12000 wall_ns=187861200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=16668337 commands=12000 wall_ns=192168800 threaded=0\nC32_TIMING cycles=10612101 commands=12000 wall_ns=187865400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=17380542 commands=12000 wall_ns=185811300 threaded=0\nC32_TIMING cycles=17505205 commands=12000 wall_ns=188044100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25317055 commands=12000 wall_ns=188614400 threaded=0\nC32_TIMING cycles=19538841 commands=12000 wall_ns=188052800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=576020 commands=12000 wall_ns=185901100 threaded=1\nC32_TIMING cycles=534345 commands=12000 wall_ns=187618100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26183884 commands=12000 wall_ns=188092400 threaded=1\nC32_TIMING cycles=19769247 commands=12000 wall_ns=187521600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=30473591 commands=12000 wall_ns=12483900\nC32_SURFACE_TIMING declared=0 cycles=26848179 commands=12000 wall_ns=12675300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=38784897 commands=12000 wall_ns=16297700\nC32_SURFACE_TIMING declared=0 cycles=22308305 commands=12000 wall_ns=12666400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15806248 commands=12000 wall_ns=6463400\nC32_SURFACE_TIMING declared=1 cycles=15521142 commands=12000 wall_ns=6349100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=19984967 commands=12000 wall_ns=8485900\nC32_SURFACE_TIMING declared=1 cycles=15485544 commands=12000 wall_ns=6350500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15238902 commands=12000 wall_ns=6231500\nC32_SURFACE_TIMING declared=1 cycles=15059881 commands=12000 wall_ns=6175500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15250393 commands=12000 wall_ns=6333600\nC32_SURFACE_TIMING declared=1 cycles=14956687 commands=12000 wall_ns=6175000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14643993 commands=12000 wall_ns=6023600\nC32_SURFACE_TIMING declared=0 cycles=16231665 commands=12000 wall_ns=6718400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=14598252 commands=12000 wall_ns=6188700\nC32_SURFACE_TIMING declared=0 cycles=16129648 commands=12000 wall_ns=6717400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=624260 commands=12000 wall_ns=188283600 threaded=1\nC32_TIMING cycles=948029 commands=12000 wall_ns=187062700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23822282 commands=12000 wall_ns=188688600 threaded=1\nC32_TIMING cycles=22487424 commands=12000 wall_ns=187229400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16251186 commands=12000 wall_ns=189651100 threaded=0\nC32_TIMING cycles=18583645 commands=12000 wall_ns=188336600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23519234 commands=12000 wall_ns=189934100 threaded=0\nC32_TIMING cycles=26559916 commands=12000 wall_ns=188305900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12690041 commands=12000 wall_ns=189097400 threaded=0\nC32_TIMING cycles=14675132 commands=12000 wall_ns=187414100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12058803 commands=12000 wall_ns=189182600 threaded=0\nC32_TIMING cycles=11912686 commands=12000 wall_ns=187420000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15890578 commands=12000 wall_ns=6499700\nC32_SURFACE_TIMING declared=1 cycles=15323917 commands=12000 wall_ns=6266700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22106572 commands=12000 wall_ns=9337600\nC32_SURFACE_TIMING declared=1 cycles=15325657 commands=12000 wall_ns=6267300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16489847 commands=12000 wall_ns=6760900\nC32_SURFACE_TIMING declared=0 cycles=17630053 commands=12000 wall_ns=7209900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=22644443 commands=12000 wall_ns=9624600\nC32_SURFACE_TIMING declared=0 cycles=17632748 commands=12000 wall_ns=7210800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=654958 commands=12000 wall_ns=180373100 threaded=1\nC32_TIMING cycles=708318 commands=12000 wall_ns=187373900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22668944 commands=12000 wall_ns=182882800 threaded=1\nC32_TIMING cycles=18526923 commands=12000 wall_ns=187607000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16065931 commands=12000 wall_ns=189321100 threaded=0\nC32_TIMING cycles=14118175 commands=12000 wall_ns=187510600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23822144 commands=12000 wall_ns=192028500 threaded=0\nC32_TIMING cycles=16648863 commands=12000 wall_ns=187513400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11697162 commands=12000 wall_ns=188818900 threaded=0\nC32_TIMING cycles=13041232 commands=12000 wall_ns=187582000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14509069 commands=12000 wall_ns=191496400 threaded=0\nC32_TIMING cycles=9628450 commands=12000 wall_ns=187582400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15027957 commands=12000 wall_ns=6146700\nC32_SURFACE_TIMING declared=1 cycles=14873779 commands=12000 wall_ns=6082400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=14950904 commands=12000 wall_ns=6232600\nC32_SURFACE_TIMING declared=1 cycles=14871476 commands=12000 wall_ns=6081400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14984300 commands=12000 wall_ns=6226300\nC32_SURFACE_TIMING declared=0 cycles=18827098 commands=12000 wall_ns=7699200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15736937 commands=12000 wall_ns=6891400\nC32_SURFACE_TIMING declared=0 cycles=18827368 commands=12000 wall_ns=7699200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=505385 commands=12000 wall_ns=186919300 threaded=1\nC32_TIMING cycles=592972 commands=12000 wall_ns=187709500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21497035 commands=12000 wall_ns=186976100 threaded=1\nC32_TIMING cycles=21426720 commands=12000 wall_ns=187657100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16213266 commands=12000 wall_ns=173614000 threaded=0\nC32_TIMING cycles=14036290 commands=12000 wall_ns=187518500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24032689 commands=12000 wall_ns=174162800 threaded=0\nC32_TIMING cycles=20952912 commands=12000 wall_ns=187527100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11969231 commands=12000 wall_ns=189060200 threaded=0\nC32_TIMING cycles=12106526 commands=12000 wall_ns=187365800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11528352 commands=12000 wall_ns=189339000 threaded=0\nC32_TIMING cycles=12404247 commands=12000 wall_ns=187369900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15673434 commands=12000 wall_ns=6408900\nC32_SURFACE_TIMING declared=1 cycles=15028986 commands=12000 wall_ns=6145900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22264670 commands=12000 wall_ns=9435600\nC32_SURFACE_TIMING declared=1 cycles=15030236 commands=12000 wall_ns=6146300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15026266 commands=12000 wall_ns=6152700\nC32_SURFACE_TIMING declared=0 cycles=14655777 commands=12000 wall_ns=5993600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=20847320 commands=12000 wall_ns=8819400\nC32_SURFACE_TIMING declared=0 cycles=14662295 commands=12000 wall_ns=5996200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=609364 commands=12000 wall_ns=187872700 threaded=1\nC32_TIMING cycles=684383 commands=12000 wall_ns=187509300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22975193 commands=12000 wall_ns=190216100 threaded=1\nC32_TIMING cycles=17106266 commands=12000 wall_ns=187494000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14263100 commands=12000 wall_ns=189337800 threaded=0\nC32_TIMING cycles=14373044 commands=12000 wall_ns=187561500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22122342 commands=12000 wall_ns=191995800 threaded=0\nC32_TIMING cycles=17061605 commands=12000 wall_ns=187559300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11340390 commands=12000 wall_ns=172797900 threaded=0\nC32_TIMING cycles=9545420 commands=12000 wall_ns=187410500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14544475 commands=12000 wall_ns=174684800 threaded=0\nC32_TIMING cycles=9345064 commands=12000 wall_ns=187404600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15872497 commands=12000 wall_ns=6570500\nC32_SURFACE_TIMING declared=1 cycles=14909059 commands=12000 wall_ns=6117700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15888936 commands=12000 wall_ns=6633500\nC32_SURFACE_TIMING declared=1 cycles=14959186 commands=12000 wall_ns=6117800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14935372 commands=12000 wall_ns=6235600\nC32_SURFACE_TIMING declared=0 cycles=14705733 commands=12000 wall_ns=6120800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15134116 commands=12000 wall_ns=6302700\nC32_SURFACE_TIMING declared=0 cycles=14966707 commands=12000 wall_ns=6120900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=541327 commands=12000 wall_ns=189796900 threaded=1\nC32_TIMING cycles=868133 commands=12000 wall_ns=187531800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=34607788 commands=12000 wall_ns=190205800 threaded=1\nC32_TIMING cycles=26416412 commands=12000 wall_ns=187604600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16872248 commands=12000 wall_ns=188907000 threaded=0\nC32_TIMING cycles=16631261 commands=12000 wall_ns=188279900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25114925 commands=12000 wall_ns=189125100 threaded=0\nC32_TIMING cycles=24540522 commands=12000 wall_ns=188282700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=13076756 commands=12000 wall_ns=172718300 threaded=0\nC32_TIMING cycles=9163296 commands=12000 wall_ns=187556000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13243597 commands=12000 wall_ns=172877300 threaded=0\nC32_TIMING cycles=10186635 commands=12000 wall_ns=187556100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15090505 commands=12000 wall_ns=6170600\nC32_SURFACE_TIMING declared=1 cycles=15177653 commands=12000 wall_ns=6314000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22870286 commands=12000 wall_ns=9649800\nC32_SURFACE_TIMING declared=1 cycles=15255049 commands=12000 wall_ns=6329900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14646149 commands=12000 wall_ns=6044400\nC32_SURFACE_TIMING declared=0 cycles=14303713 commands=12000 wall_ns=5894200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=19426319 commands=12000 wall_ns=8207700\nC32_SURFACE_TIMING declared=0 cycles=14413350 commands=12000 wall_ns=5894200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=547379 commands=12000 wall_ns=182459400 threaded=1\nC32_TIMING cycles=652018 commands=12000 wall_ns=172018300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26424767 commands=12000 wall_ns=185130600 threaded=1\nC32_TIMING cycles=18929629 commands=12000 wall_ns=171971500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15890090 commands=12000 wall_ns=188524800 threaded=0\nC32_TIMING cycles=17607483 commands=12000 wall_ns=187848900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24502235 commands=12000 wall_ns=191069200 threaded=0\nC32_TIMING cycles=21163816 commands=12000 wall_ns=187811800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9709077 commands=12000 wall_ns=185008200 threaded=0\nC32_TIMING cycles=11722109 commands=12000 wall_ns=187263300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=18617547 commands=12000 wall_ns=188984800 threaded=0\nC32_TIMING cycles=12119879 commands=12000 wall_ns=187262900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15070832 commands=12000 wall_ns=6164200\nC32_SURFACE_TIMING declared=1 cycles=14852073 commands=12000 wall_ns=6124400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15033298 commands=12000 wall_ns=6293100\nC32_SURFACE_TIMING declared=1 cycles=14781070 commands=12000 wall_ns=6123100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15145606 commands=12000 wall_ns=6224000\nC32_SURFACE_TIMING declared=0 cycles=18677306 commands=12000 wall_ns=7637800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15078892 commands=12000 wall_ns=6364900\nC32_SURFACE_TIMING declared=0 cycles=18676595 commands=12000 wall_ns=7637500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=645820 commands=12000 wall_ns=175271400 threaded=1\nC32_TIMING cycles=721622 commands=12000 wall_ns=187677400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=20610698 commands=12000 wall_ns=175286100 threaded=1\nC32_TIMING cycles=21448011 commands=12000 wall_ns=187674500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15223736 commands=12000 wall_ns=186239800 threaded=0\nC32_TIMING cycles=14737585 commands=12000 wall_ns=188277500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21345503 commands=12000 wall_ns=186375400 threaded=0\nC32_TIMING cycles=21107953 commands=12000 wall_ns=188285600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10966958 commands=12000 wall_ns=173408800 threaded=0\nC32_TIMING cycles=10893804 commands=12000 wall_ns=187866900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12073505 commands=12000 wall_ns=173487300 threaded=0\nC32_TIMING cycles=11414990 commands=12000 wall_ns=187866600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15374019 commands=12000 wall_ns=6289000\nC32_SURFACE_TIMING declared=1 cycles=15344571 commands=12000 wall_ns=6274800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=21110008 commands=12000 wall_ns=8907000\nC32_SURFACE_TIMING declared=1 cycles=15349617 commands=12000 wall_ns=6276900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14969476 commands=12000 wall_ns=6199900\nC32_SURFACE_TIMING declared=0 cycles=14370941 commands=12000 wall_ns=5901400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=19414510 commands=12000 wall_ns=8223800\nC32_SURFACE_TIMING declared=0 cycles=14399581 commands=12000 wall_ns=5888700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=559016 commands=12000 wall_ns=167878500 threaded=1\nC32_TIMING cycles=769839 commands=12000 wall_ns=187843500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24290634 commands=12000 wall_ns=170889500 threaded=1\nC32_TIMING cycles=18223762 commands=12000 wall_ns=187858800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=13496064 commands=12000 wall_ns=190063000 threaded=0\nC32_TIMING cycles=14876055 commands=12000 wall_ns=187243000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21984027 commands=12000 wall_ns=192731300 threaded=0\nC32_TIMING cycles=18439186 commands=12000 wall_ns=187247000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9434459 commands=12000 wall_ns=188579500 threaded=0\nC32_TIMING cycles=9605596 commands=12000 wall_ns=187453000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15516213 commands=12000 wall_ns=191203100 threaded=0\nC32_TIMING cycles=9763274 commands=12000 wall_ns=187451000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=18754088 commands=12000 wall_ns=7736900\nC32_SURFACE_TIMING declared=1 cycles=18977774 commands=12000 wall_ns=7760700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=19033168 commands=12000 wall_ns=8171000\nC32_SURFACE_TIMING declared=1 cycles=18978043 commands=12000 wall_ns=7760800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14643821 commands=12000 wall_ns=5987900\nC32_SURFACE_TIMING declared=0 cycles=14590191 commands=12000 wall_ns=5966500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=17115479 commands=12000 wall_ns=7286300\nC32_SURFACE_TIMING declared=0 cycles=14588035 commands=12000 wall_ns=5965500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=611398 commands=12000 wall_ns=187221200 threaded=1\nC32_TIMING cycles=684237 commands=12000 wall_ns=187202600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22071747 commands=12000 wall_ns=187176500 threaded=1\nC32_TIMING cycles=23164557 commands=12000 wall_ns=187275400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16043334 commands=12000 wall_ns=188554600 threaded=0\nC32_TIMING cycles=15806815 commands=12000 wall_ns=187814000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22486666 commands=12000 wall_ns=188647800 threaded=0\nC32_TIMING cycles=22687198 commands=12000 wall_ns=187814100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10851344 commands=12000 wall_ns=189044000 threaded=0\nC32_TIMING cycles=12301009 commands=12000 wall_ns=187314800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11544890 commands=12000 wall_ns=189361500 threaded=0\nC32_TIMING cycles=13095565 commands=12000 wall_ns=187282000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15614291 commands=12000 wall_ns=6429700\nC32_SURFACE_TIMING declared=1 cycles=15213128 commands=12000 wall_ns=6221300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=21494217 commands=12000 wall_ns=9066500\nC32_SURFACE_TIMING declared=1 cycles=15217220 commands=12000 wall_ns=6222800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15023817 commands=12000 wall_ns=6170300\nC32_SURFACE_TIMING declared=0 cycles=14829875 commands=12000 wall_ns=6207500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=21669980 commands=12000 wall_ns=9139900\nC32_SURFACE_TIMING declared=0 cycles=15177774 commands=12000 wall_ns=6206800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=549952 commands=12000 wall_ns=151374500 threaded=1\nC32_TIMING cycles=909857 commands=12000 wall_ns=187141000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23186215 commands=12000 wall_ns=153421600 threaded=1\nC32_TIMING cycles=20092717 commands=12000 wall_ns=187126500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15313772 commands=12000 wall_ns=187188500 threaded=0\nC32_TIMING cycles=14567965 commands=12000 wall_ns=187411100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=26959453 commands=12000 wall_ns=191083700 threaded=0\nC32_TIMING cycles=17972146 commands=12000 wall_ns=187441100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11672855 commands=12000 wall_ns=187504100 threaded=0\nC32_TIMING cycles=10335695 commands=12000 wall_ns=187516400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=18402723 commands=12000 wall_ns=190476000 threaded=0\nC32_TIMING cycles=10540710 commands=12000 wall_ns=187516700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15503110 commands=12000 wall_ns=6353200\nC32_SURFACE_TIMING declared=1 cycles=14845799 commands=12000 wall_ns=6070900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15624434 commands=12000 wall_ns=6700600\nC32_SURFACE_TIMING declared=1 cycles=14843742 commands=12000 wall_ns=6070200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16690209 commands=12000 wall_ns=6836600\nC32_SURFACE_TIMING declared=0 cycles=17138289 commands=12000 wall_ns=7008500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=16100739 commands=12000 wall_ns=7714500\nC32_SURFACE_TIMING declared=0 cycles=15209085 commands=12000 wall_ns=7010300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=592778 commands=12000 wall_ns=179498100 threaded=1\nC32_TIMING cycles=516656 commands=12000 wall_ns=187309600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22596123 commands=12000 wall_ns=179468500 threaded=1\nC32_TIMING cycles=22128471 commands=12000 wall_ns=187293000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=17712974 commands=12000 wall_ns=173808000 threaded=0\nC32_TIMING cycles=15815928 commands=12000 wall_ns=188251400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25123943 commands=12000 wall_ns=174414100 threaded=0\nC32_TIMING cycles=22881584 commands=12000 wall_ns=188258400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12418044 commands=12000 wall_ns=187603300 threaded=0\nC32_TIMING cycles=12311789 commands=12000 wall_ns=187686900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12824406 commands=12000 wall_ns=187768600 threaded=0\nC32_TIMING cycles=13403264 commands=12000 wall_ns=187686300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15440855 commands=12000 wall_ns=6473500\nC32_SURFACE_TIMING declared=1 cycles=14833109 commands=12000 wall_ns=6177600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22201067 commands=12000 wall_ns=9377200\nC32_SURFACE_TIMING declared=1 cycles=15102952 commands=12000 wall_ns=6176300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14756545 commands=12000 wall_ns=6066400\nC32_SURFACE_TIMING declared=0 cycles=15472242 commands=12000 wall_ns=7918600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=24193309 commands=12000 wall_ns=10159300\nC32_SURFACE_TIMING declared=0 cycles=19285346 commands=12000 wall_ns=7916600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=496100 commands=12000 wall_ns=162763400 threaded=1\nC32_TIMING cycles=678823 commands=12000 wall_ns=187420300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=30033250 commands=12000 wall_ns=165421500 threaded=1\nC32_TIMING cycles=19844851 commands=12000 wall_ns=187419900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15868502 commands=12000 wall_ns=187388100 threaded=0\nC32_TIMING cycles=17925106 commands=12000 wall_ns=187410500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22999324 commands=12000 wall_ns=189459800 threaded=0\nC32_TIMING cycles=21296183 commands=12000 wall_ns=187408400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14573482 commands=12000 wall_ns=187516900 threaded=0\nC32_TIMING cycles=12130144 commands=12000 wall_ns=187325400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=20226260 commands=12000 wall_ns=190160200 threaded=0\nC32_TIMING cycles=12261249 commands=12000 wall_ns=187325000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14703302 commands=12000 wall_ns=185143100 threaded=0\nC32_TIMING cycles=13261798 commands=12000 wall_ns=187347800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14908003 commands=12000 wall_ns=185384200 threaded=0\nC32_TIMING cycles=14334191 commands=12000 wall_ns=187325700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=20473866 commands=12000 wall_ns=185794000 threaded=0\nC32_TIMING cycles=18013233 commands=12000 wall_ns=188080000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23350370 commands=12000 wall_ns=184447200 threaded=0\nC32_TIMING cycles=25645107 commands=12000 wall_ns=188095400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=529519 commands=12000 wall_ns=185192200 threaded=1\nC32_TIMING cycles=1011941 commands=12000 wall_ns=188045400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25699153 commands=12000 wall_ns=185126800 threaded=1\nC32_TIMING cycles=26831836 commands=12000 wall_ns=188042400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16751826 commands=12000 wall_ns=6904200\nC32_SURFACE_TIMING declared=0 cycles=16347552 commands=12000 wall_ns=6734900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15074850 commands=12000 wall_ns=6926200\nC32_SURFACE_TIMING declared=0 cycles=14892989 commands=12000 wall_ns=6736400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=16470516 commands=12000 wall_ns=6753600\nC32_SURFACE_TIMING declared=1 cycles=19164757 commands=12000 wall_ns=7837600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=16428082 commands=12000 wall_ns=7026900\nC32_SURFACE_TIMING declared=1 cycles=19166473 commands=12000 wall_ns=7838600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12618280 commands=12000 wall_ns=177721400 threaded=0\nC32_TIMING cycles=13733082 commands=12000 wall_ns=187570600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=18139284 commands=12000 wall_ns=180238600 threaded=0\nC32_TIMING cycles=13957480 commands=12000 wall_ns=187574800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=18690314 commands=12000 wall_ns=184236800 threaded=0\nC32_TIMING cycles=17718746 commands=12000 wall_ns=188135300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=27916402 commands=12000 wall_ns=187785600 threaded=0\nC32_TIMING cycles=19033567 commands=12000 wall_ns=188137800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=680119 commands=12000 wall_ns=185842500 threaded=1\nC32_TIMING cycles=687617 commands=12000 wall_ns=187342100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=27838494 commands=12000 wall_ns=188207200 threaded=1\nC32_TIMING cycles=18595130 commands=12000 wall_ns=187374400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14968545 commands=12000 wall_ns=6191100\nC32_SURFACE_TIMING declared=0 cycles=14796505 commands=12000 wall_ns=6163300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=18362112 commands=12000 wall_ns=7834500\nC32_SURFACE_TIMING declared=0 cycles=15073062 commands=12000 wall_ns=6163900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15878892 commands=12000 wall_ns=6495000\nC32_SURFACE_TIMING declared=1 cycles=15546720 commands=12000 wall_ns=6357500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22098387 commands=12000 wall_ns=9373800\nC32_SURFACE_TIMING declared=1 cycles=15549758 commands=12000 wall_ns=6358800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11075027 commands=12000 wall_ns=178916800 threaded=0\nC32_TIMING cycles=10309723 commands=12000 wall_ns=187476900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11911338 commands=12000 wall_ns=179132000 threaded=0\nC32_TIMING cycles=11621697 commands=12000 wall_ns=187476400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16459154 commands=12000 wall_ns=187544900 threaded=0\nC32_TIMING cycles=18149204 commands=12000 wall_ns=187206200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23709286 commands=12000 wall_ns=187636200 threaded=0\nC32_TIMING cycles=25143818 commands=12000 wall_ns=187204600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=543804 commands=12000 wall_ns=187517800 threaded=1\nC32_TIMING cycles=613112 commands=12000 wall_ns=187992200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23692725 commands=12000 wall_ns=187902600 threaded=1\nC32_TIMING cycles=25256168 commands=12000 wall_ns=188008300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=19908112 commands=12000 wall_ns=8177800\nC32_SURFACE_TIMING declared=0 cycles=20764853 commands=12000 wall_ns=8523300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=21253969 commands=12000 wall_ns=9193800\nC32_SURFACE_TIMING declared=0 cycles=20799374 commands=12000 wall_ns=8522700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=17024854 commands=12000 wall_ns=7011000\nC32_SURFACE_TIMING declared=1 cycles=16723749 commands=12000 wall_ns=6906200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15728462 commands=12000 wall_ns=7301600\nC32_SURFACE_TIMING declared=1 cycles=15251811 commands=12000 wall_ns=6906900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11687039 commands=12000 wall_ns=185100700 threaded=0\nC32_TIMING cycles=10206722 commands=12000 wall_ns=187679100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22105273 commands=12000 wall_ns=189841700 threaded=0\nC32_TIMING cycles=10548183 commands=12000 wall_ns=187678100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14544962 commands=12000 wall_ns=187641000 threaded=0\nC32_TIMING cycles=16998883 commands=12000 wall_ns=187838600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21131688 commands=12000 wall_ns=190273400 threaded=0\nC32_TIMING cycles=19416594 commands=12000 wall_ns=187841700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=631636 commands=12000 wall_ns=186293700 threaded=1\nC32_TIMING cycles=619531 commands=12000 wall_ns=172175800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25073437 commands=12000 wall_ns=188693600 threaded=1\nC32_TIMING cycles=18740391 commands=12000 wall_ns=172141300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=17813436 commands=12000 wall_ns=7378300\nC32_SURFACE_TIMING declared=0 cycles=17582033 commands=12000 wall_ns=7189800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=23371603 commands=12000 wall_ns=9881100\nC32_SURFACE_TIMING declared=0 cycles=17589628 commands=12000 wall_ns=7193000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "2",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15765872 commands=12000 wall_ns=6448600\nC32_SURFACE_TIMING declared=1 cycles=15509921 commands=12000 wall_ns=6342500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=22249700 commands=12000 wall_ns=9411400\nC32_SURFACE_TIMING declared=1 cycles=15510338 commands=12000 wall_ns=6342700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=11962541 commands=12000 wall_ns=175511000 threaded=0\nC32_TIMING cycles=10528878 commands=12000 wall_ns=187423200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12922986 commands=12000 wall_ns=175923300 threaded=0\nC32_TIMING cycles=11281910 commands=12000 wall_ns=187425300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15766608 commands=12000 wall_ns=185978800 threaded=0\nC32_TIMING cycles=15447938 commands=12000 wall_ns=188066600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23894017 commands=12000 wall_ns=186068200 threaded=0\nC32_TIMING cycles=22671934 commands=12000 wall_ns=188077900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=546375 commands=12000 wall_ns=185659600 threaded=1\nC32_TIMING cycles=734020 commands=12000 wall_ns=187861500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21073870 commands=12000 wall_ns=186307800 threaded=1\nC32_TIMING cycles=24205512 commands=12000 wall_ns=187783100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=17540358 commands=12000 wall_ns=7201900\nC32_SURFACE_TIMING declared=0 cycles=17100228 commands=12000 wall_ns=7041500\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=19513833 commands=12000 wall_ns=8532400\nC32_SURFACE_TIMING declared=0 cycles=15866786 commands=12000 wall_ns=7059800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=16501975 commands=12000 wall_ns=6862000\nC32_SURFACE_TIMING declared=1 cycles=16644124 commands=12000 wall_ns=6906600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15468738 commands=12000 wall_ns=6993700\nC32_SURFACE_TIMING declared=1 cycles=15097633 commands=12000 wall_ns=6912300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10399540 commands=12000 wall_ns=188933200 threaded=0\nC32_TIMING cycles=11454854 commands=12000 wall_ns=187498500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15454797 commands=12000 wall_ns=191049000 threaded=0\nC32_TIMING cycles=11658297 commands=12000 wall_ns=187497000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16226104 commands=12000 wall_ns=187484800 threaded=0\nC32_TIMING cycles=15443994 commands=12000 wall_ns=172299900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23827626 commands=12000 wall_ns=190102700 threaded=0\nC32_TIMING cycles=17502803 commands=12000 wall_ns=172304300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=551054 commands=12000 wall_ns=186231600 threaded=1\nC32_TIMING cycles=577761 commands=12000 wall_ns=187916800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22045910 commands=12000 wall_ns=188508800 threaded=1\nC32_TIMING cycles=17154337 commands=12000 wall_ns=187907900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=15069975 commands=12000 wall_ns=6162800\nC32_SURFACE_TIMING declared=0 cycles=15447177 commands=12000 wall_ns=6319100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=21317769 commands=12000 wall_ns=9002600\nC32_SURFACE_TIMING declared=0 cycles=15394869 commands=12000 wall_ns=6319100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "4",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15365175 commands=12000 wall_ns=6283300\nC32_SURFACE_TIMING declared=1 cycles=14984175 commands=12000 wall_ns=6309100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=20167836 commands=12000 wall_ns=8517200\nC32_SURFACE_TIMING declared=1 cycles=15285673 commands=12000 wall_ns=6307000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10794745 commands=12000 wall_ns=183491300 threaded=0\nC32_TIMING cycles=10850071 commands=12000 wall_ns=187607200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11076839 commands=12000 wall_ns=183591000 threaded=0\nC32_TIMING cycles=10969800 commands=12000 wall_ns=187606500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15580210 commands=12000 wall_ns=188316200 threaded=0\nC32_TIMING cycles=17605581 commands=12000 wall_ns=187067000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21736962 commands=12000 wall_ns=188472800 threaded=0\nC32_TIMING cycles=24551965 commands=12000 wall_ns=187071800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=707878 commands=12000 wall_ns=170767600 threaded=1\nC32_TIMING cycles=620903 commands=12000 wall_ns=187621300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=20259980 commands=12000 wall_ns=171329400 threaded=1\nC32_TIMING cycles=22991866 commands=12000 wall_ns=187653500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16097897 commands=12000 wall_ns=6705700\nC32_SURFACE_TIMING declared=0 cycles=17489815 commands=12000 wall_ns=7152300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=15490418 commands=12000 wall_ns=6776800\nC32_SURFACE_TIMING declared=0 cycles=15606156 commands=12000 wall_ns=7151700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15372012 commands=12000 wall_ns=6422600\nC32_SURFACE_TIMING declared=1 cycles=14789645 commands=12000 wall_ns=6154100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15710894 commands=12000 wall_ns=6487400\nC32_SURFACE_TIMING declared=1 cycles=15047263 commands=12000 wall_ns=6153900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=10026108 commands=12000 wall_ns=179221000 threaded=0\nC32_TIMING cycles=8951074 commands=12000 wall_ns=187410300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15838614 commands=12000 wall_ns=181932300 threaded=0\nC32_TIMING cycles=8915283 commands=12000 wall_ns=187411500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=14657592 commands=12000 wall_ns=187147800 threaded=0\nC32_TIMING cycles=15254635 commands=12000 wall_ns=187433000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23604838 commands=12000 wall_ns=189825900 threaded=0\nC32_TIMING cycles=18006784 commands=12000 wall_ns=187434400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=479587 commands=12000 wall_ns=171856000 threaded=1\nC32_TIMING cycles=595645 commands=12000 wall_ns=187457400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24885974 commands=12000 wall_ns=174455500 threaded=1\nC32_TIMING cycles=18830800 commands=12000 wall_ns=187502000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=17890023 commands=12000 wall_ns=7328900\nC32_SURFACE_TIMING declared=0 cycles=16156451 commands=12000 wall_ns=6631800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=24137548 commands=12000 wall_ns=11103400\nC32_SURFACE_TIMING declared=0 cycles=15541721 commands=12000 wall_ns=6631400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "8",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=16753197 commands=12000 wall_ns=7312800\nC32_SURFACE_TIMING declared=1 cycles=15513376 commands=12000 wall_ns=6422200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=23297910 commands=12000 wall_ns=10291500\nC32_SURFACE_TIMING declared=1 cycles=15653785 commands=12000 wall_ns=6401700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12140487 commands=12000 wall_ns=187675900 threaded=0\nC32_TIMING cycles=12512543 commands=12000 wall_ns=187392300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12564062 commands=12000 wall_ns=187740300 threaded=0\nC32_TIMING cycles=13226596 commands=12000 wall_ns=187378800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=16435069 commands=12000 wall_ns=186625600 threaded=0\nC32_TIMING cycles=15523562 commands=12000 wall_ns=188561800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22943470 commands=12000 wall_ns=186658200 threaded=0\nC32_TIMING cycles=22942353 commands=12000 wall_ns=188573700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=678944 commands=12000 wall_ns=186259800 threaded=1\nC32_TIMING cycles=690336 commands=12000 wall_ns=187643300 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22496925 commands=12000 wall_ns=186355600 threaded=1\nC32_TIMING cycles=22748029 commands=12000 wall_ns=187576800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14610893 commands=12000 wall_ns=6027200\nC32_SURFACE_TIMING declared=0 cycles=14715042 commands=12000 wall_ns=6069200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=14699045 commands=12000 wall_ns=6082400\nC32_SURFACE_TIMING declared=0 cycles=14846559 commands=12000 wall_ns=6071800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15318747 commands=12000 wall_ns=6478500\nC32_SURFACE_TIMING declared=1 cycles=18702394 commands=12000 wall_ns=7791300\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15927892 commands=12000 wall_ns=6680200\nC32_SURFACE_TIMING declared=1 cycles=15520948 commands=12000 wall_ns=7659400\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=13270326 commands=12000 wall_ns=179708400 threaded=0\nC32_TIMING cycles=12941264 commands=12000 wall_ns=171984800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=17661266 commands=12000 wall_ns=182435700 threaded=0\nC32_TIMING cycles=11411800 commands=12000 wall_ns=171986000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=18731743 commands=12000 wall_ns=186962400 threaded=0\nC32_TIMING cycles=16358259 commands=12000 wall_ns=187300800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=25512777 commands=12000 wall_ns=188723600 threaded=0\nC32_TIMING cycles=18733800 commands=12000 wall_ns=187301900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=677057 commands=12000 wall_ns=186042000 threaded=1\nC32_TIMING cycles=569135 commands=12000 wall_ns=187904500 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22854138 commands=12000 wall_ns=188359800 threaded=1\nC32_TIMING cycles=19714956 commands=12000 wall_ns=187846700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=14792659 commands=12000 wall_ns=6048900\nC32_SURFACE_TIMING declared=0 cycles=15149061 commands=12000 wall_ns=6325800\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=20702868 commands=12000 wall_ns=8790600\nC32_SURFACE_TIMING declared=0 cycles=14841585 commands=12000 wall_ns=6324600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "16",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=17484155 commands=12000 wall_ns=7188000\nC32_SURFACE_TIMING declared=1 cycles=15451684 commands=12000 wall_ns=6322200\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=21765434 commands=12000 wall_ns=9692100\nC32_SURFACE_TIMING declared=1 cycles=15369095 commands=12000 wall_ns=6323600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=13834240 commands=12000 wall_ns=180787500 threaded=0\nC32_TIMING cycles=14742431 commands=12000 wall_ns=188038400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14378238 commands=12000 wall_ns=181371000 threaded=0\nC32_TIMING cycles=14892328 commands=12000 wall_ns=188019300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=17282497 commands=12000 wall_ns=185517900 threaded=0\nC32_TIMING cycles=20010302 commands=12000 wall_ns=188254200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24616813 commands=12000 wall_ns=186023600 threaded=0\nC32_TIMING cycles=26402373 commands=12000 wall_ns=188265200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=696241 commands=12000 wall_ns=185568200 threaded=1\nC32_TIMING cycles=748719 commands=12000 wall_ns=187381100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=22119974 commands=12000 wall_ns=185622100 threaded=1\nC32_TIMING cycles=22932786 commands=12000 wall_ns=187295400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16922566 commands=12000 wall_ns=6921600\nC32_SURFACE_TIMING declared=0 cycles=16887826 commands=12000 wall_ns=6971100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=14939293 commands=12000 wall_ns=7004500\nC32_SURFACE_TIMING declared=0 cycles=14946349 commands=12000 wall_ns=6971000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=15281459 commands=12000 wall_ns=6476000\nC32_SURFACE_TIMING declared=1 cycles=14844819 commands=12000 wall_ns=6146600\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=15978949 commands=12000 wall_ns=6622700\nC32_SURFACE_TIMING declared=1 cycles=15033420 commands=12000 wall_ns=6148000\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=13828759 commands=12000 wall_ns=185725200 threaded=0\nC32_TIMING cycles=12434436 commands=12000 wall_ns=187717100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=17742896 commands=12000 wall_ns=188787000 threaded=0\nC32_TIMING cycles=9814902 commands=12000 wall_ns=187719700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=15495479 commands=12000 wall_ns=186037200 threaded=0\nC32_TIMING cycles=16241329 commands=12000 wall_ns=187593500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=24844516 commands=12000 wall_ns=189090400 threaded=0\nC32_TIMING cycles=18563797 commands=12000 wall_ns=187626500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=632982 commands=12000 wall_ns=186459500 threaded=1\nC32_TIMING cycles=478362 commands=12000 wall_ns=187745400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=23713084 commands=12000 wall_ns=189645000 threaded=1\nC32_TIMING cycles=18044616 commands=12000 wall_ns=187741000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "upload-wrap",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_SURFACE_WRAP_PASS 32 large uploads, every byte, padding hidden from dispatch\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-boundaries",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_SURFACE_BOUNDARY_PASS ordinary/ATI-descriptor/shared/partial/zero/unaligned/full-ring\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-generic",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=0 cycles=16229019 commands=12000 wall_ns=6732000\nC32_SURFACE_TIMING declared=0 cycles=16819176 commands=12000 wall_ns=6878100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=0 cycles=22502173 commands=12000 wall_ns=9993100\nC32_SURFACE_TIMING declared=0 cycles=15111233 commands=12000 wall_ns=6880700\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "surface-small-declared",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_SURFACE_TIMING declared=1 cycles=18410550 commands=12000 wall_ns=7551900\nC32_SURFACE_TIMING declared=1 cycles=18057603 commands=12000 wall_ns=7442100\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_SURFACE_TIMING declared=1 cycles=28917153 commands=12000 wall_ns=12451000\nC32_SURFACE_TIMING declared=1 cycles=18060640 commands=12000 wall_ns=7443900\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  }
+]
