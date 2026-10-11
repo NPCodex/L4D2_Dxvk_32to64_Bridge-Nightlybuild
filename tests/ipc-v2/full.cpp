@@ -72,6 +72,22 @@ void corruptionCases(){
 }
 int main(){try{
   pressureCases();corruptionCases();
+  for(unsigned batch:{1u,2u,4u,8u,16u,32u}){
+    auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);w.configureBatch(batch);check(w.batchSize()==batch,"gear normalization");
+    for(unsigned cycle=0;cycle<3;++cycle){
+      for(unsigned i=0;i+1<batch;++i)send(w,cycle*batch+i);
+      if(batch>1){Result result;r.peek(result,1);check(result==Result::Timeout&&w.pending(),"partial gear visible");
+        bool rejected=false;try{w.configureBatch(1);}catch(...){rejected=true;}check(rejected,"pending gear reconfiguration");}
+      send(w,cycle*batch+batch-1);check(!w.pending(),"full gear not published");for(unsigned i=0;i<batch;++i)read(r,cycle*batch+i);
+    }
+    for(auto command:{Commands::Bridge_Terminate,Commands::IDirect3DDevice9Ex_Present,Commands::IDirect3DDevice9Ex_Reset,Commands::IDirect3DTexture9_Destroy,Commands::IDirect3DQuery9_GetData}){
+      if(batch>1)send(w,200);
+      check(w.begin({command,0,0,201})&&w.scalar(201)&&w.finish(true),"semantic boundary flush");
+      check(!w.pending(),"semantic tail retained");if(batch>1)read(r,200);read(r,201);
+    }
+    send(w,300);if(batch>1){check(w.pending()&&w.due(UINT64_MAX)&&w.flush(),"lazy deadline flush");}read(r,300);
+    for(unsigned invalid:{0u,3u,5u,15u,31u,33u,64u,UINT32_MAX}){w.configureBatch(invalid);check(w.batchSize()==1,"invalid gear fallback");}
+  }
   {auto n=name();ldb_full::MessageQueue r(n,2*1024*1024,false),w(n,2*1024*1024,true);w.configureBatch(32);
    for(unsigned i=0;i<31;++i)send(w,i);check(w.pending(),"batch pending");Result result;r.peek(result,1);check(result==Result::Timeout,"partial visible");
    send(w,31);for(unsigned i=0;i<32;++i)read(r,i);check(w.begin({Commands::Bridge_Response,0,0,42}),"reply begin");

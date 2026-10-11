@@ -8,8 +8,9 @@ for folder in dirs.values():
     assert (folder/'full_bridge_cases.cpp').read_bytes()==(ROOT/'tests/ipc-v2/full_bridge_cases.cpp').read_bytes()
 rows=[]
 pattern=re.compile(r'C32_TIMING cycles=(\d+) commands=(\d+) wall_ns=(\d+) threaded=(\d+)')
+batches=('1','2','4','8','16','32')
 for iteration in range(6):
-    for batch in (('1','32') if iteration%2==0 else ('32','1')):
+    for batch in (batches if iteration%2==0 else tuple(reversed(batches))):
         for arch in ('32','64'):
             for mode in (('stream','mixed') if iteration%2==0 else ('mixed','stream')):
                 for variant in (('C32','Full') if iteration%2==0 else ('Full','C32')):
@@ -37,7 +38,7 @@ for iteration in range(6):
                         for child in (client,host):
                             if child is not None and child.poll() is None:child.kill();child.wait()
 summary=[]
-for batch in ('1','32'):
+for batch in batches:
     for arch in ('32','64'):
         for mode in ('stream','mixed'):
             entry=dict(batch=batch,host_arch=arch,mode=mode)
@@ -46,7 +47,7 @@ for batch in ('1','32'):
                 entry[metric]=dict(medians,full_change_percent=(medians['Full']/medians['C32']-1)*100)
             summary.append(entry)
 checksums={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in dirs.values() for p in folder.glob('transport-*.exe')}
-receipt=dict(baseline='published C32 2ce9f9b',rounds=5,warmup_rounds=1,mapping_budget_bytes=2097152,
+receipt=dict(baseline='published all-gear C32 00007e8 (production d59493c)',rounds=5,warmup_rounds=1,mapping_budget_bytes=2097152,
              usable_upload_bytes={variant:{role:next(r[role+'_upload_capacities'] for r in rows if r['variant']==variant) for role in ('client','host')} for variant in dirs},
              compiler='MSVC 14.29 /O2 /DNDEBUG /LARGEADDRESSAWARE',caller='identical full_bridge_cases.cpp',
              limitations=['Host Sleep(1) every 1024 calls; RPC every 101 calls; outer wall includes these waits','not FPS or GPU timing','synthetic mixed mode uses 512-byte upload on one third of calls','same mapping budget; Full lease metadata reduces usable payload capacity relative to C32'],

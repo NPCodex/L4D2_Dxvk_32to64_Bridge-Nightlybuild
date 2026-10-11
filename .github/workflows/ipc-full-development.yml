@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
-          ref: 2ce9f9b0e50ca9bc9af592478769fa8374596344
+          ref: 00007e8762385704afdacabea6e48444d798d27a
           path: .deps/c32-frozen
       - uses: actions/setup-python@v5
         with:

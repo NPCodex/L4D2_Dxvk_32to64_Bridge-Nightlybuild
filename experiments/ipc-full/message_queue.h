@@ -102,7 +102,10 @@ public:
   const std::string& name()const{return m_name;}
   bool blobOpen()const{return m_blob;}
   uint32_t bodyBytes()const{return m_written;}
-  void configureBatch(uint32_t batch){if(m_encoder || m_external)throw std::logic_error("batch during command");m_batch=batch==32?32:1;}
+  void configureBatch(uint32_t batch){
+    if(m_pending || m_encoder || m_external)throw std::logic_error("batch during command or pending tail");
+    m_batch=batch && batch<=32 && !(batch&(batch-1))?batch:1;
+  }
   uint32_t batchSize()const{return m_batch;}
   bool pending()const{return m_deadline.load(std::memory_order_acquire)!=0;}
   bool due(uint64_t now)const{const auto d=m_deadline.load(std::memory_order_acquire);return d && now>=d;}

@@ -30,6 +30,6 @@ shutil.copy2(pr6/'tests/ipc_wait_injection.h',out/'ipc_wait_injection.h')
 manifest={p.relative_to(util).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in
           (util/'util_bridgecommand.h',util/'util_bridgecommand.cpp',util/'util_ipcchannel.h')}
 manifest['frozen_build_id']='ldb-ipc-c32-dev+'+digest[:16]
-manifest['frozen_commit']='2ce9f9b0e50ca9bc9af592478769fa8374596344'
+manifest['frozen_commit']='00007e8762385704afdacabea6e48444d798d27a'
 manifest['caller_sha256']=hashlib.sha256((out/'full_bridge_cases.cpp').read_bytes()).hexdigest()
 (out/'baseline-source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
