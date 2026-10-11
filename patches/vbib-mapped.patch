@@ -1,249 +1,75 @@
 diff --git a/bridge/src/client/client_options.h b/bridge/src/client/client_options.h
-index 6175148..cf65b65 100644
+index 6175148..047d4b2 100644
 --- a/bridge/src/client/client_options.h
 +++ b/bridge/src/client/client_options.h
-@@ -25,61 +25,85 @@
- #include <sstream>
- 
- #include "config/config.h"
--#include "log/log.h"
- #include "di_hook.h"
-+#include "log/log.h"
- 
+@@ -31,6 +31,28 @@
  #include <d3d9.h>
  
  namespace ClientOptions {
--  inline std::string getTargetProcess() {
--    return bridge_util::Config::getOption<std::string>("client.targetProcess", "");
--  }
--
--  inline bool getUseVanillaDxvk() {
--    return bridge_util::Config::getOption<bool>("client.useVanillaDxvk", false);
--  }
--
--  inline bool getSetExceptionHandler() {
--    return bridge_util::Config::getOption<bool>("client.setExceptionHandler", false);
--  }
--
--  inline bool getHookMessagePump() {
--    return bridge_util::Config::getOption<bool>("client.hookMessagePump", false);
--  }
--
--  inline bool getOverrideCustomWinHooks() {
--    return bridge_util::Config::getOption<bool>("client.overrideCustomWinHooks", false);
--  }
--
--  inline bool getDisableExclusiveInput() {
--    return bridge_util::Config::getOption<bool>("client.DirectInput.disableExclusiveInput", false);
--  }
--
--  inline bool getEnableBackbufferCapture() {
--    return bridge_util::Config::getOption<bool>("client.enableBackbufferCapture", false);
--  }
--
--  inline DI::ForwardPolicy getForwardDirectInputMousePolicy() {
--    return (DI::ForwardPolicy)bridge_util::Config::getOption<int>("client.DirectInput.forward.mousePolicy", DI::RemixUIActive);
--  }
--  
--  inline DI::ForwardPolicy getForwardDirectInputKeyboardPolicy() {
--    return (DI::ForwardPolicy)bridge_util::Config::getOption<int>("client.DirectInput.forward.keyboardPolicy", DI::RemixUIActive);
--  }
--
--  inline bool getForceWindowed() {
--    return bridge_util::Config::getOption<bool>("client.forceWindowed", false);
--  }
--
--  inline bool getEnableDpiAwareness() {
--    return bridge_util::Config::getOption<bool>("client.enableDpiAwareness", true);
--  }
--
--  // If set, the space for data for dynamic buffer updates will be preallocated on data channel
--  // and redundant copy will be avioded. However, because D3D applications are not obliged
--  // to write the entire locked region this optimization is NOT considered safe and may
--  // not always work.
--  inline bool getOptimizedDynamicLock() {
--    return bridge_util::Config::getOption<bool>("client.optimizedDynamicLock", false);
--  }
--}
-\ No newline at end of file
-+// NV-DXVK start: Experimental static buffer view residency; contents stay intact.
-+inline bool getMappedBufferShadow() {
-+  static const bool enabled = bridge_util::Config::getOption<bool>("client.vbibMappedShadow", true);
-+  return enabled;
-+}
-+inline size_t getMappedBufferMinimum() {
-+  static const size_t bytes = [] {
-+    const auto kb = bridge_util::Config::getOption<uint32_t>("client.vbibMappedShadowMinKB", 256);
-+    const uint64_t requested = static_cast<uint64_t>(kb < 64 ? 64 : kb) * 1024;
-+    return requested > SIZE_MAX ? SIZE_MAX : static_cast<size_t>(requested);
-+  }();
-+  return bytes;
-+}
-+inline size_t getMappedBufferCacheBudget() {
-+  static const size_t bytes = [] {
-+    const auto mb = bridge_util::Config::getOption<uint32_t>("client.vbibShadowCacheMB", 32);
-+    return static_cast<size_t>(mb > 1024 ? 1024 : mb) * 1024 * 1024;
-+  }();
-+  return bytes;
-+}
-+// NV-DXVK end
++  // NV-DXVK start: Experimental static buffer view residency; contents stay intact.
++  inline bool getMappedBufferShadow() {
++    static const bool enabled = bridge_util::Config::getOption<bool>("client.vbibMappedShadow", true);
++    return enabled;
++  }
++  inline size_t getMappedBufferMinimum() {
++    static const size_t bytes = [] {
++      const auto kb = bridge_util::Config::getOption<uint32_t>("client.vbibMappedShadowMinKB", 256);
++      const uint64_t requested = static_cast<uint64_t>(kb < 64 ? 64 : kb) * 1024;
++      return requested > SIZE_MAX ? SIZE_MAX : static_cast<size_t>(requested);
++    }();
++    return bytes;
++  }
++  inline size_t getMappedBufferCacheBudget() {
++    static const size_t bytes = [] {
++      const auto mb = bridge_util::Config::getOption<uint32_t>("client.vbibShadowCacheMB", 32);
++      return static_cast<size_t>(mb > 1024 ? 1024 : mb) * 1024 * 1024;
++    }();
++    return bytes;
++  }
++  // NV-DXVK end
 +
-+inline std::string getTargetProcess() {
-+  return bridge_util::Config::getOption<std::string>("client.targetProcess", "");
-+}
-+
-+inline bool getUseVanillaDxvk() {
-+  return bridge_util::Config::getOption<bool>("client.useVanillaDxvk", false);
-+}
-+
-+inline bool getSetExceptionHandler() {
-+  return bridge_util::Config::getOption<bool>("client.setExceptionHandler", false);
-+}
-+
-+inline bool getHookMessagePump() {
-+  return bridge_util::Config::getOption<bool>("client.hookMessagePump", false);
-+}
-+
-+inline bool getOverrideCustomWinHooks() {
-+  return bridge_util::Config::getOption<bool>("client.overrideCustomWinHooks", false);
-+}
-+
-+inline bool getDisableExclusiveInput() {
-+  return bridge_util::Config::getOption<bool>("client.DirectInput.disableExclusiveInput", false);
-+}
-+
-+inline bool getEnableBackbufferCapture() {
-+  return bridge_util::Config::getOption<bool>("client.enableBackbufferCapture", false);
-+}
-+
-+inline DI::ForwardPolicy getForwardDirectInputMousePolicy() {
-+  return (DI::ForwardPolicy)bridge_util::Config::getOption<int>("client.DirectInput.forward.mousePolicy",
-+                                                                DI::RemixUIActive);
-+}
-+
-+inline DI::ForwardPolicy getForwardDirectInputKeyboardPolicy() {
-+  return (DI::ForwardPolicy)bridge_util::Config::getOption<int>("client.DirectInput.forward.keyboardPolicy",
-+                                                                DI::RemixUIActive);
-+}
-+
-+inline bool getForceWindowed() {
-+  return bridge_util::Config::getOption<bool>("client.forceWindowed", false);
-+}
-+
-+inline bool getEnableDpiAwareness() {
-+  return bridge_util::Config::getOption<bool>("client.enableDpiAwareness", true);
-+}
-+
-+// If set, the space for data for dynamic buffer updates will be preallocated on data channel
-+// and redundant copy will be avioded. However, because D3D applications are not obliged
-+// to write the entire locked region this optimization is NOT considered safe and may
-+// not always work.
-+inline bool getOptimizedDynamicLock() {
-+  return bridge_util::Config::getOption<bool>("client.optimizedDynamicLock", false);
-+}
-+} // namespace ClientOptions
-\ No newline at end of file
+   inline std::string getTargetProcess() {
+     return bridge_util::Config::getOption<std::string>("client.targetProcess", "");
+   }
 diff --git a/bridge/src/client/lockable_buffer.h b/bridge/src/client/lockable_buffer.h
-index 6a609f0..2bcca8e 100644
+index 6a609f0..a4426f5 100644
 --- a/bridge/src/client/lockable_buffer.h
 +++ b/bridge/src/client/lockable_buffer.h
-@@ -1,6 +1,7 @@
- // Project-specific additions and modifications: Copyright (c) 2026 yeyunyyds.
--// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
--// Original upstream code and copyright notices remain attributed to their original authors.
-+// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and
-+// specifications provided by yeyunyyds. Original upstream code and copyright notices remain attributed to
-+// their original authors.
+@@ -30,6 +30,7 @@
  
- /*
-  * Copyright (c) 2022-2023, NVIDIA CORPORATION. All rights reserved.
-@@ -28,19 +29,19 @@
- #include "util_bridgecommand.h"
- #include "util_sharedheap.h"
- 
--#include "d3d9_util.h"
-+#include "buffer_mapped_shadow.h"
+ #include "d3d9_util.h"
  #include "buffer_shadow.h"
-+#include "d3d9_util.h"
++#include "buffer_mapped_shadow.h"
  
  #include <d3d9.h>
  #include <queue>
- 
--template <typename T>
--class LockableBuffer: public Direct3DResource9_LSS<T> {
-+template <typename T> class LockableBuffer : public Direct3DResource9_LSS<T> {
-   static constexpr bool bIsVertexBuffer = std::is_same_v<IDirect3DVertexBuffer9, T>;
--  static constexpr Commands::D3D9Command LockCmd = bIsVertexBuffer ?
--    Commands::IDirect3DVertexBuffer9_Lock : Commands::IDirect3DIndexBuffer9_Lock;
--  static constexpr Commands::D3D9Command UnlockCmd = bIsVertexBuffer ?
--    Commands::IDirect3DVertexBuffer9_Unlock : Commands::IDirect3DIndexBuffer9_Unlock;
-+  static constexpr Commands::D3D9Command LockCmd =
-+      bIsVertexBuffer ? Commands::IDirect3DVertexBuffer9_Lock : Commands::IDirect3DIndexBuffer9_Lock;
-+  static constexpr Commands::D3D9Command UnlockCmd =
-+      bIsVertexBuffer ? Commands::IDirect3DVertexBuffer9_Unlock : Commands::IDirect3DIndexBuffer9_Unlock;
-   static constexpr size_t kSIMDAlign = 16;
-   static constexpr uint32_t kLockCheckValue = 0xbaadf00d;
-   using DescType = std::conditional_t<bIsVertexBuffer, D3DVERTEXBUFFER_DESC, D3DINDEXBUFFER_DESC>;
-@@ -48,9 +49,9 @@ class LockableBuffer: public Direct3DResource9_LSS<T> {
-   struct LockInfo {
-     UINT offsetToLock;
-     UINT sizeToLock;
--    void* pbData;
-+    void *pbData;
-     DWORD flags;
--    uint32_t* checkPtr;
-+    uint32_t *checkPtr;
-     SharedHeap::AllocId bufferId = SharedHeap::kInvalidId;
-     SharedHeap::AllocId discardedBufferId = SharedHeap::kInvalidId;
-   };
-@@ -61,33 +62,51 @@ class LockableBuffer: public Direct3DResource9_LSS<T> {
+@@ -61,6 +62,11 @@ class LockableBuffer: public Direct3DResource9_LSS<T> {
  
    const bool m_bUseSharedHeap = false;
    l4d2_buffer::Storage m_shadow;
 +  // NV-DXVK start: Only static buffer shadows use pageable section views.
 +  std::unique_ptr<l4d2_buffer::MappedBufferShadow> m_mappedShadow;
 +  bool hasShadow() const { return m_shadow || m_mappedShadow; }
-+  uint8_t *shadowData() const { return m_mappedShadow ? m_mappedShadow->get() : m_shadow.get(); }
++  uint8_t* shadowData() const { return m_mappedShadow ? m_mappedShadow->get() : m_shadow.get(); }
 +  // NV-DXVK end
    inline static size_t g_totalBufferShadow = 0;
  
  public:
--  DescType getDesc() {
--    return m_desc;
--  }
-+  DescType getDesc() { return m_desc; }
- 
- private:
--  static bool getSharedHeapPolicy(const DescType& desc) {
-+  static bool getSharedHeapPolicy(const DescType &desc) {
-     if (GlobalOptions::getUseSharedHeap()) {
--      return (desc.Usage & D3DUSAGE_DYNAMIC) ?
--        GlobalOptions::getUseSharedHeapForDynamicBuffers() :
--        GlobalOptions::getUseSharedHeapForStaticBuffers();
-+      return (desc.Usage & D3DUSAGE_DYNAMIC) ? GlobalOptions::getUseSharedHeapForDynamicBuffers()
-+                                             : GlobalOptions::getUseSharedHeapForStaticBuffers();
-     } else {
-       return false;
-     }
+@@ -80,9 +86,22 @@ private:
    }
  
    void initShadowMem() {
 -    m_shadow = l4d2_buffer::allocate(m_desc.Size,
 -      bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
 -      true);
--    if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow += m_desc.Size; }
--    Logger::traceLazy([&]() { return format_string("Allocated a shadow for dynamic %s buffer [%p] "
--                                "(size: %zd, total shadow size: %zd)",
--                                bIsVertexBuffer ? "vertex" : "index",
--                                this, m_desc.Size, g_totalBufferShadow); });
 +    // NV-DXVK start: Preserve the full zero-filled content and creation failure boundary.
 +    const auto kind = bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index;
-+    if (!(m_desc.Usage & D3DUSAGE_DYNAMIC) && m_desc.Size >= ClientOptions::getMappedBufferMinimum() &&
-+        ClientOptions::getMappedBufferShadow()) {
++    if (!(m_desc.Usage & D3DUSAGE_DYNAMIC) && m_desc.Size >= ClientOptions::getMappedBufferMinimum()
++      && ClientOptions::getMappedBufferShadow()) {
 +      try {
 +        m_mappedShadow = std::make_unique<l4d2_buffer::MappedBufferShadow>(
-+            m_desc.Size, ClientOptions::getMappedBufferCacheBudget());
-+      } catch (const std::bad_alloc &) {
++          m_desc.Size, ClientOptions::getMappedBufferCacheBudget());
++      } catch (const std::bad_alloc&) {
 +        l4d2_memory::sample(true, "buffer-section-create-failed", kind, m_desc.Size, 0, 0, 0, GetLastError());
 +        throw;
 +      }
@@ -252,121 +78,48 @@ index 6a609f0..2bcca8e 100644
 +      m_shadow = l4d2_buffer::allocate(m_desc.Size, kind, true);
 +    }
 +    // NV-DXVK end
-+    if (Logger::isEnabled(bridge_util::LogLevel::Trace)) {
-+      g_totalBufferShadow += m_desc.Size;
-+    }
-+    Logger::traceLazy([&]() {
-+      return format_string("Allocated a shadow for dynamic %s buffer [%p] "
-+                           "(size: %zd, total shadow size: %zd)",
-+                           bIsVertexBuffer ? "vertex" : "index", this, m_desc.Size, g_totalBufferShadow);
-+    });
-   }
- 
- protected:
-@@ -96,18 +115,17 @@ protected:
-   const bool m_sendWhole = false;
-   const bool m_optimizedLock = false;
- 
--  LockableBuffer(T* const pD3dBuf, BaseDirect3DDevice9Ex_LSS* const pDevice, const DescType& desc)
--    : Direct3DResource9_LSS<T>(pD3dBuf, pDevice)
--    , m_desc(desc)
--    , m_bUseSharedHeap(getSharedHeapPolicy(m_desc))
--    , m_sendWhole((desc.Usage& D3DUSAGE_DYNAMIC) == 0 && GlobalOptions::getAlwaysCopyEntireStaticBuffer())
--    , m_optimizedLock((desc.Usage& D3DUSAGE_DYNAMIC) != 0 && ClientOptions::getOptimizedDynamicLock()) {
-+  LockableBuffer(T *const pD3dBuf, BaseDirect3DDevice9Ex_LSS *const pDevice, const DescType &desc)
-+      : Direct3DResource9_LSS<T>(pD3dBuf, pDevice), m_desc(desc),
-+        m_bUseSharedHeap(getSharedHeapPolicy(m_desc)),
-+        m_sendWhole((desc.Usage & D3DUSAGE_DYNAMIC) == 0 && GlobalOptions::getAlwaysCopyEntireStaticBuffer()),
-+        m_optimizedLock((desc.Usage & D3DUSAGE_DYNAMIC) != 0 && ClientOptions::getOptimizedDynamicLock()) {
-     if (!m_bUseSharedHeap) {
-       initShadowMem();
+     if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow += m_desc.Size; }
+     Logger::traceLazy([&]() { return format_string("Allocated a shadow for dynamic %s buffer [%p] "
+                                 "(size: %zd, total shadow size: %zd)",
+@@ -107,7 +126,7 @@ protected:
      }
      // NV-DXVK start: Optional data/resource tracing.
--    m_dataTrace.open(bIsVertexBuffer ? l4d2_data::Kind::Vertex : l4d2_data::Kind::Index,
+     m_dataTrace.open(bIsVertexBuffer ? l4d2_data::Kind::Vertex : l4d2_data::Kind::Index,
 -      getId(), desc.Size, m_shadow ? desc.Size : 0, desc.Usage, desc.Pool, desc.Format);
-+    m_dataTrace.open(bIsVertexBuffer ? l4d2_data::Kind::Vertex : l4d2_data::Kind::Index, getId(), desc.Size,
-+                     hasShadow() ? desc.Size : 0, desc.Usage, desc.Pool, desc.Format);
++      getId(), desc.Size, hasShadow() ? desc.Size : 0, desc.Usage, desc.Pool, desc.Format);
      // NV-DXVK end
    }
  
-@@ -119,18 +137,21 @@ protected:
+@@ -119,7 +138,7 @@ protected:
        if (m_bufferId != SharedHeap::kInvalidId) {
          SharedHeap::deallocate(m_bufferId);
        }
 -    } else if (m_shadow) {
--      if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow -= m_desc.Size; }
 +    } else if (hasShadow()) {
-+      if (Logger::isEnabled(bridge_util::LogLevel::Trace)) {
-+        g_totalBufferShadow -= m_desc.Size;
-+      }
+       if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow -= m_desc.Size; }
        l4d2_memory::released(m_desc.Size,
--        bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index);
--      Logger::traceLazy([&]() { return format_string("Released shadow of dynamic %s buffer [%p] "
--                                  "(size: %zd, total shadow size: %zd)",
--                                  bIsVertexBuffer ? "vertex" : "index",
--                                  this, m_desc.Size, g_totalBufferShadow); });
-+                            bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index);
-+      Logger::traceLazy([&]() {
-+        return format_string("Released shadow of dynamic %s buffer [%p] "
-+                             "(size: %zd, total shadow size: %zd)",
-+                             bIsVertexBuffer ? "vertex" : "index", this, m_desc.Size, g_totalBufferShadow);
-+      });
-     }
-   }
- 
--  HRESULT lock(const UINT offset, const UINT size, void** ppbData, const DWORD flags) {
-+  HRESULT lock(const UINT offset, const UINT size, void **ppbData, const DWORD flags) {
-     if (ppbData == nullptr) {
-       // NV-DXVK start: Optional data/resource tracing.
-       m_dataTrace.lock(offset, size, flags, D3DERR_INVALIDCALL);
-@@ -139,8 +160,10 @@ protected:
-     }
- 
-     *ppbData = nullptr;
--    if (!DeviceBridge::healthy()) { return D3DERR_DEVICELOST; }
--    uint32_t* checkPtr = nullptr;
-+    if (!DeviceBridge::healthy()) {
-+      return D3DERR_DEVICELOST;
-+    }
-+    uint32_t *checkPtr = nullptr;
- 
-     if (m_bUseSharedHeap) {
-       SharedHeap::AllocId discardedBufferId = SharedHeap::kInvalidId;
-@@ -150,8 +173,9 @@ protected:
-         // and freeing that buffer from the shared heap
-         discardedBufferId = m_bufferId;
-       }
--      const auto nextBufId = (bDiscard || (m_bufferId == SharedHeap::kInvalidId)) ?
--        m_bufferId = SharedHeap::allocate(m_desc.Size) : m_bufferId;
-+      const auto nextBufId = (bDiscard || (m_bufferId == SharedHeap::kInvalidId))
-+                                 ? m_bufferId = SharedHeap::allocate(m_desc.Size)
-+                                 : m_bufferId;
-       if (nextBufId == SharedHeap::kInvalidId) {
-         std::stringstream ss;
-         ss << "[LockableBuffer][Lock] Failed to allocate on SharedHeap: {";
-@@ -168,9 +192,27 @@ protected:
-       }
-       m_bufferId = nextBufId;
+         bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index);
+@@ -170,7 +189,26 @@ protected:
        *ppbData = SharedHeap::getBuf(m_bufferId) + offset;
--      m_lockInfos.push({ offset, size, nullptr, flags, checkPtr, m_bufferId, discardedBufferId });
-+      m_lockInfos.push({offset, size, nullptr, flags, checkPtr, m_bufferId, discardedBufferId});
+       m_lockInfos.push({ offset, size, nullptr, flags, checkPtr, m_bufferId, discardedBufferId });
      } else {
 -      *ppbData = m_shadow.get() + offset;
 +      // NV-DXVK start: Keep one stable mapping across every overlapping Lock.
 +      if (m_mappedShadow) {
-+        auto *view = m_mappedShadow->acquire();
++        auto* view = m_mappedShadow->acquire();
 +        if (!view) {
 +          const auto error = GetLastError();
 +          m_dataTrace.lock(offset, size, flags, E_OUTOFMEMORY);
 +          l4d2_memory::sample(true, "buffer-section-map-failed",
-+                              bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
-+                              m_desc.Size, 0, 0, 0, error);
++            bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
++            m_desc.Size, 0, 0, 0, error);
 +          return E_OUTOFMEMORY;
 +        }
 +        *ppbData = view + offset;
 +        l4d2_memory::sample(false, "buffer-section-mapped",
-+                            bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
-+                            m_desc.Size);
++          bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index, m_desc.Size);
++        l4d2_memory::sample(false, "buffer-section-mapped",
++          bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index, m_desc.Size);
 +      } else {
 +        *ppbData = m_shadow.get() + offset;
 +      }
@@ -374,73 +127,26 @@ index 6a609f0..2bcca8e 100644
  
        if (m_optimizedLock) {
          const size_t dataSize = (size == 0) ? m_desc.Size : size;
-@@ -178,22 +220,38 @@ protected:
-         // Send the buffer lock parameters and handle
-         ClientMessage c(LockCmd, getId(), 0);
-         // Reserve blob in data stream
--        uintptr_t blobAddr = reinterpret_cast<uintptr_t>(
--          c.begin_data_blob(dataSize + sizeof(kLockCheckValue) + kSIMDAlign));
--        if (!blobAddr) { *ppbData = nullptr; return D3DERR_DEVICELOST; }
-+        uintptr_t blobAddr =
-+            reinterpret_cast<uintptr_t>(c.begin_data_blob(dataSize + sizeof(kLockCheckValue) + kSIMDAlign));
-+        if (!blobAddr) {
-+          *ppbData = nullptr;
-+          return D3DERR_DEVICELOST;
-+        }
-         c.end_data_blob();
- 
-         // Push buffer check value in front. If front gets corrupted the entire region deemed invalid.
--        checkPtr = reinterpret_cast<uint32_t*>(blobAddr);
-+        checkPtr = reinterpret_cast<uint32_t *>(blobAddr);
-         blobAddr += sizeof(kLockCheckValue);
-         *checkPtr = kLockCheckValue;
- 
-         // Align data blob for SIMD ops
-         blobAddr = align<uintptr_t>(blobAddr, kSIMDAlign);
--        if (c.finish() != Result::Success) { *ppbData = nullptr; return D3DERR_DEVICELOST; }
--        *ppbData = reinterpret_cast<void*>(blobAddr);
-+        if (c.finish() != Result::Success) {
-+          *ppbData = nullptr;
-+          return D3DERR_DEVICELOST;
-+        }
-+        *ppbData = reinterpret_cast<void *>(blobAddr);
-+      }
+@@ -193,7 +231,17 @@ protected:
+         if (c.finish() != Result::Success) { *ppbData = nullptr; return D3DERR_DEVICELOST; }
+         *ppbData = reinterpret_cast<void*>(blobAddr);
+       }
+-      m_lockInfos.push({ offset, size, *ppbData, flags, checkPtr });
 +      // NV-DXVK start: Roll back the mapping pin if lock metadata allocation fails.
 +      try {
-+        m_lockInfos.push({offset, size, *ppbData, flags, checkPtr});
-+      } catch (const std::bad_alloc &) {
++        m_lockInfos.push({ offset, size, *ppbData, flags, checkPtr });
++      } catch (const std::bad_alloc&) {
 +        if (m_mappedShadow) {
 +          m_mappedShadow->release();
 +        }
 +        *ppbData = nullptr;
 +        throw;
-       }
--      m_lockInfos.push({ offset, size, *ppbData, flags, checkPtr });
++      }
 +      // NV-DXVK end
      }
      // Store locked buffer pointer locally so we can copy the data on unlock
      // NV-DXVK start: Optional data/resource tracing.
-@@ -207,18 +265,22 @@ protected:
-     m_dataTrace.unlock(!m_lockInfos.empty());
-     // NV-DXVK end
-     // Some engines may attempt to Unlock a non-locked resource "just in case"
--    if (m_lockInfos.empty()) { return S_OK; }
-+    if (m_lockInfos.empty()) {
-+      return S_OK;
-+    }
-     // Get most recent locked buffer and grab data before we unlock
--    const auto& lockInfo = m_lockInfos.front();
-+    const auto &lockInfo = m_lockInfos.front();
-     uint32_t offset = lockInfo.offsetToLock;
--    // Clamp the size since some applications can request unreasonably large lock sizes that are not actually used
--    size_t size = (lockInfo.sizeToLock == 0) ? m_desc.Size - offset : std::min(lockInfo.sizeToLock, m_desc.Size - offset);
--    void* ptr = lockInfo.pbData;
-+    // Clamp the size since some applications can request unreasonably large lock sizes that are not actually
-+    // used
-+    size_t size = (lockInfo.sizeToLock == 0) ? m_desc.Size - offset
-+                                             : std::min(lockInfo.sizeToLock, m_desc.Size - offset);
-+    void *ptr = lockInfo.pbData;
- 
+@@ -218,7 +266,7 @@ protected:
      if (m_sendWhole) {
        size = m_desc.Size;
        offset = 0;
@@ -449,34 +155,7 @@ index 6a609f0..2bcca8e 100644
      }
  
      // If this is a read only access then don't bother sending
-@@ -244,15 +306,20 @@ protected:
-         // The complete wire layout is known for every buffer size. Reserve
-         // UID, fields and payload together; FULL_SHADOW and upload bytes stay unchanged.
-         if (m_bUseSharedHeap || m_optimizedLock) {
--          const uint32_t reference = m_bUseSharedHeap ? lockInfo.bufferId :
--            static_cast<uint32_t*>(ptr) - DeviceBridge::getWriterChannel().get_data_ptr();
-+          const uint32_t reference = m_bUseSharedHeap ? lockInfo.bufferId
-+                                                      : static_cast<uint32_t *>(ptr) -
-+                                                            DeviceBridge::getWriterChannel().get_data_ptr();
-           ClientMessage c(UnlockCmd, getId(), cmdFlags,
--            bridge_data::fields(offset, size, lockInfo.flags, reference));
--          if (c.finish() != Result::Success) { return D3DERR_DEVICELOST; }
-+                          bridge_data::fields(offset, size, lockInfo.flags, reference));
-+          if (c.finish() != Result::Success) {
-+            return D3DERR_DEVICELOST;
-+          }
-         } else {
-           ClientMessage c(UnlockCmd, getId(), cmdFlags,
--            bridge_data::payload(size, ptr, offset, size, lockInfo.flags));
--          if (c.finish() != Result::Success) { return D3DERR_DEVICELOST; }
-+                          bridge_data::payload(size, ptr, offset, size, lockInfo.flags));
-+          if (c.finish() != Result::Success) {
-+            return D3DERR_DEVICELOST;
-+          }
-         }
-       }
-       if (lockInfo.discardedBufferId != SharedHeap::kInvalidId) {
-@@ -260,6 +327,11 @@ protected:
+@@ -260,6 +308,11 @@ protected:
        }
      }
      m_lockInfos.pop();
@@ -489,322 +168,45 @@ index 6a609f0..2bcca8e 100644
    }
  };
 diff --git a/bridge/src/client/memory_diagnostics.h b/bridge/src/client/memory_diagnostics.h
-index f8de63c..cc58d60 100644
+index f8de63c..e556c84 100644
 --- a/bridge/src/client/memory_diagnostics.h
 +++ b/bridge/src/client/memory_diagnostics.h
-@@ -1,41 +1,44 @@
- // SPDX-License-Identifier: MIT
- // Project-specific additions and modifications: Copyright (c) 2026 yeyunyyds.
--// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
--// Original upstream code and copyright notices remain attributed to their original authors.
-+// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and
-+// specifications provided by yeyunyyds. Original upstream code and copyright notices remain attributed to
-+// their original authors.
- 
- #pragma once
- 
--#include <windows.h>
--#include <psapi.h>
-+#include "../util/queue_wait_diagnostics.h"
-+#include "../util/runtime_observation.h"
-+#include "buffer_mapped_shadow.h"
- #include <atomic>
- #include <cstdint>
- #include <cstdio>
- #include <cwchar>
- #include <mutex>
+@@ -15,6 +15,7 @@
  #include <new>
--#include "../util/queue_wait_diagnostics.h"
--#include "../util/runtime_observation.h"
-+#include <psapi.h>
-+#include <windows.h>
+ #include "../util/queue_wait_diagnostics.h"
+ #include "../util/runtime_observation.h"
++#include "buffer_mapped_shadow.h"
  
  namespace l4d2_memory {
  enum class Kind : unsigned { Surface, Vertex, Index };
--inline std::atomic<uint64_t> bytes[3] {};
--inline std::atomic<uint64_t> objects[3] {};
--inline std::atomic<uint64_t> surfaceBackingBytes { 0 };
--inline std::atomic<uint64_t> surfaceBackingCount { 0 };
--inline std::atomic<uint64_t> surfaceViewBudgetBytes { 0 };
-+inline std::atomic<uint64_t> bytes[3]{};
-+inline std::atomic<uint64_t> objects[3]{};
-+inline std::atomic<uint64_t> surfaceBackingBytes{0};
-+inline std::atomic<uint64_t> surfaceBackingCount{0};
-+inline std::atomic<uint64_t> surfaceViewBudgetBytes{0};
- // VB/IB payload accounting is independent of surface PageBlock residency.
--inline std::atomic<uint64_t> allocatedBytes[3] {}, freedBytes[3] {}, allocationCount[3] {}, freeCount[3] {}, peakBytes[3] {};
--inline std::atomic<ULONGLONG> nextSample { 0 };
-+inline std::atomic<uint64_t> allocatedBytes[3]{}, freedBytes[3]{}, allocationCount[3]{}, freeCount[3]{},
-+    peakBytes[3]{};
-+inline std::atomic<ULONGLONG> nextSample{0};
- inline std::mutex logMutex;
- 
- inline HANDLE openLog() {
-   HMODULE module = nullptr;
-   if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
--      GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
--      reinterpret_cast<LPCWSTR>(&openLog), &module)) {
-+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-+                          reinterpret_cast<LPCWSTR>(&openLog), &module)) {
-     return INVALID_HANDLE_VALUE;
-   }
--  wchar_t path[MAX_PATH] {};
-+  wchar_t path[MAX_PATH]{};
-   const auto length = GetModuleFileNameW(module, path, MAX_PATH);
-   if (!length || length >= MAX_PATH) {
-     return INVALID_HANDLE_VALUE;
-@@ -46,8 +49,8 @@ inline HANDLE openLog() {
-   }
-   constexpr wchar_t filename[] = L"l4d2-memory.log";
-   std::wmemcpy(separator + 1, filename, sizeof(filename) / sizeof(wchar_t));
--  return CreateFileW(path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
--    nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-+  return CreateFileW(path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS,
-+                     FILE_ATTRIBUTE_NORMAL, nullptr);
- }
- 
- struct AddressSpace {
-@@ -57,26 +60,44 @@ struct AddressSpace {
-   bool complete = false;
- };
- inline AddressSpace scanAddressSpace() {
--  if (!l4d2_observation::memoryMonitoring) { return {}; }
-+  if (!l4d2_observation::memoryMonitoring) {
-+    return {};
-+  }
-   AddressSpace scan;
--  SYSTEM_INFO system {}; GetSystemInfo(&system);
-+  SYSTEM_INFO system{};
-+  GetSystemInfo(&system);
-   scan.limit = reinterpret_cast<uintptr_t>(system.lpMaximumApplicationAddress) + uint64_t(1);
-   uint64_t address = 0;
-   while (address < scan.limit) {
--    MEMORY_BASIC_INFORMATION region {};
--    if (!VirtualQuery(reinterpret_cast<void*>(static_cast<uintptr_t>(address)), &region, sizeof(region))) { break; }
-+    MEMORY_BASIC_INFORMATION region{};
-+    if (!VirtualQuery(reinterpret_cast<void *>(static_cast<uintptr_t>(address)), &region, sizeof(region))) {
-+      break;
-+    }
-     const uint64_t base = reinterpret_cast<uintptr_t>(region.BaseAddress), size = region.RegionSize;
--    if (!size || base + size <= address) { break; }
-+    if (!size || base + size <= address) {
-+      break;
-+    }
-     if (region.State == MEM_FREE) {
--      scan.free += size; if (size > scan.largestFree) { scan.largestFree = size; }
-+      scan.free += size;
-+      if (size > scan.largestFree) {
-+        scan.largestFree = size;
-+      }
-     } else if (region.State == MEM_COMMIT || region.State == MEM_RESERVE) {
-       const bool committed = region.State == MEM_COMMIT;
-       (committed ? scan.committed : scan.reserved) += size;
-       switch (region.Type) {
--      case MEM_PRIVATE: (committed ? scan.privateCommitted : scan.privateReserved) += size; break;
--      case MEM_MAPPED: (committed ? scan.mappedCommitted : scan.mappedReserved) += size; break;
--      case MEM_IMAGE: (committed ? scan.imageCommitted : scan.imageReserved) += size; break;
--      default: (committed ? scan.otherCommitted : scan.otherReserved) += size; break;
-+      case MEM_PRIVATE:
-+        (committed ? scan.privateCommitted : scan.privateReserved) += size;
-+        break;
-+      case MEM_MAPPED:
-+        (committed ? scan.mappedCommitted : scan.mappedReserved) += size;
-+        break;
-+      case MEM_IMAGE:
-+        (committed ? scan.imageCommitted : scan.imageReserved) += size;
-+        break;
-+      default:
-+        (committed ? scan.otherCommitted : scan.otherReserved) += size;
-+        break;
-       }
-     }
-     address = base + size;
-@@ -87,90 +108,120 @@ inline AddressSpace scanAddressSpace() {
- 
- // Sampling follows Present and allocations, including map loading without frames.
- // The failure path uses stack storage and Win32 I/O to avoid heap allocation.
--inline void sample(bool force = false, const char* event = "sample",
--    Kind kind = Kind::Surface, size_t requested = 0,
--    unsigned width = 0, unsigned height = 0, unsigned format = 0, DWORD error = 0) noexcept {
--  if (!l4d2_observation::memoryMonitoring) { return; }
--  try {
--  const auto now = GetTickCount64();
--  auto deadline = nextSample.load();
--  if (!force && (now < deadline || !nextSample.compare_exchange_strong(deadline, now + 5000))) {
-+inline void sample(bool force = false, const char *event = "sample", Kind kind = Kind::Surface,
-+                   size_t requested = 0, unsigned width = 0, unsigned height = 0, unsigned format = 0,
-+                   DWORD error = 0) noexcept {
-+  if (!l4d2_observation::memoryMonitoring) {
-     return;
-   }
--  std::lock_guard<std::mutex> guard(logMutex);
--  static HANDLE log = openLog();
--  const auto scan = scanAddressSpace();
--  PROCESS_MEMORY_COUNTERS_EX counters {};
--  counters.cb = sizeof(counters);
--  using QueryMemory = BOOL(WINAPI*)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
--  static auto query = reinterpret_cast<QueryMemory>(GetProcAddress(
--    GetModuleHandleW(L"kernel32.dll"), "K32GetProcessMemoryInfo"));
--  const bool countersValid = query && query(GetCurrentProcess(),
--    reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&counters), sizeof(counters));
--  FILETIME created{}, exited{}, kernel{}, user{};
--  const bool cpuValid = GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user) != FALSE;
--  const uint64_t kernelTime = (static_cast<uint64_t>(kernel.dwHighDateTime) << 32) | kernel.dwLowDateTime;
--  const uint64_t userTime = (static_cast<uint64_t>(user.dwHighDateTime) << 32) | user.dwLowDateTime;
--  SYSTEMTIME time {};
--  GetLocalTime(&time);
--  char line[4096] {};
--  const auto k = static_cast<unsigned>(kind);
--  const char* names[] = { "surface", "vertex-buffer", "index-buffer" };
--  const int length = std::snprintf(line, sizeof(line),
--    "%02u:%02u:%02u.%03u pid=%lu event=%s kind=%s requested=%llu width=%u height=%u format=0x%x "
--    "surface_bytes=%llu surface_count=%llu vertex_bytes=%llu vertex_count=%llu index_bytes=%llu index_count=%llu "
--    "va_committed=%llu va_reserved=%llu va_free=%llu largest_free=%llu va_limit=%llu scan_complete=%u "
--    "private_bytes=%llu working_set=%llu counters_valid=%u surface_backing_bytes=%llu surface_backing_count=%llu "
--    "surface_view_budget_bytes=%llu win32_error=%lu schema=3 tick_ms=%llu "
--    "va_private_committed=%llu va_mapped_committed=%llu va_image_committed=%llu va_other_committed=%llu "
--    "va_private_reserved=%llu va_mapped_reserved=%llu va_image_reserved=%llu va_other_reserved=%llu "
--    "vertex_allocated_bytes=%llu vertex_freed_bytes=%llu vertex_allocations=%llu vertex_frees=%llu vertex_peak_bytes=%llu "
--    "index_allocated_bytes=%llu index_freed_bytes=%llu index_allocations=%llu index_frees=%llu index_peak_bytes=%llu "
+@@ -116,6 +117,7 @@ inline void sample(bool force = false, const char* event = "sample",
+   char line[4096] {};
+   const auto k = static_cast<unsigned>(kind);
+   const char* names[] = { "surface", "vertex-buffer", "index-buffer" };
++  const auto vbibViews = l4d2_buffer::MappedBufferShadow::stats();
+   const int length = std::snprintf(line, sizeof(line),
+     "%02u:%02u:%02u.%03u pid=%lu event=%s kind=%s requested=%llu width=%u height=%u format=0x%x "
+     "surface_bytes=%llu surface_count=%llu vertex_bytes=%llu vertex_count=%llu index_bytes=%llu index_count=%llu "
+@@ -126,7 +128,10 @@ inline void sample(bool force = false, const char* event = "sample",
+     "va_private_reserved=%llu va_mapped_reserved=%llu va_image_reserved=%llu va_other_reserved=%llu "
+     "vertex_allocated_bytes=%llu vertex_freed_bytes=%llu vertex_allocations=%llu vertex_frees=%llu vertex_peak_bytes=%llu "
+     "index_allocated_bytes=%llu index_freed_bytes=%llu index_allocations=%llu index_frees=%llu index_peak_bytes=%llu "
 -    "cpu_kernel_100ns=%llu cpu_user_100ns=%llu cpu_times_valid=%u",
--    time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, GetCurrentProcessId(), event,
--    names[k], static_cast<unsigned long long>(requested), width, height, format,
--    bytes[0].load(), objects[0].load(), bytes[1].load(), objects[1].load(), bytes[2].load(), objects[2].load(),
--    scan.committed, scan.reserved, scan.free, scan.largestFree, scan.limit, static_cast<unsigned>(scan.complete),
--    static_cast<uint64_t>(counters.PrivateUsage), static_cast<uint64_t>(counters.WorkingSetSize),
--    static_cast<unsigned>(countersValid), surfaceBackingBytes.load(), surfaceBackingCount.load(),
--    surfaceViewBudgetBytes.load(), error, static_cast<unsigned long long>(now),
--    scan.privateCommitted, scan.mappedCommitted, scan.imageCommitted, scan.otherCommitted,
--    scan.privateReserved, scan.mappedReserved, scan.imageReserved, scan.otherReserved,
--    allocatedBytes[1].load(), freedBytes[1].load(), allocationCount[1].load(), freeCount[1].load(), peakBytes[1].load(),
--    allocatedBytes[2].load(), freedBytes[2].load(), allocationCount[2].load(), freeCount[2].load(), peakBytes[2].load(),
--    static_cast<unsigned long long>(kernelTime), static_cast<unsigned long long>(userTime),
++    "cpu_kernel_100ns=%llu cpu_user_100ns=%llu cpu_times_valid=%u "
++    "vbib_section_backing_bytes=%llu vbib_section_count=%llu vbib_mapped_va_bytes=%llu vbib_mapped_count=%llu "
++    "vbib_idle_view_budget_bytes=%llu vbib_active_locks=%llu vbib_maps=%llu vbib_unmaps=%llu "
++    "vbib_map_failures=%llu vbib_unmap_failures=%llu",
+     time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, GetCurrentProcessId(), event,
+     names[k], static_cast<unsigned long long>(requested), width, height, format,
+     bytes[0].load(), objects[0].load(), bytes[1].load(), objects[1].load(), bytes[2].load(), objects[2].load(),
+@@ -139,7 +144,9 @@ inline void sample(bool force = false, const char* event = "sample",
+     allocatedBytes[1].load(), freedBytes[1].load(), allocationCount[1].load(), freeCount[1].load(), peakBytes[1].load(),
+     allocatedBytes[2].load(), freedBytes[2].load(), allocationCount[2].load(), freeCount[2].load(), peakBytes[2].load(),
+     static_cast<unsigned long long>(kernelTime), static_cast<unsigned long long>(userTime),
 -    static_cast<unsigned>(cpuValid));
--  if (length > 0 && static_cast<size_t>(length) < sizeof(line)) {
--    const int extra = l4d2_queue::format(line + length, sizeof(line) - length);
--    if (extra <= 0 || static_cast<size_t>(extra) >= sizeof(line) - length) { return; }
--    if (log != INVALID_HANDLE_VALUE) {
--      DWORD written = 0;
--      WriteFile(log, line, static_cast<DWORD>(length + extra), &written, nullptr);
--      if (force) { FlushFileBuffers(log); }
--    } else {
--      OutputDebugStringA(line);
-+  try {
-+    const auto now = GetTickCount64();
-+    auto deadline = nextSample.load();
-+    if (!force && (now < deadline || !nextSample.compare_exchange_strong(deadline, now + 5000))) {
-+      return;
-     }
-+    std::lock_guard<std::mutex> guard(logMutex);
-+    static HANDLE log = openLog();
-+    const auto scan = scanAddressSpace();
-+    PROCESS_MEMORY_COUNTERS_EX counters{};
-+    counters.cb = sizeof(counters);
-+    using QueryMemory = BOOL(WINAPI *)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
-+    static auto query = reinterpret_cast<QueryMemory>(
-+        GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "K32GetProcessMemoryInfo"));
-+    const bool countersValid =
-+        query &&
-+        query(GetCurrentProcess(), reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&counters), sizeof(counters));
-+    FILETIME created{}, exited{}, kernel{}, user{};
-+    const bool cpuValid = GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user) != FALSE;
-+    const uint64_t kernelTime = (static_cast<uint64_t>(kernel.dwHighDateTime) << 32) | kernel.dwLowDateTime;
-+    const uint64_t userTime = (static_cast<uint64_t>(user.dwHighDateTime) << 32) | user.dwLowDateTime;
-+    SYSTEMTIME time{};
-+    GetLocalTime(&time);
-+    char line[4096]{};
-+    const auto k = static_cast<unsigned>(kind);
-+    const char *names[] = {"surface", "vertex-buffer", "index-buffer"};
-+    const auto vbibViews = l4d2_buffer::MappedBufferShadow::stats();
-+    const int length = std::snprintf(
-+        line, sizeof(line),
-+        "%02u:%02u:%02u.%03u pid=%lu event=%s kind=%s requested=%llu width=%u height=%u format=0x%x "
-+        "surface_bytes=%llu surface_count=%llu vertex_bytes=%llu vertex_count=%llu index_bytes=%llu "
-+        "index_count=%llu "
-+        "va_committed=%llu va_reserved=%llu va_free=%llu largest_free=%llu va_limit=%llu scan_complete=%u "
-+        "private_bytes=%llu working_set=%llu counters_valid=%u surface_backing_bytes=%llu "
-+        "surface_backing_count=%llu "
-+        "surface_view_budget_bytes=%llu win32_error=%lu schema=3 tick_ms=%llu "
-+        "va_private_committed=%llu va_mapped_committed=%llu va_image_committed=%llu va_other_committed=%llu "
-+        "va_private_reserved=%llu va_mapped_reserved=%llu va_image_reserved=%llu va_other_reserved=%llu "
-+        "vertex_allocated_bytes=%llu vertex_freed_bytes=%llu vertex_allocations=%llu vertex_frees=%llu "
-+        "vertex_peak_bytes=%llu "
-+        "index_allocated_bytes=%llu index_freed_bytes=%llu index_allocations=%llu index_frees=%llu "
-+        "index_peak_bytes=%llu "
-+        "cpu_kernel_100ns=%llu cpu_user_100ns=%llu cpu_times_valid=%u "
-+        "vbib_section_backing_bytes=%llu vbib_section_count=%llu vbib_mapped_va_bytes=%llu "
-+        "vbib_mapped_count=%llu "
-+        "vbib_idle_view_budget_bytes=%llu vbib_active_locks=%llu vbib_maps=%llu vbib_unmaps=%llu "
-+        "vbib_map_failures=%llu vbib_unmap_failures=%llu",
-+        time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, GetCurrentProcessId(), event, names[k],
-+        static_cast<unsigned long long>(requested), width, height, format, bytes[0].load(), objects[0].load(),
-+        bytes[1].load(), objects[1].load(), bytes[2].load(), objects[2].load(), scan.committed, scan.reserved,
-+        scan.free, scan.largestFree, scan.limit, static_cast<unsigned>(scan.complete),
-+        static_cast<uint64_t>(counters.PrivateUsage), static_cast<uint64_t>(counters.WorkingSetSize),
-+        static_cast<unsigned>(countersValid), surfaceBackingBytes.load(), surfaceBackingCount.load(),
-+        surfaceViewBudgetBytes.load(), error, static_cast<unsigned long long>(now), scan.privateCommitted,
-+        scan.mappedCommitted, scan.imageCommitted, scan.otherCommitted, scan.privateReserved,
-+        scan.mappedReserved, scan.imageReserved, scan.otherReserved, allocatedBytes[1].load(),
-+        freedBytes[1].load(), allocationCount[1].load(), freeCount[1].load(), peakBytes[1].load(),
-+        allocatedBytes[2].load(), freedBytes[2].load(), allocationCount[2].load(), freeCount[2].load(),
-+        peakBytes[2].load(), static_cast<unsigned long long>(kernelTime),
-+        static_cast<unsigned long long>(userTime), static_cast<unsigned>(cpuValid), vbibViews.backingBytes,
-+        vbibViews.backingCount, vbibViews.mappedVaBytes, vbibViews.mappedCount, vbibViews.idleBudgetBytes,
-+        vbibViews.locks, vbibViews.maps, vbibViews.unmaps, vbibViews.mapFailures, vbibViews.unmapFailures);
-+    if (length > 0 && static_cast<size_t>(length) < sizeof(line)) {
-+      const int extra = l4d2_queue::format(line + length, sizeof(line) - length);
-+      if (extra <= 0 || static_cast<size_t>(extra) >= sizeof(line) - length) {
-+        return;
-+      }
-+      if (log != INVALID_HANDLE_VALUE) {
-+        DWORD written = 0;
-+        WriteFile(log, line, static_cast<DWORD>(length + extra), &written, nullptr);
-+        if (force) {
-+          FlushFileBuffers(log);
-+        }
-+      } else {
-+        OutputDebugStringA(line);
-+      }
-+    }
-+  } catch (...) { /* Observation failure cannot replace an allocation result. */
-   }
--  } catch (...) { /* Observation failure cannot replace an allocation result. */ }
- }
- 
- inline void allocated(size_t size, Kind kind) {
--  if (!l4d2_observation::memoryMonitoring) { return; }
-+  if (!l4d2_observation::memoryMonitoring) {
-+    return;
-+  }
-   const auto k = static_cast<unsigned>(kind);
-   bytes[k].fetch_add(size);
-   objects[k].fetch_add(1);
-   if (kind != Kind::Surface) {
--    allocatedBytes[k].fetch_add(size); allocationCount[k].fetch_add(1);
--    const auto current = bytes[k].load(); auto peak = peakBytes[k].load();
--    while (current > peak && !peakBytes[k].compare_exchange_weak(peak, current)) {}
-+    allocatedBytes[k].fetch_add(size);
-+    allocationCount[k].fetch_add(1);
-+    const auto current = bytes[k].load();
-+    auto peak = peakBytes[k].load();
-+    while (current > peak && !peakBytes[k].compare_exchange_weak(peak, current)) {
-+    }
-   }
- }
- 
- inline void released(size_t size, Kind kind) {
--  if (!l4d2_observation::memoryMonitoring) { return; }
-+  if (!l4d2_observation::memoryMonitoring) {
-+    return;
-+  }
-   const auto k = static_cast<unsigned>(kind);
-   bytes[k].fetch_sub(size);
-   objects[k].fetch_sub(1);
--  if (kind != Kind::Surface) { freedBytes[k].fetch_add(size); freeCount[k].fetch_add(1); }
--}
-+  if (kind != Kind::Surface) {
-+    freedBytes[k].fetch_add(size);
-+    freeCount[k].fetch_add(1);
-+  }
- }
-+} // namespace l4d2_memory
++    static_cast<unsigned>(cpuValid), vbibViews.backingBytes, vbibViews.backingCount,
++    vbibViews.mappedVaBytes, vbibViews.mappedCount, vbibViews.idleBudgetBytes, vbibViews.locks,
++    vbibViews.maps, vbibViews.unmaps, vbibViews.mapFailures, vbibViews.unmapFailures);
+   if (length > 0 && static_cast<size_t>(length) < sizeof(line)) {
+     const int extra = l4d2_queue::format(line + length, sizeof(line) - length);
+     if (extra <= 0 || static_cast<size_t>(extra) >= sizeof(line) - length) { return; }
