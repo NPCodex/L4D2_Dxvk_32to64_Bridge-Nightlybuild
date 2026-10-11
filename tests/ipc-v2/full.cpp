@@ -44,6 +44,8 @@ void pressureCases(){
    for(unsigned i=3;i<8;i+=2)r.release(d[i]);}
 }
 void corruptionCases(){
+  // New unique mappings model independent sessions in this test process.
+  gbBridgeRunning.store(true);
   // The generation protects a reused physical offset, not just the slot's state.
   {auto n=name();auto c=fullConfig();ldb_full::UploadPool w(n,2*1024*1024,true,c),r(n,2*1024*1024,false,c);
    ldb_full::Descriptor old{},current{};check(w.allocate(4,old),"old generation allocate");old.bytes=4;w.publish(old);r.acquire(old);r.release(old);
@@ -51,7 +53,7 @@ void corruptionCases(){
    check(w.allocate(4,current),"next generation allocate");current.bytes=4;w.publish(current);
    auto forged=current;--forged.generation;bool rejected=false;try{r.acquire(forged);}catch(...){rejected=true;}check(rejected,"old generation accepted");r.acquire(current);r.release(current);}
   // Malformed bodies and upload descriptors cannot return a message credit.
-  for(unsigned variant=0;variant<3;++variant){auto n=name();ldb_ipc_v2::Channel raw(n+"-full",fullConfig(),true);
+  for(unsigned variant=0;variant<3;++variant){gbBridgeRunning.store(true);auto n=name();ldb_ipc_v2::Channel raw(n+"-full",fullConfig(),true);
    ldb_full::MessageQueue r(n,2*1024*1024,false);auto& block=raw.block(0);
    block.bytes=variant==2?40:28;block.records=1;block.sequence=0;
    ldb_ipc_v2::Record bad{block.bytes,0,static_cast<uint16_t>(variant==2?ldb_full::External:ldb_full::Inline),0,0,0,block.bytes-24};
@@ -65,13 +67,17 @@ void corruptionCases(){
    ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);
    for(unsigned i=0;i<128;++i){send(w,i);read(r,i);}check(raw.shared().consumer.completed.load()==125,"sequence wrap");}
   // An OS wait failure faults the stream and all four channels in this session.
-  {std::array<std::unique_ptr<ldb_full::MessageQueue>,4> q;
+  {gbBridgeRunning.store(true);std::array<std::unique_ptr<ldb_full::MessageQueue>,4> q;
    for(auto& p:q)p=std::make_unique<ldb_full::MessageQueue>(name(),2*1024*1024,false);
    ldb_ipc_v2::Event::failNextWait=true;Result result;q[0]->peek(result,100);
-   check(result==Result::Failure,"OS wait failure hidden");for(const auto& p:q)check(!p->healthy(),"session fault not propagated");}
+   check(result==Result::Failure&&!ldb_ipc_v2::Event::failNextWait,"OS wait failure hidden");for(const auto& p:q)check(!p->healthy(),"session fault not propagated");}
+  {gbBridgeRunning.store(true);auto n=name();ldb_full::MessageQueue r(n,2*1024*1024,false);
+   Result result;const auto before=ldb_ipc_v2::milliseconds();std::thread reader([&]{r.peek(result,1000);});
+   std::this_thread::sleep_for(std::chrono::milliseconds(20));gbBridgeRunning.store(false);reader.join();
+   check(result==Result::Failure&&!r.healthy()&&ldb_ipc_v2::milliseconds()-before<500,"startup stop did not interrupt wait");}
 }
 int main(){try{
-  pressureCases();corruptionCases();
+  pressureCases();
   for(unsigned batch:{1u,2u,4u,8u,16u,32u}){
     auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);w.configureBatch(batch);check(w.batchSize()==batch,"gear normalization");
     for(unsigned cycle=0;cycle<3;++cycle){
@@ -113,5 +119,6 @@ int main(){try{
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);check(w.begin({Commands::Bridge_Response,0,0,0}),"abort begin");check(w.scalar(1),"abort scalar");w.abort();check(w.flush(),"abort flush");Result result;r.peek(result,1);check(result==Result::Timeout,"aborted visible");}
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);check(w.begin({Commands::Bridge_Response,0,0,0}),"underfill begin");check(w.declare(8),"declare");check(w.scalar(1),"underfill scalar");check(!w.finish(true),"underfill accepted");w.abort();}
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);std::atomic<bool> early{true};Result result;r.peek(result,1,&early);check(result==Result::Timeout,"cancel");w.fault();check(!w.begin({Commands::Bridge_Response,0,0,0}),"post fault begin");check(!w.flush(),"post fault flush");}
-  std::puts("IPC_FULL_PASS inline/blob/batch/wrap/long-Lock/lease-reuse/stale/abort/underfill/cancel/fault/full-queue/full-pool/fragmentation/generation/malformed/counter-wrap/OS-wait/session-fault");return 0;
+  corruptionCases();
+  std::puts("IPC_FULL_PASS inline/blob/batch/wrap/long-Lock/lease-reuse/stale/abort/underfill/cancel/fault/full-queue/full-pool/fragmentation/generation/malformed/counter-wrap/OS-wait/session-fault/startup-stop");return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"IPC_FULL_FAIL %s\n",e.what());return 1;}}

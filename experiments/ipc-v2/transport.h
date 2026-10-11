@@ -204,7 +204,11 @@ public:
       if (predicate()) { return Result::Success; }
       const uint64_t elapsed = milliseconds() - start;
       if (elapsed >= timeoutMs) { return predicate() ? Result::Success : Result::Timeout; }
-      if (!peerIsAlive(peerPid)) { fault(Fault::PeerExited); return Result::Fault; }
+      // Startup can enter this wait before the peer registers its PID.
+      const uint32_t registeredPeer = peerPid ? peerPid : (credits
+        ? m_shared.cold.consumerPid.load(std::memory_order_acquire)
+        : m_shared.cold.producerPid.load(std::memory_order_acquire));
+      if (!peerIsAlive(registeredPeer)) { fault(Fault::PeerExited); return Result::Fault; }
       count(metrics.waits);
       if (!event.wait(epoch, static_cast<uint32_t>(std::min<uint64_t>(10, timeoutMs - elapsed)))) {
         if (predicate()) { return Result::Success; }
