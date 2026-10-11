@@ -19,8 +19,8 @@ Protocol metadata contains a normalized source hash; the existing Host launch bu
 ## Install and rollback
 
 1. Exit L4D2 and both Bridge Hosts. Back up `bin/dxvk_d3d9.dll`, `bin/.l4d2bridge/L4D2Bridge64.exe` and `bin/.l4d2bridge/L4D2Bridge32.exe` together.
-2. Verify the ZIP SHA-256, then merge its `bin` directory into your existing game root. The ZIP contains only those three bridge binaries and documentation. Preserve DXVK, ReShade, runtime configuration and retention databases. It is not a first-install package.
-3. Confirm Client and Host logs show the same `ldb-ipc-c32-dev+…` build ID. Client startup lines `IPC_C32 … batch=1/32` confirm the environment setting actually reached the game. Start with your existing game launch options.
+2. Verify the ZIP SHA-256, then merge its `bin` directory into your existing game root. The ZIP contains the three bridge binaries, documentation and a reference config under `config/`; only its `bin/` directory is installed directly. Preserve DXVK, ReShade, runtime configuration and retention databases. It is not a first-install package.
+3. Confirm Client and Host logs show the same `ldb-ipc-c32-dev+…` build ID. Client startup lines `IPC_C32 … batch=1/32` confirm the configuration actually reached both Client channels. Start with your existing game launch options.
 4. Set `client.ipcBatchSize = 1` (C1, default) or `32` (C32) in `bin/.l4d2bridge/bridge.conf`, then restart the game and Hosts. Merge this setting into your existing config; the ZIP includes a reference config, not an instruction to overwrite your other settings. Do not mix Client and Host builds.
 5. To roll back, exit both processes and restore the entire backed-up three-file set.
 
