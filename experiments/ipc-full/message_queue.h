@@ -28,7 +28,7 @@ class MessageQueue {
   std::optional<ldb_ipc_v2::Encoder> m_encoder;
   Header m_writeHeader{},m_header{};
   Descriptor m_writeLease{},m_readLease{};
-  bool m_external=false,m_borrowed=false,m_blob=false,m_current=false,m_readExternal=false;
+  bool m_external=false,m_borrowed=false,m_blob=false,m_hasDeclaration=false,m_current=false,m_readExternal=false;
   uint32_t m_declared=0,m_written=0,m_pending=0,m_batch=1;
   std::atomic<uint64_t> m_deadline{0};
   uint32_t m_sequence=0,m_offset=0,m_recordsRead=0,m_recordBytes=0;
@@ -48,7 +48,7 @@ class MessageQueue {
   }
   bool ensure(uint32_t additional,bool reserved=false) {
     if(m_blob || additional>m_pool.capacity()-m_written || !healthy()
-       || (m_declared && additional>m_declared-m_written))return false;
+       || (m_hasDeclaration && additional>m_declared-m_written))return false;
     const uint32_t end=m_written+additional;
     if(!m_external && !reserved && end<=InlineBytes)return true;
     if(!m_external) {
@@ -110,13 +110,13 @@ public:
     m_pending=0;m_deadline.store(0,std::memory_order_release);return true;}
   bool begin(const Header& h) {
     if(m_encoder || m_external || !healthy())return false;
-    m_writeHeader=h;m_written=m_declared=0;m_borrowed=m_blob=false;
+    m_writeHeader=h;m_written=m_declared=0;m_hasDeclaration=false;m_borrowed=m_blob=false;
     auto e=m_writer->begin(static_cast<uint16_t>(h.command),h.pHandle,0,InlineBytes,static_cast<uint16_t>(h.flags|Inline));
     if(!e.valid())return false;m_encoder.emplace(std::move(e));return true;
   }
   bool declare(uint64_t bytes,bool reserved=false) {
     if(bytes>m_pool.capacity() || bytes<m_written)return false;
-    m_declared=static_cast<uint32_t>(bytes);return ensure(m_declared-m_written,reserved);
+    m_hasDeclaration=true;m_declared=static_cast<uint32_t>(bytes);return ensure(m_declared-m_written,reserved);
   }
   bool scalar(uint32_t value) {
     if(!ensure(4))return false;
@@ -144,7 +144,7 @@ public:
     m_encoder.reset();if(m_external){m_pool.abort(m_writeLease);m_external=false;}m_blob=false;
   }
   bool finish(bool force) {
-    if(!healthy() || m_blob || (m_declared && m_written!=m_declared))return false;
+    if(!healthy() || m_blob || (m_hasDeclaration && m_written!=m_declared))return false;
     if(m_external) {
       auto e=m_writer->begin(static_cast<uint16_t>(m_writeHeader.command),m_writeHeader.pHandle,0,sizeof(Descriptor),static_cast<uint16_t>(m_writeHeader.flags|External));
       if(!e.valid())return false;

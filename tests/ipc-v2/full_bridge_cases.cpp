@@ -173,5 +173,5 @@ int wmain(int argc,wchar_t** argv) {
     else if(std::wstring(argv[2])==L"surface-boundaries"){surfaceBoundaries<Device>();surfaceBoundaries<Module>();}
     else {transfer<Device>();transfer<Module>();}
     std::puts("IPC_FULL_BRIDGE_PASS");return 0;
-  }catch(...){std::puts("IPC_FULL_BRIDGE_EXCEPTION");return 3;}
+  }catch(const std::exception& e){std::fprintf(stderr,"IPC_FULL_BRIDGE_EXCEPTION %s\n",e.what());return 3;}catch(...){std::puts("IPC_FULL_BRIDGE_EXCEPTION non-std");return 3;}
 }

@@ -45,7 +45,7 @@ class UploadPool {
   }
 public:
   UploadPool(const std::string& name,uint32_t budget,bool writer,const ldb_ipc_v2::Config& c)
-    :m_map(name,budget,writer,true),m_header(*static_cast<PoolHeader*>(m_map.data())),
+    :m_map(name,budget,true,true),m_header(*static_cast<PoolHeader*>(m_map.data())),
      m_leases(reinterpret_cast<Lease*>(static_cast<uint8_t*>(m_map.data())+sizeof(PoolHeader))),
      m_bytes(static_cast<uint8_t*>(m_map.data())+PoolMetadata),m_writer(writer),
      m_capacity((budget-PoolMetadata)/PageBytes*PageBytes) {

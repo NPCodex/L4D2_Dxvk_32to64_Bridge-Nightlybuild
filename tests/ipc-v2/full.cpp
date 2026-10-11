@@ -12,7 +12,7 @@ std::string name(){static unsigned i=0;return "full-"+std::to_string(ldb_ipc_v2:
 void send(ldb_full::MessageQueue& w,unsigned i){check(w.begin({Commands::IDirect3DDevice9Ex_SetRenderState,0,0,i}),"begin");check(w.scalar(i),"scalar");check(w.finish(false),"finish");}
 void read(ldb_full::MessageQueue& r,unsigned i){Result result;auto h=r.pull(result,1000);check(result==Result::Success && h.pHandle==i,"header");check(r.readWord()==i,"body");r.finishRead();}
 int main(){try{
-  {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);w.configureBatch(32);
+  {auto n=name();ldb_full::MessageQueue r(n,2*1024*1024,false),w(n,2*1024*1024,true);w.configureBatch(32);
    for(unsigned i=0;i<31;++i)send(w,i);check(w.pending(),"batch pending");Result result;r.peek(result,1);check(result==Result::Timeout,"partial visible");
    send(w,31);for(unsigned i=0;i<32;++i)read(r,i);check(w.begin({Commands::Bridge_Response,0,0,42}),"reply begin");
    const uint8_t data[]={1,2,3};check(w.blob(3,data),"inline blob");check(w.finish(true),"reply finish");
