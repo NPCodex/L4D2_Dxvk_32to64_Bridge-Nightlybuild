@@ -37,7 +37,7 @@ Nightly 已有负对照继续作为门槛，不以纯粹的固定代码字符串
 
 性能目标仍为 1%/0.1% low、平均帧和最高帧，实测需要重复对照与帧时间分布。既有 [三对 L4N 回放](PERFORMANCE-2026-10-10.md) 属于早前 v1.0.11，不能外推为完整上游合并的性能收益。后续经用户授权完成的 [手电专项对照](FLASHLIGHT-PERFORMANCE-2026-10-10.md) 明确区分临时 CPU 控制、自然调度波动和代码改动，未证实稳定 FPS 提升；游戏安装与临时设置已恢复。
 
-本次 [上游 1.2.2 单轮对照](UPSTREAM-1.2.2-INTEGRATION.md) 使用同生产补丁的 v1.2.1 候选，平均 FPS 比 v1.1.10 低约 8%，官方地图往返均约 10～11 秒。维护者了解这一取舍后批准采用 IPC 修复；最终 v1.2.2 重建包仍按自身 Actions 与附件校验判定，未重新游戏复测。
+此前 [上游 1.2.2 单轮对照](UPSTREAM-1.2.2-INTEGRATION.md) 使用同生产补丁的 v1.2.1 候选，平均 FPS 比 v1.1.10 低约 8%，官方地图往返均约 10～11 秒。维护者了解这一取舍后批准采用 IPC 修复；最终 v1.2.2 重建包仍按自身 Actions 与附件校验判定，未重新游戏复测。
 
 ## 诊断分离回归
 
@@ -50,3 +50,7 @@ off 模式重复 1000 次调用，断言诊断扫描/时钟/文件/线程/hook/H
 另覆盖 init-failure、allocation-failure、data-on、observer-failure、lg-off、retention-log-failure、retention-write-failure、retention-callback-failure，总共 13 个独立进程模式。OFF 要求 API wait 表、TLS crash history 和 Data Resource metadata 不存在；随后真实 Core VB/IB 分配仍正常。启用失败注入文件/线程/堆分配与抛异常回调；retention 测试使用生产 Runtime/Database/Parent/Entry 和 Host `runShared` 验证驱逐、preserve miss、独立 mock 内容恢复、KEEP 提升及新 Runtime 的持久 DB 命中，不能进入 fallback KEEP。buffer contract 使用生产 Core allocator，仍保留 FULL_SHADOW 原契约。
 
 `python -m unittest discover -s tests -p test_runtime_separation.py` 检查受保护 Volume 生产代码/测试的基线哈希、配置/ABI/关闭门和默认 Tracy 构建。其余 PageBlock GC、readback、buffer contract、Reset、queue、ATI/adapter 与原 Volume suite 不改变语义。实机仍需双 Host、联机过图、窗口切换及启用 Presenter/ReShade 输入验证；计数器测试不代表真实游戏/驱动已覆盖。
+
+## v1.2.3 高频命令优化
+
+同补丁候选 `1b903b7` 与正式 v1.2.2 已完成一轮开灯/关灯/开灯对照；六段采样独立复算一致，完整数据与局限见 [本次优化测试](HOT-COMMAND-PACKETS.md)。正式重建包按自身 Actions 编译、回归与附件校验判定，未重复游戏测试。

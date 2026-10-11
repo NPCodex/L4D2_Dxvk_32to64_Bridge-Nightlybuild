@@ -8,7 +8,7 @@
 
 ## Download and installation — start here
 
-**v1.2.2 fully integrates the IPC stability fixes from upstream 1.2.2.** One local comparison of the v1.2.1 candidate carrying the same production patch against v1.1.10 showed roughly **8% lower average FPS**, no material 1% low improvement, and official map transitions of about **10–11 seconds** in both builds. The maintainer chose to adopt the update after reviewing this tradeoff; this is not a claim of higher FPS or proven long-term stability. See the [measurements, test conditions and final rebuild limits](docs/UPSTREAM-1.2.2-INTEGRATION.md). IPC protocol is now **3**: update or roll back the Client and both Hosts together, never mix versions.
+**v1.2.3 reduces repeated reservation and encoding work in five frequent commands.** One local comparison of the same-patch candidate against v1.2.2 measured flashlight-on average FPS +1.61% and 1% low +0.57%; flashlight-off average FPS +5.50% and 1% low -1.10%. The corresponding 0.1% lows were -0.75% and -7.84%; stable low-FPS improvement is not established. See the [current optimization, measurements and rebuild limits](docs/HOT-COMMAND-PACKETS.md). IPC protocol remains **3**: update or roll back the Client and both Hosts together, never mix versions.
 
 **[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. It includes **L4N 2.51.0, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. No patch tool or Python installation is needed. The layout follows the maintainer's supplied bundle; `config_template.vdf` is omitted. See [bundle provenance](docs/L4N-BUNDLE.md). The player ZIP contains runtime components, active configuration, L4N's original VDF templates and QC/VMT examples, a short `README.txt`, and one combined `THIRD-PARTY-NOTICES.txt`. Developer documentation, JSON manifests, diagnostic scripts, the SDK and offline Mod authoring tools remain in the repository.
 
@@ -34,7 +34,7 @@ Fresh installs use upstream's learned-aggressive retention policy and disable ro
 
 Roll back the Bridge client and Host together. Restore your original `studiorender.dll` backup to undo ThinFlex. To uninstall, remove the installed files and restore your backups.
 
-The [current IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) records FPS and map transitions with this machine's GPLALL + x64 Host configuration. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
+The [current optimization comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
 
 Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix), this repository retains the patches from the [original L4D2 project](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) and automatically builds an x86 client and both x86/x64 Hosts for 32-bit Left 4 Dead 2.
 

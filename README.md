@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.2.2 完整同步上游 1.2.2 的 IPC 稳定性修复。** 本机使用同生产补丁的 v1.2.1 候选与 v1.1.10 做了一轮对照：平均 FPS 下降约 **8%**，1% low 未显示明显改善，官方地图往返均约 **10～11 秒**。维护者在了解这一取舍后决定采用更新；本版不宣称提帧，也不代表长期稳定性已验证。详细数据、测试条件与最终重建边界见 [本分支合并与验证说明](docs/UPSTREAM-1.2.2-INTEGRATION.md)。
+**v1.2.3 优化五类高频命令的预留与编码。** 相同补丁候选对 v1.2.2 的一轮本机对照中，开灯平均 FPS +1.61%、1% low +0.57%；关灯平均 FPS +5.50%、1% low -1.10%。0.1% low 分别为 -0.75% 和 -7.84%，尚未证明稳定的 low 帧收益。详细条件与重建边界见 [本次优化与测试](docs/HOT-COMMAND-PACKETS.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -32,9 +32,9 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 新安装配置包含上游的 learned-aggressive 内存策略，并默认关闭日常 memory/crash/data 诊断；已有用户升级继续保留自己的配置，新功能的键与开销见仓库 [配置说明](docs/CONFIGURATION.md)。
 
-本次 IPC 协议升级为 **3**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
+当前 IPC 协议为 **3**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-[本次 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录本机 GPLALL + x64 Host 的帧率与地图切换结果。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+[本次优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
