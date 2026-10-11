@@ -1,6 +1,9 @@
 name: Publish verified IPC experimental prerelease
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/ipc-c32-development]
+    paths: [.github/workflows/publish-ipc-experiment.yml]
 permissions:
   contents: write
   actions: read
