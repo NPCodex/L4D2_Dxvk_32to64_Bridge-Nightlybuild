@@ -4351,7 +4351,7 @@ diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgec
      static inline size_t get_counter() {
        return s_cmdCounter;
      }
-@@ -357,6 +453,77 @@
+@@ -357,6 +453,78 @@
      }
  
    private:
@@ -4360,7 +4360,8 @@ diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgec
 +    Result prepareSurface(uint64_t words) {
 +      auto& channel = *s_pWriterChannel;
 +      const auto capacity = static_cast<uint32_t>(channel.data->get_total_size());
-+      if (m_status != Result::Success || !healthy() || channel.data->cursor() != m_begin
++      // syncReservation checks channel health before any upload write.
++      if (m_status != Result::Success || channel.data->cursor() != m_begin
 +          || channel.data->blobOpen() || words > capacity) {
 +        reportFault("surface-layout-rejected", s_curCommand, s_curUID, words); return Result::Failure;
 +      }
@@ -4429,7 +4430,7 @@ diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgec
      // NV-DXVK start: Optional data/resource tracing.
      l4d2_data::Wire m_dataWire;
      // NV-DXVK end
-@@ -371,12 +538,45 @@
+@@ -371,12 +539,45 @@
    Bridge() = delete;
    Bridge(const Bridge&) = delete;
    Bridge(const Bridge&&) = delete;
@@ -4476,7 +4477,7 @@ diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgec
  #if defined(REMIX_BRIDGE_CLIENT)
    static constexpr char kWriterChannelName[] = "Client2Server";
    static constexpr char kReaderChannelName[] = "Server2Client";
-@@ -385,3 +585,16 @@
+@@ -385,3 +586,16 @@
    static constexpr char kReaderChannelName[] = "Client2Server";
  #endif
  };
