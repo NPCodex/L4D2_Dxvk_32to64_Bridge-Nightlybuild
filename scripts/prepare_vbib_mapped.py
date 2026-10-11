@@ -10,6 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def prepare(source):
+    receipt_path = ROOT / 'work/ipc-full-build.json'
+    receipt = json.loads(receipt_path.read_text())
+    if receipt['build_id'] != 'ldb-ipc-full-dev+9f30cbf7ddabdb95':
+        raise RuntimeError('Expected verified full IPC v2 baseline before mapped overlay')
     baseline = ROOT / 'work/vbib-mapped-baseline'
     baseline.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source / 'bridge/src/client/lockable_buffer.h', baseline / 'lockable_buffer.h')
@@ -18,8 +22,6 @@ def prepare(source):
     subprocess.run(['git', 'apply', str(patch)], cwd=source, check=True)
     helper = ROOT / 'experiments/vbib-mapped/buffer_mapped_shadow.h'
     shutil.copy2(helper, source / 'bridge/src/client/buffer_mapped_shadow.h')
-    receipt_path = ROOT / 'work/ipc-full-build.json'
-    receipt = json.loads(receipt_path.read_text())
     receipt['ipc_foundation_build'] = receipt['build_id']
     digest = hashlib.sha256(receipt['protocol_source_sha256'].encode())
     for path in (patch, helper):

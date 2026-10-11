@@ -55,7 +55,7 @@ inline void mappedBufferTransfer() {
         const unsigned size = !stage ? 262144 : stage == 1 ? 64 : stage == 2 ? 16 : 8;
         require(packet.fields[0] == offset && packet.fields[1] == size && !packet.fields[2]
           && packet.bytes == size, "mapped Host unchanged wire layout");
-        std::memcpy(host.data() + offset, packet.object, size);
+        std::memcpy(host.data() + offset, packet.data, size);
         for (unsigned j = 0; j < 262144; ++j) {
           const uint8_t expected = j == 12 && stage ? (stage == 1 ? 0xa5 : 0xbb) : static_cast<uint8_t>(iteration);
           require(host[j] == expected, "mapped Host historical content after Client unmap");

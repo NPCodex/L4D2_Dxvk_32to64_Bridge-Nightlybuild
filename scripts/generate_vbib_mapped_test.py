@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 source = ROOT / '.deps/dxvk-remix/bridge/src/client'
 out = ROOT / 'work/vbib-mapped-native'
 out.mkdir(parents=True, exist_ok=True)
-# The workflow checks out and prepares the frozen baseline; do not reconstruct
+# Preparation snapshots the verified full-v2 baseline before the overlay; do not reconstruct
 # the old template by deleting new code or changing implementation checks.
 old = ROOT / 'work/vbib-mapped-baseline/lockable_buffer.h'
 for label, header in [('old', old), ('new', source / 'lockable_buffer.h')]:
