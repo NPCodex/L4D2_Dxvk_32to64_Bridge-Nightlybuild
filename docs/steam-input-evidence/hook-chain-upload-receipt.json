@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "bec1cdd5a8b2899d902b144aa01c9c50ca40fb0d",
+  "zip": "l4d2-bridge-steam-hook-chain-dev-ca4679629ca93d4a.zip",
+  "sha256": "3d049374eee5a24792be3e5f0614bfd54549acf4f97595a4b35addb2e809726e",
+  "bytes": 1345424,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/bec1cdd5a8b2899d902b144aa01c9c50ca40fb0d/l4d2-bridge-steam-hook-chain-dev-ca4679629ca93d4a.zip",
+  "build": "ldb-ipc-c32-dev+ca4679629ca93d4a"
+}
