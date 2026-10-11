@@ -50,11 +50,11 @@ template<typename T> void run(const char* name, D3DFORMAT format, D3DPOOL pool =
 template<typename T> void runDynamic(D3DFORMAT format) {
   using Desc = std::conditional_t<std::is_same_v<T, IDirect3DVertexBuffer9>, D3DVERTEXBUFFER_DESC, D3DINDEXBUFFER_DESC>;
   Desc desc {}; desc.Size = 64; desc.Usage = D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC; desc.Pool = D3DPOOL_DEFAULT; desc.Format = format;
-  const auto before = buffer_contract::liveBytes;
+  const auto before = liveShadowTestBytes();
   updates.clear();
   {
     Buffer<T> buffer(desc);
-    check(buffer_contract::liveBytes == before + 64, "dynamic buffer stopped allocating its existing full shadow");
+    check(liveShadowTestBytes() == before + 64, "dynamic buffer stopped allocating its existing full shadow");
     void* data = nullptr;
     check(buffer.lock(0, 64, &data, D3DLOCK_DISCARD) == S_OK, "dynamic DISCARD Lock changed");
     std::memset(data, 0x66, 64); buffer.unlock();
@@ -64,7 +64,7 @@ template<typename T> void runDynamic(D3DFORMAT format) {
     check(updates.back().offset == 16 && updates.back().size == 8 && updates.back().flags == D3DLOCK_NOOVERWRITE, "dynamic partial protocol changed");
     check(buffer.lock(32, 8, &data, 0) == S_OK, "Lock before destruction failed");
   }
-  check(buffer_contract::liveBytes == before, "destroy while locked retained shadow storage");
+  check(liveShadowTestBytes() == before, "destroy while locked retained shadow storage");
 }
 static void runReadable() {
   D3DVERTEXBUFFER_DESC desc {}; desc.Size = 64; desc.Format = D3DFMT_VERTEXDATA; desc.Pool = D3DPOOL_MANAGED;
@@ -80,7 +80,7 @@ static void runReadable() {
 }
 static void failedUploadContract() {
   D3DVERTEXBUFFER_DESC desc {}; desc.Size = 64; desc.Usage = D3DUSAGE_DYNAMIC; desc.Format = D3DFMT_VERTEXDATA;
-  const auto before = buffer_contract::liveBytes;
+  const auto before = liveShadowTestBytes();
   updates.clear();
   {
     Buffer<IDirect3DVertexBuffer9> buffer(desc);
@@ -91,10 +91,10 @@ static void failedUploadContract() {
     check(buffer.unlock()==D3DERR_DEVICELOST,"failed upload must return failure");
     check(updates.empty(),"failed upload published update");
     check(buffer.unlock()==D3DERR_DEVICELOST,"failed upload must preserve lock record");
-    check(buffer_contract::liveBytes==before+64,"failed upload released shadow");
+    check(liveShadowTestBytes()==before+64,"failed upload released shadow");
     failSubmissionTest=false;
   }
-  check(buffer_contract::liveBytes==before,"failed upload destruction leaked shadow");
+  check(liveShadowTestBytes()==before,"failed upload destruction leaked shadow");
   transportHealthyTest=false;
   { Buffer<IDirect3DVertexBuffer9> buffer(desc); void* data=reinterpret_cast<void*>(1);
     check(buffer.lock(0,64,&data,0)==D3DERR_DEVICELOST && !data,"failed transport returned writable pointer"); }
@@ -105,6 +105,21 @@ static void failedUploadContract() {
   check(updates.empty(),"failed reserved lock published update");
 }
 int main() {
+#ifdef LDB_SHADOW_ARENA
+  // Real Windows SRW/VirtualAlloc adapter, independent payload ownership.
+  // Avoid concurrent COM fixture use: it intentionally captures serial uploads.
+  std::atomic<unsigned> allocatorErrors { 0 };
+  std::vector<std::thread> allocatorWorkers;
+  for (unsigned t = 0; t < 4; ++t) allocatorWorkers.emplace_back([&allocatorErrors] {
+    for (unsigned n = 0; n < 1000; ++n) {
+      auto owner = l4d2_buffer::allocate(n % 2 ? 65536 : 16384, l4d2_memory::Kind::Vertex, true);
+      if (owner[0] || owner[16383] || reinterpret_cast<uintptr_t>(owner.get()) % 16) ++allocatorErrors;
+      owner[0] = 0xa3; owner[16383] = 0x5b;
+    }
+  });
+  for (auto& worker : allocatorWorkers) worker.join();
+  check(!allocatorErrors && !l4d2_buffer::arena().stats().regions, "real Windows allocator concurrency/zero/retirement");
+#endif
   failedUploadContract();
   run<IDirect3DVertexBuffer9>("VB", D3DFMT_VERTEXDATA);
   run<IDirect3DVertexBuffer9>("VB managed", D3DFMT_VERTEXDATA, D3DPOOL_MANAGED);
@@ -113,14 +128,14 @@ int main() {
   runDynamic<IDirect3DVertexBuffer9>(D3DFMT_VERTEXDATA);
   runDynamic<IDirect3DIndexBuffer9>(D3DFMT_INDEX16);
   runReadable();
-  check(buffer_contract::liveBytes == 0, "fixture shadow allocations did not balance");
+  check(liveShadowTestBytes() == 0, "fixture shadow allocations did not balance");
   check(!l4d2_observation::memoryMonitoring && !l4d2_memory::nextSample
     && !l4d2_memory::bytes[1] && !l4d2_memory::bytes[2], "OFF observer initialized or updated statistics");
   buffer_contract::failAllocation = true;
   bool allocationFailed = false;
-  try { delete[] l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); }
+  try { ShadowOwner discarded(l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true)); }
   catch (const std::bad_alloc&) { allocationFailed = true; }
   buffer_contract::failAllocation = false;
-  check(allocationFailed && !buffer_contract::liveBytes, "Core allocation failure contract changed");
+  check(allocationFailed && !liveShadowTestBytes(), "Core allocation failure contract changed");
   return failures;
 }
