@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['codex/ipc-c32-development', 'codex/steam-overlay-hook-chain', 'codex/steam-overlay-mouse-capture']
-    paths: ['patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'tests/ipc-v2/c32*']
+    paths: ['.github/workflows/ipc-c32-development.yml', 'patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'scripts/test_*.ps1', 'scripts/assert_native_architecture.ps1', 'tests/ipc-v2/c32*', 'tests/input_hooks_test.cpp', 'tests/overlay_presenter.cpp']
 permissions:
   contents: read
 jobs:
@@ -32,15 +32,12 @@ jobs:
       - name: Run compatible existing native regressions
         shell: powershell
         run: |
-          ./scripts/test_buffer_contract.ps1
-          ./scripts/test_volume_layout.ps1
-          ./scripts/test_device_reset.ps1
-          ./scripts/test_readback_recovery.ps1
-          ./scripts/test_input_hooks.ps1
-          ./scripts/test_overlay_presenter.ps1
-          ./scripts/test_adapter_information.ps1
-          ./scripts/test_ati_texture_layout.ps1
-          ./scripts/test_command_queue.ps1
+          # Each suite starts from the clean step environment. Repeated SetupVS
+          # in one PowerShell process can grow PATH until vcvars silently fails.
+          foreach ($suite in @('buffer_contract','volume_layout','device_reset','readback_recovery','input_hooks','overlay_presenter','adapter_information','ati_texture_layout','command_queue')) {
+            & powershell.exe -NoProfile -File "./scripts/test_$suite.ps1"
+            if ($LASTEXITCODE -ne 0) { throw "Native regression failed: $suite" }
+          }
       - name: Python contracts
         run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Build and verify matched experimental Release bridge

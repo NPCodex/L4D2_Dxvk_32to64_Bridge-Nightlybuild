@@ -4,6 +4,7 @@
 param([ValidateSet('x86', 'x64')][string]$CompileArchitecture)
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
+. (Join-Path $PSScriptRoot 'assert_native_architecture.ps1')
 $source = Join-Path $repoRoot '.deps/dxvk-remix'
 $testDir = Join-Path $repoRoot '.deps/overlay-presenter-test'
 New-Item -ItemType Directory -Force $testDir | Out-Null
@@ -16,6 +17,8 @@ if ($CompileArchitecture) {
     if ($LASTEXITCODE -ne 0) { throw "ReShade ABI test double compilation failed for $CompileArchitecture" }
     & cl.exe /nologo /std:c++17 /EHsc /W4 /WX "/I$source/bridge/src/server" "/I$source/bridge/src/util" "$repoRoot/tests/overlay_presenter.cpp" user32.lib "/Fe:overlay-$CompileArchitecture.exe"
     if ($LASTEXITCODE -ne 0) { throw "Overlay presenter compilation failed for $CompileArchitecture" }
+    Assert-NativeArchitecture -Path (Join-Path $testDir "fake-$CompileArchitecture.dll") -Architecture $CompileArchitecture
+    Assert-NativeArchitecture -Path (Join-Path $testDir "overlay-$CompileArchitecture.exe") -Architecture $CompileArchitecture
   } finally { Pop-Location }
 } else {
   foreach ($arch in @('x86', 'x64')) {

@@ -11,6 +11,7 @@ if (!$Platform) {
   exit 0
 }
 $repoRoot = Split-Path $PSScriptRoot -Parent
+. (Join-Path $PSScriptRoot 'assert_native_architecture.ps1')
 $source = Join-Path $repoRoot '.deps/dxvk-remix'
 . (Join-Path $source 'bridge/build_common.ps1')
 SetupVS -Platform $Platform -VcVarsVer '14.29'
@@ -23,6 +24,7 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Input hook source generation failed' }
   & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /WX $generated /Fe:input-hooks-test.exe
   if ($LASTEXITCODE -ne 0) { throw 'Input hook regression compilation failed' }
+  Assert-NativeArchitecture -Path (Join-Path $output 'input-hooks-test.exe') -Architecture $Platform
   foreach ($mode in @('steam-off','steam-on','steam-master-off','steam-mouse-only')) {
     & .\input-hooks-test.exe $mode
     if ($LASTEXITCODE -ne 0) { throw "Input hook/log classification regression failed: $mode" }
