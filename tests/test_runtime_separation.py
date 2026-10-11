@@ -26,11 +26,18 @@ class RuntimeSeparation(unittest.TestCase):
         self.assertIn('new uint8_t[size]', allocator)
         self.assertNotIn('new uint8_t[', observer)
         self.assertIn('l4d2_buffer::allocate', buffer)
-        self.assertNotIn('l4d2_memory::allocate', buffer)
+        # Match the removed allocating function, not the allocated() notification.
+        self.assertNotRegex(buffer, r'l4d2_memory::allocate\b')
         wait = (SOURCE / 'bridge/src/util/api_wait_diagnostics.h').read_text(encoding='utf-8')
         crash = (SOURCE / 'bridge/src/util/exception_diagnostics.cpp').read_text(encoding='utf-8')
         self.assertNotIn('inline ThreadStats threads[kThreads]', wait)
         self.assertNotIn('thread_local ThreadState s_thread', crash)
+
+    def test_allocator_guard_distinguishes_notification(self):
+        pattern = r'l4d2_memory::allocate\b'
+        for text in ('l4d2_memory::allocate(size)', 'l4d2_memory::allocate (size)', '&l4d2_memory::allocate'):
+            self.assertRegex(text, pattern)
+        self.assertNotRegex('l4d2_memory::allocated(size, kind)', pattern)
 
     def test_diagnostic_log_cannot_trigger_policy_fallback(self):
         retention = (SOURCE / 'bridge/src/client/retention_runtime.h').read_text(encoding='utf-8')
