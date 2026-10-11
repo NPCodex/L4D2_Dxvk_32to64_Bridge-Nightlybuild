@@ -251,6 +251,28 @@ index 26685ed..6a609f0 100644
      if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow += m_desc.Size; }
      Logger::traceLazy([&]() { return format_string("Allocated a shadow for dynamic %s buffer [%p] "
                                  "(size: %zd, total shadow size: %zd)",
+diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
+index 506c594..af333df 100644
+--- a/bridge/src/server/main.cpp
++++ b/bridge/src/server/main.cpp
+@@ -2749,7 +2749,7 @@ void ProcessDeviceCommandQueue() {
+ 
+         // Copy the data over
+         if (Commands::IsDataReserved(rpcHeader.flags)) {
+-          data = DeviceBridge::Bridge::getReaderChannel().get_data_ptr() + reference;
++          data = DeviceBridge::reservedData(pHandle,reference,SizeToLock);
+         } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+           data = SharedHeap::getBuf(reference) + OffsetToLock;
+         }
+@@ -2850,7 +2850,7 @@ void ProcessDeviceCommandQueue() {
+ 
+         // Copy the data over
+         if (Commands::IsDataReserved(rpcHeader.flags)) {
+-          data = DeviceBridge::Bridge::getReaderChannel().get_data_ptr() + reference;
++          data = DeviceBridge::reservedData(pHandle,reference,SizeToLock);
+         } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+           data = SharedHeap::getBuf(reference) + OffsetToLock;
+         }
 diff --git a/bridge/src/util/util_bridgecommand.cpp b/bridge/src/util/util_bridgecommand.cpp
 index 417eef3..4d45d57 100644
 --- a/bridge/src/util/util_bridgecommand.cpp
@@ -830,7 +852,7 @@ index 417eef3..4d45d57 100644
  template class Bridge<BridgeId::Module>;
  template class Bridge<BridgeId::Device>;
 diff --git a/bridge/src/util/util_bridgecommand.h b/bridge/src/util/util_bridgecommand.h
-index d58aa13..95278b2 100644
+index d58aa13..89ad424 100644
 --- a/bridge/src/util/util_bridgecommand.h
 +++ b/bridge/src/util/util_bridgecommand.h
 @@ -38,7 +38,7 @@
@@ -842,7 +864,7 @@ index d58aa13..95278b2 100644
  #include "util_bridge_state.h"
  #include "util_ipcchannel.h"
  #include "util_singleton.h"
-@@ -105,488 +105,120 @@ namespace BridgeId {
+@@ -105,488 +105,121 @@ namespace BridgeId {
  template <typename BridgeId>
  class Bridge {
    ASSERT_VALID_BRIDGE_ID(BridgeId);
@@ -974,7 +996,7 @@ index d58aa13..95278b2 100644
 +  }
 +  template<typename T>static const DataT& copy_data(T& obj,bool checkSize=true){void* p=nullptr;const auto& n=get_data(&p);
 +    if(p && (!checkSize || n==sizeof(T)))obj=*reinterpret_cast<const T*>(p);else if(n)failRead();else obj=T{};return n;}
-+  static size_t get_data_pos(){return getReaderChannel().commands->cursor()/4;}
++  static size_t get_data_pos(){return static_cast<uint32_t>(getReaderChannel().commands->cursor()/4);}
 +  static Result begin_read_data(){return healthy()?Result::Success:Result::Failure;}
    static size_t end_read_data();
    static Header pop_front();
@@ -1044,6 +1066,7 @@ index d58aa13..95278b2 100644
 -  
 +  static Result syncDataQueue(uint64_t words,bool=false){return healthy() && words<=getWriterChannel().commands->capacity()/4?Result::Success:Result::Failure;}
 +  static void pinRead(uint32_t id){try{getReaderChannel().commands->pin(id);}catch(...){failRead();}}
++  static void* reservedData(uint32_t id,uint32_t words,uint32_t bytes){try{return getReaderChannel().commands->reservedData(id,words,bytes);}catch(...){failRead();}}
 +  static void unpinRead(uint32_t id){try{getReaderChannel().commands->unpin(id);}catch(...){failRead();}}
 +  static void destroyReadPins(uint32_t id){try{getReaderChannel().commands->destroyPins(id);}catch(...){failRead();}}
 +  static Result ensureQueueEmpty();
@@ -1425,10 +1448,10 @@ index d58aa13..95278b2 100644
  // once at their outer entry; uninstrumented callers retain a constructor check.
  namespace ldb_c32 {
 diff --git a/bridge/src/util/util_ipcchannel.h b/bridge/src/util/util_ipcchannel.h
-index 8099e80..9339af6 100644
+index 8099e80..0113b80 100644
 --- a/bridge/src/util/util_ipcchannel.h
 +++ b/bridge/src/util/util_ipcchannel.h
-@@ -1,125 +1,40 @@
+@@ -1,125 +1,41 @@
 -/*
 - * Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
 - *
@@ -1478,7 +1501,7 @@ index 8099e80..9339af6 100644
 +  explicit FullDataView(ldb_full::MessageQueue& q):m_queue(q){}
 +  const std::string& getName()const{return m_queue.name();}
 +  uint64_t cursor()const{return m_queue.cursor()/4;}
-+  size_t get_pos()const{return static_cast<size_t>(cursor());}
++  size_t get_pos()const{return static_cast<uint32_t>(cursor());}
 +  size_t get_total_size()const{return m_queue.capacity()/4;}
 +  bool blobOpen()const{return m_queue.blobOpen();}
 +  uint32_t peek()const{return m_queue.peekWord();}
@@ -1578,6 +1601,7 @@ index 8099e80..9339af6 100644
 +    :commands(std::make_unique<ldb_full::MessageQueue>(gUniqueIdentifier.toString(name.c_str()),mem,IS_WRITER(Accessor))),
 +     data(std::make_unique<bridge_util::FullDataView>(*commands)),
 +     pbCmdInProgress(std::make_unique<std::atomic<bool>>(false)){}
++  uint32_t* get_data_ptr()const{return commands->dataBase();}
 +  size_t get_data_pos()const{return data->get_pos();}
 +  const std::unique_ptr<ldb_full::MessageQueue> commands;
 +  const std::unique_ptr<bridge_util::FullDataView> data;

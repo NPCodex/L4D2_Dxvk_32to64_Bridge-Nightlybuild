@@ -97,6 +97,7 @@ public:
   bool healthy()const{return m_channel.healthy();}
   void fault(){session().fault();}
   uint32_t capacity()const{return m_pool.capacity();}
+  uint32_t* dataBase(){return reinterpret_cast<uint32_t*>(m_pool.base());}
   uint64_t cursor()const{return m_writerSide?m_sentBytes+m_written:m_receivedBytes+m_readCursor;}
   const std::string& name()const{return m_name;}
   bool blobOpen()const{return m_blob;}
@@ -183,7 +184,7 @@ public:
           if(record.bodyBytes!=sizeof(Descriptor))throw std::runtime_error("invalid upload record");
           std::memcpy(&m_readLease,base+sizeof(record),sizeof(m_readLease));m_read=m_pool.acquire(m_readLease);m_readBytes=m_readLease.bytes;
         }else {m_read=base+sizeof(record);m_readBytes=record.bodyBytes;}
-        if(m_readBytes%4)throw std::runtime_error("unaligned body");m_readCursor=0;m_recordBytes=record.bytes;m_current=true;
+        if(m_readBytes%4)throw std::runtime_error("unaligned body");m_header.dataOffset=static_cast<uint32_t>((m_receivedBytes+m_readBytes)/4);m_readCursor=0;m_recordBytes=record.bytes;m_current=true;
       }
       result=bridge_util::Result::Success;return m_header;
     }catch(...){fault();result=bridge_util::Result::Failure;return {};}
@@ -198,6 +199,15 @@ public:
   }
   uint32_t remaining()const{return m_readBytes-m_readCursor;}
   void pin(uint32_t id){if(!m_current || !m_readExternal)throw std::runtime_error("pin requires upload lease");m_pool.retain(m_readLease);m_pins[id].push_back(m_readLease);}
+  void* reservedData(uint32_t id,uint32_t words,uint32_t bytes){
+    const auto it=m_pins.find(id);if(it==m_pins.end() || it->second.empty())throw std::runtime_error("missing reserved upload pin");
+    const auto& d=it->second.front();if(d.bytes<8)throw std::runtime_error("reserved upload layout");
+    uint32_t length=0;std::memcpy(&length,m_pool.base()+d.offset+4,4);
+    if(uint64_t{8}+((uint64_t{length}+3)&~uint64_t{3})!=d.bytes)throw std::runtime_error("reserved upload span");
+    const uint64_t offset=uint64_t{words}*4,first=uint64_t{d.offset}+8,end=first+length;
+    if(offset<first || offset>end || bytes>end-offset)throw std::runtime_error("reserved upload pointer bounds");
+    return m_pool.base()+offset;
+  }
   void unpin(uint32_t id){auto i=m_pins.find(id);if(i==m_pins.end())return;if(!i->second.empty()){if(!notifyRelease(i->second.front()))throw std::runtime_error("lease credit failed");i->second.pop_front();}if(i->second.empty())m_pins.erase(i);}
   void destroyPins(uint32_t id){while(m_pins.count(id))unpin(id);}
   void finishRead() {

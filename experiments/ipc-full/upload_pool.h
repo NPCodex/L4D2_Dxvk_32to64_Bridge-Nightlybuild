@@ -66,6 +66,7 @@ public:
     if(writer)m_owner.resize(m_capacity/PageBytes);
   }
   uint32_t capacity()const{return m_capacity;}
+  uint8_t* base(){return m_bytes;}
   uint8_t* pointer(const Descriptor& d) {return m_bytes+d.offset;}
   bool allocate(uint32_t bytes,Descriptor& out) {
     if(!m_writer || !bytes || bytes>m_capacity)return false;
