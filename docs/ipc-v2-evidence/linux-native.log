@@ -1,0 +1,20 @@
+IPC_V2_LOCAL_PASS
+IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=0 max_bytes=2097152 records=32
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=233 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=1343 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2843 waits=246 bits=64
+IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=0 max_bytes=2097152 records=32
+IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=1293 bits=64
+IPC_V2_CROSS_PASS kind=2 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=251 bits=64
+IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2859 waits=239 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=slow threads=1 records=100 blocks=22 waits=17 bits=64
+IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=128 max_bytes=2097152 records=32
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=2 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=1 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2867 waits=2 bits=64
+IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=128 max_bytes=2097152 records=32
+IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=2 bits=64
+IPC_V2_CROSS_PASS kind=2 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=2 bits=64
+IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2867 waits=1 bits=64
+IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=slow threads=1 records=100 blocks=22 waits=17 bits=64
+IPC_V2_NATIVE_PASS

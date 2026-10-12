@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+from build_identity import protocol_digest
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = "9aa74f8dfad2188efbd0f717c64d9f8fa909787e"
@@ -29,6 +30,15 @@ def _render_patch():
         lambda match: match[1] + version.encode("ascii") + match[2], original)
     if count != 2:
         raise RuntimeError("Expected both project version log lines; checkout preserved")
+    stamp = protocol_digest(original, version)
+    for index in range(4):
+        rendered, count = re.subn(
+            rb'(?m)^\+#define LDB_IPC_V2_BUILD' + str(index).encode() + rb' 0x00000000u(\r?)$',
+            lambda match: b'+#define LDB_IPC_V2_BUILD' + str(index).encode()
+                + b' 0x' + stamp[index * 8:index * 8 + 8].encode() + b'u' + match[1],
+            rendered)
+        if count != 1:
+            raise RuntimeError("Expected four IPC v2 source identity placeholders; checkout preserved")
     return rendered
 
 

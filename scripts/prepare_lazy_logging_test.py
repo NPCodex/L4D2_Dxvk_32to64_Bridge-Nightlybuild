@@ -63,9 +63,10 @@ def prepare(source, output, negative_control=None):
             raise ValueError("Cannot restore eager shadow logging control")
         lifecycle = lifecycle.replace("g_totalBufferShadow); });", "g_totalBufferShadow));")
     fixture = notices + "#pragma once\ntemplate<bool bIsVertexBuffer> struct LockableBuffer {\n"
-    fixture += "struct Descriptor { unsigned Size; };\nDescriptor m_desc;\n"
+    fixture += "struct Descriptor { unsigned Size; unsigned Usage = 0; };\nDescriptor m_desc;\n"
     fixture += "bool m_bUseSharedHeap = false;\nSharedHeap::AllocId m_bufferId = SharedHeap::kInvalidId;\n"
-    fixture += "std::unique_ptr<uint8_t[]> m_shadow;\ninline static size_t g_totalBufferShadow = 0;\n"
+    fixture += "l4d2_buffer::Storage m_shadow;\nstd::unique_ptr<l4d2_buffer::MappedBufferShadow> m_mappedShadow;\n"
+    fixture += "bool hasShadow() const { return m_shadow || m_mappedShadow; }\ninline static size_t g_totalBufferShadow = 0;\n"
     fixture += "l4d2_data::Resource m_dataTrace;\nstd::vector<unsigned> m_lockInfos;\n"
     fixture += "explicit LockableBuffer(unsigned size) : m_desc{size} { initShadowMem(); }\n" + lifecycle + "\n};\n"
     output.mkdir(parents=True, exist_ok=True)

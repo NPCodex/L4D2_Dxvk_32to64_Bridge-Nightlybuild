@@ -1,0 +1,158 @@
+name: LDB v1.3.0 prerelease validation and build
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/vbib-mapped-shadow']
+    paths: ['VERSION', 'config/bridge.conf', 'patches/vbib-mapped.patch', 'experiments/vbib-mapped/**', 'scripts/*vbib_mapped*', 'tests/vbib*', 'patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'scripts/verify_v130_prerelease.py', 'docs/RELEASE-V1.3.0-pre.1.md', 'tests/**', 'scripts/test_*.ps1', 'scripts/generate_*_test.py', '.github/workflows/vbib-mapped-development.yml', '.github/workflows/ipc-full-development.yml']
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 8730d84b77c596efdabfad54b7458a8f0aeb01a4
+          path: .deps/ipc-v2-pr6
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 00007e8762385704afdacabea6e48444d798d27a
+          path: .deps/c32-frozen
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned build tools
+        run: python -m pip install meson==1.3.2 ninja==1.11.1.1
+      - name: Fetch pinned DXVK only for the existing x86 loader check
+        shell: pwsh
+        run: |
+          curl.exe --fail --location --retry 3 --max-time 90 https://github.com/doitsujin/dxvk/releases/download/v2.6.1/dxvk-2.6.1.tar.gz --output .deps/dxvk.tar.gz
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned test dependency download failed' }
+          if ((Get-FileHash .deps/dxvk.tar.gz -Algorithm SHA256).Hash.ToLower() -ne '7ee0bef415910c943d3bda47d9d6821b9c8ca7a74f1e9f6151707d268cf3ce7f') { throw 'Pinned DXVK checksum mismatch' }
+          tar -xzf .deps/dxvk.tar.gz -C .deps
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned DXVK extraction failed' }
+      - name: Prepare C1 C32 foundation, VA allocator and full transport
+        run: |
+          python scripts/prepare_bridge.py
+          python scripts/prepare_ipc_c32.py
+          python scripts/prepare_ipc_full.py
+          python scripts/prepare_vbib_mapped.py
+      - name: Native storage contracts and repeated old/off/zero/cache costs
+        shell: powershell
+        run: ./scripts/test_vbib_mapped.ps1
+      - name: Actual production full serializer, reverse replies, leases and failure boundaries
+        shell: powershell
+        run: ./scripts/test_ipc_full.ps1
+      - name: Existing resource and native regressions
+        shell: powershell
+        run: |
+          foreach ($test in @('buffer_contract','buffer_shadow_arena','volume_layout','device_reset','readback_recovery','input_hooks','adapter_information','ati_texture_layout','command_queue','runtime_observation','exception_diagnostics','color_diagnostics','data_diagnostics','diagnostics','host_diagnostics','overlay_presenter','api_wait_diagnostics')) {
+            & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
+            if ($LASTEXITCODE -ne 0) { throw "$test failed" }
+          }
+          & powershell.exe -NoProfile -File ./scripts/test_pageblock_gc.ps1 -SkipPluginTests
+          if ($LASTEXITCODE -ne 0) { throw 'PageBlock GC failed' }
+          & powershell.exe -NoProfile -File ./scripts/test_host_diagnostics.ps1 -Platform x86
+          if ($LASTEXITCODE -ne 0) { throw 'Host32 diagnostics failed' }
+          & powershell.exe -NoProfile -File ./scripts/test_x86_backend.ps1 -DllPath .deps/dxvk-2.6.1/x32/d3d9.dll
+          if ($LASTEXITCODE -ne 0) { throw 'x86 backend loader failed' }
+      - name: Python contracts
+        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Build and verify matched experimental Release bridge
+        shell: powershell
+        run: ./scripts/build_ipc_full.ps1
+      - name: Preserve binaries, tests, raw data and checksums
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vbib-mapped-development-${{ github.run_id }}
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+            work/ipc-full-build.json
+            work/ipc-full-native/
+            work/vbib-mapped-native/
+            work/vbib-mapped-baseline/
+            .deps/dxvk-remix/bridge/_ipcFull_*/meson-logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+  publish-prerelease:
+    needs: windows
+    if: github.ref == 'refs/heads/codex/vbib-mapped-shadow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+      RELEASE_TAG: v1.3.0-pre.1
+      BUILD_COMMIT: ${{ github.sha }}
+      BUILD_RUN: ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: vbib-mapped-development-${{ github.run_id }}
+          path: release-artifact
+      - name: Verify tested payload and refuse to overwrite an existing release or tag
+        run: |
+          python scripts/verify_v130_prerelease.py --artifact release-artifact --commit "$BUILD_COMMIT" --output verified-release
+          python - <<'PYCODE'
+          import os, urllib.request, urllib.error
+          from pathlib import Path
+          assert Path('VERSION').read_text().strip() == '1.3.0-pre.1'
+          import json
+          request = urllib.request.Request('https://api.github.com/repos/' + os.environ['GH_REPO'] + '/releases?per_page=100', headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'})
+          releases = json.load(urllib.request.urlopen(request))
+          assert all(release['tag_name'] != os.environ['RELEASE_TAG'] for release in releases), 'Release already exists'
+          for path in ('git/ref/tags/',):
+              request = urllib.request.Request('https://api.github.com/repos/' + os.environ['GH_REPO'] + '/' + path + os.environ['RELEASE_TAG'], headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'})
+              try:
+                  urllib.request.urlopen(request).close()
+              except urllib.error.HTTPError as error:
+                  if error.code == 404:
+                      continue
+                  raise
+              raise RuntimeError('Release/tag already exists: publication will not overwrite it')
+          PYCODE
+      - name: Create exact-commit draft and verify uploaded assets before publishing
+        run: |
+          cp docs/RELEASE-V1.3.0-pre.1.md release-notes.md
+          python - <<'PYCODE'
+          import os, json
+          from pathlib import Path
+          info=json.loads(Path('verified-release/PACKAGE-VERIFICATION.json').read_text())
+          with Path('release-notes.md').open('a') as notes:
+              notes.write('\n\n本次发布构建：`' + info['build_id'] + '`；源码提交：`' + os.environ['BUILD_COMMIT'] + '`。\n')
+              notes.write('\n[本次 Windows 原生回归与三端编译](https://github.com/' + os.environ['GH_REPO'] + '/actions/runs/' + os.environ['BUILD_RUN'] + ')：360 对传输测试、24 个 fail-closed、现有资源/诊断回归及 Python 检查通过；新默认值的实机 GPU 验收待完成。\n')
+              notes.write('\n升级 ZIP SHA-256：`' + info['zip_sha256'] + '`。\n')
+          PYCODE
+          gh release create "$RELEASE_TAG" --target "$BUILD_COMMIT" --title "LDB v1.3.0-pre.1 — 完整 IPC v2，默认 C8" --notes-file release-notes.md --draft --prerelease --latest=false
+          gh release upload "$RELEASE_TAG" release-artifact/dist/l4d2-bridge-patch-v1.3.0-pre.1.zip release-artifact/dist/SHA256SUMS.txt verified-release/BUILD-INFO.json verified-release/PACKAGE-VERIFICATION.json verified-release/INSTALL.zh-CN.md
+          gh api "repos/$GH_REPO/releases?per_page=100" > uploaded-release.json
+          python - <<'PYCODE'
+          import hashlib, json, os
+          from pathlib import Path
+          releases=json.loads(Path('uploaded-release.json').read_text())
+          matches=[r for r in releases if r['tag_name']==os.environ['RELEASE_TAG']]
+          assert len(matches)==1
+          release=matches[0]
+          assert release['draft'] and release['prerelease'] and release['target_commitish']==os.environ['BUILD_COMMIT']
+          expected={p.name:p for p in [Path('release-artifact/dist/l4d2-bridge-patch-v1.3.0-pre.1.zip'),Path('release-artifact/dist/SHA256SUMS.txt'),*Path('verified-release').iterdir()]}
+          assets={a['name']:a for a in release['assets']}
+          assert set(assets)==set(expected)
+          for name,path in expected.items():
+              assert assets[name]['size']==path.stat().st_size and assets[name]['state']=='uploaded'
+              assert assets[name]['digest']=='sha256:'+hashlib.sha256(path.read_bytes()).hexdigest()
+          PYCODE
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false
+          gh api "repos/$GH_REPO/git/ref/tags/$RELEASE_TAG" > published-tag.json
+          python -c "import json,os; r=json.load(open('published-tag.json')); assert r['object']['sha']==os.environ['BUILD_COMMIT'] and r['object']['type']=='commit'"
+          gh release view "$RELEASE_TAG" --json url,isDraft,isPrerelease,targetCommitish

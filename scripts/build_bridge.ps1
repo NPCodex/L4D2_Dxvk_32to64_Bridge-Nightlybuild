@@ -28,11 +28,11 @@ Push-Location (Join-Path $source 'bridge')
 try {
   # Each architecture gets a fresh PowerShell process and its own MSVC environment.
   foreach ($arch in @('x64', 'x86')) {
-    $buildCommand = ". .\build_bridge.ps1; Build -Platform $arch -BuildFlavour debugoptimized -BuildSubDir _compDebugOptimized_$arch -VcVarsVer $VcVarsVer; exit `$LASTEXITCODE"
+    $buildCommand = ". .\build_common.ps1; SetupVS -Platform $arch -VcVarsVer $VcVarsVer; & meson setup _compRelease_$arch --buildtype release --backend ninja; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; Copy-Item Directory.Build.Props _compRelease_$arch; & meson compile -C _compRelease_$arch; exit `$LASTEXITCODE"
     Invoke-Checked 'powershell.exe' @('-NoProfile', '-Command', $buildCommand)
   }
   # The separate server build keeps SERVER channel semantics out of the x86 Client.
-  $buildCommand = ". .\build_common.ps1; SetupVS -Platform x86 -VcVarsVer $VcVarsVer; & meson setup _compDebugOptimized_x86_server --buildtype debugoptimized --backend ninja --debug -Dexperimental_x86_server=true; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; & meson compile -C _compDebugOptimized_x86_server; exit `$LASTEXITCODE"
+  $buildCommand = ". .\build_common.ps1; SetupVS -Platform x86 -VcVarsVer $VcVarsVer; & meson setup _compRelease_x86_server --buildtype release --backend ninja -Dexperimental_x86_server=true; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; & meson compile -C _compRelease_x86_server; exit `$LASTEXITCODE"
   Invoke-Checked 'powershell.exe' @('-NoProfile', '-Command', $buildCommand)
 } finally { Pop-Location }
 Invoke-Checked 'powershell.exe' @('-NoProfile', '-File', "$PSScriptRoot/build_l4n_plugin.ps1")

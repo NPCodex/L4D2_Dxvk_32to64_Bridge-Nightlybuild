@@ -5,6 +5,7 @@
 #define NOMINMAX
 #define REMIX_BRIDGE_CLIENT
 #include <windows.h>
+#include <d3d9.h>
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -83,6 +84,11 @@ namespace l4d2_memory {
 enum class Kind { Vertex, Index };
 static size_t bytes[2] {}, objects[2] {};
 static bool failCore = false, failAfterCore = false;
+static void allocated(size_t size, Kind kind) {
+  bytes[static_cast<unsigned>(kind)] += size;
+  ++objects[static_cast<unsigned>(kind)];
+}
+template<typename... Args> static void sample(Args...) {}
 static uint8_t* allocate(size_t size, Kind kind, unsigned, unsigned, unsigned, bool zero) {
   if (failCore) { throw std::bad_alloc(); }
   auto* data = zero ? new uint8_t[size]() : new uint8_t[size];
@@ -97,10 +103,19 @@ static void released(size_t size, Kind kind) {
 }
 }
 namespace l4d2_buffer {
-static uint8_t* allocate(size_t size, l4d2_memory::Kind kind, bool zero) {
-  return l4d2_memory::allocate(size, kind, 0, 0, 0, zero);
+using Storage = std::unique_ptr<uint8_t[]>;
+struct MappedBufferShadow {
+  MappedBufferShadow(size_t, size_t) { throw std::runtime_error("Unexpected mapped allocation path"); }
+};
+static Storage allocate(size_t size, l4d2_memory::Kind kind, bool zero) {
+  return Storage(l4d2_memory::allocate(size, kind, 0, 0, 0, zero));
 }
 }
+struct ClientOptions {
+  static bool getMappedBufferShadow() { return false; }
+  static size_t getMappedBufferMinimum() { return 256 * 1024; }
+  static size_t getMappedBufferCacheBudget() { return 32 * 1024 * 1024; }
+};
 namespace l4d2_data {
 struct Resource { void destroyLocked(size_t) {} };
 }

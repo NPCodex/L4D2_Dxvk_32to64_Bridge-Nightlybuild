@@ -100,8 +100,9 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本版优化五类高频标量命令的预留与编码。同补丁候选对 v1.2.2 的一轮本机测试：开灯平均帧 +1.61%、1% low +0.57%、0.1% low -0.75%；关灯分别 +5.50%、-1.10%、-7.84%。未证明稳定 low 帧收益，正式重建包未重复游戏测试，详情见仓库 docs/HOT-COMMAND-PACKETS.md。\n"
-        "IPC 协议为 3：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
+        "本版整合完整 IPC v2，默认 C8；静态 VB/IB 按需映射默认关闭。上游候选相对 v1.2.3 的三组实机对照：开灯平均 FPS +1.97%、1% low -6.78%；关灯平均 FPS +0.51%、1% low -7.43%。本次正式整合重建包未重复游戏测试，未证明长期稳定性；详情见仓库 docs/UPSTREAM-1.3.0-INTEGRATION.md。\n"
+        "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
+        "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"
         "升级时先解压到临时目录，保留原有 dxvk.conf、bin/.l4d2bridge/bridge.conf、left4dead2/neko/config.vdf、自定义后端、ReShade 和 retention DB，再合并覆盖。客户端与两个 Host 一并更新、回退。\n"

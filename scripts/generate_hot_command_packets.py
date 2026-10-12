@@ -13,7 +13,7 @@ from pathlib import Path
 import re
 
 from generate_buffer_contract_test import method
-from generate_ipc_transport_test import generate as generate_transport
+from generate_ipc_full_test import generate as generate_transport
 
 ROOT = Path(__file__).resolve().parents[1]
 APIS = ('SetRenderState', 'SetTextureStageState', 'SetSamplerState',
@@ -84,7 +84,7 @@ def generate(source, output):
     (output / 'hot_command_submissions.h').write_text('\n'.join(wrappers) + '\n', encoding='utf-8')
     transport = output / 'ipc_transport.cpp'
     generated = transport.read_text(encoding='utf-8')
-    original_include = '#include "ipc_transport_cases.cpp"'
+    original_include = '#include "full_bridge_cases.cpp"'
     if generated.count(original_include) != 1:
         raise ValueError('Unexpected transport fixture include')
     transport.write_text(generated.replace(original_include,
@@ -94,7 +94,8 @@ def generate(source, output):
     manifest['source_sha256'].update({'client/d3d9_device.cpp': digest(client), 'server/main.cpp': digest(host)})
     manifest['hot_command_extractions'] = metadata
     manifest['adapters'] += ['five exact Client submission scopes in typed wrappers with fixed device handle',
-                             'original Host scalar PULL macros and statements; D3D9 execution excluded']
+                             'original Host scalar PULL macros and statements; D3D9 execution excluded',
+                             'IPC v2 inline records; visibility checked after batch/RPC/explicit flush boundaries']
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
 
 

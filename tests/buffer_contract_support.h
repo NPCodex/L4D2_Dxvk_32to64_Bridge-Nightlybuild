@@ -17,6 +17,8 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <thread>
+#include <atomic>
 #include "data_diagnostics.h"
 #include "data_ring_contract.h"
 #include "util_commands.h"
@@ -26,20 +28,53 @@ template<typename T> struct Direct3DResource9_LSS {
   Direct3DResource9_LSS(T*, BaseDirect3DDevice9Ex_LSS*) {}
   uint32_t getId() const { return 1; }
 };
+inline bool wholeStaticTest = false;
 struct GlobalOptions {
   static bool getUseSharedHeap() { return false; }
   static bool getUseSharedHeapForDynamicBuffers() { return false; }
   static bool getUseSharedHeapForStaticBuffers() { return false; }
-  static bool getAlwaysCopyEntireStaticBuffer() { return false; }
+  static bool getAlwaysCopyEntireStaticBuffer() { return wholeStaticTest; }
 };
 inline bool optimizedLockTest = false;
-struct ClientOptions { static bool getOptimizedDynamicLock() { return optimizedLockTest; } };
-#include "buffer_shadow.h"
+inline bool mappedShadowTest = true;
+inline size_t mappedMinimumTest = 256 * 1024, mappedBudgetTest = 32 * 1024 * 1024;
+struct ClientOptions {
+  static bool getOptimizedDynamicLock() { return optimizedLockTest; }
+  static bool getMappedBufferShadow() { return mappedShadowTest; }
+  static size_t getMappedBufferMinimum() { return mappedMinimumTest; }
+  static size_t getMappedBufferCacheBudget() { return mappedBudgetTest; }
+};
 namespace buffer_contract {
 inline uint64_t liveBytes = 0;
 inline bool failAllocation = false;
 union Allocation { size_t bytes; std::max_align_t alignment; };
 }
+#ifndef LDB_PRESSURE_NATIVE_ALLOCATOR
+// Intercept only allocation failure in the real Windows VA adapter. Ordinary
+// contract checks execute the production arena, not a replacement allocator.
+inline LPVOID bufferContractVirtualAlloc(LPVOID address, SIZE_T bytes, DWORD type, DWORD protect) {
+  if (buffer_contract::failAllocation) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return nullptr; }
+  return ::VirtualAlloc(address, bytes, type, protect);
+}
+#define VirtualAlloc bufferContractVirtualAlloc
+#endif
+#include "buffer_shadow.h"
+#include "buffer_mapped_shadow.h"
+#ifndef LDB_PRESSURE_NATIVE_ALLOCATOR
+#undef VirtualAlloc
+#endif
+using ShadowAllocationResult = decltype(l4d2_buffer::allocate(1, l4d2_memory::Kind::Vertex, true));
+using ShadowOwner = std::conditional_t<std::is_pointer_v<ShadowAllocationResult>,
+  std::unique_ptr<uint8_t[]>, ShadowAllocationResult>;
+inline uint64_t liveShadowTestBytes() {
+  // The original new[] fixture counter remains an independent allocation oracle.
+#ifdef LDB_SHADOW_ARENA
+  return l4d2_buffer::arena().stats().allocations * 64; // contract buffers are exactly 64 bytes
+#else
+  return buffer_contract::liveBytes;
+#endif
+}
+#ifndef LDB_PRESSURE_NATIVE_ALLOCATOR
 void* operator new[](size_t size) {
   if (buffer_contract::failAllocation) { throw std::bad_alloc(); }
   auto* header = static_cast<buffer_contract::Allocation*>(std::malloc(sizeof(buffer_contract::Allocation) + size));
@@ -53,6 +88,7 @@ void operator delete[](void* data) noexcept {
   buffer_contract::liveBytes -= header->bytes; std::free(header);
 }
 void operator delete[](void* data, size_t) noexcept { ::operator delete[](data); }
+#endif
 namespace SharedHeap {
 using AllocId = uint32_t;
 constexpr AllocId kInvalidId = UINT32_MAX;

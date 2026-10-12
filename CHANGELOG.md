@@ -7,6 +7,14 @@
 
 # 更新记录 / Changelog
 
+## Nightly 1.3.0
+
+- 经维护者查看实测取舍后批准，整合上游 v1.3.0-pre.1 的完整 IPC v2、上传 lease、VB/IB VA 分配及默认 C8；静态 VB/IB 按需映射默认关闭。
+- 融合 Nightly 修复，继续使用一体完整包。实测候选的平均 FPS 小幅增加、1% low 下降；本次整合重建包未重复游戏测试。
+- 如出现 1% low 下降或帧数不稳定，请回退 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。本次范围与验证见 [集成说明](docs/UPSTREAM-1.3.0-INTEGRATION.md)。
+
+以下为原项目历史记录，不代表当前 Nightly 发布状态。
+
 当前正式版为 **v1.2.2（Optional / 可选更新）**；以下开发版条目保留当时状态，不代表正式版现状。简明记录见 [LDBREADME](LDBREADME.md)。
 
 ## 1.2.2（正式发布 / Optional）

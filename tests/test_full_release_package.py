@@ -30,9 +30,14 @@ class FullPackage(unittest.TestCase):
             path.write_text("fixture", encoding="utf-8")
         (self.root / "VERSION").write_text("1.1\n", encoding="utf-8")
         self.identity = "l4d2-1.1+" + hashlib.sha256(b"fixture").hexdigest()[:16]
-        self.client = self.binary("source/bridge/_compDebugOptimized_x86/src/client/d3d9.dll", 0x14c)
-        self.host64 = self.binary("source/bridge/_compDebugOptimized_x64/src/server/L4D2Bridge64.exe", 0x8664)
-        self.host32 = self.binary("source/bridge/_compDebugOptimized_x86_server/src/server/L4D2Bridge32.exe", 0x14c)
+        stamp = self.source / "bridge/src/util/ipc_v2/ipc_v2_build.h"
+        stamp.parent.mkdir(parents=True)
+        self.protocol = package.protocol_digest(b"fixture", "1.1")
+        stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x{self.protocol[i * 8:i * 8 + 8]}u\n'
+                                 for i in range(4)), encoding="utf-8")
+        self.client = self.binary("source/bridge/_compRelease_x86/src/client/d3d9.dll", 0x14c)
+        self.host64 = self.binary("source/bridge/_compRelease_x64/src/server/L4D2Bridge64.exe", 0x8664)
+        self.host32 = self.binary("source/bridge/_compRelease_x86_server/src/server/L4D2Bridge32.exe", 0x14c)
         self.backend64 = self.binary("backend64.dll", 0x8664)
         self.backend32 = self.binary("backend32.dll", 0x14c)
         self.plugin = self.binary("plugin.dll", 0x14c)
@@ -74,6 +79,8 @@ class FullPackage(unittest.TestCase):
         self.assertEqual([path.name for path in self.output.parent.iterdir()], ["full"])
         receipt = json.loads((self.output / "BUILD-INFO.json").read_text())
         self.assertEqual(receipt["build_id"], self.identity)
+        self.assertEqual(receipt["protocol_source_sha256"], self.protocol)
+        self.assertFalse(receipt["legacy_data_ring"])
         self.assertEqual(receipt["l4n_author"], "Starfelll")
         self.assertEqual(receipt["l4n_version"], "2.51.0")
         self.assertEqual((self.output / "left4dead2.exe").read_bytes(), b"verified L4N fixture")
@@ -111,6 +118,13 @@ class FullPackage(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             self.run_package()
         self.assertEqual((self.output / "private.txt").read_bytes(), b"existing")
+
+    def test_stale_protocol_identity_is_rejected_before_output(self):
+        stamp = self.source / "bridge/src/util/ipc_v2/ipc_v2_build.h"
+        stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x00000000u\n' for i in range(4)))
+        with self.assertRaisesRegex(ValueError, "IPC v2 identity"):
+            self.run_package()
+        self.assertFalse(self.output.exists())
 
 
 if __name__ == "__main__":

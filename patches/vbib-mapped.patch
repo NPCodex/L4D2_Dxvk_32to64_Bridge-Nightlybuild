@@ -1,0 +1,222 @@
+diff --git a/bridge/src/client/client_options.h b/bridge/src/client/client_options.h
+index 6175148..047d4b2 100644
+--- a/bridge/src/client/client_options.h
++++ b/bridge/src/client/client_options.h
+@@ -31,6 +31,28 @@
+ #include <d3d9.h>
+ 
+ namespace ClientOptions {
++  // NV-DXVK start: Experimental static buffer view residency; contents stay intact.
++  inline bool getMappedBufferShadow() {
++    static const bool enabled = bridge_util::Config::getOption<bool>("client.vbibMappedShadow", false);
++    return enabled;
++  }
++  inline size_t getMappedBufferMinimum() {
++    static const size_t bytes = [] {
++      const auto kb = bridge_util::Config::getOption<uint32_t>("client.vbibMappedShadowMinKB", 256);
++      const uint64_t requested = static_cast<uint64_t>(kb < 64 ? 64 : kb) * 1024;
++      return requested > SIZE_MAX ? SIZE_MAX : static_cast<size_t>(requested);
++    }();
++    return bytes;
++  }
++  inline size_t getMappedBufferCacheBudget() {
++    static const size_t bytes = [] {
++      const auto mb = bridge_util::Config::getOption<uint32_t>("client.vbibShadowCacheMB", 32);
++      return static_cast<size_t>(mb > 1024 ? 1024 : mb) * 1024 * 1024;
++    }();
++    return bytes;
++  }
++  // NV-DXVK end
++
+   inline std::string getTargetProcess() {
+     return bridge_util::Config::getOption<std::string>("client.targetProcess", "");
+   }
+diff --git a/bridge/src/client/lockable_buffer.h b/bridge/src/client/lockable_buffer.h
+index 6a609f0..ab785b7 100644
+--- a/bridge/src/client/lockable_buffer.h
++++ b/bridge/src/client/lockable_buffer.h
+@@ -30,6 +30,7 @@
+ 
+ #include "d3d9_util.h"
+ #include "buffer_shadow.h"
++#include "buffer_mapped_shadow.h"
+ 
+ #include <d3d9.h>
+ #include <queue>
+@@ -61,6 +62,11 @@ class LockableBuffer: public Direct3DResource9_LSS<T> {
+ 
+   const bool m_bUseSharedHeap = false;
+   l4d2_buffer::Storage m_shadow;
++  // NV-DXVK start: Only static buffer shadows use pageable section views.
++  std::unique_ptr<l4d2_buffer::MappedBufferShadow> m_mappedShadow;
++  bool hasShadow() const { return m_shadow || m_mappedShadow; }
++  uint8_t* shadowData() const { return m_mappedShadow ? m_mappedShadow->get() : m_shadow.get(); }
++  // NV-DXVK end
+   inline static size_t g_totalBufferShadow = 0;
+ 
+ public:
+@@ -80,9 +86,22 @@ private:
+   }
+ 
+   void initShadowMem() {
+-    m_shadow = l4d2_buffer::allocate(m_desc.Size,
+-      bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
+-      true);
++    // NV-DXVK start: Preserve the full zero-filled content and creation failure boundary.
++    const auto kind = bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index;
++    if (!(m_desc.Usage & D3DUSAGE_DYNAMIC) && m_desc.Size >= ClientOptions::getMappedBufferMinimum()
++      && ClientOptions::getMappedBufferShadow()) {
++      try {
++        m_mappedShadow = std::make_unique<l4d2_buffer::MappedBufferShadow>(
++          m_desc.Size, ClientOptions::getMappedBufferCacheBudget());
++      } catch (const std::bad_alloc&) {
++        l4d2_memory::sample(true, "buffer-section-create-failed", kind, m_desc.Size, 0, 0, 0, GetLastError());
++        throw;
++      }
++      l4d2_memory::allocated(m_desc.Size, kind);
++    } else {
++      m_shadow = l4d2_buffer::allocate(m_desc.Size, kind, true);
++    }
++    // NV-DXVK end
+     if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow += m_desc.Size; }
+     Logger::traceLazy([&]() { return format_string("Allocated a shadow for dynamic %s buffer [%p] "
+                                 "(size: %zd, total shadow size: %zd)",
+@@ -107,7 +126,7 @@ protected:
+     }
+     // NV-DXVK start: Optional data/resource tracing.
+     m_dataTrace.open(bIsVertexBuffer ? l4d2_data::Kind::Vertex : l4d2_data::Kind::Index,
+-      getId(), desc.Size, m_shadow ? desc.Size : 0, desc.Usage, desc.Pool, desc.Format);
++      getId(), desc.Size, hasShadow() ? desc.Size : 0, desc.Usage, desc.Pool, desc.Format);
+     // NV-DXVK end
+   }
+ 
+@@ -119,7 +138,7 @@ protected:
+       if (m_bufferId != SharedHeap::kInvalidId) {
+         SharedHeap::deallocate(m_bufferId);
+       }
+-    } else if (m_shadow) {
++    } else if (hasShadow()) {
+       if (Logger::isEnabled(bridge_util::LogLevel::Trace)) { g_totalBufferShadow -= m_desc.Size; }
+       l4d2_memory::released(m_desc.Size,
+         bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index);
+@@ -170,7 +189,24 @@ protected:
+       *ppbData = SharedHeap::getBuf(m_bufferId) + offset;
+       m_lockInfos.push({ offset, size, nullptr, flags, checkPtr, m_bufferId, discardedBufferId });
+     } else {
+-      *ppbData = m_shadow.get() + offset;
++      // NV-DXVK start: Keep one stable mapping across every overlapping Lock.
++      if (m_mappedShadow) {
++        auto* view = m_mappedShadow->acquire();
++        if (!view) {
++          const auto error = GetLastError();
++          m_dataTrace.lock(offset, size, flags, E_OUTOFMEMORY);
++          l4d2_memory::sample(true, "buffer-section-map-failed",
++            bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index,
++            m_desc.Size, 0, 0, 0, error);
++          return E_OUTOFMEMORY;
++        }
++        *ppbData = view + offset;
++        l4d2_memory::sample(false, "buffer-section-mapped",
++          bIsVertexBuffer ? l4d2_memory::Kind::Vertex : l4d2_memory::Kind::Index, m_desc.Size);
++      } else {
++        *ppbData = m_shadow.get() + offset;
++      }
++      // NV-DXVK end
+ 
+       if (m_optimizedLock) {
+         const size_t dataSize = (size == 0) ? m_desc.Size : size;
+@@ -193,7 +229,17 @@ protected:
+         if (c.finish() != Result::Success) { *ppbData = nullptr; return D3DERR_DEVICELOST; }
+         *ppbData = reinterpret_cast<void*>(blobAddr);
+       }
+-      m_lockInfos.push({ offset, size, *ppbData, flags, checkPtr });
++      // NV-DXVK start: Roll back the mapping pin if lock metadata allocation fails.
++      try {
++        m_lockInfos.push({ offset, size, *ppbData, flags, checkPtr });
++      } catch (const std::bad_alloc&) {
++        if (m_mappedShadow) {
++          m_mappedShadow->release();
++        }
++        *ppbData = nullptr;
++        throw;
++      }
++      // NV-DXVK end
+     }
+     // Store locked buffer pointer locally so we can copy the data on unlock
+     // NV-DXVK start: Optional data/resource tracing.
+@@ -218,7 +264,7 @@ protected:
+     if (m_sendWhole) {
+       size = m_desc.Size;
+       offset = 0;
+-      ptr = m_shadow.get();
++      ptr = shadowData();
+     }
+ 
+     // If this is a read only access then don't bother sending
+@@ -260,6 +306,11 @@ protected:
+       }
+     }
+     m_lockInfos.pop();
++    // NV-DXVK start: Serializer has copied the bytes; outstanding Locks stay pinned.
++    if (m_mappedShadow) {
++      m_mappedShadow->release();
++    }
++    // NV-DXVK end
+     return S_OK;
+   }
+ };
+diff --git a/bridge/src/client/memory_diagnostics.h b/bridge/src/client/memory_diagnostics.h
+index f8de63c..e556c84 100644
+--- a/bridge/src/client/memory_diagnostics.h
++++ b/bridge/src/client/memory_diagnostics.h
+@@ -15,6 +15,7 @@
+ #include <new>
+ #include "../util/queue_wait_diagnostics.h"
+ #include "../util/runtime_observation.h"
++#include "buffer_mapped_shadow.h"
+ 
+ namespace l4d2_memory {
+ enum class Kind : unsigned { Surface, Vertex, Index };
+@@ -116,6 +117,7 @@ inline void sample(bool force = false, const char* event = "sample",
+   char line[4096] {};
+   const auto k = static_cast<unsigned>(kind);
+   const char* names[] = { "surface", "vertex-buffer", "index-buffer" };
++  const auto vbibViews = l4d2_buffer::MappedBufferShadow::stats();
+   const int length = std::snprintf(line, sizeof(line),
+     "%02u:%02u:%02u.%03u pid=%lu event=%s kind=%s requested=%llu width=%u height=%u format=0x%x "
+     "surface_bytes=%llu surface_count=%llu vertex_bytes=%llu vertex_count=%llu index_bytes=%llu index_count=%llu "
+@@ -126,7 +128,10 @@ inline void sample(bool force = false, const char* event = "sample",
+     "va_private_reserved=%llu va_mapped_reserved=%llu va_image_reserved=%llu va_other_reserved=%llu "
+     "vertex_allocated_bytes=%llu vertex_freed_bytes=%llu vertex_allocations=%llu vertex_frees=%llu vertex_peak_bytes=%llu "
+     "index_allocated_bytes=%llu index_freed_bytes=%llu index_allocations=%llu index_frees=%llu index_peak_bytes=%llu "
+-    "cpu_kernel_100ns=%llu cpu_user_100ns=%llu cpu_times_valid=%u",
++    "cpu_kernel_100ns=%llu cpu_user_100ns=%llu cpu_times_valid=%u "
++    "vbib_section_backing_bytes=%llu vbib_section_count=%llu vbib_mapped_va_bytes=%llu vbib_mapped_count=%llu "
++    "vbib_idle_view_budget_bytes=%llu vbib_active_locks=%llu vbib_maps=%llu vbib_unmaps=%llu "
++    "vbib_map_failures=%llu vbib_unmap_failures=%llu",
+     time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, GetCurrentProcessId(), event,
+     names[k], static_cast<unsigned long long>(requested), width, height, format,
+     bytes[0].load(), objects[0].load(), bytes[1].load(), objects[1].load(), bytes[2].load(), objects[2].load(),
+@@ -139,7 +144,9 @@ inline void sample(bool force = false, const char* event = "sample",
+     allocatedBytes[1].load(), freedBytes[1].load(), allocationCount[1].load(), freeCount[1].load(), peakBytes[1].load(),
+     allocatedBytes[2].load(), freedBytes[2].load(), allocationCount[2].load(), freeCount[2].load(), peakBytes[2].load(),
+     static_cast<unsigned long long>(kernelTime), static_cast<unsigned long long>(userTime),
+-    static_cast<unsigned>(cpuValid));
++    static_cast<unsigned>(cpuValid), vbibViews.backingBytes, vbibViews.backingCount,
++    vbibViews.mappedVaBytes, vbibViews.mappedCount, vbibViews.idleBudgetBytes, vbibViews.locks,
++    vbibViews.maps, vbibViews.unmaps, vbibViews.mapFailures, vbibViews.unmapFailures);
+   if (length > 0 && static_cast<size_t>(length) < sizeof(line)) {
+     const int extra = l4d2_queue::format(line + length, sizeof(line) - length);
+     if (extra <= 0 || static_cast<size_t>(extra) >= sizeof(line) - length) { return; }
+diff --git a/bridge/src/util/config/global_options.h b/bridge/src/util/config/global_options.h
+--- a/bridge/src/util/config/global_options.h
++++ b/bridge/src/util/config/global_options.h
+@@ -50,7 +50,7 @@
+ public:
+   // Read once at Client channel initialization; unsupported values select C1.
+   static uint32_t getIpcBatchSize() {
+-    return bridge_util::Config::getOption<uint32_t>("client.ipcBatchSize", 1);
++    return bridge_util::Config::getOption<uint32_t>("client.ipcBatchSize", 8);
+   }
+ 
+   static void init() {

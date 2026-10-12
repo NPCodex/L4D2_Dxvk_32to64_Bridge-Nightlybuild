@@ -1,0 +1,40 @@
+{
+  "source_sha256": {
+    "util_common.h": "d07ca930ee322f5ebd541ee39ff42afdc1146f6821c67cef57b585f37b727839",
+    "util_commands.h": "cfd0d69f05b00a6b4f05a04a41ac22c607789330fccd94f1fb6cdcb09b7dddc6",
+    "util_circularqueue.h": "4e8f4e95d2ce01876bcab0049bd2c18e4d49d09f4cd864973c2fa11cdb26cc4e",
+    "util_circularbuffer.h": "d40a7e732150993d3c7af753397c6f0944719f610b31dd09ba1a70bc68408eff",
+    "util_atomiccircularqueue.h": "3caf47d9ef17d5a8fd29e9775c97de0f18ce3048ef5aa6fe0d436eb5e9bd0a49",
+    "util_ipcchannel.h": "c09fa71a17778d72b55350bbe157d0655710728d89fb4bf5504afaf02cf4167e",
+    "util_sharedmemory.h": "220f59b124669b75c7d0a7bc97868533f1f758b9a2edcaa54b2a3baec1c750da",
+    "util_sharedmemory.cpp": "3b2390d77927ed431f50f18a7e4badf3510548289aa1ba54064d02fda0122ac0",
+    "util_semaphore.h": "737c4232da103bb364fcdf051aea6ada00038c827ace8073c79f77ddf74b956e",
+    "util_semaphore.cpp": "6e1d43eaab6e178f4d9e561b02f8f3187bde26923bf1dc754f9fcb6d6682a9fa",
+    "util_guid.h": "d8ae475f61150b900146ca8a32cc22ff4a82a75fe03785dd49c520a5c2b97cbb",
+    "api_wait_diagnostics.h": "84d8f6dca9adc3fc09931dc9514eda5450f68d2b5f9af9654799dbd0814d3b32",
+    "data_diagnostics.h": "7bc3c8949e5d665afb672620bb7cc8628ab20e2a0b4809bbd78cdd62c08382c8",
+    "data_diagnostics.cpp": "94a2c85dd1029c769299f3534f10ce8f32007312a3e229abfed979125259afc4",
+    "exception_diagnostics.h": "ee3623a3651ad1622a522cfa84eebfe009d8f1075b0e4ac068878a9233a90d74",
+    "exception_diagnostics.cpp": "27d1a54faf12e41253ac2d0b0d279347bf9ad1bebd9ec4b734f09b27d8b82e8a",
+    "queue_wait_diagnostics.h": "dfb09af76e51d58e12095b21deb0e7ad6f6a0545ac056d34f0388c5fbd1615ec",
+    "runtime_observation.h": "e2d36520636f0392b9cf0f302557f9f1263ed1e8b5981130dad9607184ee444f",
+    "util_scopedlock.h": "95d3cce02c30f33cd0dbdf1e96e7f4a38f2d78f9a17a1f227088eca973467b7a",
+    "device_reset.h": "661b781c69b21084751cb0a2a1fad3c3bc6dac9a4dd750d74dbc19237b54d06c",
+    "data_ring_contract.h": "7206d5b876d980ea9780d03e0e43d0ddae0715121253d041c4a48135160df12d",
+    "util_bridgecommand.h": "15ac699d02b9473303345839903d276e3338a93cfef7f0eeb6cce5c47d8c43a0",
+    "util_bridgecommand.cpp": "d80ffc2760346e83d677c33ef1ac20e1a3d026fcc53ffd24232359a3a2ffc7d3"
+  },
+  "adapters": [
+    "options/logger",
+    "peer exit signal",
+    "test dispatch",
+    "explicit system wait failure injection"
+  ],
+  "variant": "B",
+  "production_commit": "14fc5db13d4a9e637fc6b001d06ab5ca3f1eed11",
+  "generator_commit": "8730d84b77c596efdabfad54b7458a8f0aeb01a4",
+  "compilation": "caller/Command separate TU, no LTO, /O2",
+  "caller": "tests/ipc-v2/benchmark.cpp",
+  "semantics": "command 5, UID + sequence + length + blob",
+  "dispatch": "test validation, no D3D9 backend; immediate packet path for PR6"
+}

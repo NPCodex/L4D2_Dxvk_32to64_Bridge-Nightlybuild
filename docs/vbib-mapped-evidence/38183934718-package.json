@@ -1,0 +1,12 @@
+{
+  "build": "ldb-vbib-map-dev+0064e06ff547c453",
+  "compiled_commit": "eaeee728f2b09d71a213d0e113d66a8cd9f1d29b",
+  "artifact": 11719400512,
+  "zip": "l4d2-bridge-vbib-map-dev-0064e06ff547c453.zip",
+  "zip_sha256": "f40b0e248b661933f034a2dfd0e84f9015ddf25009557170df8f31cb3e9db8b3",
+  "files": {
+    "bin/dxvk_d3d9.dll": "ca087c7f82d39f8c3e335ee96c6780ce6d95dc967c37437b4616513dd2335419",
+    "bin/.l4d2bridge/L4D2Bridge64.exe": "4346a822d635b7c83ecaa0bf6db67f77c56964d4b47bee17e4be7f0f78e72394",
+    "bin/.l4d2bridge/L4D2Bridge32.exe": "81b9ec33eb3348be248f95f5796ab424a02df776c85efbc306b873383db267c1"
+  }
+}

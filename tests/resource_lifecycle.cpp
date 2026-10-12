@@ -25,6 +25,7 @@
 #include "pagefile_shadow.h"
 #include "texture_creation.h"
 #include "buffer_shadow.h"
+#include "buffer_mapped_shadow.h"
 #include "pageblock_capability.h"
 #include "upload_observers.h"
 #include "data_ring_contract.h"
@@ -110,6 +111,9 @@ public:
 class ClientOptions {
 public:
   static bool getOptimizedDynamicLock() { return state.optimized; }
+  static bool getMappedBufferShadow() { return false; }
+  static size_t getMappedBufferMinimum() { return 256 * 1024; }
+  static size_t getMappedBufferCacheBudget() { return 32 * 1024 * 1024; }
 };
 class SharedHeap {
 public:

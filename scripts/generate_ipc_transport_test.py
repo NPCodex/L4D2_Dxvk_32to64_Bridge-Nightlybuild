@@ -23,7 +23,7 @@ FILES = (
 )
 
 
-def generate(source, output):
+def prepare_support(source, output):
     util = source / 'bridge/src/util'
     output.mkdir(parents=True, exist_ok=True)
     hashes = {}
@@ -70,6 +70,12 @@ struct GlobalOptions {
  static bool getInfiniteRetries() { return false; }
 };
 ''',encoding='utf-8')
+    return hashes
+
+
+def generate(source, output):
+    hashes = prepare_support(source, output)
+    util = source / 'bridge/src/util'
     header = (util / 'util_bridgecommand.h').read_text(encoding='utf-8')
     cpp = (util / 'util_bridgecommand.cpp').read_text(encoding='utf-8')
     for name, text in [('util_bridgecommand.h',header),('util_bridgecommand.cpp',cpp)]:

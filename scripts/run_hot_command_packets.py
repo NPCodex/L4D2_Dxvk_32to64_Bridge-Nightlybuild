@@ -12,8 +12,8 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(directory, count=2000):
-    receipt = {'count_per_host': count, 'executables': {}, 'tests': []}
+def run(directory, count=2600):
+    receipt = {'count_per_cross_test': count, 'batch_sizes': [1, 2, 4, 8, 16, 32], 'executables': {}, 'tests': []}
     for role in ('client32', 'host32', 'host64'):
         exe = directory / ('hot-command-' + role + '.exe')
         receipt['executables'][role] = hashlib.sha256(exe.read_bytes()).hexdigest()
@@ -36,30 +36,32 @@ def run(directory, count=2000):
 
     try:
         single('wire')
-        for mode in ('header-full', 'data-full'):
+        for mode in ('queue-full', 'session-fault'):
             for api in range(5):
                 single(mode, api)
-        for role in ('host32', 'host64'):
-            args = [str(uuid.uuid4()), 'cross', str(count)]
-            processes = []
-            try:
-                for current in (role, 'client32'):
-                    processes.append(subprocess.Popen([str(directory / ('hot-command-' + current + '.exe')), *args],
-                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True))
-                client_output = processes[1].communicate(timeout=90)[0]
-                host_output = processes[0].communicate(timeout=20)[0]
-                entry = {'mode': 'cross', 'host_role': role, 'host_exit': processes[0].returncode,
-                         'client_exit': processes[1].returncode, 'host_stdout': host_output, 'client_stdout': client_output}
-                receipt['tests'].append(entry)
-                print(client_output + host_output, end='', flush=True)
-                save()
-                if entry['host_exit'] or entry['client_exit']:
-                    raise RuntimeError('Hot command cross-process regression failed: ' + role)
-            finally:
-                for process in processes:
-                    if process.poll() is None:
-                        process.kill()
-                        process.wait()
+        for mode in ('cross', 'cross-stream'):
+            for batch in receipt['batch_sizes']:
+                for role in ('host32', 'host64'):
+                    args = [str(uuid.uuid4()), mode, str(count), str(batch)]
+                    processes = []
+                    try:
+                        for current in (role, 'client32'):
+                            processes.append(subprocess.Popen([str(directory / ('hot-command-' + current + '.exe')), *args],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True))
+                        client_output = processes[1].communicate(timeout=90)[0]
+                        host_output = processes[0].communicate(timeout=20)[0]
+                        entry = {'mode': mode, 'batch': batch, 'host_role': role, 'host_exit': processes[0].returncode,
+                                 'client_exit': processes[1].returncode, 'host_stdout': host_output, 'client_stdout': client_output}
+                        receipt['tests'].append(entry)
+                        print(client_output + host_output, end='', flush=True)
+                        save()
+                        if entry['host_exit'] or entry['client_exit']:
+                            raise RuntimeError('Hot command cross-process regression failed: ' + role)
+                    finally:
+                        for process in processes:
+                            if process.poll() is None:
+                                process.kill()
+                                process.wait()
         receipt['status'] = 'passed'
         print('HOT_COMMAND_ALL_PASS', flush=True)
     except Exception as error:
@@ -73,6 +75,6 @@ def run(directory, count=2000):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--directory', type=Path, default=ROOT / '.deps/hot-command-packets')
-    parser.add_argument('--count', type=int, default=2000)
+    parser.add_argument('--count', type=int, default=2600)
     args = parser.parse_args()
     run(args.directory.resolve(), args.count)

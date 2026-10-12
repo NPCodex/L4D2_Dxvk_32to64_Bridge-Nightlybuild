@@ -8,6 +8,18 @@ INPUT_FILES = ("VERSION", "LICENSE", "THIRD_PARTY.md",
                "docs/THINFLEX-CRASH-FIX.md", "docs/THINFLEX-TEST-README.txt")
 
 
+def protocol_digest(patch, version):
+    """Bind all four IPC directions to the exact cumulative source and version.
+
+    Hash the unrendered patch, whose build macros are zero placeholders. This
+    avoids a self-referential digest and permits LF/CRLF checkouts to agree.
+    """
+    digest = hashlib.sha256(b"l4d2-nightly-ipc-v2\0")
+    digest.update(version.encode("ascii") + b"\0")
+    digest.update(b"patches/l4d2-bridge.patch\0" + patch.replace(b"\r\n", b"\n"))
+    return digest.hexdigest()
+
+
 def recipe_digest(root=ROOT):
     paths = [root / name for name in INPUT_FILES]
     for name in INPUT_DIRS:

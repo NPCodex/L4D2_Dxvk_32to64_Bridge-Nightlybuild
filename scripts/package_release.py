@@ -10,6 +10,8 @@ from pathlib import Path
 import shutil
 import struct
 import subprocess
+import re
+from build_identity import protocol_digest
 from engine_payload import source_engine_files
 from l4n_payload import source_l4n_files, VERSION as L4N_VERSION, AUTHOR as L4N_AUTHOR
 
@@ -35,11 +37,17 @@ def package(source, dxvk, output, dxvk_x86, plugin):
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     patch_hash = hashlib.sha256((ROOT / "patches/l4d2-bridge.patch").read_bytes()).hexdigest()
     build_id = f"l4d2-{version}+{patch_hash[:16]}"
+    protocol_hash = protocol_digest((ROOT / "patches/l4d2-bridge.patch").read_bytes(), version)
+    stamp = (source / "bridge/src/util/ipc_v2/ipc_v2_build.h").read_text(encoding="utf-8")
+    for index in range(4):
+        expected = f"#define LDB_IPC_V2_BUILD{index} 0x{protocol_hash[index * 8:index * 8 + 8]}u"
+        if re.findall(rf"(?m)^#define LDB_IPC_V2_BUILD{index} .+$", stamp) != [expected]:
+            raise ValueError("Prepared IPC v2 identity differs from the cumulative patch/version")
     inputs = {
-        "bin/d3d9.dll": (source / "bridge/_compDebugOptimized_x86/src/client/d3d9.dll", 0x14c),
-        "bin/.l4d2bridge/L4D2Bridge64.exe": (source / "bridge/_compDebugOptimized_x64/src/server/L4D2Bridge64.exe", 0x8664),
+        "bin/d3d9.dll": (source / "bridge/_compRelease_x86/src/client/d3d9.dll", 0x14c),
+        "bin/.l4d2bridge/L4D2Bridge64.exe": (source / "bridge/_compRelease_x64/src/server/L4D2Bridge64.exe", 0x8664),
         "bin/.l4d2bridge/d3d9vk_x64.dll": (dxvk, 0x8664),
-        "bin/.l4d2bridge/L4D2Bridge32.exe": (source / "bridge/_compDebugOptimized_x86_server/src/server/L4D2Bridge32.exe", 0x14c),
+        "bin/.l4d2bridge/L4D2Bridge32.exe": (source / "bridge/_compRelease_x86_server/src/server/L4D2Bridge32.exe", 0x14c),
         "bin/.l4d2bridge/d3d9vk_x86.dll": (dxvk_x86, 0x14c),
         "optional/L4N/L4D2BridgePlugin.dll": (plugin, 0x14c),
     }
@@ -81,6 +89,9 @@ def package(source, dxvk, output, dxvk_x86, plugin):
         backend_info["source"] = metadata["release"]
     (output / "BACKEND.json").write_text(json.dumps(backend_info, indent=2) + "\n", encoding="utf-8")
     receipt = {"version": version, "build_id": build_id, "patch_sha256": patch_hash, "source_commit": source_commit,
+               "protocol_version": "0x00020004", "protocol_source_sha256": protocol_hash,
+               "legacy_data_ring": False, "reply_v2": True, "upload_leases": True,
+               "reply_slots": False, "default_batch": 8, "mapped_default_enabled": False,
                "kind": "full", "optional_plugin": True, "plugin_location": "optional/L4N/L4D2BridgePlugin.dll",
                "l4n_version": L4N_VERSION, "l4n_author": L4N_AUTHOR, "l4n_manifest": "L4N-PAYLOAD.json", "files": hashes}
     (output / "BUILD-INFO.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")

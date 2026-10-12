@@ -1,0 +1,40 @@
+2026-10-10T21:01:35.5729107Z IPC_V2_LOCAL_PASS
+2026-10-10T21:01:35.5729736Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=0 max_bytes=2097152 records=32
+2026-10-10T21:01:35.5730400Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=176 bits=32
+2026-10-10T21:01:35.5731425Z IPC_V2_CROSS_PASS kind=1 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=210 bits=32
+2026-10-10T21:01:35.5732792Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2871 waits=92 bits=32
+2026-10-10T21:01:35.5742961Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=0 max_bytes=2097152 records=32
+2026-10-10T21:01:35.5743991Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=184 bits=32
+2026-10-10T21:01:35.5744902Z IPC_V2_CROSS_PASS kind=2 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=374 bits=32
+2026-10-10T21:01:35.5745602Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2864 waits=154 bits=32
+2026-10-10T21:01:35.5746650Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=slow threads=1 records=100 blocks=22 waits=102 bits=32
+2026-10-10T21:01:35.5747727Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=128 max_bytes=2097152 records=32
+2026-10-10T21:01:35.5748801Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=0 bits=32
+2026-10-10T21:01:35.5750026Z IPC_V2_CROSS_PASS kind=1 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=1 bits=32
+2026-10-10T21:01:35.5751221Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2863 waits=6 bits=32
+2026-10-10T21:01:35.5752305Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=128 max_bytes=2097152 records=32
+2026-10-10T21:01:35.5753355Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=1 bits=32
+2026-10-10T21:01:35.5754921Z IPC_V2_CROSS_PASS kind=2 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=4 bits=32
+2026-10-10T21:01:35.5756198Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2866 waits=1 bits=32
+2026-10-10T21:01:35.5757435Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=slow threads=1 records=100 blocks=22 waits=102 bits=32
+2026-10-10T21:01:35.5758337Z IPC_V2_NATIVE_PASS
+2026-10-10T21:01:38.9421211Z IPC_V2_LOCAL_PASS
+2026-10-10T21:01:38.9421823Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=0 max_bytes=2097152 records=32
+2026-10-10T21:01:38.9422784Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=40 bits=32
+2026-10-10T21:01:38.9424497Z IPC_V2_CROSS_PASS kind=1 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=44 bits=32
+2026-10-10T21:01:38.9425442Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2857 waits=62 bits=32
+2026-10-10T21:01:38.9426006Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=0 max_bytes=2097152 records=32
+2026-10-10T21:01:38.9428919Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=43 bits=32
+2026-10-10T21:01:38.9430130Z IPC_V2_CROSS_PASS kind=2 direction=1 spins=0 mode=normal threads=1 records=20000 blocks=5733 waits=38 bits=32
+2026-10-10T21:01:38.9431285Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=0 mode=normal threads=4 records=10000 blocks=2859 waits=51 bits=32
+2026-10-10T21:01:38.9432439Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=0 mode=slow threads=1 records=100 blocks=22 waits=102 bits=32
+2026-10-10T21:01:38.9433400Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=1 spins=128 max_bytes=2097152 records=32
+2026-10-10T21:01:38.9434090Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=1 bits=32
+2026-10-10T21:01:38.9434772Z IPC_V2_CROSS_PASS kind=1 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=0 bits=32
+2026-10-10T21:01:38.9435431Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2861 waits=7 bits=32
+2026-10-10T21:01:38.9435998Z IPC_V2_BIDIRECTIONAL_BLOB_PASS kind=2 spins=128 max_bytes=2097152 records=32
+2026-10-10T21:01:38.9436551Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=1 bits=32
+2026-10-10T21:01:38.9437192Z IPC_V2_CROSS_PASS kind=2 direction=1 spins=128 mode=normal threads=1 records=20000 blocks=5733 waits=0 bits=32
+2026-10-10T21:01:38.9438073Z IPC_V2_CROSS_PASS kind=2 direction=0 spins=128 mode=normal threads=4 records=10000 blocks=2870 waits=6 bits=32
+2026-10-10T21:01:38.9438710Z IPC_V2_CROSS_PASS kind=1 direction=0 spins=128 mode=slow threads=1 records=100 blocks=22 waits=100 bits=32
+2026-10-10T21:01:38.9439146Z IPC_V2_NATIVE_PASS

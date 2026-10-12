@@ -6,16 +6,14 @@ void require(bool value, const char* message) {
   if (!value) { std::fprintf(stderr, "HOT_COMMAND_FAIL %s pid=%lu\n", message, GetCurrentProcessId()); std::exit(2); }
 }
 constexpr uint32_t deviceHandle = 0xc0dec0deu;
-constexpr uint32_t sentinel = 0x6e6e6e6eu;
+constexpr size_t channelMemory = 2 * 1024 * 1024;
+unsigned batchSize = 8;
 const Commands::D3D9Command opcodes[] = {
   Commands::IDirect3DDevice9Ex_SetRenderState, Commands::IDirect3DDevice9Ex_SetTextureStageState,
   Commands::IDirect3DDevice9Ex_SetSamplerState, Commands::IDirect3DDevice9Ex_DrawPrimitive,
   Commands::IDirect3DDevice9Ex_DrawIndexedPrimitive
 };
 const unsigned fieldCounts[] = {2, 3, 3, 3, 6};
-size_t memorySize(size_t headers, size_t words) {
-  return headers * sizeof(Header) + AtomicCircularQueue<Header, Accessor::Writer>::getExtraMemoryRequirements() + words * sizeof(uint32_t);
-}
 std::array<uint32_t, 6> values(unsigned api, uint32_t index) {
   const uint32_t edges[] = {0, 1, UINT32_MAX, 0x80000000u, 0x7fffffffu, 0xfffffffdu, 0xabcdef01u, 0x55555555u};
   std::array<uint32_t, 6> result {};
@@ -43,7 +41,7 @@ UID submit(unsigned api, const std::array<uint32_t, 6>& v) {
     }
   }
 }
-UID legacy(unsigned api, const std::array<uint32_t, 6>& v) {
+UID incremental(unsigned api, const std::array<uint32_t, 6>& v) {
   Device::Command command(opcodes[api], deviceHandle);
   const UID uid = command.get_uid();
   switch (api) {
@@ -51,94 +49,106 @@ UID legacy(unsigned api, const std::array<uint32_t, 6>& v) {
     case 1: case 2: case 3: command.send_many(v[0], v[1], v[2]); break;
     default: command.send_many(v[0], v[1], v[2], v[3], v[4], v[5]); break;
   }
-  require(command.finish() == Result::Success, "legacy encoder commit");
+  require(command.finish() == Result::Success, "incremental encoder commit");
   return uid;
 }
-struct Snapshot { Header header; uint64_t published; std::vector<uint32_t> data; };
-Snapshot encode(bool packet, unsigned api, uint32_t index, size_t position, size_t capacity) {
+struct Snapshot { Header header; std::vector<uint32_t> data; };
+std::vector<Snapshot> encode(bool packet, unsigned batch) {
   static unsigned channelSequence = 0;
-  const std::string name = "HotWire" + std::to_string(channelSequence++);
-  WriterChannel writer(name, memorySize(4, capacity), 4, capacity);
-  ReaderChannel reader(name + "Reply", memorySize(4, capacity), 4, capacity);
-  Device::install(&writer, &reader);
-  require(writer.data->get_total_size() == capacity, "exact small ring capacity");
-  std::fill(writer.data->data(), writer.data->data() + capacity, sentinel);
-  // Public scalar writes establish a real ring cursor, then mark them consumed.
-  for (size_t i = 0; i < position; ++i) { require(writer.data->push(sentinel) == Result::Success, "seed cursor"); }
-  writer.control->published.store(position);
-  writer.control->consumed.store(position);
-  writer.cachedConsumed = position;
-  const auto v = values(api, index);
-  require((packet ? submit(api, v) : legacy(api, v)) == 0, "first UID unchanged");
-  require(Device::healthy() && !writer.commands->isEmpty(), "destructor immediately publishes Header");
-  Result result;
-  const Header header = writer.commands->pull(result, 20);
-  require(result == Result::Success && writer.commands->isEmpty(), "exactly one Header");
-  require(header.command == opcodes[api] && header.pHandle == deviceHandle && header.flags == 0, "opcode handle flags");
-  require(writer.control->published.load() == position + 1 + fieldCounts[api], "exact published frontier");
-  require(header.dataOffset == (position + 1 + fieldCounts[api]) % capacity, "Header data end");
-  require(writer.data->data()[position] == 0, "UID is first wire DWORD");
-  for (unsigned i = 0; i < fieldCounts[api]; ++i) {
-    require(writer.data->data()[(position + 1 + i) % capacity] == v[i], "exact independent wire field order");
+  const std::string name = "HotWireClient2Server" + std::to_string(channelSequence++);
+  WriterChannel writer(name, channelMemory, 256, 32768);
+  ReaderChannel wireReader(name, channelMemory, 256, 32768);
+  ReaderChannel replyReader(name + "Server2Client", channelMemory, 256, 32768);
+  Device::install(&writer, &replyReader);
+  writer.commands->configureBatch(batch);
+  std::vector<Snapshot> snapshots;
+  uint32_t sequence = 0;
+  uint32_t frontier = 0;
+  // More than 64 complete message blocks exercises real block-ring wrap.
+  // Alternate full batches and partial tails, preserving all five signatures.
+  for (unsigned group = 0; group < 80; ++group) {
+    // A production API entry scope prevents timer-driven entry flushes from
+    // splitting this deterministic transport batch when the test is descheduled.
+    ldb_c32::ApiEntryScope entry;
+    const unsigned count = group % 2 ? batch : std::max(1u, batch - 1);
+    const auto first = sequence;
+    for (unsigned i = 0; i < count; ++i, ++sequence) {
+      const unsigned api = sequence % 5;
+      const auto v = values(api, sequence / 5);
+      require((packet ? submit(api, v) : incremental(api, v)) == sequence, "monotonic encoder UID");
+      if (!i && batch > 1) {
+        require(writer.commands->pending() && wireReader.commands->isEmpty(), "C8/C32 preserves unpublished partial batch");
+      }
+    }
+    if (count == batch) {
+      require(!writer.commands->pending() && !wireReader.commands->isEmpty(), "batch boundary publishes complete records");
+    }
+    require(Device::flushCommands(), "explicit legal tail flush");
+    require(!writer.commands->pending(), "tail flush clears pending batch");
+    for (auto n = first; n < sequence; ++n) {
+      const auto api = n % 5;
+      const auto v = values(api, n / 5);
+      Result result;
+      const auto header = wireReader.commands->pull(result, 100);
+      require(result == Result::Success, "flushed wire record available");
+      require(header.command == opcodes[api] && header.pHandle == deviceHandle && header.flags == 0, "wire opcode handle flags");
+      frontier += 1 + fieldCounts[api];
+      require(header.dataOffset == frontier, "logical wire body end");
+      require(wireReader.commands->remaining() == 4 * (1 + fieldCounts[api]), "exact wire body length");
+      Snapshot snapshot { header, {} };
+      snapshot.data.push_back(wireReader.commands->readWord());
+      require(snapshot.data[0] == n, "UID first wire DWORD");
+      for (unsigned j = 0; j < fieldCounts[api]; ++j) {
+        snapshot.data.push_back(wireReader.commands->readWord());
+        require(snapshot.data.back() == v[j], "independent exact wire field order");
+      }
+      require(wireReader.commands->remaining() == 0, "no extra scalar fields");
+      wireReader.commands->finishRead();
+      snapshots.push_back(std::move(snapshot));
+    }
+    require(wireReader.commands->isEmpty(), "no duplicate wire record after batch");
+    require(Device::healthy(), "wire session healthy through wrap");
   }
-  return {header, writer.control->published.load(), {writer.data->data(), writer.data->data() + capacity}};
+  return snapshots;
 }
 void wireCases() {
   unsigned cases = 0;
-  for (const size_t capacity : {size_t(9), size_t(17)}) {
-    for (size_t position = 0; position < capacity; ++position) {
-      for (unsigned api = 0; api < 5; ++api) {
-        for (uint32_t index = 0; index < 8; ++index) {
-          const auto a = encode(false, api, index, position, capacity);
-          const auto b = encode(true, api, index, position, capacity);
-          require(a.header.command == b.header.command && a.header.flags == b.header.flags &&
-            a.header.dataOffset == b.header.dataOffset && a.header.pHandle == b.header.pHandle &&
-            a.published == b.published && a.data == b.data, "legacy/Packet byte equivalence including untouched storage");
-          ++cases;
-        }
-      }
+  for (const unsigned batch : {1u, 2u, 4u, 8u, 16u, 32u}) {
+    const auto incremental = encode(false, batch);
+    const auto packets = encode(true, batch);
+    require(incremental.size() == packets.size(), "incremental/Packet record count");
+    for (size_t i = 0; i < packets.size(); ++i) {
+      const auto& a = incremental[i]; const auto& b = packets[i];
+      require(a.header.command == b.header.command && a.header.flags == b.header.flags &&
+        a.header.dataOffset == b.header.dataOffset && a.header.pHandle == b.header.pHandle &&
+        a.data == b.data, "incremental/Packet wire-body equivalence");
+      ++cases;
     }
   }
-  std::printf("HOT_COMMAND_WIRE_PASS cases=%u negative_INT_and_wrap=1\n", cases);
+  std::printf("HOT_COMMAND_WIRE_PASS records=%u gears=6 negative_INT_block_wrap_batch_tail=1\n", cases);
 }
-void failureCase(unsigned api, bool headerFull) {
-  GlobalOptions::timeout = 10; GlobalOptions::retries = 1;
-  constexpr size_t capacity = 64;
-  WriterChannel writer("HotFault", memorySize(4, capacity), 4, capacity);
-  ReaderChannel reader("HotFaultReply", memorySize(4, capacity), 4, capacity);
+void failureCase(unsigned api, bool queueFull) {
+  WriterChannel writer("HotFaultClient2Server", channelMemory, 256, 32768);
+  ReaderChannel reader("HotFaultServer2Client", channelMemory, 256, 32768);
   Device::install(&writer, &reader);
-  std::fill(writer.data->data(), writer.data->data() + capacity, sentinel);
-  const unsigned queued = headerFull ? 3 : 1;
-  if (headerFull) {
-    for (unsigned i = 0; i < queued; ++i) {
-      require(writer.commands->push({Commands::Bridge_Response, 0, 0, i}, 20) == Result::Success, "prefill Header queue");
+  writer.commands->configureBatch(1);
+  if (queueFull) {
+    // One flushed record per block fills the exact production 64-block queue.
+    // No legacy data ring exists: these scalar methods do not need upload leases.
+    for (unsigned i = 0; i < 64; ++i) {
+      require(submit(i % 5, values(i % 5, i)) == i && Device::healthy(), "fill production message blocks");
     }
   } else {
-    Device::Command fill(Commands::Bridge_Response, 99);
-    for (unsigned i = 0; i < capacity - 1; ++i) { fill.send_data(sentinel); }
-    require(fill.finish() == Result::Success, "prefill complete Data Ring");
+    writer.commands->fault();
   }
-  const auto before = writer.control->published.load();
-  const std::vector<uint32_t> bytesBefore(writer.data->data(), writer.data->data() + capacity);
+  const auto before = writer.commands->cursor();
   submit(api, values(api, 3));
-  require(writer.control->fault.load() == 1 && !Device::healthy(), "reservation/enqueue failure poisons IPC");
-  if (!headerFull) {
-    require(writer.control->published.load() == before &&
-      std::equal(bytesBefore.begin(), bytesBefore.end(), writer.data->data()), "failed reservation leaves payload/frontier unchanged");
-  }
-  // Header failure can advance published, but must never expose the failed Header.
-  for (unsigned i = 0; i < queued; ++i) {
-    Result result;
-    const auto header = writer.commands->pull(result, 20);
-    require(result == Result::Success && header.command == Commands::Bridge_Response, "previous queued command remains intact");
-  }
-  require(writer.commands->isEmpty(), "failed hot command never queued");
-  const auto failedFrontier = writer.control->published.load();
-  const std::vector<uint32_t> failedBytes(writer.data->data(), writer.data->data() + capacity);
+  require(!writer.commands->healthy() && !Device::healthy(), "full/failed session rejects hot command");
+  require(writer.commands->cursor() == before, "failed hot command leaves logical payload frontier unchanged");
+  require(!writer.commands->pending(), "failed hot command exposes no pending record");
   submit((api + 1) % 5, values((api + 1) % 5, 4));
-  require(writer.commands->isEmpty() && writer.control->published.load() == failedFrontier &&
-    std::equal(failedBytes.begin(), failedBytes.end(), writer.data->data()), "sticky fault stops subsequent publication and writes");
-  std::printf("HOT_COMMAND_FAULT_PASS api=%u mode=%s\n", api, headerFull ? "header-full" : "data-full");
+  require(writer.commands->cursor() == before && !writer.commands->pending(), "sticky fault stops subsequent writes");
+  std::printf("HOT_COMMAND_FAULT_PASS api=%u mode=%s\n", api, queueFull ? "queue-full" : "session-fault");
 }
 #else
 template<size_t N> void checkFields(const std::array<uint32_t, N>& actual, const std::array<uint32_t, 6>& expected) {
@@ -154,38 +164,45 @@ void readFields(unsigned api, const std::array<uint32_t, 6>& expected) {
   }
 }
 #endif
-void crossProcess(uint32_t count) {
-  constexpr size_t capacity = 17;
+void crossProcess(uint32_t count, bool stream) {
 #ifdef REMIX_BRIDGE_CLIENT
-  WriterChannel writer("HotForward", memorySize(8, capacity), 8, capacity);
-  ReaderChannel reader("HotReverse", memorySize(8, capacity), 8, capacity);
+  WriterChannel writer("HotForwardClient2Server", channelMemory, 256, 32768);
+  ReaderChannel reader("HotReverseServer2Client", channelMemory, 256, 32768);
+  writer.commands->configureBatch(batchSize);
 #else
-  WriterChannel writer("HotReverse", memorySize(8, capacity), 8, capacity);
-  ReaderChannel reader("HotForward", memorySize(8, capacity), 8, capacity);
+  WriterChannel writer("HotReverseServer2Client", channelMemory, 256, 32768);
+  ReaderChannel reader("HotForwardClient2Server", channelMemory, 256, 32768);
 #endif
   Device::install(&writer, &reader);
   for (uint32_t sequence = 0; sequence < count; ++sequence) {
     const unsigned api = sequence % 5;
     const auto v = values(api, sequence / 5);
+    const bool boundary = sequence + 1 == count || (!stream && (sequence + 1) % 41 == 0);
 #ifdef REMIX_BRIDGE_CLIENT
     require(submit(api, v) == sequence, "monotonic Client UID");
-    require(Device::waitForCommand(Commands::Bridge_Response, 0, nullptr, true, sequence) == Result::Success, "immediate matching Host reply");
-    require(Device::get_data() == sequence, "reply UID payload");
-    Device::pop_front();
+    if (boundary) {
+      if (stream) { require(Device::flushCommands(), "stream final partial batch flush"); }
+      // RPC waits must flush any tail before blocking for its matching UID.
+      require(Device::waitForCommand(Commands::Bridge_Response, 0, nullptr, true, sequence) == Result::Success, "matching Host reply after legal flush boundary");
+      require(Device::get_data() == sequence, "reply UID payload");
+      Device::pop_front();
+    }
 #else
-    require(Device::waitForCommand() == Result::Success, "Host receives each immediate API submission");
+    require(Device::waitForCommand() == Result::Success, "Host receives batched API submission");
     const auto h = Device::pop_front();
     require(h.command == opcodes[api] && h.pHandle == deviceHandle && h.flags == 0, "cross-process opcode handle flags");
     require(Device::get_data() == sequence, "Host scalar UID");
     readFields(api, v);
     Device::end_read_data();
-    Device::Command reply(Commands::Bridge_Response, sequence);
-    reply.send_data(sequence);
-    require(reply.finish() == Result::Success, "Host ACK commit");
+    if (boundary) {
+      Device::Command reply(Commands::Bridge_Response, sequence);
+      reply.send_data(sequence);
+      require(reply.finish() == Result::Success, "Host ACK commit");
+    }
 #endif
     require(Device::healthy(), "cross-process IPC remains healthy");
   }
-  std::printf("HOT_COMMAND_CROSS_PASS bits=%u count=%u role=%s\n", unsigned(sizeof(void*) * 8), count,
+  std::printf("HOT_COMMAND_CROSS_PASS bits=%u count=%u batch=%u stream=%u role=%s\n", unsigned(sizeof(void*) * 8), count, batchSize, stream ? 1u : 0u,
 #ifdef REMIX_BRIDGE_CLIENT
     "client"
 #else
@@ -199,16 +216,18 @@ int wmain(int argc, wchar_t** argv) {
   const std::wstring mode = argv[2];
 #ifdef REMIX_BRIDGE_CLIENT
   if (mode == L"wire") { wireCases(); return 0; }
-  if (mode == L"header-full" || mode == L"data-full") {
+  if (mode == L"queue-full" || mode == L"session-fault") {
     require(argc == 4, "failure API required");
     const unsigned api = std::wcstoul(argv[3], nullptr, 10);
     require(api < 5, "valid API index");
-    failureCase(api, mode == L"header-full"); return 0;
+    failureCase(api, mode == L"queue-full"); return 0;
   }
 #endif
-  require(mode == L"cross" && argc == 4, "cross count required");
+  require((mode == L"cross" || mode == L"cross-stream") && argc == 5, "cross count and batch required");
   const uint32_t count = std::wcstoul(argv[3], nullptr, 10);
-  require(count >= 40 && count <= 100000, "bounded complete cross-process coverage");
-  crossProcess(count);
+  batchSize = std::wcstoul(argv[4], nullptr, 10);
+  require(batchSize && batchSize <= 32 && !(batchSize & (batchSize - 1)), "supported batch size");
+  require(count >= 2600 && count <= 100000, "bounded complete block-wrap coverage");
+  crossProcess(count, mode == L"cross-stream");
   return 0;
 }

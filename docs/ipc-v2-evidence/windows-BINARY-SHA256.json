@@ -1,0 +1,50 @@
+[
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\benchmark-old-controls32.exe",
+    "Hash": "AC4DC20D922E3D62ED1A9BB89BECECF7A99DE7BFFE6A7A28693CCEAA4CACF8F6"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\benchmark-old-controls64.exe",
+    "Hash": "0D5976AAB2C44687CA5D5566E4ED4BBDE9E92EAB6C0BE8A7EDC023AFEF754F5A"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\benchmark32.exe",
+    "Hash": "83EACE2886C8F5C6FA1ED51BB171779CD10B9A90BE064D70938AE9D44F5D3D7A"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\benchmark64.exe",
+    "Hash": "6A19E8C9680C62FB0C903C813F8B2EC4AE862ED03A6E5A9E24C7275E2043F4E9"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\native32.exe",
+    "Hash": "AF5A7CFEF12EE968F20523CB86F9182892A58B8BA239BD32AE8CCB4B6919DD56"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\work\\ipc-v2\\native64.exe",
+    "Hash": "AECB0A27D9E553B6820B1A1710061EFD551406584F42396B33AE5301909BC025"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-A\\perf-client32.exe",
+    "Hash": "C46F1FE4B20760B20C9186F5678D3C88A6601F72FC9540E929CB05AB393ECF15"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-A\\perf-host32.exe",
+    "Hash": "CD96873DC8A84E684633F999B4FEC6A63A3CF87AED91C998CF6E4DC72B44D51B"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-A\\perf-host64.exe",
+    "Hash": "AFFEDDA3B340CD9B5640A085B61A1A8A139225329FD76D195059A3A75BF9D8DA"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-B\\perf-client32.exe",
+    "Hash": "C174FAFEA2A95D5CF36814F14F1189699B19DA7D5C2A9CF2D62455C255889CF5"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-B\\perf-host32.exe",
+    "Hash": "6DF91B38649FF2CF36CBEEAAD6D0B86B454577BB6E6E61603D31289C6EA0D330"
+  },
+  {
+    "Path": "D:\\a\\L4D2_Dxvk_32to64_Bridge\\L4D2_Dxvk_32to64_Bridge\\.deps\\ipc-v2-B\\perf-host64.exe",
+    "Hash": "202F0194F53E5DC29521F3AF63D3080754F80C427E4F9E37FF752F4725411689"
+  }
+]

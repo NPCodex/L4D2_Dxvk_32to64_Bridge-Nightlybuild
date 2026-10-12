@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path(os.environ.get('L4D2_TEST_SOURCE', str(ROOT / '.deps/dxvk-remix')))
 # Project digests normalize only checkout CRLF/LF; all other bytes are protected.
-# Reviewed IPC protocol 3 merge retains Nightly volume cleanup and contiguous uploads.
+# Reviewed full IPC v2 merge retains Nightly volume cleanup and contiguous uploads.
 # Volume layout, Host handlers and the plugin remain separately pinned.
 # Project version log text is normalized because prepare_bridge renders VERSION.
 PROTECTED_RUNTIME = {'bridge/src/client/d3d9_volume.cpp': 'bbdb718ecc036bb5b22a5a6a860f4f92ccdc7dcfa2cffa82350c97d6655d70b6', 'bridge/src/client/d3d9_volume.h': 'e35bd6c55e2e662597be4138406c365db880029f4f742f022034947a902a8632', 'bridge/src/client/d3d9_volumetexture.cpp': 'a0076540faff76a33ea04e6de81e1ccdf90c7e0d60c66728e531fe0684440b24', 'bridge/src/util/volume_layout.h': '8c4ea033ae1eba2441642ffa5ef2a3c82c732654b95857defcfecfe766d423d1', 'bridge/src/util/util_texture_and_volume.h': 'c53ac762333bc5192f23a4b397a5325903d542313609abbd5f476f8cd7349ae1', 'bridge/src/util/pageblock_control.h': 'c91375dc22442cc3162b2361fd7ac1b57fadd5155ed38026a17370f5c8d1d52e', 'bridge/src/util/bridge_control.h': '512739b3c28052f6ce48ac42c5762ea7aab1c4276729c863f22b9c48252b8ef4', 'bridge/src/client/d3d9_bootstrap.cpp': '81037c8c457ca557d4a5e040d4d1e7afbd22881bbe6b2a31d6de9cde182d5a56', 'bridge/src/util/device_reset.h': '661b781c69b21084751cb0a2a1fad3c3bc6dac9a4dd750d74dbc19237b54d06c'}
@@ -36,11 +36,18 @@ class RuntimeSeparation(unittest.TestCase):
         self.assertIn('new uint8_t[size]', allocator)
         self.assertNotIn('new uint8_t[', observer)
         self.assertIn('l4d2_buffer::allocate', buffer)
-        self.assertNotIn('l4d2_memory::allocate', buffer)
+        # Match the removed allocating function, not the allocated() notification.
+        self.assertNotRegex(buffer, r'l4d2_memory::allocate\b')
         wait = (SOURCE / 'bridge/src/util/api_wait_diagnostics.h').read_text(encoding='utf-8')
         crash = (SOURCE / 'bridge/src/util/exception_diagnostics.cpp').read_text(encoding='utf-8')
         self.assertNotIn('inline ThreadStats threads[kThreads]', wait)
         self.assertNotIn('thread_local ThreadState s_thread', crash)
+
+    def test_allocator_guard_distinguishes_notification(self):
+        pattern = r'l4d2_memory::allocate\b'
+        for text in ('l4d2_memory::allocate(size)', 'l4d2_memory::allocate (size)', '&l4d2_memory::allocate'):
+            self.assertRegex(text, pattern)
+        self.assertNotRegex('l4d2_memory::allocated(size, kind)', pattern)
 
     def test_diagnostic_log_cannot_trigger_policy_fallback(self):
         retention = (SOURCE / 'bridge/src/client/retention_runtime.h').read_text(encoding='utf-8')

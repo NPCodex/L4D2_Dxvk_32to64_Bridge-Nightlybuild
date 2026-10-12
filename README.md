@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.2.3 优化五类高频命令的预留与编码。** 相同补丁候选对 v1.2.2 的一轮本机对照中，开灯平均 FPS +1.61%、1% low +0.57%；关灯平均 FPS +5.50%、1% low -1.10%。0.1% low 分别为 -0.75% 和 -7.84%，尚未证明稳定的 low 帧收益。详细条件与重建边界见 [本次优化与测试](docs/HOT-COMMAND-PACKETS.md)。
+**v1.3.0 整合上游 v1.3.0-pre.1 的完整 IPC v2，默认 C8，静态 VB/IB 按需映射默认关闭。** 已实测上游候选相对 v1.2.3 的平均 FPS 小幅提升，但开灯、关灯 1% low 中位数分别下降 6.78%、7.43%；本次整合重建包未重复游戏测试。**如出现 1% low 下降或帧数不稳定，请回退 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 详细范围见 [本次集成与测试](docs/UPSTREAM-1.3.0-INTEGRATION.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -30,9 +30,9 @@ ThinFlex 修复已收到用户复测有效反馈，仍限定于以上精确版�
 
 L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接位于 `bin/neko/plugins/L4D2BridgePlugin.dll`，启动游戏后可在 L4N 菜单中使用。安装插件本身不会更改配置或执行 GC；这些操作需在菜单中主动选择。不需要菜单时，退出游戏后移走或删除该 DLL 即可，Bridge 本体仍可使用。详见 [L4N 设置说明](docs/L4N-BRIDGE-CONTROLS.md)。L4N 原始说明与作者署名原文收录于包内 `THIRD-PARTY-NOTICES.txt`，另见 [Starfelll 归属说明](licenses/L4N-NOTICE.txt)。
 
-新安装配置包含上游的 learned-aggressive 内存策略，并默认关闭日常 memory/crash/data 诊断；已有用户升级继续保留自己的配置，新功能的键与开销见仓库 [配置说明](docs/CONFIGURATION.md)。
+新安装配置包含上游的 learned-aggressive 内存策略，并默认关闭日常 memory/crash/data 诊断；已有用户升级继续保留自己的配置，新功能的键与开销见仓库 [配置说明](docs/CONFIGURATION.md)。IPC 批次默认 `client.ipcBatchSize=8`；静态映射默认 `client.vbibMappedShadow=False`。已有显式配置优先，修改后需完整重启游戏与 Host。
 
-当前 IPC 协议为 **3**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
+当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
 [本次优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 

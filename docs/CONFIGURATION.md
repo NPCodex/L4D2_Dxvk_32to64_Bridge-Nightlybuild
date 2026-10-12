@@ -6,9 +6,20 @@
 
 配置所有权与 Client 安全持久化实现见 [技术架构](ARCHITECTURE.md#configuration-persistence)，接口的分别失败和重启判定见 [API 参考](API.md#general-control)。
 
-当前 Nightly **1.2.3** 完整同步上游 **1.2.2**；本次命令编码优化没有新增或修改默认配置。“相比 1.1”列仍以原项目 v1.1.0 为参照。Nightly 与上游的发行区别是默认 x64 Host、GPLALL 后端，以及包含 ThinFlex 并直接安装 L4N 设置插件的单一全量包。表中的“随包值”是当前 [config/bridge.conf](../config/bridge.conf) 写明的值；“缺省值”指不写该键时实现采用的值，两者不一定相同。旧实验 ZIP 保持原样；升级保留已有配置，不能用本文的推荐值代替实际安装配置。下载与安装以 [Nightly README](../README.md) 为准。
+当前 Nightly **1.3.0** 按维护者明确授权整合上游 **1.3.0-pre.1 / d063395**；使用完整 IPC v2，新增默认 C8 及默认关闭的静态 VB/IB 映射配置。“相比 1.1”列仍以原项目 v1.1.0 为参照。Nightly 与上游的发行区别是默认 x64 Host、GPLALL 后端，以及包含 ThinFlex 并直接安装 L4N 设置插件的单一全量包。表中的“随包值”是当前 [config/bridge.conf](../config/bridge.conf) 写明的值；“缺省值”指不写该键时实现采用的值，两者不一定相同。旧实验 ZIP 保持原样；升级保留已有配置，不能用本文的推荐值代替实际安装配置。下载与安装以 [Nightly README](../README.md) 为准。
 
 运行配置位于游戏的 **`bin/.l4d2bridge/bridge.conf`**。`client.*` 作用于游戏内的 Bridge Client；`server.*` 作用于渲染 Host，不指联机游戏服务器。更改后退出游戏及 Host，再重启；同一个键只保留一份。可选片段需要合并到该文件，不会因为放在旁边就自动生效。`dxvk.conf` 是后端配置，不能与 `bridge.conf` 混用。
+
+## IPC v2 与静态 VB/IB 映射
+
+| 配置 | 随包/源码默认值 | 行为与成本 |
+|---|---|---|
+| `client.ipcBatchSize` | `8` | 支持 1/2/4/8/16/32，其余值回退 C1。改变命令批次和同步成本；C8 不保证所有场景下更快。 |
+| `client.vbibMappedShadow` | `False` | True 开启符合条件的静态 VB/IB 按需映射。保留 section backing 和原内容语义；可能增加 Map/Unmap、缺页及缓存维护成本，不保证 AV/FPS 改善。 |
+| `client.vbibMappedShadowMinKB` | `256` | KiB，下限 64；映射关闭时不参与普通 VB/IB 分配。 |
+| `client.vbibShadowCacheMB` | `32` | MiB，上限 1024；0 为最后 Unlock 后立即解除映射，活动 Lock 不受空闲预算限制。 |
+
+已有配置的显式值优先，修改后完整重启游戏及 Host。关闭静态映射不会切回旧 IPC 3；不改变纹理 shadow、surface 映射预算或上传池容量。匹配更新 Client 和两个 Host，详见 [本次集成与已知性能取舍](UPSTREAM-1.3.0-INTEGRATION.md)。当前插件仍为已有常用设置版本，这些新键需手工编辑，不包含后续实验菜单。
 
 ## L4N 常用设置
 
@@ -41,7 +52,7 @@ Nightly 默认 x64；可选 x86 通常降低指针相关占用，但地址空间
 |---|---|---|---|
 | `useSharedHeap` | `False` | 关闭上游可选资源共享堆，保持本项目 shadow + IPC 路径；不是“桥完全不用共享内存”。True 会改变资源上传方式，当前 learned/drop 回收与恢复不支持该组合。 | 已有 |
 | `useShadowMemoryForDynamicBuffers` | `True` | 动态 VB/IB 使用 Client shadow。主要在启用共享堆时决定动态 buffer 是否走共享堆；当前 `useSharedHeap=False` 下本就走 shadow，改这一项不会消除 VB/IB 副本。 | 已有 |
-| `clientChannelMemSize` | `96MB` | Client 向 Host 传送命令/数据的通道容量，缺省也是 96 MiB；不是纹理缓存、显存或游戏内存上限。增加容量可能缓解部分队列背压，同时占用更多内存；不是通用提速办法。 | 已有 |
+| `clientChannelMemSize` | `96MB` | IPC v2 中控制 Client 向 Host 的上传池预算，缺省 96 MiB；命令环独立固定为 64×4096 字节。它不是纹理缓存、显存或游戏内存上限；提高预算可能缓解上传背压，也会增加内存占用，不保证提速。旧 `clientCmdQueueSize` / `clientDataQueueSize` 不再调整该 v2 传输。 | 已有键，v2 用于上传池 |
 | `threadSafetyPolicy` | `1` | 0 尊重游戏设备创建选择，1 强制线程安全，2 强制非线程安全。当前 1 保留锁保护，可能有竞争成本；源码缺省 0。不要通过强制 2 掩盖线程安全问题。 | 已有 |
 | `sendReadOnlyCalls` | `False` | 不额外将部分只读 Getter 转发给 Host，使用 Client 已有状态。True 用于核对状态，会增加命令/传输开销。 | 已有 |
 | `client.pageBlockRetentionPolicy` | `learned-aggressive` | 选择 Client PageBlock 内容保留策略，详见下表。省略该键时仍为保守的 `keep`。它是常规内存管理，不是诊断开关。 | 键和 learned 已有；新增 `drop` 并统一回收管理 |

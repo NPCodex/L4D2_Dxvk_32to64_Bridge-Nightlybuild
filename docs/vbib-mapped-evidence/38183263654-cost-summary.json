@@ -1,0 +1,780 @@
+{
+  "rounds": 5,
+  "warmup_rounds": 1,
+  "baseline_commit": "759c8e8d2816ba21d298e469699d2ea869ccee9d",
+  "compiler": "MSVC 14.29 /O2 /MT /DNDEBUG /LARGEADDRESSAWARE",
+  "timing": "outer batch only",
+  "limitations": [
+    "Actual production LockableBuffer and storage, deterministic COM/IPC upload capture",
+    "No real IPC, Host, GPU or FPS measurement",
+    "Loaded-idle includes adapters and heap retention; not owner-exact VA"
+  ],
+  "binaries": {
+    "core-x64.exe": "ade2dd07df1f2f6e63395df260b539786773cfbb4c6f46aa0beaeb313068937d",
+    "core-x86.exe": "7e058f90b75ffa7c1b28116826adfe96b6bbd2a8d18f1a901d43d028814e25ed",
+    "new-x86.exe": "c02506a884c52289b130dc050864cca4dc36e339e3b8d5444f9a3a7cd21c3bce",
+    "old-x86.exe": "40ba60864efe2a9e7d704f6ed247c2c94634f56ed0fa08b365611436fd1c37c7"
+  },
+  "results": [
+    {
+      "bytes": 65536,
+      "mode": "static-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 107.38525390625,
+          "cycles_per_operation": 263.3779296875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 111.4013671875,
+          "cycles_per_operation": 273.217529296875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 110.6689453125,
+          "cycles_per_operation": 271.4678955078125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 111.1083984375,
+          "cycles_per_operation": 272.5775146484375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 65536,
+      "mode": "dynamic-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 107.62939453125,
+          "cycles_per_operation": 263.339111328125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 110.1318359375,
+          "cycles_per_operation": 269.47607421875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 110.6201171875,
+          "cycles_per_operation": 270.6005859375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 110.94970703125,
+          "cycles_per_operation": 271.4468994140625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 65536,
+      "mode": "static-churn",
+      "variants": {
+        "old": {
+          "ns_per_operation": 116.2109375,
+          "cycles_per_operation": 284.4625244140625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 118.6767578125,
+          "cycles_per_operation": 290.4111328125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 117.4072265625,
+          "cycles_per_operation": 287.312744140625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 118.6767578125,
+          "cycles_per_operation": 290.4320068359375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 65536,
+      "mode": "create-upload-destroy",
+      "variants": {
+        "old": {
+          "ns_per_operation": 37200.0,
+          "cycles_per_operation": 91075.6875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 36618.75,
+          "cycles_per_operation": 89653.1875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 34668.75,
+          "cycles_per_operation": 84875.6875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 34993.75,
+          "cycles_per_operation": 85673.4375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 65536,
+      "mode": "loaded-idle",
+      "variants": {
+        "old": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 8388608,
+          "largest_after": 2130542592,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 8388608,
+          "largest_after": 2141749248,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 8388608,
+          "largest_after": 2142142464,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 8388608,
+          "largest_after": 2136571904,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 262144,
+      "mode": "static-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 106.494140625,
+          "cycles_per_operation": 260.5816650390625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 110.1806640625,
+          "cycles_per_operation": 269.607666015625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 5043.54248046875,
+          "cycles_per_operation": 12333.2587890625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 262144
+        },
+        "cache": {
+          "ns_per_operation": 158.99658203125,
+          "cycles_per_operation": 388.9793701171875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 262144,
+          "backing": 262144
+        }
+      }
+    },
+    {
+      "bytes": 262144,
+      "mode": "dynamic-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 107.4951171875,
+          "cycles_per_operation": 262.9921875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 110.1806640625,
+          "cycles_per_operation": 269.5777587890625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 110.72998046875,
+          "cycles_per_operation": 270.90869140625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 111.6455078125,
+          "cycles_per_operation": 273.1517333984375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 262144,
+      "mode": "static-churn",
+      "variants": {
+        "old": {
+          "ns_per_operation": 120.61767578125,
+          "cycles_per_operation": 295.4384765625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 120.30029296875,
+          "cycles_per_operation": 294.655029296875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 5114.31884765625,
+          "cycles_per_operation": 12506.711669921875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 67108864
+        },
+        "cache": {
+          "ns_per_operation": 5539.58740234375,
+          "cycles_per_operation": 13538.053466796875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 33554432,
+          "backing": 67108864
+        }
+      }
+    },
+    {
+      "bytes": 262144,
+      "mode": "create-upload-destroy",
+      "variants": {
+        "old": {
+          "ns_per_operation": 136300.0,
+          "cycles_per_operation": 333414.375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 143050.0,
+          "cycles_per_operation": 349931.9375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 143075.0,
+          "cycles_per_operation": 350040.6875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 140175.0,
+          "cycles_per_operation": 342941.8125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 262144,
+      "mode": "loaded-idle",
+      "variants": {
+        "old": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 33554432,
+          "largest_after": 2130542592,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 33554432,
+          "largest_after": 2141749248,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 0,
+          "largest_after": 2142142464,
+          "mapped": 0,
+          "backing": 33554432
+        },
+        "cache": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 33554432,
+          "largest_after": 2136571904,
+          "mapped": 33554432,
+          "backing": 33554432
+        }
+      }
+    },
+    {
+      "bytes": 1048576,
+      "mode": "static-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 107.080078125,
+          "cycles_per_operation": 262.1248779296875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 109.82666015625,
+          "cycles_per_operation": 268.7762451171875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 6426.904296875,
+          "cycles_per_operation": 15704.344604492188,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 1048576
+        },
+        "cache": {
+          "ns_per_operation": 158.82568359375,
+          "cycles_per_operation": 388.77001953125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 1048576,
+          "backing": 1048576
+        }
+      }
+    },
+    {
+      "bytes": 1048576,
+      "mode": "dynamic-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 106.4208984375,
+          "cycles_per_operation": 260.372314453125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 109.94873046875,
+          "cycles_per_operation": 268.9796142578125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 110.546875,
+          "cycles_per_operation": 270.4959716796875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 110.94970703125,
+          "cycles_per_operation": 271.48583984375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 1048576,
+      "mode": "static-churn",
+      "variants": {
+        "old": {
+          "ns_per_operation": 115.19775390625,
+          "cycles_per_operation": 282.096923828125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 119.3115234375,
+          "cycles_per_operation": 292.1876220703125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 6502.24609375,
+          "cycles_per_operation": 15899.315795898438,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 67108864
+        },
+        "cache": {
+          "ns_per_operation": 6737.21923828125,
+          "cycles_per_operation": 16431.4638671875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 33554432,
+          "backing": 67108864
+        }
+      }
+    },
+    {
+      "bytes": 1048576,
+      "mode": "create-upload-destroy",
+      "variants": {
+        "old": {
+          "ns_per_operation": 510262.5,
+          "cycles_per_operation": 1247932.0,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 415918.75,
+          "cycles_per_operation": 1017148.125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 749093.75,
+          "cycles_per_operation": 1824668.0625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 688687.5,
+          "cycles_per_operation": 1679395.375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 1048576,
+      "mode": "loaded-idle",
+      "variants": {
+        "old": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 139272192,
+          "largest_after": 2130542592,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 139038720,
+          "largest_after": 2141749248,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 0,
+          "largest_after": 2142142464,
+          "mapped": 0,
+          "backing": 134217728
+        },
+        "cache": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 33554432,
+          "largest_after": 2136571904,
+          "mapped": 33554432,
+          "backing": 134217728
+        }
+      }
+    },
+    {
+      "bytes": 8388608,
+      "mode": "static-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 107.275390625,
+          "cycles_per_operation": 262.77392578125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 110.9130859375,
+          "cycles_per_operation": 271.67724609375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 6569.93408203125,
+          "cycles_per_operation": 16015.289794921875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 8388608
+        },
+        "cache": {
+          "ns_per_operation": 157.666015625,
+          "cycles_per_operation": 385.970703125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 8388608,
+          "backing": 8388608
+        }
+      }
+    },
+    {
+      "bytes": 8388608,
+      "mode": "dynamic-hot",
+      "variants": {
+        "old": {
+          "ns_per_operation": 106.640625,
+          "cycles_per_operation": 260.9854736328125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 110.4248046875,
+          "cycles_per_operation": 270.2117919921875,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 110.99853515625,
+          "cycles_per_operation": 271.6563720703125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 110.9619140625,
+          "cycles_per_operation": 271.6234130859375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 8388608,
+      "mode": "static-churn",
+      "variants": {
+        "old": {
+          "ns_per_operation": 112.6953125,
+          "cycles_per_operation": 276.1962890625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 117.529296875,
+          "cycles_per_operation": 288.1142578125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 6563.00048828125,
+          "cycles_per_operation": 16031.0869140625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 67108864
+        },
+        "cache": {
+          "ns_per_operation": 8615.90576171875,
+          "cycles_per_operation": 21022.429565429688,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 33554432,
+          "backing": 67108864
+        }
+      }
+    },
+    {
+      "bytes": 8388608,
+      "mode": "create-upload-destroy",
+      "variants": {
+        "old": {
+          "ns_per_operation": 3526725.0,
+          "cycles_per_operation": 8621363.125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 3527731.25,
+          "cycles_per_operation": 8614665.4375,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 5699762.5,
+          "cycles_per_operation": 13935347.3125,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        },
+        "cache": {
+          "ns_per_operation": 5415975.0,
+          "cycles_per_operation": 13228436.625,
+          "va_used": 0,
+          "largest_after": 0,
+          "mapped": 0,
+          "backing": 0
+        }
+      }
+    },
+    {
+      "bytes": 8388608,
+      "mode": "loaded-idle",
+      "variants": {
+        "old": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 134795264,
+          "largest_after": 2130542592,
+          "mapped": 0,
+          "backing": 0
+        },
+        "off": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 134832128,
+          "largest_after": 2141749248,
+          "mapped": 0,
+          "backing": 0
+        },
+        "zero": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 0,
+          "largest_after": 2142142464,
+          "mapped": 0,
+          "backing": 134217728
+        },
+        "cache": {
+          "ns_per_operation": 0.0,
+          "cycles_per_operation": 0.0,
+          "va_used": 33554432,
+          "largest_after": 2136571904,
+          "mapped": 33554432,
+          "backing": 134217728
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,362 @@
+[
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6593027 commands=12000 wall_ns=179443200 threaded=0\nC32_TIMING cycles=5892302 commands=12000 wall_ns=187609700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=5979245 commands=12000 wall_ns=179066400 threaded=0\nC32_TIMING cycles=6208514 commands=12000 wall_ns=187602000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8921916 commands=12000 wall_ns=178611000 threaded=0\nC32_TIMING cycles=8711854 commands=12000 wall_ns=187458500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=16199735 commands=12000 wall_ns=178700300 threaded=0\nC32_TIMING cycles=16184400 commands=12000 wall_ns=187470400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=330096 commands=12000 wall_ns=178587200 threaded=1\nC32_TIMING cycles=470834 commands=12000 wall_ns=187565200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14304420 commands=12000 wall_ns=178579800 threaded=1\nC32_TIMING cycles=15899416 commands=12000 wall_ns=187569600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6337110 commands=12000 wall_ns=176755500 threaded=0\nC32_TIMING cycles=6689514 commands=12000 wall_ns=187442500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=6288698 commands=12000 wall_ns=176812400 threaded=0\nC32_TIMING cycles=6625138 commands=12000 wall_ns=187434100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9276642 commands=12000 wall_ns=178107900 threaded=0\nC32_TIMING cycles=8508700 commands=12000 wall_ns=187576800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15336330 commands=12000 wall_ns=179545600 threaded=0\nC32_TIMING cycles=11291277 commands=12000 wall_ns=187586600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=326586 commands=12000 wall_ns=178436900 threaded=1\nC32_TIMING cycles=335919 commands=12000 wall_ns=188124100 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13000494 commands=12000 wall_ns=179826900 threaded=1\nC32_TIMING cycles=10355410 commands=12000 wall_ns=188112800 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=7713307 commands=12000 wall_ns=178531100 threaded=0\nC32_TIMING cycles=7918841 commands=12000 wall_ns=187526000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=7159141 commands=12000 wall_ns=178624100 threaded=0\nC32_TIMING cycles=7447641 commands=12000 wall_ns=187528100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8906861 commands=12000 wall_ns=178918100 threaded=0\nC32_TIMING cycles=8227011 commands=12000 wall_ns=187315600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13356561 commands=12000 wall_ns=178959300 threaded=0\nC32_TIMING cycles=12978053 commands=12000 wall_ns=187318800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=339950 commands=12000 wall_ns=178544600 threaded=1\nC32_TIMING cycles=428142 commands=12000 wall_ns=187508200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11419226 commands=12000 wall_ns=178575600 threaded=1\nC32_TIMING cycles=12702950 commands=12000 wall_ns=187506400 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=7132626 commands=12000 wall_ns=178825000 threaded=0\nC32_TIMING cycles=7206826 commands=12000 wall_ns=187617000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=9043364 commands=12000 wall_ns=180388400 threaded=0\nC32_TIMING cycles=5424805 commands=12000 wall_ns=187619100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8558803 commands=12000 wall_ns=178358700 threaded=0\nC32_TIMING cycles=8162243 commands=12000 wall_ns=187439200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14973000 commands=12000 wall_ns=179885500 threaded=0\nC32_TIMING cycles=11153969 commands=12000 wall_ns=187433000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 0,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=333346 commands=12000 wall_ns=162041100 threaded=1\nC32_TIMING cycles=458510 commands=12000 wall_ns=187579900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13236782 commands=12000 wall_ns=163511600 threaded=1\nC32_TIMING cycles=9687339 commands=12000 wall_ns=187530600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=7357441 commands=12000 wall_ns=178440700 threaded=0\nC32_TIMING cycles=7968367 commands=12000 wall_ns=187717100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=6895707 commands=12000 wall_ns=178538400 threaded=0\nC32_TIMING cycles=7660532 commands=12000 wall_ns=187719500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8072857 commands=12000 wall_ns=178304100 threaded=0\nC32_TIMING cycles=8401184 commands=12000 wall_ns=187557100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12402567 commands=12000 wall_ns=178345000 threaded=0\nC32_TIMING cycles=13297906 commands=12000 wall_ns=187580900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=354172 commands=12000 wall_ns=178544800 threaded=1\nC32_TIMING cycles=436046 commands=12000 wall_ns=172371700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=11423724 commands=12000 wall_ns=178702200 threaded=1\nC32_TIMING cycles=11737154 commands=12000 wall_ns=172333900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6751600 commands=12000 wall_ns=178305200 threaded=0\nC32_TIMING cycles=7351081 commands=12000 wall_ns=188084000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=8365469 commands=12000 wall_ns=179727000 threaded=0\nC32_TIMING cycles=5722950 commands=12000 wall_ns=188088200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8755853 commands=12000 wall_ns=178016800 threaded=0\nC32_TIMING cycles=9098148 commands=12000 wall_ns=188240200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14899581 commands=12000 wall_ns=179547500 threaded=0\nC32_TIMING cycles=12001905 commands=12000 wall_ns=188260600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=362413 commands=12000 wall_ns=177882600 threaded=1\nC32_TIMING cycles=414752 commands=12000 wall_ns=187472200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=13910000 commands=12000 wall_ns=179348700 threaded=1\nC32_TIMING cycles=10883652 commands=12000 wall_ns=187418900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=7192510 commands=12000 wall_ns=178197400 threaded=0\nC32_TIMING cycles=7229871 commands=12000 wall_ns=187468700 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=7378930 commands=12000 wall_ns=178278100 threaded=0\nC32_TIMING cycles=7569172 commands=12000 wall_ns=187469200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=12008356 commands=12000 wall_ns=178584300 threaded=0\nC32_TIMING cycles=11868886 commands=12000 wall_ns=188109300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=18911122 commands=12000 wall_ns=178626900 threaded=0\nC32_TIMING cycles=21766575 commands=12000 wall_ns=188114200 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=339560 commands=12000 wall_ns=177461800 threaded=1\nC32_TIMING cycles=455728 commands=12000 wall_ns=173297600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15997176 commands=12000 wall_ns=177443800 threaded=1\nC32_TIMING cycles=16532230 commands=12000 wall_ns=173297200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6723938 commands=12000 wall_ns=177810900 threaded=0\nC32_TIMING cycles=6345897 commands=12000 wall_ns=187496500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=9824904 commands=12000 wall_ns=179155900 threaded=0\nC32_TIMING cycles=6606782 commands=12000 wall_ns=187498900 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9474549 commands=12000 wall_ns=178306400 threaded=0\nC32_TIMING cycles=10257454 commands=12000 wall_ns=188515600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=15705347 commands=12000 wall_ns=179845300 threaded=0\nC32_TIMING cycles=13021398 commands=12000 wall_ns=188526000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 1,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=379314 commands=12000 wall_ns=177767100 threaded=1\nC32_TIMING cycles=418756 commands=12000 wall_ns=187601900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14160457 commands=12000 wall_ns=179247100 threaded=1\nC32_TIMING cycles=11247287 commands=12000 wall_ns=187597700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6843121 commands=12000 wall_ns=177934100 threaded=0\nC32_TIMING cycles=6719466 commands=12000 wall_ns=187506400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=7003281 commands=12000 wall_ns=178016900 threaded=0\nC32_TIMING cycles=7080709 commands=12000 wall_ns=187505600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=9288715 commands=12000 wall_ns=178581800 threaded=0\nC32_TIMING cycles=10363971 commands=12000 wall_ns=188523600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=16395072 commands=12000 wall_ns=178685000 threaded=0\nC32_TIMING cycles=21401871 commands=12000 wall_ns=188536400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=742196 commands=12000 wall_ns=178642200 threaded=1\nC32_TIMING cycles=1177644 commands=12000 wall_ns=186485900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=21905728 commands=12000 wall_ns=178465900 threaded=1\nC32_TIMING cycles=17200819 commands=12000 wall_ns=186544900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6309212 commands=12000 wall_ns=177963500 threaded=0\nC32_TIMING cycles=6661823 commands=12000 wall_ns=187534500 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=8869458 commands=12000 wall_ns=179145800 threaded=0\nC32_TIMING cycles=6647028 commands=12000 wall_ns=187538400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8979862 commands=12000 wall_ns=177736800 threaded=0\nC32_TIMING cycles=8270278 commands=12000 wall_ns=188013800 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14967237 commands=12000 wall_ns=179036500 threaded=0\nC32_TIMING cycles=10767868 commands=12000 wall_ns=188020100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "1",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=317408 commands=12000 wall_ns=178585600 threaded=1\nC32_TIMING cycles=429468 commands=12000 wall_ns=187407700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12984008 commands=12000 wall_ns=179879100 threaded=1\nC32_TIMING cycles=10066420 commands=12000 wall_ns=187437900 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=6698393 commands=12000 wall_ns=178948300 threaded=0\nC32_TIMING cycles=7630574 commands=12000 wall_ns=187454000 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=6384599 commands=12000 wall_ns=179020900 threaded=0\nC32_TIMING cycles=7308142 commands=12000 wall_ns=187455400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8235461 commands=12000 wall_ns=178360900 threaded=0\nC32_TIMING cycles=8552971 commands=12000 wall_ns=187497100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12851667 commands=12000 wall_ns=178460400 threaded=0\nC32_TIMING cycles=13876586 commands=12000 wall_ns=187502600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "32",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=310362 commands=12000 wall_ns=179276700 threaded=1\nC32_TIMING cycles=433550 commands=12000 wall_ns=172401600 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=10801180 commands=12000 wall_ns=179351100 threaded=1\nC32_TIMING cycles=11769393 commands=12000 wall_ns=172310700 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "stream",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=7465818 commands=12000 wall_ns=178842400 threaded=0\nC32_TIMING cycles=6797670 commands=12000 wall_ns=187776100 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=9111639 commands=12000 wall_ns=180268700 threaded=0\nC32_TIMING cycles=5296733 commands=12000 wall_ns=187781300 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "mixed",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=8610203 commands=12000 wall_ns=179260000 threaded=0\nC32_TIMING cycles=9117356 commands=12000 wall_ns=188957400 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=14127485 commands=12000 wall_ns=180624300 threaded=0\nC32_TIMING cycles=14316577 commands=12000 wall_ns=189031600 threaded=0\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  },
+  {
+    "iteration": 2,
+    "batch": "32",
+    "host_arch": "64",
+    "mode": "threaded",
+    "client_rc": 0,
+    "host_rc": 0,
+    "client": "C32_TIMING cycles=330200 commands=12000 wall_ns=180319300 threaded=1\nC32_TIMING cycles=387088 commands=12000 wall_ns=172596200 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n",
+    "host": "C32_TIMING cycles=12653861 commands=12000 wall_ns=181481100 threaded=1\nC32_TIMING cycles=9700886 commands=12000 wall_ns=172672000 threaded=1\nC32_BRIDGE_PASS inline/generic/known/blob/RPC/retained-Lock/Device/Module/wrap/slow-host\n"
+  }
+]

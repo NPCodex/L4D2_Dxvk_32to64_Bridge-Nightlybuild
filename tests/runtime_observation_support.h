@@ -15,7 +15,13 @@
 #include "data_diagnostics.h"
 #include "exception_diagnostics.h"
 #include "api_wait_diagnostics.h"
+inline LPVOID observationShadowVirtualAlloc(LPVOID address, SIZE_T bytes, DWORD type, DWORD protect) {
+  if (diagnostic_work::failAllocation) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return nullptr; }
+  return ::VirtualAlloc(address, bytes, type, protect);
+}
+#define VirtualAlloc observationShadowVirtualAlloc
 #include "buffer_shadow.h"
+#undef VirtualAlloc
 #include "readback_backend.h"
 #include "pageblock_residency.h"
 #include "retention_policy.h"

@@ -7,3 +7,8 @@
 plugins/l4n/sdk/l4n_plugin.h -text whitespace=-blank-at-eol,cr-at-eol
 # Preserve original L4N files and the supplied presets byte-for-byte.
 runtime/l4n/payload/** -text -diff
+# Preserve upstream raw validation evidence and its published checksums.
+docs/ipc-c32-evidence/** -text whitespace=cr-at-eol
+docs/ipc-full-evidence/** -text whitespace=cr-at-eol
+docs/ipc-v2-evidence/** -text whitespace=cr-at-eol
+docs/vbib-mapped-evidence/** -text whitespace=cr-at-eol

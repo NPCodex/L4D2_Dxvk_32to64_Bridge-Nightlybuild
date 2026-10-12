@@ -36,6 +36,9 @@ class Preparation(unittest.TestCase):
         self.commit = self.git("rev-parse", "HEAD").decode().strip()
         (self.source / "patched.cpp").write_text(self.patched, encoding="utf-8", newline="\n")
         (self.source / "new.h").write_text("expected new header\n", encoding="utf-8", newline="\n")
+        self.stamp = self.source / "ipc_v2_build.h"
+        self.stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x00000000u\n' for i in range(4)),
+                              encoding="utf-8", newline="\n")
         (self.source / "removed.cpp").unlink()
         for log_source in self.log_sources:
             log_source.write_text('  Logger::info("Project version: 1.0.0");\n', encoding="utf-8", newline="\n")
@@ -61,6 +64,8 @@ class Preparation(unittest.TestCase):
         return self.real_run(*args, **kwargs)
 
     def prepare(self):
+        self.rendered_patch = self.root / "rendered.patch"
+        self.rendered_patch.write_bytes(prepare_bridge._render_patch())
         prepare_bridge.prepare(self.source, self.commit)
 
     def snapshot(self):
@@ -122,6 +127,16 @@ class Preparation(unittest.TestCase):
         self.assertEqual(original_patch, self.patch_file.read_bytes())
         self.assertEqual(2, self.submodule_updates)
 
+    def test_protocol_stamp_binds_source_and_project_version(self):
+        from build_identity import protocol_digest
+        expected = protocol_digest(self.patch_file.read_bytes(), "1.0.0")
+        self.prepare()
+        for index in range(4):
+            self.assertIn(f'0x{expected[index * 8:index * 8 + 8]}u', self.stamp.read_text())
+        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes(), "1.0.1"))
+        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes() + b'\n', "1.0.0"))
+        self.assertEqual(expected, protocol_digest(self.patch_file.read_bytes().replace(b'\n', b'\r\n'), "1.0.0"))
+
     def test_changed_project_version_preserves_old_applied_checkout(self):
         self.prepare()
         self.version_file.write_text("1.0.6\n", encoding="utf-8", newline="\n")
@@ -140,13 +155,13 @@ class Preparation(unittest.TestCase):
     def test_rejects_extra_tracked_change_after_patch(self):
         self.prepare()
         (self.source / "unrelated.cpp").write_text("unexpected\n", encoding="utf-8", newline="\n")
-        self.git("apply", "--reverse", "--check", str(self.patch_file))
+        self.git("apply", "--reverse", "--check", str(self.rendered_patch))
         self.assert_preserved_rejection()
 
     def test_rejects_extra_change_outside_patch_hunk(self):
         self.prepare()
         (self.source / "patched.cpp").write_text(self.patched + "extra line\n", encoding="utf-8", newline="\n")
-        self.git("apply", "--reverse", "--check", str(self.patch_file))
+        self.git("apply", "--reverse", "--check", str(self.rendered_patch))
         self.assert_preserved_rejection()
 
     def test_rejects_untracked_source_before_or_after_patch(self):

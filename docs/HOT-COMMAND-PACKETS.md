@@ -1,5 +1,7 @@
 # 高频标量命令的一次整包编码
 
+> 本页记录 v1.2.3 / IPC 3 的历史实现与实测。v1.3.0 保留五类整包编码并适配完整 IPC v2 的提交规则；不要将下文“逐条即时提交”用于描述当前 C8。当前集成见 [v1.3.0 说明](UPSTREAM-1.3.0-INTEGRATION.md)。
+
 本候选在 v1.2.2 / IPC 3 上优化 `SetRenderState`、`SetTextureStageState`、`SetSamplerState`、`DrawPrimitive` 和 `DrawIndexedPrimitive`。使用已有 `bridge_data::fields` / `ClientMessage` 整包构造，把 UID 与参数的两次预留合为一次。只改 Client 的五个发送作用域；Host 逐字段解码、命令核心及线协议不变。
 
 保留原参数检查、设备锁、state block 记录、状态去重与 dirty 标记、可选回复等待、错误转换和作用域结束时即时提交。没有过滤新的命令、跨 API 批处理、放宽所有权检查、修改后端或默认配置，也没有恢复 v1.1.13 的绑定引用优化。

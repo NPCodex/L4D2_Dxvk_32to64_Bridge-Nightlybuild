@@ -1,0 +1,13 @@
+{
+  "layout_reference_commit": "58890170fcd1b3b599fc270b2127717d03ad07e1",
+  "scope": "old C control layout derived from current core; same algorithms and current caller",
+  "current_core_sha256": "d109e1531d5291ca15f4e771b20ded1f9465b36c999b6f61e17e4524381020d4",
+  "adapters": [
+    "320-byte old control layout",
+    "matching old layout protocol version 0x00020001"
+  ],
+  "source_sha256": {
+    "transport.h": "7616a5775e64494189cb417010f46de9ead73ca2881b170a3661b5c5cf141a1e",
+    "platform.h": "26ee5531bf4a114dc2183a2a489d6ea7277c87a6df4845948a102294967263c4"
+  }
+}
