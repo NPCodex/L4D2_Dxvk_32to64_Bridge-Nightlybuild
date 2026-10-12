@@ -6,7 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdlib>
-namespace l4d2_web { struct NativeTest { static bool attach(void* u,void* f,void(*log)(const char*)) { Diagnostics::logger=log;return Diagnostics::attach(u,f); } }; }
+namespace l4d2_web { struct NativeTest { static bool attach(void* u,void* f,void(*log)(const char*)) { Diagnostics::logger=log;return Diagnostics::attach(u,f); } static void menu(void* base){Diagnostics::menu=static_cast<HMODULE>(base);Diagnostics::validMenu=base!=nullptr;} }; }
 static void require(bool value){if(!value){std::fprintf(stderr,"FAIL web observer assertion error=%lu\n",GetLastError());std::exit(2);}}
 static void* utilsTable[18]{};static void* friendsTable[31]{};
 struct Object{void** table;};static Object utils{utilsTable},friends{friendsTable};
@@ -38,6 +38,27 @@ int main(){
   bool sawFalse=false,sawURL=false;
   for(const auto& line:logs){require(line.find("never-log")==std::string::npos);if(line.find("overlay_enabled=0")!=std::string::npos)sawFalse=true;if(line.find("url_class=steam-workshop")!=std::string::npos)sawURL=true;}
   require(sawFalse && sawURL);
+  // Author a tiny x86 caller whose CALL returns at an evidenced guard RVA.
+  // This is our test code, never proprietary GameUI/Steam instructions.
+  const char* name="Local\\L4D2WorkshopABI";
+  require(l4d2_workshop::publisher.publisher(name));
+  require(l4d2_workshop::reader.reader(name,GetCurrentProcess()));
+  auto* fixture=static_cast<BYTE*>(VirtualAlloc(nullptr,0x70000,MEM_COMMIT|MEM_RESERVE,PAGE_EXECUTE_READWRITE));require(fixture!=nullptr);
+  const BYTE thunk[]={0x8b,0x01,0x8b,0x40,0x44,0xff,0xd0,0xc3};
+  std::memcpy(fixture+0x199e3,thunk,sizeof(thunk));require(FlushInstructionCache(GetCurrentProcess(),fixture,0x70000)!=FALSE);
+  l4d2_web::NativeTest::menu(fixture);D::setProxy(true);allowed=false;
+  using Guard=bool(__thiscall*)(void*);const auto guard=reinterpret_cast<Guard>(fixture+0x199e3);
+  l4d2_workshop::publish(true,1,GetTickCount64());
+  const unsigned prior=availableCalls;require(guard(&utils) && availableCalls==prior+1 && GetLastError()==0x1234);
+  require(!enabled() && GetLastError()==0x1234); // Same object, unrelated caller retains False.
+  if(guard(&utils))request(url,0);require(webCalls==4 && received==url && receivedMode==0 && GetLastError()==0x2345);
+  l4d2_workshop::publish(true,0,GetTickCount64());require(!guard(&utils));
+  l4d2_workshop::publish(false,1,GetTickCount64());require(!guard(&utils));
+  l4d2_workshop::publish(true,1,GetTickCount64()-3001);require(!guard(&utils));
+  l4d2_workshop::publish(true,1,GetTickCount64());D::setProxy(false);require(!guard(&utils));
+  D::setProxy(true);throwLog=true;require(guard(&utils) && GetLastError()==0x1234);throwLog=false;
+  l4d2_web::NativeTest::menu(nullptr);require(VirtualFree(fixture,0,MEM_RELEASE)!=FALSE);D::setProxy(false);allowed=true;
+  l4d2_workshop::reader.close();l4d2_workshop::publisher.close();
   friendsTable[30]=reinterpret_cast<void*>(&later); // Preserve a later third-party replacement.
   D::stop();require(utilsTable[17]==reinterpret_cast<void*>(&availability));require(friendsTable[30]==reinterpret_cast<void*>(&later));
   require(enabled() && GetLastError()==0x1234);

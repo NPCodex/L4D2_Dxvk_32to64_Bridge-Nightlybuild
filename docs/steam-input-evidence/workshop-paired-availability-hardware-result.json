@@ -1,0 +1,26 @@
+{
+  "build": "ldb-ipc-c32-dev+4833cce93dfc4dc0",
+  "client_log_sha256": "8219027a01845440de23616e5b120236e9ab4e4c4cd62eb40af0f55622e0b516",
+  "host_log_sha256": "5300c6188f5caf1fd85eacd5318343ce8267e7cc11dbc1d6aaf5d60cfdd9846b",
+  "menu_calls": 10,
+  "menu_original_false": 10,
+  "web_calls": 0,
+  "host_sample_transitions": [
+    {
+      "time": "22:45:40.101",
+      "value": 0
+    },
+    {
+      "time": "22:45:50.846",
+      "value": 1
+    }
+  ],
+  "menu_interval": [
+    "22:52:18.819",
+    "22:52:20.711"
+  ],
+  "host_getter_verified": true,
+  "normal_shutdown_both": true,
+  "navigation_validated": false,
+  "interpretation": "Verified Host getter becomes available while the observed menu SDK guard remains false; webpage invocation blocked before dispatch."
+}

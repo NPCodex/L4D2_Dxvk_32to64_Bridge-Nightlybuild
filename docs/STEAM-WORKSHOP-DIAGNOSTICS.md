@@ -199,3 +199,74 @@ for the next compatibility decision, not a Workshop fix. The earlier installer
 targets the earlier06abe08be638118c package and must not be used to install this
 new paired-observer package. main, tested IPC branch, VERSION/tags/releases and
 all previous ZIPs remain unchanged.
+
+## Scoped availability compatibility experiment
+
+The matched4833cce93dfc4dc0 hardware session verifies the actual Host getter;
+it changes0 to1 at22:45:50.846 with no later recorded change. Ten Client
+VisitWorkshop calls at22:52:18.819 through22:52:20.711 all return0; summary
+web_calls=0. Both processes shut down normally. This supports a menu availability
+proxy experiment; it does not establish web request routing or navigation.
+
+New option `client.steamWorkshopAvailabilityProxy=False` remains off by default.
+Enable True in the same actual shared bridge.conf on the matched experimental
+pair, keeping `client.steamWebDiagnostics=True` and the validated C8/input config.
+Host creates a separate16-byte shared control mapping identified by the existing
+session GUID only after the matching Client/Host build check. Client opens it only
+after the successful handshake, validates protocol version and actual launched
+Host PID, and duplicates its process handle. No render command protocol, command
+ordering, rendering queue or resource lifetime is changed. Mapping view reservation
+is at most one64KiB allocation granularity plus normal page backing; it exists only
+when this experiment is enabled. The experiment adds no threads or Steam contexts.
+
+Host's already verified observer publishes every sample, including unchanged
+values, using one aligned InterlockedExchange64: timestamp and unknown/false/true
+state form one atomic snapshot. The Client reads it atomically only when an
+observed Workshop guard's original result is False. A zero-time process-handle
+check must confirm the actual launched Host is alive. A sample is accepted only
+if known and exactly1, not future-dated, and no more than3000ms old. Unknown
+renderer/layout, unreadable sample, unsupported x86 renderer, missing control
+mapping, wrong version/PID, exited Host and stale samples all preserve the
+original SDK result. The x86 Host and rest of the bridge remain supported; only
+this getter-based compatibility experiment requires the validated x64 sample.
+
+GameUI full file hash and loaded instruction checks remain mandatory. Only the
+three exact evidenced menu guard return addresses0x199EA/0x19ACA/0x6EA9A can
+receive a True result based on fresh Host availability. Other callers on the
+same shared SDK vtable retain the original result, and the original SDK method
+is called exactly once. Original LastError is preserved. Observe logs retain
+original result; L4D2_STEAM_WORKSHOP event=availability separately records original,
+returned and host_ready. True original results are never suppressed. The existing
+Friends017 web method still receives the original borrowed URL/mode exactly once.
+There is no injected URL, Host web forwarding or keyboard emulation.
+
+The channel endpoints and pinned code/targets are deliberately process-lifetime
+objects so late/in-flight callbacks cannot touch unmapped status memory. OS
+process exit closes handles/views; no stale mapping is reused across session GUIDs.
+Client conditional hook restoration is retained. A stalled host can cause a
+conservative refusal during slow loading, not permission to use stale state.
+The freshness bound is a correctness choice, not a claimed optimal performance
+parameter. Sampling occurs at existing Present boundaries and may pause when
+there are no Presents. This experiment requires independent gameplay validation.
+
+Native tests compile both actual x86/x64 layouts and exercise all four process
+architecture pairs, initial unknown, false, stale/future, tick rollover, missing
+channel, exclusive writer, version/PID refusal and Host death. The retained x86
+ABI test authors a tiny executable caller at the evidenced relative call site,
+checks scoped False-to-True and unrelated callers, disabled/unknown/stale refusal,
+exactly one original call and normal web execution, borrowed arguments and
+LastError under throwing logging. These are authored fixtures; supplied Steam
+and GameUI DLLs are never executed or redistributed in tests.
+
+For the next real run: replace all three matched bridge files, enable the new
+option plus diagnostics, keep current C8/input/backend, click View Workshop once,
+then Browse Workshop if available. Check Shift+Tab/mouse/browser/Join Server,
+exit normally and send both logs plus visible results. Expected new evidence:
+client-channel ready1, Host getter1, original0 returned1 host_ready1, then an
+ActivateGameOverlayToWebPage request. A returned web call alone is not proof of
+navigation. If it does not open, investigate routing after observing this call;
+do not assume Host forwarding is required in advance.
+
+Rollback all three binaries to4833cce93dfc4dc0 or disable the new option and
+restart. Do not use either older installer for the new build. main, production
+VERSION/tags/releases and prior packages are preserved.

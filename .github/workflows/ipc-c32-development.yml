@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: ['codex/ipc-c32-development', 'codex/steam-overlay-hook-chain', 'codex/steam-overlay-mouse-capture', 'codex/steam-overlay-poll-chain', 'codex/steam-window-diagnostics', 'codex/steam-window-adapter', 'codex/steam-web-request-diagnostics']
-    paths: ['.github/workflows/ipc-c32-development.yml', 'patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'scripts/test_*.ps1', 'scripts/assert_native_architecture.ps1', 'tests/ipc-v2/c32*', 'tests/input_hooks_test.cpp', 'tests/overlay_presenter.cpp', 'tests/steam_window*', 'tests/steam_web*', 'tests/steam_availability*']
+    paths: ['.github/workflows/ipc-c32-development.yml', 'patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'scripts/test_*.ps1', 'scripts/assert_native_architecture.ps1', 'tests/ipc-v2/c32*', 'tests/input_hooks_test.cpp', 'tests/overlay_presenter.cpp', 'tests/steam_window*', 'tests/steam_web*', 'tests/steam_availability*', 'tests/steam_workshop*']
 permissions:
   contents: read
 jobs:
@@ -34,7 +34,7 @@ jobs:
         run: |
           # Each suite starts from the clean step environment. Repeated SetupVS
           # in one PowerShell process can grow PATH until vcvars silently fails.
-          foreach ($suite in @('buffer_contract','volume_layout','device_reset','readback_recovery','input_hooks','overlay_presenter','steam_window_diagnostics','steam_web_diagnostics','steam_availability_diagnostics','adapter_information','ati_texture_layout','command_queue')) {
+          foreach ($suite in @('buffer_contract','volume_layout','device_reset','readback_recovery','input_hooks','overlay_presenter','steam_window_diagnostics','steam_web_diagnostics','steam_availability_diagnostics','steam_workshop_status','adapter_information','ati_texture_layout','command_queue')) {
             & powershell.exe -NoProfile -File "./scripts/test_$suite.ps1"
             if ($LASTEXITCODE -ne 0) { throw "Native regression failed: $suite" }
           }
