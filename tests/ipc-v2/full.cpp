@@ -13,6 +13,49 @@ std::string name(){static unsigned i=0;return "full-"+std::to_string(ldb_ipc_v2:
 void send(ldb_full::MessageQueue& w,unsigned i){check(w.begin({Commands::IDirect3DDevice9Ex_SetRenderState,0,0,i}),"begin");check(w.scalar(i),"scalar");check(w.finish(false),"finish");}
 void read(ldb_full::MessageQueue& r,unsigned i){Result result;auto h=r.pull(result,1000);check(result==Result::Success && h.pHandle==i,"header");check(r.readWord()==i,"body");r.finishRead();}
 ldb_ipc_v2::Config fullConfig(){ldb_ipc_v2::Config c;c.blockCount=64;c.blockBytes=4096;return c;}
+std::unique_ptr<ldb_full::MessageQueue>* tailCloseQueue = nullptr;
+void closeQueueAfterSnapshot() {
+  ldb_full::MessageQueue::afterWaitPublishedRead = nullptr;
+  check(tailCloseQueue && *tailCloseQueue, "final queue exists");
+  tailCloseQueue->reset(); // Writer destruction publishes its unfinished batch before close.
+}
+void closeTailCases() {
+  unsigned cases = 0;
+  for (unsigned kind : { 1u, 2u }) {
+    for (unsigned direction : { 0u, 1u }) {
+      for (uint32_t initial : { 0u, UINT32_MAX }) {
+        for (unsigned records : { 1u, 3u, 7u }) {
+          gbBridgeRunning.store(true);
+          auto n = name() + (kind == 2 ? "-Module" : "-Device")
+            + (direction ? "-Server2Client" : "-Client2Server");
+          auto c = fullConfig(); c.kind = kind; c.direction = direction;
+          ldb_ipc_v2::Channel raw(n + "-full", c, true);
+          raw.shared().producer.published.store(initial);
+          raw.shared().consumer.completed.store(initial);
+          auto w = std::make_unique<ldb_full::MessageQueue>(n, 2 * 1024 * 1024, true);
+          ldb_full::MessageQueue r(n, 2 * 1024 * 1024, false);
+          w->configureBatch(8);
+          for (unsigned i = 0; i < records; ++i) { send(*w, i); }
+          check(w->pending() && raw.shared().producer.published.load() == initial, "final queue block pending");
+          tailCloseQueue = &w;
+          ldb_full::MessageQueue::afterWaitPublishedRead = closeQueueAfterSnapshot;
+          for (unsigned i = 0; i < records; ++i) { read(r, i); }
+          ldb_full::MessageQueue::afterWaitPublishedRead = nullptr;
+          tailCloseQueue = nullptr;
+          check(!w && r.healthy(), "close must drain final queue block without fault");
+          check(raw.shared().consumer.completed.load() == initial + 1, "final queue credit returned");
+          check(r.isEmpty(), "final queue records fully consumed");
+          Result result; r.peek(result, 100);
+          check(result == Result::Failure && !r.healthy(), "drained closed queue still fails closed");
+          check(raw.shared().consumer.completed.load() == initial + 1, "closed queue cannot return duplicate credit");
+          ++cases;
+        }
+      }
+    }
+  }
+  gbBridgeRunning.store(true);
+  std::printf("IPC_FULL_CLOSE_TAIL_PASS cases=%u bits=%u\n", cases, static_cast<unsigned>(sizeof(void*) * 8));
+}
 void pressureCases(){
   // All 64 message credits occupied: the next record must wait, never overwrite.
   {auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);
@@ -76,7 +119,9 @@ void corruptionCases(){
    std::this_thread::sleep_for(std::chrono::milliseconds(20));gbBridgeRunning.store(false);reader.join();
    check(result==Result::Failure&&!r.healthy()&&ldb_ipc_v2::milliseconds()-before<500,"startup stop did not interrupt wait");}
 }
-int main(){try{
+int main(int argc, char** argv){try{
+  closeTailCases();
+  if (argc == 2 && std::string(argv[1]) == "--close-tail-only") { return 0; }
   pressureCases();
   for(unsigned batch:{1u,2u,4u,8u,16u,32u}){
     auto n=name();ldb_full::MessageQueue w(n,2*1024*1024,true),r(n,2*1024*1024,false);w.configureBatch(batch);check(w.batchSize()==batch,"gear normalization");

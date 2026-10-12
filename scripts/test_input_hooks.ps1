@@ -26,8 +26,9 @@ $controls = @{
   'null-unhook' = 'Unhook called with null handle'
   'directinput' = 'Quiet success formatted a log'
   'query' = 'Query lifecycle delegation or log classification changed'
+  'keyboard-null' = 'Keyboard null output written'
 }
-foreach ($variant in @('current','thread-hook','hook-error','null-unhook','directinput','query')) {
+foreach ($variant in @('current','thread-hook','hook-error','null-unhook','directinput','query','keyboard-null')) {
   $testDir = Join-Path $OutputDirectory "$variant-$CompileArchitecture"
   New-Item -ItemType Directory -Force $testDir | Out-Null
   $generated = Join-Path $testDir 'actual_input_hooks.cpp'

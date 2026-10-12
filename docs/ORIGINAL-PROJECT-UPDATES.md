@@ -2,7 +2,17 @@
 
 当前完整功能基准为 [`d063395146bfcad8688efe52904541d342f237f0`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/tree/d063395146bfcad8688efe52904541d342f237f0)，对应上游 **v1.3.0-pre.1**；该次采用的 Nightly 版本为 **v1.3.0**。维护者于 2026-10-12 查看三组实测中 1% low 下降的取舍后，明确批准采用，并要求在发布说明中提供 v1.1.10 回退链接。范围、保留修复、测试结果及最终整合包未复测的边界见 [本次集成说明](UPSTREAM-1.3.0-INTEGRATION.md)。
 
-已检查的 upstream/main 基准仍为 `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`；d063395 是本次单独授权采用的预发布分支提交，不表示上游 main 前进。v1.4.0 按维护者全部 45 项处理授权，选择性导入 a10df351 的 IPC/映射设置与语言菜单及其测试；没有导入其他发布流程，也没有推进完整上游基准。当前改动和关闭项见 [45 项台账](OPTIMIZATION-45.md)。Git 合并保留历史；普通后续更新仍按既定性能、稳定性及兼容性要求筛选。
+2026-10-12 已检查的 upstream/main 推进至 `f6a059b758f9fcbf9c66ace73625aae9db34ad6a`（上游正式 v1.3.0）。完整合入的 main 基准仍为 `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`，实际完整功能基准仍为单独授权采用的 d063395；检查新 main 不代表已完整同步。v1.4.2 候选按维护者全部 45 项处理授权，选择性导入 a10df351 的 IPC/映射设置与语言菜单及其测试，并独立移植新 main 的键盘状态空指针保护；没有导入其他发布流程。当前改动和关闭项见 [45 项台账](OPTIMIZATION-45.md)。Git 合并保留历史；普通后续更新仍按既定性能、稳定性及兼容性要求筛选。
+
+## 2026-10-12：上游正式 v1.3.0 增量筛选
+
+已检查上游发布说明、PR #7/#8/#9/#10 状态、原生 CI 和实机验收边界。上游 [38223017006](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38223017006) 完成编译和回归。还原累计补丁后，相对 d063395 的实际 Bridge 源码变化共 17 个文件；完整 IPC v2、上传 lease、VA 分配及按需映射核心没有新增变化，不能因正式版重新整合而重复移植。
+
+- **实际选择**：L4N IPC/Shadow/语言菜单已由 D6 实现，不重复导入。新增独立键盘保护：UI 捕获期间 `GetKeyboardState(nullptr)` 返回失败及 `ERROR_INVALID_PARAMETER`，不再写入空指针；普通状态继续委托原函数。x86/x64 MSVC Release `/O2 /DNDEBUG /W4 /WX` 通过有效输出 256 字节、边界、错误码和空指针检查；移除保护的负对照在两种架构均检出原错误。原始提交为 [`4494cdd`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/4494cdd47dc88240daf634ecd147f92e1a0654ea)，现已进入 f6a059b 的累计生产补丁；本轮测试和审查证据保存在 `results/optimization45/upstream-monitor-now/`。
+- **本次不导入 Steam 整组行为**：上游用户已报告 Shift+Tab、鼠标、Join Server 和工坊入口通过，限定 GameUI/Renderer 指纹、调用位置、Host 存活及 3 秒新鲜度检查有原生覆盖。但最终组合没有新的平均 FPS / 1% low / 完整地图与 Reset 对照，ReShade 新组合和其他 Steam 版本也不在本次实机验收范围。不能将“尚未验证”写成“已证明性能回退”，也不能据此宣称本分支已支持这些场景。
+- **需解决的整合边界**：上游默认 conf 开启窗口适配却保持 `server.presenterWindow=False`，而实际窗口替换需要它创建的 Host 子窗口；完整修复片段另设为 True。工坊代理开启时调用观察器的 `poll(true)`，即使 `steamWebDiagnostics=False` 仍执行观察包装和有上限的日志/计数。保留本分支已验证默认配置，不把这组行为改成随包可选/测试版本绕过验收。
+
+本节只推进已检查基准，记录候选中的实际选择和未采用原因；完整合入基准及正式发布状态不因本次审查而推进。
 
 ## 历史：上游 1.2.2 集成
 

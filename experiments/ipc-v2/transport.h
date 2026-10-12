@@ -392,6 +392,11 @@ class Reader {
   uint32_t m_timeout, m_spins;
 public:
   Metrics metrics;
+  // Test-only scheduling point: publish and close after the wait predicate has
+  // sampled the frontier, before it observes the close flag.
+#ifdef LDB_IPC_V2_TEST
+  inline static void (*afterWaitPublishedRead)() = nullptr;
+#endif
   Reader(Channel& channel, uint32_t timeoutMs = 1000, uint32_t spins = 0)
     : m_channel(channel), m_timeout(timeoutMs), m_spins(spins) {
     uint32_t empty = 0;
@@ -410,12 +415,21 @@ public:
     if (published == m_sequence) {
       const auto result = m_channel.wait(false, [&]() {
         published = shared.producer.published.load(std::memory_order_seq_cst);
+#ifdef LDB_IPC_V2_TEST
+        if (afterWaitPublishedRead) { afterWaitPublishedRead(); }
+#endif
         return published != m_sequence || !m_channel.healthy(std::memory_order_seq_cst) || shared.cold.producerClosed.load(std::memory_order_seq_cst);
       }, m_timeout, m_spins, shared.cold.producerPid.load(std::memory_order_acquire), metrics);
       if (result != Result::Success) { return result; }
     }
     if (!m_channel.healthy()) { return Result::Fault; }
-    if (published == m_sequence && shared.cold.producerClosed.load(std::memory_order_acquire)) { return Result::Closed; }
+    if (published == m_sequence && shared.cold.producerClosed.load(std::memory_order_acquire)) {
+      // close() publishes the last block before setting producerClosed. The
+      // earlier frontier may predate that publication; reload after acquiring
+      // close so the final block is consumed before reporting end of stream.
+      published = shared.producer.published.load(std::memory_order_acquire);
+      if (published == m_sequence) { return Result::Closed; }
+    }
     auto& block = m_channel.block(m_sequence);
     if (static_cast<uint32_t>(published - m_sequence) > shared.config.blockCount
         || block.sequence != m_sequence || block.bytes > shared.config.blockBytes || !block.records

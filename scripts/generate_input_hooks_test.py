@@ -45,6 +45,8 @@ def generate(source, output, negative_control=None):
         start, end = method(di, marker)
         pieces.append(di[start:end])
     pieces.append('};')
+    start, end = method(di, 'static SHORT WINAPI HookedGetKeyboardState(')
+    pieces.append(di[start:end])
     for marker in ['ULONG Direct3DQuery9_LSS::AddRef()', 'ULONG Direct3DQuery9_LSS::Release()']:
         start, end = method(query, marker)
         pieces.append(query[start:end])
@@ -77,6 +79,9 @@ def generate(source, output, negative_control=None):
             production = replace_once(production,
                 f'ULONG Direct3DQuery9_LSS::{name}() {{\n  LogFunctionCall();',
                 f'ULONG Direct3DQuery9_LSS::{name}() {{\n  LogMissingFunctionCall();')
+    elif negative_control == 'keyboard-null':
+        production = replace_once(production,
+            'if (!lpKeyState) { SetLastError(ERROR_INVALID_PARAMETER); return FALSE; }', '')
     fixture = (ROOT / 'tests/input_hooks_test.cpp').read_text(encoding='utf-8')
     marker = '// PRODUCTION_METHODS'
     if fixture.count(marker) != 1:
@@ -93,6 +98,6 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=Path, default=ROOT / '.deps/dxvk-remix')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--negative-control', choices=(
-        'thread-hook', 'hook-error', 'null-unhook', 'directinput', 'query'))
+        'thread-hook', 'hook-error', 'null-unhook', 'directinput', 'query', 'keyboard-null'))
     args = parser.parse_args()
     generate(args.source, args.output, args.negative_control)

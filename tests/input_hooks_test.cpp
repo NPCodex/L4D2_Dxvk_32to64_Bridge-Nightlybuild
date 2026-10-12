@@ -4,6 +4,8 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdint>
+#include <array>
+#include <cstring>
 #include <cassert>
 #include <stdexcept>
 #include <string>
@@ -102,6 +104,27 @@ static HRESULT createW(HINSTANCE instance, DWORD version, void** output, LPUNKNO
 #define LogStaticFunctionCall() (++functionCalls)
 #define LogFunctionCall() (++functionCalls)
 #define LogMissingFunctionCall() (++missingCalls)
+using SHORT = int16_t;
+using PBYTE = unsigned char*;
+constexpr SHORT FALSE = 0, TRUE = 1;
+constexpr DWORD ERROR_INVALID_PARAMETER = 87;
+[[maybe_unused]] static void SetLastError(DWORD value) { lastError = value; }
+struct RemixState {
+  inline static bool uiActive = false;
+  static bool isUIActive() { return uiActive; }
+};
+static unsigned keyboardCalls = 0, suppressions = 0;
+static PBYTE keyboardArgument = nullptr;
+static SHORT OrigGetKeyboardState(PBYTE keys) {
+  ++keyboardCalls; keyboardArgument = keys;
+  if (!keys) { lastError = 998; return FALSE; }
+  std::memset(keys, 0x80, 256); lastError = 555; return 7;
+}
+static void observeInputSuppression(const char*, const void*) { ++suppressions; }
+static void* checkedMemset(void* output, int byte, size_t length) {
+  if (!output) { throw std::runtime_error("Keyboard null output written"); }
+  return std::memset(output, byte, length);
+}
 struct D3DBase {
   ULONG refs = 1;
   unsigned releases = 0, additions = 0, destructions = 0;
@@ -113,7 +136,10 @@ struct Direct3DQuery9_LSS : D3DBase {
   ULONG Release();
 };
 
+#define _ReturnAddress() nullptr
+#define memset checkedMemset
 // PRODUCTION_METHODS
+#undef memset
 
 static void check(bool success, const char* message) {
   if (!success) { throw std::runtime_error(message); }
@@ -183,7 +209,26 @@ int main() {
       "Query failed to delegate reference operations/results");
     check(query.additions == 1 && query.releases == 2 && query.destructions == 1
       && missingCalls == 0 && functionCalls == before + 3, "Query lifecycle delegation or log classification changed");
-    std::puts("PASS: hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation");
+    for (bool active : {false, true}) {
+      RemixState::uiActive = active;
+      keyboardCalls = 0; suppressions = 0; keyboardArgument = nullptr; lastError = 88;
+      check(HookedGetKeyboardState(nullptr) == FALSE, "Null keyboard output result changed");
+      check(keyboardCalls == (active ? 0u : 1u) && keyboardArgument == nullptr
+        && suppressions == 0 && lastError == (active ? ERROR_INVALID_PARAMETER : 998),
+        "Null keyboard output suppression/pass-through contract changed");
+      std::array<unsigned char, 258> keys; keys.fill(0x99);
+      keyboardCalls = 0; suppressions = 0; lastError = 88;
+      check(HookedGetKeyboardState(keys.data() + 1) == (active ? TRUE : 7),
+        "Valid keyboard result changed");
+      check(keyboardCalls == (active ? 0u : 1u) && suppressions == (active ? 1u : 0u)
+        && (active || keyboardArgument == keys.data() + 1) && lastError == (active ? 88u : 555u),
+        "Valid keyboard arguments, delegation or error changed");
+      check(keys.front() == 0x99 && keys.back() == 0x99, "Keyboard output bounds changed");
+      for (size_t i = 1; i <= 256; ++i) {
+        check(keys[i] == (active ? 0 : 0x80), "Keyboard suppression/pass-through contents changed");
+      }
+    }
+    std::puts("PASS: hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation; keyboard null/256-byte output");
     return 0;
   } catch (const std::exception& error) {
     std::fprintf(stderr, "FAIL: %s\n", error.what());
