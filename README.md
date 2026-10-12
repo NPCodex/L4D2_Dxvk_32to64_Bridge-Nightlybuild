@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.4.4 加固上传、参数与并发回复，减少上传池扫描和学习数据库解析开销，并加入 IPC/静态映射设置与中英文菜单。** 默认 C8，静态映射默认关闭；这两项设置保存后重启生效。45 项的采用、等价替代与关闭依据见[完整台账](docs/OPTIMIZATION-45.md)，实机数据和适用范围以对应 Release 为准。**如出现 1% low 下降或帧数不稳定，请回退 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+**v1.5.0 合并上游 v1.3.0 与 45 项台账中的已实现改进，加入 Steam 窗口/输入/工坊适配、上传与 IPC 修复及新版设置菜单。** 默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。已知候选存在平均帧率下降，维护者明确采用；验证范围与取舍见本次 Release 和[45 项台账](docs/OPTIMIZATION-45.md)。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -34,7 +34,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-[本次优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次范围见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
@@ -45,7 +45,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 - 默认使用 **DXVK-GPLALL 2.6.8-2 x64** 后端，版本和下载校验值独立固定在 [config/backend.json](config/backend.json)，不随 Bridge 自动升级。
 - 本仓库增加上游检查、自动编译、测试、Nightly 发布和精简安装包规则。
 - 修复三维纹理字节步长及上传偏移，避免颜色校正查色表损坏造成的偏色。来源与复测步骤见 [偏色修复说明](docs/VOLUME-TEXTURE-COLOR-FIX.md)。
-- 完整同步原项目 **1.2.2 / `de74cd7`**，包括最新双向 IPC 预留/消费、回绕与错误传播修复，以及此前 PageBlock 保留/回收/恢复、手动 GC、Reset 状态机、Presenter/输入路径、诊断分离、x86 Host 与 L4N 常用设置。源码、配置片段、测试和可选 DXVK 内存实验均保留，实验后端不替换默认 GPLALL。同步基准与本地兼容差异见 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。
+- 完整同步原项目 **1.3.0 / `f6a059b`**，包括最新双向 IPC 预留/消费、回绕与错误传播修复，以及此前 PageBlock 保留/回收/恢复、手动 GC、Reset 状态机、Presenter/输入路径、诊断分离、x86 Host 与 L4N 常用设置。源码、配置片段、测试和可选 DXVK 内存实验均保留，实验后端不替换默认 GPLALL。同步基准与本地兼容差异见 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。
 - 将创建失败清理扩展到三维/立方体纹理、顶点/索引缓冲区及独立表面，释放客户端对象并清空输出；响应超时仍保留有序的服务器清理。
 - 加固缓冲区锁边界和三维纹理临时内存管理，优化连续纹理复制与队列读取；验证方法见 [资源清理与传输优化](docs/RUNTIME-RELIABILITY.md)。
 

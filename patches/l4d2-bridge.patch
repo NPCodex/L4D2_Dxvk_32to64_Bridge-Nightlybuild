@@ -3787,7 +3787,7 @@ index 20a5e2b6b6f6b19da9ceb60e0213039dd6cc2c27..ae74cf278bc3c362dc33f9d60aac5b52
      : LockableBuffer((IDirect3DIndexBuffer9*)nullptr, pDevice, desc) {
    }
 diff --git a/bridge/src/client/d3d9_lss.cpp b/bridge/src/client/d3d9_lss.cpp
-index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7cd086e9d 100644
+index 300aaf52349174026c589c75ab88d7b0192369a6..d02b047373aae977766b8c043d2afec27f053ef1 100644
 --- a/bridge/src/client/d3d9_lss.cpp
 +++ b/bridge/src/client/d3d9_lss.cpp
 @@ -1,3 +1,7 @@
@@ -3810,16 +3810,17 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
  
  #include "version.h"
  
-@@ -37,6 +45,8 @@
+@@ -37,6 +45,9 @@
  #include "remix_state.h"
  #include "window.h"
  #include "message_channels.h"
 +#include "readback_recovery.h"
++#include "steam_workshop_status.h"
 +#include "retention_runtime.h"
  
  #include "util_bridge_assert.h"
  #include "util_bridge_state.h"
-@@ -70,16 +80,20 @@ uintptr_t D3dBaseIdFactory::getNextId() {
+@@ -70,16 +81,20 @@ uintptr_t D3dBaseIdFactory::getNextId() {
  
  #if defined(_DEBUG) || defined(DEBUGOPT)
  
@@ -3845,7 +3846,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
      for (int i = 0; i < counter; i++) {
        tabs.append("\t");
      }
-@@ -91,16 +105,18 @@ FunctionEntryExitLogger::FunctionEntryExitLogger(const std::string functionName,
+@@ -91,16 +106,18 @@ FunctionEntryExitLogger::FunctionEntryExitLogger(const std::string functionName,
      else {
        _LogFunctionCall(tabs + functionName + " ENTRY", thiz);
      }
@@ -3867,7 +3868,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
      counter--;
      if (!GlobalOptions::getLogAllCalls()) {
        return;
-@@ -111,6 +127,7 @@ FunctionEntryExitLogger::~FunctionEntryExitLogger() {
+@@ -111,6 +128,7 @@ FunctionEntryExitLogger::~FunctionEntryExitLogger() {
      }
      _LogFunctionCall(tabs + m_functionName + " EXIT", m_thiz);
    }
@@ -3875,7 +3876,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
  }
  
  #endif
-@@ -124,20 +141,25 @@ std::mutex gShadowMapMutex;
+@@ -124,20 +142,25 @@ std::mutex gShadowMapMutex;
  std::mutex serverStartMutex;
  SceneState gSceneState = WaitBeginScene;
  std::chrono::steady_clock::time_point gTimeStart;
@@ -3904,7 +3905,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
    // Log history of recent client side commands sent and received by the server
    Logger::info("Most recent Device Queue commands sent from Client");
    DeviceBridge::Command::print_writer_data_sent();
-@@ -152,6 +174,7 @@ void PrintRecentCommandHistory() {
+@@ -152,6 +175,7 @@ void PrintRecentCommandHistory() {
  // Setup bridge exception handler if requested
  void SetupExceptionHandler() {
    if (ClientOptions::getSetExceptionHandler()) {
@@ -3912,7 +3913,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
      ExceptionHandler::get().init();
    }
  }
-@@ -271,7 +294,14 @@ namespace {
+@@ -271,7 +295,14 @@ namespace {
    }
  }
  
@@ -3928,7 +3929,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
    BridgeState::setServerState(BridgeState::ProcessState::Exited);
  
    // Stop the WndProc from restoring the fullscreen window during crash handling.
-@@ -315,8 +345,9 @@ void InitServer() {
+@@ -315,8 +346,9 @@ void InitServer() {
      return;
    }
    Logger::info("Launching server with GUID " + gUniqueIdentifier.toString());
@@ -3939,8 +3940,15 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
    cmdSS << " " << gUniqueIdentifier.toString();
    cmdSS << " " << BRIDGE_VERSION;
    cmdSS << " " << std::string(GetCommandLineA());
-@@ -370,6 +401,12 @@ void InitServer() {
+@@ -368,8 +400,19 @@ void InitServer() {
+   // Remove Ack from queue and get thread id for thread proc message handler from server
+   const auto ackResponse = DeviceBridge::pop_front();
    initServerMessageChannel(ackResponse.pHandle);
++  if(Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false)) {
++    const auto name=gUniqueIdentifier.toString("L4D2BridgeWorkshopV1");
++    Logger::info(l4d2_workshop::reader.reader(name.c_str(),gpServer->GetChildProcessHandle())
++      ? "L4D2_STEAM_WORKSHOP event=client-channel ready=1" : "L4D2_STEAM_WORKSHOP event=client-channel ready=0");
++  }
  
    BridgeState::setServerState(BridgeState::ProcessState::Handshaking);
 +  USHORT processMachine = IMAGE_FILE_MACHINE_UNKNOWN, nativeMachine = IMAGE_FILE_MACHINE_UNKNOWN;
@@ -3952,7 +3960,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
    Logger::info("Ack received! Handshake completed! Telling server to continue waiting for commands...");
    ClientMessage { Commands::Bridge_Continue };
  
-@@ -427,7 +464,7 @@ bool InitRemixFolder(HMODULE hinst) {
+@@ -427,7 +470,7 @@ bool InitRemixFolder(HMODULE hinst) {
      --len;
    }
  
@@ -3961,7 +3969,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
  
    return true;
  }
-@@ -513,6 +550,10 @@ bool RemixAttach(HMODULE hModule) {
+@@ -513,6 +556,10 @@ bool RemixAttach(HMODULE hModule) {
      // Initialize options
      Config::init(Config::App::Client, hModule);
      GlobalOptions::init();
@@ -3972,7 +3980,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
  
      // Find path of original executable to properly set up paths
      if (!initFileSys(hModule)) {
-@@ -521,25 +562,50 @@ bool RemixAttach(HMODULE hModule) {
+@@ -521,25 +568,50 @@ bool RemixAttach(HMODULE hModule) {
  
      // Initialize logger
      Logger::init();
@@ -4028,7 +4036,7 @@ index 300aaf52349174026c589c75ab88d7b0192369a6..32b1083e74e03da76f739599ff34ead7
  
      DInputHookAttach();
  
-@@ -606,6 +672,13 @@ void RemixDetach() {
+@@ -606,6 +678,13 @@ void RemixDetach() {
      // Clean up resources
      delete gpPresent;
  
@@ -5952,7 +5960,7 @@ index 5d8299940f4d64315b7d6a55d761e725932db6c0..f3dc9738f1707b7b714dccda37716931
 \ No newline at end of file
 +};
 diff --git a/bridge/src/client/di_hook.cpp b/bridge/src/client/di_hook.cpp
-index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0e32ee26a 100644
+index bbbd47007c8fe639e39e5202b494d92a2a8f198c..f4ef17d3b26a86502f6f34bcc7bf8ba6852b47ce 100644
 --- a/bridge/src/client/di_hook.cpp
 +++ b/bridge/src/client/di_hook.cpp
 @@ -1,3 +1,7 @@
@@ -6113,31 +6121,56 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    }
  
    API_HOOK_DECL(DirectInputCreateA);
-@@ -952,6 +995,7 @@ static LRESULT CALLBACK HookedCallWndProc(int nCode, WPARAM wParam, LPARAM lPara
+@@ -837,6 +880,7 @@ public:
+ 
+ API_HOOK_DECL(GetCursorPos);
+ API_HOOK_DECL(SetCursorPos);
++API_HOOK_DECL(SetCapture);
+ API_HOOK_DECL(GetAsyncKeyState);
+ API_HOOK_DECL(GetKeyState);
+ API_HOOK_DECL(GetKeyboardState);
+@@ -952,7 +996,12 @@ static LRESULT CALLBACK HookedCallWndProc(int nCode, WPARAM wParam, LPARAM lPara
    
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
-+      observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "stop-hook-chain");
-       return 0;
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_CALLWNDPROC", _ReturnAddress(), "pass-hook-chain");
      }
    }
-@@ -964,6 +1008,7 @@ static LRESULT CALLBACK HookedGetMsgProc(int nCode, WPARAM wParam, LPARAM lParam
+ 
+@@ -964,7 +1013,12 @@ static LRESULT CALLBACK HookedGetMsgProc(int nCode, WPARAM wParam, LPARAM lParam
    
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
-+      observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "stop-hook-chain");
-       return 0;
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_GETMESSAGE", _ReturnAddress(), "pass-hook-chain");
      }
    }
-@@ -976,6 +1021,7 @@ static LRESULT CALLBACK HookedKeyboardProc(int nCode, WPARAM wParam, LPARAM lPar
+ 
+@@ -976,24 +1030,18 @@ static LRESULT CALLBACK HookedKeyboardProc(int nCode, WPARAM wParam, LPARAM lPar
  
    if (nCode >= 0) {
      if (RemixState::isUIActive()) {
-+      observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "stop-hook-chain");
-       return 0;
+-      return 0;
++      if (!WndProc::allowSteamInputHookChain()) {
++        observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "stop-hook-chain");
++        return 0;
++      }
++      // Preserve lower hooks; WndProc, polling and DirectInput still suppress gameplay.
++      observeInputSuppression("WH_KEYBOARD", _ReturnAddress(), "pass-hook-chain");
      }
    }
-@@ -983,17 +1029,6 @@ static LRESULT CALLBACK HookedKeyboardProc(int nCode, WPARAM wParam, LPARAM lPar
+ 
    return CallNextHookEx(accessWinHook(WH_KEYBOARD), nCode, wParam, lParam);
  }
  
@@ -6155,15 +6188,73 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
  
  namespace {
    // Last cursor position observed while Remix UI is inactive, and whether one has been observed.
-@@ -1042,6 +1077,7 @@ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
+@@ -1033,6 +1081,50 @@ void DI::onRemixUIDeactivated() {
+   DirectInput7Hook::flushPendingMouseInput();
+ }
+ 
++static bool steamMouseHandoffActive() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamMouseCaptureHandoff", false);
++  if (!enabled || !RemixState::isUIActive() || !WndProc::isSteamOverlayActive()) { return false; }
++  const HWND game = WndProc::getHwnd();
++  const HWND foreground = GetForegroundWindow();
++  if (!game || !foreground) { return false; }
++  const HWND root = GetAncestor(game, GA_ROOT);
++  return root && GetAncestor(foreground, GA_ROOT) == root;
++}
++
++static bool steamGameCaptureWindow(HWND target) {
++  const HWND game = WndProc::getHwnd();
++  if (!game || !target || !IsWindow(target)) { return false; }
++  DWORD pid = 0;
++  GetWindowThreadProcessId(target, &pid);
++  const HWND root = GetAncestor(game, GA_ROOT);
++  return root && pid == GetCurrentProcessId() && GetAncestor(target, GA_ROOT) == root;
++}
++
++void DI::releaseSteamMouseCapture() {
++  const DWORD error = GetLastError();
++  if (!steamMouseHandoffActive()) { SetLastError(error); return; }
++  const HWND captured = GetCapture();
++  // ReleaseCapture is a thread operation: never release a Host or another thread's capture.
++  if (steamGameCaptureWindow(captured) && GetWindowThreadProcessId(captured, nullptr) == GetCurrentThreadId()) {
++    const BOOL released = ReleaseCapture();
++    observeInputSuppression("ReleaseCapture", _ReturnAddress(), released ? "release-game-capture" : "release-game-capture-failed");
++  }
++  SetLastError(error);
++}
++
++static HWND WINAPI HookedSetCapture(HWND window) {
++  const DWORD error = GetLastError();
++  if (steamMouseHandoffActive() && steamGameCaptureWindow(window)) {
++    const HWND previous = GetCapture();
++    observeInputSuppression("SetCapture", _ReturnAddress(), "deny-game-capture");
++    SetLastError(error);
++    return previous;
++  }
++  SetLastError(error);
++  return OrigSetCapture(window);
++}
++
+ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
+   LogStaticFunctionCall();
+ 
+@@ -1042,6 +1134,14 @@ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
    }
  
    if (RemixState::isUIActive()) {
-+    observeInputSuppression("GetCursorPos", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      POINT observed {};
++      OrigGetCursorPos(&observed);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetCursorPos", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
      *lp = g_uiActiveCursorPos;
      return TRUE;
    }
-@@ -1059,6 +1095,7 @@ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
+@@ -1059,6 +1159,7 @@ static BOOL WINAPI HookedGetCursorPos(LPPOINT lp) {
  static BOOL WINAPI HookedSetCursorPos(int X, int Y) {
    LogStaticFunctionCall();
    if (RemixState::isUIActive()) {
@@ -6171,32 +6262,52 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
      // Track the target without moving the real OS cursor, so GetCursorPos can echo it back.
      g_uiActiveCursorPos.x = X;
      g_uiActiveCursorPos.y = Y;
-@@ -1080,6 +1117,7 @@ static SHORT WINAPI HookedGetAsyncKeyState(int vk) {
+@@ -1080,6 +1181,13 @@ static SHORT WINAPI HookedGetAsyncKeyState(int vk) {
    LogStaticFunctionCall();
    // Block if Remix UI is active
    if (RemixState::isUIActive()) {
-+    observeInputSuppression("GetAsyncKeyState", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      OrigGetAsyncKeyState(vk);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetAsyncKeyState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
      return 0;
    }
    return OrigGetAsyncKeyState(vk);
-@@ -1089,6 +1127,7 @@ static SHORT WINAPI HookedGetKeyState(int vk) {
+@@ -1089,6 +1197,13 @@ static SHORT WINAPI HookedGetKeyState(int vk) {
    LogStaticFunctionCall();
    // Block if Remix UI is active
    if (RemixState::isUIActive()) {
-+    observeInputSuppression("GetKeyState", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      OrigGetKeyState(vk);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetKeyState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
      return 0;
    }
    return OrigGetKeyState(vk);
-@@ -1098,6 +1137,8 @@ static SHORT WINAPI HookedGetKeyboardState(PBYTE lpKeyState) {
+@@ -1098,6 +1213,16 @@ static SHORT WINAPI HookedGetKeyboardState(PBYTE lpKeyState) {
    LogStaticFunctionCall();
    // Block if Remix UI is active
    if (RemixState::isUIActive()) {
 +    if (!lpKeyState) { SetLastError(ERROR_INVALID_PARAMETER); return FALSE; }
-+    observeInputSuppression("GetKeyboardState", _ReturnAddress());
++    const bool pass = WndProc::allowSteamInputPollingChain();
++    if (pass) {
++      const DWORD error = GetLastError();
++      BYTE observed[256] {};
++      OrigGetKeyboardState(observed);
++      SetLastError(error);
++    }
++    observeInputSuppression("GetKeyboardState", _ReturnAddress(), pass ? "poll-chain-neutralize" : "neutralize");
++
      memset(lpKeyState, 0, 256);
      return TRUE;
    }
-@@ -1130,6 +1171,7 @@ static UINT WINAPI HookedGetRawInputData(HRAWINPUT hRawInput,
+@@ -1130,6 +1255,7 @@ static UINT WINAPI HookedGetRawInputData(HRAWINPUT hRawInput,
    }
  
    if (RemixState::isUIActive()) {
@@ -6204,7 +6315,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
      if (raw->header.dwType == RIM_TYPEMOUSE) {
        // Relative deltas (lLastX/lLastY) are incremental, so zero them rather than replay a stale
        // sample; absolute-mode position is left as-is.
-@@ -1164,6 +1206,7 @@ static UINT WINAPI HookedGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT
+@@ -1164,6 +1290,7 @@ static UINT WINAPI HookedGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT
    }
  
    // Drops whole batched reports rather than sanitizing them; see documentation/BridgeInputNeutralization.md.
@@ -6212,7 +6323,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    UINT res = OrigGetRawInputBuffer(pData, pcbSize, cbSizeHeader);
    // Keep draining past the caller's buffer capacity so nothing is left queued to replay later.
    while (res != 0 && res != (UINT) -1) {
-@@ -1184,7 +1227,14 @@ static void InputWinHooksAttach() {
+@@ -1184,7 +1311,14 @@ static void InputWinHooksAttach() {
      if (HHOOK h = SetWindowsHookEx(idHook, lpfn, nullptr, GetCurrentThreadId())) {
        return std::pair { idHook, h };
      }
@@ -6228,7 +6339,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
      return std::pair { idHook , static_cast<HHOOK>(nullptr) };
    };
  
-@@ -1192,13 +1242,13 @@ static void InputWinHooksAttach() {
+@@ -1192,13 +1326,13 @@ static void InputWinHooksAttach() {
      attachWinHook(WH_CALLWNDPROC, HookedCallWndProc),
      attachWinHook(WH_GETMESSAGE,  HookedGetMsgProc),
      attachWinHook(WH_KEYBOARD,    HookedKeyboardProc),
@@ -6244,7 +6355,27 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    }
    gWinHooks.clear();
  }
-@@ -1257,12 +1307,31 @@ static void DetachConventionalInput() {
+@@ -1216,6 +1350,11 @@ static void AttachConventionalInput() {
+ 
+   API_ATTACH(GetCursorPos);
+   API_ATTACH(SetCursorPos);
++  if (Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamMouseCaptureHandoff", false)) {
++    OrigSetCapture = SetCapture;
++    API_ATTACH(SetCapture);
++  }
+   API_ATTACH(GetKeyState);
+   API_ATTACH(GetAsyncKeyState);
+   API_ATTACH(GetKeyboardState);
+@@ -1241,6 +1380,7 @@ static void AttachConventionalInput() {
+ static void DetachConventionalInput() {
+   API_DETACH(GetCursorPos);
+   API_DETACH(SetCursorPos);
++  if (OrigSetCapture) { API_DETACH(SetCapture); }
+   API_DETACH(GetKeyState);
+   API_DETACH(GetAsyncKeyState);
+   API_DETACH(GetKeyboardState);
+@@ -1257,12 +1397,31 @@ static void DetachConventionalInput() {
    InputWinHooksDetach();
  }
  
@@ -6276,7 +6407,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    DetourTransactionBegin();
    DetourUpdateThread(GetCurrentThread());
  
-@@ -1281,6 +1350,7 @@ void DInputHookAttach() {
+@@ -1281,6 +1440,7 @@ void DInputHookAttach() {
  }
  
  void DInputHookDetach() {
@@ -6284,7 +6415,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    DetourTransactionBegin();
    DetourUpdateThread(GetCurrentThread());
  
-@@ -1292,6 +1362,7 @@ void DInputHookDetach() {
+@@ -1292,6 +1452,7 @@ void DInputHookDetach() {
  }
  
  void DInputSetDefaultWindow(HWND hwnd) {
@@ -6293,7 +6424,7 @@ index bbbd47007c8fe639e39e5202b494d92a2a8f198c..520a1e337ffaa366ed2f0505140dcfe0
    // options to know about the window and actual cooperative level.
    // Assume exclusive input by default to force di messages forwarding.
 diff --git a/bridge/src/client/di_hook.h b/bridge/src/client/di_hook.h
-index 5897be91fecdcf99e2f73d112d3571cade7daa6c..d23817b14608613a882b5aab4f7575491c290204 100644
+index 5897be91fecdcf99e2f73d112d3571cade7daa6c..01a8bd93685f75ce5022f973fd8ab8133edc2676 100644
 --- a/bridge/src/client/di_hook.h
 +++ b/bridge/src/client/di_hook.h
 @@ -1,3 +1,7 @@
@@ -6312,6 +6443,14 @@ index 5897be91fecdcf99e2f73d112d3571cade7daa6c..d23817b14608613a882b5aab4f757549
  extern void DInputHookDetach();
  extern void DInputSetDefaultWindow(HWND hwnd);
  
+@@ -51,5 +56,7 @@ extern void resetCooperativeLevel();
+ // Seed the cursor echoed to the game while Remix UI is open, and hand the OS cursor back on close.
+ extern void onRemixUIActivated();
+ extern void onRemixUIDeactivated();
++// Called on the game window thread after UI activation, only for the opt-in Steam handoff.
++extern void releaseSteamMouseCapture();
+ 
+ }
 diff --git a/bridge/src/client/lockable_buffer.h b/bridge/src/client/lockable_buffer.h
 index fbfc565185489c07cc26a60c37df15d451b81b97..2c81acb7cc353b89671bd8678140403bbfc99125 100644
 --- a/bridge/src/client/lockable_buffer.h
@@ -9253,20 +9392,21 @@ index 185005e0e37354fb798402fcbf0491c26c7124c6..aa09a478918a4a99bb4afaaeb51ce2c7
      END
      BLOCK "VarFileInfo"
 diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
-index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd80094f0965c 100644
+index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281e34541f6 100644
 --- a/bridge/src/client/window.cpp
 +++ b/bridge/src/client/window.cpp
-@@ -31,6 +31,9 @@
+@@ -31,6 +31,10 @@
  #include "log/log.h"
  
  #include "util_monitor.h"
 +#include "overlay_input_diagnostics.h"
 +#include "steam_activity_diagnostics.h"
++#include "steam_web_diagnostics.h"
 +#include "config/config.h"
  
  #include <unordered_map>
  #include <mutex>
-@@ -49,6 +52,15 @@ namespace {
+@@ -49,6 +53,15 @@ namespace {
  HWND g_hwnd = nullptr;
  WNDPROC g_gameWndProc = nullptr;
  bool g_bActivateProcessed = false;
@@ -9282,7 +9422,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
  std::atomic<bool> g_suppressWindowManagement { false };
  
  // reinterpret_cast wrappers
-@@ -78,12 +90,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
+@@ -78,12 +91,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
        // We only handle cases wherein the window's handle matches the window's handle 
        // used in D3DDEVICE_CREATION_PARAMETERS or D3DPRESENT_PARAMETERS
        if(hWnd != g_hwnd) {
@@ -9297,7 +9437,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
          return oldGameWndProc;
        }
      }
-@@ -195,10 +207,16 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -195,14 +208,21 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  // and so removed from the client application message pump (e.g. you don't want
  // Remix UI clicks to accidentally click "Exit" in game menu)
  bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -9314,7 +9454,12 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
    const bool uiWasActive = RemixState::isUIActive();
  
    // Process remix renderer-related messages
-@@ -271,6 +289,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+   if (gpRemixMessageChannel->onMessage(msg, wParam, lParam)) {
++    DI::releaseSteamMouseCapture();
+     if (!uiWasActive && RemixState::isUIActive()) {
+       // Remix UI has been activated - unstick modifier keys at application side
+       auto unstick = [hWnd](uint32_t vk) {
+@@ -271,6 +291,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  
    // Forward to remix renderer
    if (doForward) {
@@ -9322,7 +9467,39 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
      gpRemixMessageChannel->send(msg, wParam, lParam);
    }
  
-@@ -364,7 +383,7 @@ bool set(HWND hwnd) {
+@@ -310,6 +331,23 @@ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+ // External funcs //
+ ////////////////////
+ 
++bool isSteamOverlayActive() {
++  return g_steamKnown.load(std::memory_order_acquire)
++    && g_steamActive.load(std::memory_order_acquire);
++}
++
++bool allowSteamInputHookChain() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamHookChainPassThrough", false);
++  return enabled && isSteamOverlayActive();
++}
++
++bool allowSteamInputPollingChain() {
++  static const bool enabled = Config::getOption<bool>("client.steamOverlayInput", false)
++    && Config::getOption<bool>("client.steamPollChainPassThrough", false);
++  return enabled && isSteamOverlayActive();
++}
++
+ bool init() {
+   if(!attach()) {
+     Logger::err(kStr_init_attachErr);
+@@ -320,6 +358,7 @@ bool init() {
+ }
+ 
+ bool terminate() {
++  l4d2_web::Diagnostics::stop();
+   if(!detach()) {
+     Logger::err(kStr_terminate_detachErr);
+     return false;
+@@ -364,7 +403,7 @@ bool set(HWND hwnd) {
    // Fix up DirectInput forwarding if setting has succeeded
    DInputSetDefaultWindow(hwnd);
  
@@ -9331,7 +9508,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
  
    return true;
  }
-@@ -390,7 +409,7 @@ bool unset() {
+@@ -390,7 +429,7 @@ bool unset() {
    g_hwnd = nullptr;
    g_gameWndProc = nullptr;
  
@@ -9340,13 +9517,19 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
  
    return true;
  }
-@@ -439,3 +458,50 @@ void prepareForCrashDialog(bool async) {
+@@ -439,3 +478,56 @@ void prepareForCrashDialog(bool async) {
  }
  
  }
 +
 +// NV-DXVK start: poll from Present, including when game input messages stop.
 +void WndProc::sampleSteamInput() {
++  static const bool webDiagnostics = Config::getOption<bool>("client.steamWebDiagnostics", false);
++  static const bool workshopProxy = Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false);
++  if(webDiagnostics || workshopProxy) {
++    l4d2_web::Diagnostics::setProxy(workshopProxy);
++    l4d2_web::Diagnostics::poll(true, [](const char* line) { Logger::info(line); });
++  }
 +  static const bool steamInput = Config::getOption<bool>("client.steamOverlayInput", false);
 +  static const bool diagnosticsEnabled = Config::getOption<bool>("client.steamInputDiagnostics", false);
 +  static const bool requested = diagnosticsEnabled || steamInput;
@@ -9392,15 +9575,19 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..490ccf77453e57aa4985e26903acd800
 +}
 +// NV-DXVK end
 diff --git a/bridge/src/client/window.h b/bridge/src/client/window.h
-index 75a9ac4e74faca987a1df9457d133687819ead6a..98d131757dce58795d8629b12711daf8268134f8 100644
+index 75a9ac4e74faca987a1df9457d133687819ead6a..73b1546861286eececdac826e2cd299df9c9c0b9 100644
 --- a/bridge/src/client/window.h
 +++ b/bridge/src/client/window.h
-@@ -65,6 +65,8 @@ inline static bool isInputMessage(uint32_t msg) {
+@@ -65,6 +65,12 @@ inline static bool isInputMessage(uint32_t msg) {
  
  // Initialize the WndProc setting hooks. Should only be called once at beginning of time for the game
  extern bool init();
 +// Optional Steam input diagnostics, sampled by Present without injecting input.
 +extern void sampleSteamInput();
++// Opt-in: preserve downstream hooks only during a real Steam activation.
++extern bool allowSteamInputHookChain();
++extern bool allowSteamInputPollingChain();
++extern bool isSteamOverlayActive();
  // Undo the hooks established in init()
  extern bool terminate();
  // Set RemixWndProc for hwnd. Only one allowed at a time. Calling again implicitly undoes the previous
@@ -10091,7 +10278,7 @@ index 0000000000000000000000000000000000000000..1df8680845f999a61619de42d92fa3d5
 +}
 +}
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
-index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb892d215b0 100644
+index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb478e4a1b8 100644
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp
 @@ -1,3 +1,7 @@
@@ -10102,7 +10289,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  /*
   * Copyright (c) 2022-2024, NVIDIA CORPORATION. All rights reserved.
   *
-@@ -19,11 +23,20 @@
+@@ -19,11 +23,22 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   * DEALINGS IN THE SOFTWARE.
   */
@@ -10118,12 +10305,14 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
 +#include "readback_backend.h"
 +#include "ati_texture_layout.h"
 +#include "overlay_presenter.h"
++#include "steam_window_diagnostics.h"
++#include "steam_availability_diagnostics.h"
 +#include "swapchain_references.h"
 +#include "color_backend_diagnostics.h"
  
  #include "util_bridge_assert.h"
  #include "util_circularbuffer.h"
-@@ -58,6 +71,7 @@
+@@ -58,6 +73,7 @@
  #include <atomic>
  #include <array>
  #include <vector>
@@ -10131,7 +10320,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  
  using namespace Commands;
  using namespace bridge_util;
-@@ -102,13 +116,77 @@ using namespace remixapi::util;
+@@ -102,13 +118,98 @@ using namespace remixapi::util;
              const DWORD& name = rpcHeader.pHandle;
  #define GET_RES(name, map) \
              GET_HND(name##Handle); \
@@ -10149,8 +10338,14 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
 +static l4d2_reset::SwapchainReferences gSwapchainReferences;
 +static l4d2_reset::SurfaceQueries gSurfaceQueries;
 +static HWND gOverlayGameWindow = nullptr;
++static void updateSteamWindows(HWND child) {
++  l4d2_steam_window::Diagnostics::poll(Config::getOption<bool>("server.steamWindowDiagnostics", false),
++    gOverlayGameWindow, child, [](const char* line) { Logger::info(line); },
++    l4d2_steam_window::Diagnostics::rendererName(), Config::getOption<bool>("server.steamWindowAdapter", false));
++}
 +static HWND configureOverlayPresenter(D3DPRESENT_PARAMETERS& pp, HWND focus = nullptr) {
 +  gOverlayGameWindow = pp.hDeviceWindow ? pp.hDeviceWindow : focus;
++  updateSteamWindows(nullptr);
 +  if (!Config::getOption<bool>("server.presenterWindow", false)
 +    || !Config::getOption<bool>("server.useVanillaDxvk", false)
 +    || GlobalOptions::getExposeRemixApi() || !pp.Windowed) { return focus; }
@@ -10174,11 +10369,26 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
 +    DWORD pid = 0; GetWindowThreadProcessId(child, &pid);
 +    Logger::info(format_string("L4D2_OVERLAY event=presenter parent=%p child=%p owner_pid=%lu host_pid=%lu", parent, child, pid, GetCurrentProcessId()));
 +  }
++  updateSteamWindows(child);
 +  pp.hDeviceWindow = child;
 +  return focus ? child : focus;
 +}
 +static HWND overlayPresentWindow(HWND original) {
++  static const bool webDiagnostics = Config::getOption<bool>("client.steamWebDiagnostics", false);
++  static const bool workshopProxy = Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false);
++  if(webDiagnostics || workshopProxy) { l4d2_steam_availability::Diagnostics::poll(true, [](const char* line) { Logger::info(line); }); }
 +  static const bool diagnosticsEnabled = Config::getOption<bool>("server.steamInputDiagnostics", false);
++  static const bool windowDiagnostics = Config::getOption<bool>("server.steamWindowDiagnostics", false);
++  static const bool windowAdapter = Config::getOption<bool>("server.steamWindowAdapter", false);
++  if (windowDiagnostics || windowAdapter) {
++    static ULONGLONG nextWindowCheck = 0;
++    const ULONGLONG now = GetTickCount64();
++    if (now >= nextWindowCheck) {
++      nextWindowCheck = now + 1000;
++      const HWND routed = gOverlayPresenter ? gOverlayPresenter->route(gOverlayGameWindow) : nullptr;
++      updateSteamWindows(routed != gOverlayGameWindow ? routed : nullptr);
++    }
++  }
 +  if (!gOverlayPresenter) {
 +    if (!diagnosticsEnabled) { return original; }
 +    static l4d2_overlay::InputDiagnostics diagnostics(
@@ -10211,7 +10421,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  bool bDxvkModuleLoaded = false;
  std::chrono::steady_clock::time_point gTimeStart;
  
-@@ -152,9 +230,43 @@ std::unordered_map<uint32_t, IDirect3DPixelShader9*> gpD3DPixelShaders;
+@@ -152,9 +253,43 @@ std::unordered_map<uint32_t, IDirect3DPixelShader9*> gpD3DPixelShaders;
  std::unordered_map<uint32_t, IDirect3DSwapChain9*> gpD3DSwapChains;
  std::unordered_map<uint32_t, IDirect3DQuery9*> gpD3DQuery;
  std::unordered_map<uint32_t, void*> gMapRemixApi;
@@ -10256,7 +10466,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  HANDLE hWait;
  
  namespace {
-@@ -179,8 +291,8 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
+@@ -179,8 +314,8 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
    if (obj) {
      const LONG cnt = static_cast<LONG>(obj->Release());
      if (cnt > 0) {
@@ -10267,7 +10477,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
      }
    }
  #endif
-@@ -188,6 +300,19 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
+@@ -188,6 +323,19 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
    while (obj && static_cast<LONG>(obj->Release()) > 0);
  }
  
@@ -10287,7 +10497,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  D3DPRESENT_PARAMETERS getPresParamFromRaw(const uint32_t* rawPresentationParameters) {
    D3DPRESENT_PARAMETERS presParam;
    // Set up presentation parameters. We can't just directly cast the structure because the hDeviceWindow
-@@ -223,7 +348,7 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
+@@ -223,7 +371,7 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
    }
    // Using surface desc to get width, height of the surface
    D3DSURFACE_DESC pDesc;
@@ -10296,7 +10506,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    if (!SUCCEEDED(hresult)) {
      c.send_data(hresult);
      return hresult;
-@@ -235,28 +360,51 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
+@@ -235,28 +383,51 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
  
    // Obtaining raw buffer from the surface and we send this data to client
    D3DLOCKED_RECT lockedRect;
@@ -10355,7 +10565,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    return hresult;
  }
  
-@@ -289,6 +437,57 @@ static bool dumpLeakedObjects() {
+@@ -289,6 +460,57 @@ static bool dumpLeakedObjects() {
    return anyLeaked;
  }
  
@@ -10413,7 +10623,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  void ProcessDeviceCommandQueue() {
    // Loop until the client sends terminate instruction
    bool done = false;
-@@ -296,10 +495,17 @@ void ProcessDeviceCommandQueue() {
+@@ -296,10 +518,17 @@ void ProcessDeviceCommandQueue() {
      ZoneScopedN("Process Command");
  #ifdef LOG_SERVER_COMMAND_TIME
      // Take a snapshot of the current tick count for profiling purposes
@@ -10432,7 +10642,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  
  #ifdef _DEBUG
      // If data batching is enabled and the data offset on the comamnd is different from
-@@ -318,6 +524,7 @@ void ProcessDeviceCommandQueue() {
+@@ -318,6 +547,7 @@ void ProcessDeviceCommandQueue() {
          ZoneName(commandStr.c_str(), commandStr.size());
        }
        PULL_U(currentUID);
@@ -10440,7 +10650,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  #if defined(_DEBUG) || defined(DEBUGOPT)
        if (GlobalOptions::getLogServerCommands()) {
          Logger::info("Device Processing: " + toString(rpcHeader.command) + " UID: " + std::to_string(currentUID));
-@@ -338,9 +545,10 @@ void ProcessDeviceCommandQueue() {
+@@ -338,9 +568,10 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10452,7 +10662,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << format_string("CreateDeviceEx() call failed with error code 0x%x", hresult) << std::endl;
-@@ -355,7 +563,7 @@ void ProcessDeviceCommandQueue() {
+@@ -355,7 +586,7 @@ void ProcessDeviceCommandQueue() {
          }
  
          // Send response back to the client
@@ -10461,7 +10671,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
            c.send_data(hresult);
-@@ -373,9 +581,16 @@ void ProcessDeviceCommandQueue() {
+@@ -373,9 +604,16 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10470,8 +10680,8 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          IDirect3DDevice9* pD3DDevice = nullptr;
 -        const auto hresult = gpD3D->CreateDevice(IN Adapter, IN DeviceType, IN TRUNCATE_HANDLE(HWND, hFocusWindow), IN BehaviorFlags, IN OUT & PresentationParameters, OUT & pD3DDevice);
 +        Logger::info(format_string(
-+          "L4D2 CreateDevice: focus=%p window=%p adapter=%u windowed=%u size=%ux%u flags=0x%x",
-+          TRUNCATE_HANDLE(HWND, hFocusWindow), PresentationParameters.hDeviceWindow,
++          "L4D2 CreateDevice: game_focus=%p backend_focus=%p window=%p adapter=%u windowed=%u size=%ux%u flags=0x%x",
++          TRUNCATE_HANDLE(HWND, hFocusWindow), overlayFocus, PresentationParameters.hDeviceWindow,
 +          Adapter, PresentationParameters.Windowed, PresentationParameters.BackBufferWidth,
 +          PresentationParameters.BackBufferHeight, BehaviorFlags));
 +        const auto hresult = gpD3D->CreateDevice(IN Adapter, IN DeviceType, IN overlayFocus, IN BehaviorFlags, IN OUT & PresentationParameters, OUT & pD3DDevice);
@@ -10479,7 +10689,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << format_string("CreateDevice() call failed with error code 0x%x", hresult) << std::endl;
-@@ -383,6 +598,12 @@ void ProcessDeviceCommandQueue() {
+@@ -383,6 +621,12 @@ void ProcessDeviceCommandQueue() {
          } else {
            Logger::info("Server side D3D9 Device created successfully!");
            gpD3DDevices[pHandle] = (IDirect3DDevice9Ex*) pD3DDevice;
@@ -10492,7 +10702,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            if(GlobalOptions::getExposeRemixApi()) {
              remixapi::g_device = (IDirect3DDevice9Ex*) pD3DDevice;
              remixapi::g_remix.dxvk_RegisterD3D9Device(remixapi::g_device);
-@@ -390,7 +611,7 @@ void ProcessDeviceCommandQueue() {
+@@ -390,7 +634,7 @@ void ProcessDeviceCommandQueue() {
          }
  
          // Send response back to the client
@@ -10501,7 +10711,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
            c.send_data(hresult);
-@@ -425,12 +646,18 @@ void ProcessDeviceCommandQueue() {
+@@ -425,12 +669,18 @@ void ProcessDeviceCommandQueue() {
          PULL(BOOL, Lockable);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10523,7 +10733,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -443,12 +670,18 @@ void ProcessDeviceCommandQueue() {
+@@ -443,12 +693,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DPOOL, Pool);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10545,7 +10755,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -463,12 +696,18 @@ void ProcessDeviceCommandQueue() {
+@@ -463,12 +719,18 @@ void ProcessDeviceCommandQueue() {
          PULL(BOOL, Discard);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10567,7 +10777,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -483,6 +722,7 @@ void ProcessDeviceCommandQueue() {
+@@ -483,6 +745,7 @@ void ProcessDeviceCommandQueue() {
          IDirect3DSwapChain9* pSwapChain = nullptr;
          const auto hresult = pD3DDevice->GetSwapChain(0, &pSwapChain);
          if (SUCCEEDED(hresult)) {
@@ -10575,7 +10785,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            gpD3DSwapChains[pClientSwapchain] = pSwapChain;
          }
          break;
-@@ -495,7 +735,9 @@ void ProcessDeviceCommandQueue() {
+@@ -495,7 +758,9 @@ void ProcessDeviceCommandQueue() {
          IDirect3DSurface9* pBackbuffer = nullptr;
          const auto hresult = pD3DDevice->GetBackBuffer(0, index, D3DBACKBUFFER_TYPE_MONO, &pBackbuffer);
          if (SUCCEEDED(hresult)) {
@@ -10585,7 +10795,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -507,7 +749,9 @@ void ProcessDeviceCommandQueue() {
+@@ -507,7 +772,9 @@ void ProcessDeviceCommandQueue() {
          IDirect3DSurface9* pDepthStencil = nullptr;
          const auto hresult = pD3DDevice->GetDepthStencilSurface(&pDepthStencil);
          if (SUCCEEDED(hresult)) {
@@ -10595,7 +10805,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -527,7 +771,8 @@ void ProcessDeviceCommandQueue() {
+@@ -527,7 +794,8 @@ void ProcessDeviceCommandQueue() {
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->TestCooperativeLevel();
@@ -10605,7 +10815,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_GetAvailableTextureMem:
-@@ -561,8 +806,14 @@ void ProcessDeviceCommandQueue() {
+@@ -561,8 +829,14 @@ void ProcessDeviceCommandQueue() {
        {
  
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -10621,7 +10831,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          BRIDGE_ASSERT_LOG(SUCCEEDED(hresult), "Issue retrieving D3D9 device specific information");
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
-@@ -632,9 +883,11 @@ void ProcessDeviceCommandQueue() {
+@@ -632,9 +906,11 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10633,7 +10843,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            gpD3DSwapChains[pHandle] = pSwapChain;
          }
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
-@@ -646,8 +899,13 @@ void ProcessDeviceCommandQueue() {
+@@ -646,8 +922,13 @@ void ProcessDeviceCommandQueue() {
          PULL_U(iSwapChain);
          IDirect3DSwapChain9* pSwapChain = nullptr;
          const auto hresult = pD3DDevice->GetSwapChain(iSwapChain, &pSwapChain);
@@ -10649,7 +10859,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_GetNumberOfSwapChains:
-@@ -664,19 +922,31 @@ void ProcessDeviceCommandQueue() {
+@@ -664,19 +945,31 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10693,7 +10903,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_ResetEx:
-@@ -689,26 +959,38 @@ void ProcessDeviceCommandQueue() {
+@@ -689,26 +982,38 @@ void ProcessDeviceCommandQueue() {
          PULL_DATA(sizeof(D3DDISPLAYMODEEX), pFullscreenDisplayMode);
  
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10745,7 +10955,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  #endif
  
          GET_RES(pD3DDevice, gpD3DDevices);
-@@ -717,9 +999,10 @@ void ProcessDeviceCommandQueue() {
+@@ -717,9 +1022,10 @@ void ProcessDeviceCommandQueue() {
          PULL(uint32_t, hDestWindowOverride);
          PULL_OBJ(RGNDATA, pDirtyRegion);
  
@@ -10758,7 +10968,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << "Present() failed! Check all logs for reported errors.";
-@@ -730,7 +1013,7 @@ void ProcessDeviceCommandQueue() {
+@@ -730,7 +1036,7 @@ void ProcessDeviceCommandQueue() {
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -10767,7 +10977,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  #endif
          }
          break;
-@@ -746,6 +1029,7 @@ void ProcessDeviceCommandQueue() {
+@@ -746,6 +1052,7 @@ void ProcessDeviceCommandQueue() {
          assert(SUCCEEDED(hresult));
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pSurfaceHandle] = pBackbuffer;
@@ -10775,7 +10985,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          break;
        }
-@@ -767,6 +1051,7 @@ void ProcessDeviceCommandQueue() {
+@@ -767,6 +1074,7 @@ void ProcessDeviceCommandQueue() {
          PULL_D(Flags);
          PULL_OBJ(D3DGAMMARAMP, pRamp);
          pD3DDevice->SetGammaRamp(iSwapChain, Flags, pRamp);
@@ -10783,7 +10993,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_GetGammaRamp:
-@@ -780,20 +1065,30 @@ void ProcessDeviceCommandQueue() {
+@@ -780,20 +1088,30 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_CreateTexture:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -10824,7 +11034,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_CreateVolumeTexture:
-@@ -807,12 +1102,22 @@ void ProcessDeviceCommandQueue() {
+@@ -807,12 +1125,22 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -10850,7 +11060,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -825,12 +1130,18 @@ void ProcessDeviceCommandQueue() {
+@@ -825,12 +1153,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -10872,7 +11082,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -842,12 +1153,18 @@ void ProcessDeviceCommandQueue() {
+@@ -842,12 +1176,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(FVF);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -10894,7 +11104,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -859,12 +1176,18 @@ void ProcessDeviceCommandQueue() {
+@@ -859,12 +1199,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -10916,7 +11126,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -878,12 +1201,18 @@ void ProcessDeviceCommandQueue() {
+@@ -878,12 +1224,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(MultisampleQuality);
          PULL(BOOL, Lockable);
          PULL_HND(pHandle);
@@ -10938,7 +11148,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -897,12 +1226,18 @@ void ProcessDeviceCommandQueue() {
+@@ -897,12 +1249,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(MultisampleQuality);
          PULL(BOOL, Discard);
          PULL_HND(pHandle);
@@ -10960,7 +11170,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -919,7 +1254,8 @@ void ProcessDeviceCommandQueue() {
+@@ -919,7 +1277,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pDestinationSurface = (IDirect3DSurface9*) gpD3DResources[pDestHandle];
          assert(pDestinationSurface != nullptr);
          if (pSourceSurface != nullptr && pDestinationSurface != nullptr) {
@@ -10970,7 +11180,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -936,7 +1272,8 @@ void ProcessDeviceCommandQueue() {
+@@ -936,7 +1295,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pDestinationTexture = (IDirect3DBaseTexture9*) gpD3DResources[pDestinationTextureHandle];
          assert(pDestinationTexture != nullptr);
          if (pSourceTexture != nullptr && pDestinationTexture != nullptr) {
@@ -10980,7 +11190,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -949,7 +1286,7 @@ void ProcessDeviceCommandQueue() {
+@@ -949,7 +1309,7 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pDestSurfaceHandle);
          const auto& pRenderTarget = (IDirect3DSurface9*) gpD3DResources[pRenderTargetHandle];
          const auto& pDestSurface = (IDirect3DSurface9*) gpD3DResources[pDestSurfaceHandle];
@@ -10989,7 +11199,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
          break;
-@@ -1001,12 +1338,18 @@ void ProcessDeviceCommandQueue() {
+@@ -1001,12 +1361,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11011,7 +11221,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1023,6 +1366,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1023,6 +1389,7 @@ void ProcessDeviceCommandQueue() {
          assert((pHandle != 0 && pRenderTarget != 0) || pHandle == 0);
          if ((pHandle != 0 && pRenderTarget != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetRenderTarget(IN RenderTargetIndex, IN pRenderTarget);
@@ -11019,7 +11229,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1034,12 +1378,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1034,12 +1401,9 @@ void ProcessDeviceCommandQueue() {
          PULL_D(RenderTargetIndex);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pRenderTarget = nullptr;
@@ -11034,7 +11244,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DDevice9Ex_SetDepthStencilSurface:
-@@ -1054,6 +1395,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1054,6 +1418,7 @@ void ProcessDeviceCommandQueue() {
          assert((pHandle != 0 && pDepthStencil != 0) || pHandle == 0);
          if ((pHandle != 0 && pDepthStencil != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetDepthStencilSurface(IN pDepthStencil);
@@ -11042,7 +11252,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1064,11 +1406,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1064,11 +1429,8 @@ void ProcessDeviceCommandQueue() {
          GET_RES(pD3DDevice, gpD3DDevices);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pZStencilSurface = nullptr;
@@ -11056,7 +11266,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1084,6 +1423,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1084,6 +1446,7 @@ void ProcessDeviceCommandQueue() {
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->EndScene();
@@ -11064,7 +11274,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1186,6 +1526,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1186,6 +1549,7 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DRENDERSTATETYPE, State);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetRenderState(IN State, IN Value);
@@ -11072,7 +11282,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1244,6 +1585,30 @@ void ProcessDeviceCommandQueue() {
+@@ -1244,6 +1608,30 @@ void ProcessDeviceCommandQueue() {
            assert(pTexture != nullptr);
          }
          const auto hresult = pD3DDevice->SetTexture(IN Stage, IN pTexture);
@@ -11103,7 +11313,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1270,6 +1635,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1270,6 +1658,7 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DSAMPLERSTATETYPE, Type);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetSamplerState(IN Sampler, IN Type, IN Value);
@@ -11111,7 +11321,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1323,6 +1689,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1323,6 +1712,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11119,7 +11329,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(StartVertex);
          PULL_U(PrimitiveCount);
-@@ -1334,6 +1701,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1334,6 +1724,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawIndexedPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11127,7 +11337,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          PULL(D3DPRIMITIVETYPE, Type);
          PULL_I(BaseVertexIndex);
          PULL_U(MinVertexIndex);
-@@ -1348,6 +1716,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1348,6 +1739,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11135,7 +11345,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(PrimitiveCount);
          void* pVertexStreamZeroData = nullptr;
-@@ -1361,6 +1730,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1361,6 +1753,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawIndexedPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11143,7 +11353,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(MinVertexIndex);
          PULL_U(NumVertices);
-@@ -1450,6 +1820,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1450,6 +1843,10 @@ void ProcessDeviceCommandQueue() {
          if (SUCCEEDED(hresult)) {
            gpD3DVertexShaders[pHandle] = pShader;
          }
@@ -11154,7 +11364,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1463,6 +1837,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1463,6 +1860,7 @@ void ProcessDeviceCommandQueue() {
            pShader = gpD3DVertexShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetVertexShader(IN pShader);
@@ -11162,7 +11372,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1514,10 +1889,11 @@ void ProcessDeviceCommandQueue() {
+@@ -1514,10 +1912,11 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_SetStreamSource:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11178,7 +11388,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          IDirect3DVertexBuffer9* pStreamData = nullptr;
          if (pHandle != NULL) {
            pStreamData = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
-@@ -1544,7 +1920,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1544,7 +1943,8 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_SetIndices:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11188,7 +11398,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          IDirect3DIndexBuffer9* pIndexData = NULL;
          if (pHandle != NULL) {
            pIndexData = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
-@@ -1568,6 +1945,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1568,6 +1968,10 @@ void ProcessDeviceCommandQueue() {
          if (SUCCEEDED(hresult)) {
            gpD3DPixelShaders[pHandle] = pShader;
          }
@@ -11199,7 +11409,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1581,6 +1962,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1581,6 +1985,7 @@ void ProcessDeviceCommandQueue() {
            pShader = gpD3DPixelShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetPixelShader(IN pShader);
@@ -11207,7 +11417,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1595,6 +1977,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1595,6 +2000,7 @@ void ProcessDeviceCommandQueue() {
          float* pConstantData = nullptr;
          PULL_DATA(Count * sizeof(float) * 4, pConstantData);
          const auto hresult = pD3DDevice->SetPixelShaderConstantF(IN StartRegister, IN pConstantData, IN Count);
@@ -11215,7 +11425,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1734,6 +2117,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1734,6 +2140,7 @@ void ProcessDeviceCommandQueue() {
          const auto& pSB = gpD3DStateBlocks[pHandle];
          assert(pSB != nullptr);
          const auto hresult = pSB->Apply();
@@ -11223,7 +11433,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -1749,7 +2133,17 @@ void ProcessDeviceCommandQueue() {
+@@ -1749,7 +2156,17 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          const auto& pSwapChain = gpD3DSwapChains[pHandle];
@@ -11242,7 +11452,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          gpD3DSwapChains.erase(pHandle);
          break;
        }
-@@ -1757,7 +2151,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1757,7 +2174,7 @@ void ProcessDeviceCommandQueue() {
        {
          FrameMark;
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11251,7 +11461,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  #endif
  
          GET_RES(pSwapChain, gpD3DSwapChains);
-@@ -1767,9 +2161,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1767,9 +2184,9 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(RGNDATA, pDirtyRegion);
          PULL(uint32_t, dwFlags);
  
@@ -11263,7 +11473,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
-@@ -1780,7 +2174,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1780,7 +2197,7 @@ void ProcessDeviceCommandQueue() {
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11272,7 +11482,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  #endif
          }
          break;
-@@ -1793,6 +2187,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1793,6 +2210,7 @@ void ProcessDeviceCommandQueue() {
          auto hresult = pSwapChain->GetFrontBufferData(pDestSurface);
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pDestSurfaceHandle] = pDestSurface;
@@ -11280,7 +11490,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
-@@ -1807,7 +2202,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1807,7 +2225,9 @@ void ProcessDeviceCommandQueue() {
          IDirect3DSurface9* pBackbuffer = nullptr;
          const auto hresult = pSwapChain->GetBackBuffer(iBackBuffer, Type, &pBackbuffer);
          if (SUCCEEDED(hresult)) {
@@ -11290,7 +11500,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -2019,6 +2416,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2019,6 +2439,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          safeDestroy(pTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11300,7 +11510,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DTexture9_GetDevice:
-@@ -2063,7 +2463,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2063,7 +2486,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11309,7 +11519,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2074,9 +2474,14 @@ void ProcessDeviceCommandQueue() {
+@@ -2074,9 +2497,14 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pSurfaceHandle);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pTextureHandle];
          LPDIRECT3DSURFACE9 pSurfaceLevel;
@@ -11325,7 +11535,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2120,6 +2525,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2120,6 +2548,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pVolumeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11335,7 +11545,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DVolumeTexture9_GetDevice:
-@@ -2164,7 +2572,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2164,7 +2595,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -11344,7 +11554,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2175,9 +2583,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2175,9 +2606,13 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pVolumeLevelHandle);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pVolumeTextureHandle];
          LPDIRECT3DVOLUME9 pVolumeLevel;
@@ -11359,7 +11569,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2193,42 +2605,21 @@ void ProcessDeviceCommandQueue() {
+@@ -2193,42 +2628,21 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -11414,7 +11624,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
        case IDirect3DVolumeTexture9_AddDirtyBox:
        {
          GET_HND(pHandle);
-@@ -2259,6 +2650,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2259,6 +2673,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pCubeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11424,7 +11634,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DCubeTexture9_GetDevice:
-@@ -2303,7 +2697,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2303,7 +2720,7 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11433,7 +11643,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2315,9 +2709,10 @@ void ProcessDeviceCommandQueue() {
+@@ -2315,9 +2732,10 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pCubeMapSurfaceHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pCubeTextureHandle];
          LPDIRECT3DSURFACE9 pCubeMapSurface;
@@ -11445,7 +11655,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2359,9 +2754,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2359,9 +2777,13 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DVertexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11459,7 +11669,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DVertexBuffer9_GetDevice:
-@@ -2384,6 +2783,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2384,6 +2806,7 @@ void ProcessDeviceCommandQueue() {
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11467,7 +11677,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2391,32 +2791,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2391,32 +2814,46 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DVertexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11537,7 +11747,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DVertexBuffer9_GetDesc:
-@@ -2425,7 +2839,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2425,7 +2862,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DVERTEXBUFFER_DESC, orig_desc);
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
          D3DVERTEXBUFFER_DESC pDesc;
@@ -11546,7 +11756,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2445,9 +2859,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2445,9 +2882,13 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DIndexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11560,7 +11770,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DIndexBuffer9_GetDevice:
-@@ -2470,6 +2888,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2470,6 +2911,7 @@ void ProcessDeviceCommandQueue() {
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11568,7 +11778,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2477,31 +2896,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2477,31 +2919,46 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DIndexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11637,7 +11847,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DIndexBuffer9_GetDesc:
-@@ -2510,7 +2944,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2510,7 +2967,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DINDEXBUFFER_DESC, orig_desc);
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
          D3DINDEXBUFFER_DESC pDesc;
@@ -11646,7 +11856,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2531,8 +2965,11 @@ void ProcessDeviceCommandQueue() {
+@@ -2531,8 +2988,11 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
@@ -11659,7 +11869,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DSurface9_GetDevice:
-@@ -2559,10 +2996,55 @@ void ProcessDeviceCommandQueue() {
+@@ -2559,10 +3019,55 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DSURFACE_DESC, orig_desc);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11716,7 +11926,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
        case IDirect3DSurface9_LockRect:
        {
          // Currently we only recieve calls for LockRect in cases where backbuffer data is to be copied for screenshots
-@@ -2577,39 +3059,145 @@ void ProcessDeviceCommandQueue() {
+@@ -2577,39 +3082,145 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL_OBJ(RECT, pRect);
          PULL_D(Flags);
@@ -11889,7 +12099,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DSurface9_GetDC:
-@@ -2635,6 +3223,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2635,6 +3246,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pVolume = gpD3DVolumes[pHandle];
          safeDestroy(pVolume, pHandle);
          gpD3DVolumes.erase(pHandle);
@@ -11898,7 +12108,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        case IDirect3DVolume9_GetDevice:
-@@ -2653,7 +3243,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2653,7 +3266,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DVOLUME_DESC, orig_desc);
          const auto& pVolume = gpD3DVolumes[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -11907,7 +12117,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2667,40 +3257,16 @@ void ProcessDeviceCommandQueue() {
+@@ -2667,40 +3280,16 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -11957,7 +12167,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
  
-@@ -2714,7 +3280,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2714,7 +3303,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DQuery9_Destroy:
        {
          GET_HND(pHandle);
@@ -11966,7 +12176,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          safeDestroy(pQuery, pHandle);
          gpD3DQuery.erase(pHandle);
          break;
-@@ -2729,8 +3295,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2729,8 +3318,8 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          PULL(DWORD, dwIssueFlags);
@@ -11977,7 +12187,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -2739,25 +3305,24 @@ void ProcessDeviceCommandQueue() {
+@@ -2739,25 +3328,24 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL(DWORD, dwSize);
          PULL(DWORD, dwGetDataFlags);
@@ -12013,7 +12223,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
  
-@@ -2769,7 +3334,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2769,7 +3357,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(i);
          const int length = DeviceBridge::getReaderChannel().data->peek();
          void* text = nullptr;
@@ -12022,7 +12232,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          std::stringstream ss;
          ss << "DebugMessage. i = " << i << ", length = " << length << " = " << size << ", text = '" << (char*) text << "'";
          Logger::info(ss.str().c_str());
-@@ -2792,26 +3357,37 @@ void ProcessDeviceCommandQueue() {
+@@ -2792,26 +3380,37 @@ void ProcessDeviceCommandQueue() {
          GET_HDR_VAL(_allocId);
          const auto allocId = (SharedHeap::AllocId) _allocId;
          PULL_U(chunkId);
@@ -12062,7 +12272,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          break;
        }
        /*
-@@ -3156,11 +3732,11 @@ void ProcessDeviceCommandQueue() {
+@@ -3156,11 +3755,11 @@ void ProcessDeviceCommandQueue() {
        case RemixApi_SetConfigVariable:
        {
          void* var_ptr = nullptr;
@@ -12076,7 +12286,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
          std::string value_str((const char*) value_ptr, value_size);
  
          remixapi::g_remix.SetConfigVariable(var_str.c_str(), value_str.c_str());
-@@ -3191,41 +3767,29 @@ void ProcessDeviceCommandQueue() {
+@@ -3191,41 +3790,29 @@ void ProcessDeviceCommandQueue() {
        Logger::warn("Data not in sync");
      }
      assert(CHECK_DATA_OFFSET);
@@ -12128,7 +12338,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    }
  }
  
-@@ -3268,14 +3832,26 @@ bool InitializeD3D() {
+@@ -3268,14 +3855,26 @@ bool InitializeD3D() {
    // If vanilla dxvk is enabled attempt to load that first.
    if (ServerOptions::getUseVanillaDxvk()) {
      Logger::info("Loading standard Non-RTX DXVK d3d9 dll.");
@@ -12158,7 +12368,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
      // Since vanilla dxvk is diabled attempt loading regular d3d9.dll which
      // could be either the system d3d9 one or our own Remix dxvk flavor of it.
      ghModule = LoadLibraryExA("d3d9.dll", nullptr,
-@@ -3285,6 +3861,10 @@ bool InitializeD3D() {
+@@ -3285,6 +3884,10 @@ bool InitializeD3D() {
    // create the D3D instance used for the lifetime of this process.
    if (ghModule != nullptr) {
      auto Direct3DCreate9 = (D3DC9) GetProcAddress(ghModule, "Direct3DCreate9");
@@ -12169,7 +12379,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
      if (nullptr == (gpD3D = Direct3DCreate9(D3D_SDK_VERSION))) {
        Logger::err(format_string("D3D9 interface object creation failed: %ld\n", GetLastError()));
        return false;
-@@ -3311,6 +3891,10 @@ bool InitializeD3D() {
+@@ -3311,6 +3914,10 @@ bool InitializeD3D() {
    }
  
    CheckD3D9Type(ghModule);
@@ -12180,7 +12390,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    if (bDxvkModuleLoaded) {
      auto queryFeatureVersion = (version::QueryFunc)GetProcAddress(ghModule, version::QueryFuncName);
      if(queryFeatureVersion == NULL) {
-@@ -3343,18 +3927,29 @@ bool InitializeD3D() {
+@@ -3343,18 +3950,29 @@ bool InitializeD3D() {
  }
  
  void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
@@ -12219,7 +12429,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  
    // Give the server some time to shut down, but then force quit so it doesn't hang forever
    uint32_t numRetries = 0;
-@@ -3371,7 +3966,7 @@ void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
+@@ -3371,7 +3989,7 @@ void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
  }
  
  bool RegisterExitCallback(const uint32_t hProcess) {
@@ -12228,7 +12438,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    if (!result) {
      DWORD error = GetLastError();
      Logger::err(format_string("RegisterExitCallback() failed with error code %d", error));
-@@ -3482,22 +4077,52 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3482,22 +4100,52 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
  
    Config::init(Config::App::Server);
    GlobalOptions::init();
@@ -12284,7 +12494,20 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
      Logger::info("Launched server with GUID " + gUniqueIdentifier.toString());
    } else {
      Logger::err("Server was invoked with invalid GUID! Unable to establish bridge, exiting...");
-@@ -3541,6 +4166,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3511,6 +4159,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+   }
+   LocalFree(argList);
+ 
++  if(Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false)) {
++    const auto name=gUniqueIdentifier.toString("L4D2BridgeWorkshopV1");
++    Logger::info(l4d2_workshop::publisher.publisher(name.c_str())
++      ? "L4D2_STEAM_WORKSHOP event=host-channel ready=1" : "L4D2_STEAM_WORKSHOP event=host-channel ready=0");
++  }
++
+   initModuleBridge();
+   initDeviceBridge();
+ 
+@@ -3541,6 +4195,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12292,7 +12515,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -3554,6 +4180,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3554,6 +4209,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    }
    const SentryShutdownOnExit sentryShutdownOnExit;
  
@@ -12301,7 +12524,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    // (3) Send ACK to Client. Connection has been established
    Logger::info("Sync request received, sending ACK response...");
    ServerMessage { Commands::Bridge_Ack, (uintptr_t) gpClientMessageChannel->getWorkerThreadId() };
-@@ -3576,6 +4204,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3576,6 +4233,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12309,7 +12532,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -3589,12 +4218,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3589,12 +4247,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    bSignalDone.store(true);
    moduleCmdProcessingThread.join();
  
@@ -12322,11 +12545,12 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
  
    // Command processing finished, clean up and exit
    Logger::info("Command processing loop finished, cleaning up and exiting...");
++  l4d2_steam_window::Diagnostics::stop();
 +  if (gOverlayPresenter) { gOverlayPresenter->stop(); gOverlayPresenter.reset(); }
    if (ghModule) {
      // Skip unloading the d3d9.dll for now, since it seems to be doing more harm than good
      // especially with other dependencies loaded by dxvk and threads that may deadlock due
-@@ -3610,6 +4242,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3610,6 +4272,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
      hWait = NULL;
    }
  
@@ -12337,7 +12561,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..7500903dcf849c917a0bc7206eeb2bb8
    Logger::info("Shutdown cleanup successful, exiting now!");
  
    const auto timeEnd = std::chrono::high_resolution_clock::now();
-@@ -3624,4 +4260,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3624,4 +4290,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
      ServerMessage { Commands::Bridge_Ack };
    }
    return 0;
@@ -12963,6 +13187,315 @@ index 0000000000000000000000000000000000000000..2e52a4583970b630709a1cea583ffa31
 +  CloseHandle(done);
 +  return view != nullptr;
 +}
++}
+diff --git a/bridge/src/server/steam_availability_diagnostics.h b/bridge/src/server/steam_availability_diagnostics.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db61200e6d
+--- /dev/null
++++ b/bridge/src/server/steam_availability_diagnostics.h
+@@ -0,0 +1,72 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <cstdint>
++#include <cstring>
++#include <cstdio>
++#include "diagnostic_file_hash.h"
++#include "steam_workshop_status.h"
++namespace l4d2_steam_availability {
++// Reproduce the exact supplied renderer getter's single byte read. Never call
++// its undocumented export, initialize another SDK context, or change a byte.
++inline uintptr_t decode(uintptr_t base,size_t size,uintptr_t getter,const BYTE code[8]) {
++  if(size<8 || getter<base || getter-base>size-8 || code[0]!=0x0f || code[1]!=0xb6 || code[2]!=0x05 || code[7]!=0xc3)return 0;
++  int32_t displacement=0;std::memcpy(&displacement,code+3,4);
++  const int64_t offset=static_cast<int64_t>(getter-base)+7+displacement;
++  return offset>=0 && static_cast<uint64_t>(offset)<size?base+static_cast<uintptr_t>(offset):0;
++}
++class Diagnostics {
++  inline static ULONGLONG next=0;
++  inline static HMODULE module=nullptr;
++  inline static bool attempted=false,waiting=false;
++  inline static uintptr_t field=0;
++  inline static unsigned previous=~0u;
++  static void emit(void(*logger)(const char*),const char* line) noexcept {try{logger(line);}catch(...) {}}
++  template<typename T> static bool read(const void* address,T& value) {
++    SIZE_T bytes=0;return address && ReadProcessMemory(GetCurrentProcess(),address,&value,sizeof(value),&bytes) && bytes==sizeof(value);
++  }
++public:
++  static void poll(bool requested,void(*logger)(const char*)) {
++    if(!requested || !logger)return;
++    l4d2_file_hash::ErrorGuard error;
++    const ULONGLONG now=GetTickCount64();if(now<next)return;next=now+1000;
++    struct Publication { bool known=false;unsigned value=0;ULONGLONG time;
++      ~Publication(){l4d2_workshop::publish(known,value,time);} } publication{false,0,now};
++    #ifndef _WIN64
++    if(!attempted){attempted=true;emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=only-supplied-x64-renderer-validated");}
++    return;
++    #else
++    if(!attempted){
++      if(!GetModuleHandleExW(0,L"GameOverlayRenderer64.dll",&module)){
++        if(!waiting){waiting=true;emit(logger,"L4D2_STEAM_WEB_HOST event=waiting reason=renderer-not-loaded");}return;
++      }
++      attempted=true;wchar_t path[MAX_PATH]{};
++      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFile(path,"59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee")){
++        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-file-hash-mismatch");return;
++      }
++      const auto getter=GetProcAddress(module,"IsOverlayEnabled");
++      IMAGE_DOS_HEADER dos{};IMAGE_NT_HEADERS64 nt{};BYTE code[8]{};
++      if(!read(module,dos) || dos.e_magic!=IMAGE_DOS_SIGNATURE || dos.e_lfanew<0
++        || !read(reinterpret_cast<BYTE*>(module)+dos.e_lfanew,nt) || nt.Signature!=IMAGE_NT_SIGNATURE
++        || nt.OptionalHeader.Magic!=IMAGE_NT_OPTIONAL_HDR64_MAGIC || !getter
++        || !read(reinterpret_cast<const void*>(getter),code)){
++        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-getter-unreadable");return;
++      }
++      field=decode(reinterpret_cast<uintptr_t>(module),nt.OptionalHeader.SizeOfImage,reinterpret_cast<uintptr_t>(getter),code);
++      if(!field){emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-getter-code-mismatch");return;}
++      char line[350]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB_HOST event=verified getter_rva=0x%zx field_rva=0x%zx host_pid=%lu method=validated-getter-byte-read calls=0 writes=0",
++        reinterpret_cast<uintptr_t>(getter)-reinterpret_cast<uintptr_t>(module),field-reinterpret_cast<uintptr_t>(module),GetCurrentProcessId());emit(logger,line);
++    }
++    if(!field)return;
++    BYTE value=0;
++    if(!read(reinterpret_cast<const void*>(field),value)){emit(logger,"L4D2_STEAM_WEB_HOST event=unavailable reason=renderer-byte-unreadable");return;}
++    publication.known=true;publication.value=value;
++    if(previous==value)return;previous=value;
++    char line[240]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB_HOST event=availability renderer_getter_value=%u host_pid=%lu tick=%llu method=byte-read action=observe-only",
++      static_cast<unsigned>(value),GetCurrentProcessId(),now);emit(logger,line);
++    #endif
++  }
++};
++}
+diff --git a/bridge/src/server/steam_window_diagnostics.h b/bridge/src/server/steam_window_diagnostics.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..5365d67d0aeb8419c867e546fd0513093a5fef9d
+--- /dev/null
++++ b/bridge/src/server/steam_window_diagnostics.h
+@@ -0,0 +1,225 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <intrin.h>
++#include <atomic>
++#include <cstdio>
++#include <cstring>
++#include <cstdint>
++
++namespace l4d2_steam_window {
++// Process-lifetime state: a delayed/in-flight wrapper remains callable after stop.
++// Only the selected loaded renderer's named IAT entries are observed. Never
++// detour USER32 globally, load Steam, change a PID, or patch DLL code.
++// Optional adapter substitutes only eligible game HWNDs in renderer imports.
++class Diagnostics {
++public:
++  using Log = void (*)(const char*);
++private:
++  using WindowFn = HWND (WINAPI*)();
++  using HookFn = HHOOK (WINAPI*)(int, HOOKPROC, HINSTANCE, DWORD);
++  struct Entry { const char* name; void* wrapper; void* original; void** slot; };
++  struct Site { unsigned api; uintptr_t caller; DWORD thread; HWND window; DWORD pid; ULONGLONG next; bool used; };
++  inline static Entry entries[3] = {
++    { "GetActiveWindow", nullptr, nullptr, nullptr },
++    { "GetForegroundWindow", nullptr, nullptr, nullptr },
++    { "SetWindowsHookExW", nullptr, nullptr, nullptr }
++  };
++  inline static Site sites[128] {};
++  inline static SRWLOCK lock = SRWLOCK_INIT;
++  inline static std::atomic<bool> enabled { false }, adapting { false };
++  inline static std::atomic<HWND> game { nullptr }, presenter { nullptr };
++  inline static std::atomic<unsigned long long> calls[3] {}, dropped { 0 };
++  inline static HMODULE module = nullptr;
++  inline static Log logger = nullptr;
++  inline static unsigned lines = 0;
++  inline static bool attempted = false, waitingReported = false;
++  inline static thread_local bool observing = false;
++  struct ErrorGuard { DWORD error = GetLastError(); ~ErrorGuard() { SetLastError(error); } };
++  static void emit(const char* line) noexcept { try { if (logger) logger(line); } catch (...) {} }
++  static DWORD owner(HWND window) { DWORD pid = 0; if (window) GetWindowThreadProcessId(window, &pid); return pid; }
++  static bool range(size_t offset, size_t length, size_t size) { return offset <= size && length <= size - offset; }
++  static bool named(const BYTE* base, size_t offset, size_t size, const char* text) {
++    const size_t length = std::strlen(text) + 1;
++    return range(offset, length, size) && std::memcmp(base + offset, text, length) == 0;
++  }
++  static bool exchange(void** slot, void* replacement, void* expected) {
++    DWORD protection = 0;
++    if (!VirtualProtect(slot, sizeof(void*), PAGE_READWRITE, &protection)) return false;
++    void* previous = InterlockedCompareExchangePointer(reinterpret_cast<void* volatile*>(slot), replacement, expected);
++    DWORD ignored = 0;
++    const BOOL restored = VirtualProtect(slot, sizeof(void*), protection, &ignored);
++    if (!restored) emit("L4D2_STEAM_WINDOW event=protection-error");
++    return previous == expected;
++  }
++  // Caller is an ordinary loader-backed PE for this process's architecture.
++  // Bounds checks protect all import-table/name/thunk walks against bad RVAs.
++  static unsigned attach(HMODULE loaded) {
++    const auto base = reinterpret_cast<BYTE*>(loaded);
++    MEMORY_BASIC_INFORMATION memory {};
++    if (!VirtualQuery(base, &memory, sizeof(memory)) || memory.Type != MEM_IMAGE) return 0;
++    const auto dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
++    if (memory.RegionSize < sizeof(*dos) || dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0
++      || !range(static_cast<size_t>(dos->e_lfanew), sizeof(IMAGE_NT_HEADERS), memory.RegionSize)) return 0;
++    const auto nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
++    if (nt->Signature != IMAGE_NT_SIGNATURE || nt->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC
++      || nt->OptionalHeader.NumberOfRvaAndSizes <= IMAGE_DIRECTORY_ENTRY_IMPORT) return 0;
++    const size_t size = nt->OptionalHeader.SizeOfImage;
++    char identity[250] {};
++    std::snprintf(identity, sizeof(identity), "L4D2_STEAM_WINDOW event=image timestamp=0x%lx image_size=0x%zx", nt->FileHeader.TimeDateStamp, size);
++    emit(identity);
++    const auto imports = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
++    if (!imports.VirtualAddress || !range(imports.VirtualAddress, imports.Size, size)) return 0;
++    unsigned found = 0;
++    for (size_t offset = imports.VirtualAddress; range(offset, sizeof(IMAGE_IMPORT_DESCRIPTOR), size)
++      && range(offset - imports.VirtualAddress, sizeof(IMAGE_IMPORT_DESCRIPTOR), imports.Size); offset += sizeof(IMAGE_IMPORT_DESCRIPTOR)) {
++      const auto descriptor = reinterpret_cast<const IMAGE_IMPORT_DESCRIPTOR*>(base + offset);
++      if (!descriptor->Name) break;
++      // Names can belong to API-set DLLs; identify the three exact functions.
++      if (!descriptor->OriginalFirstThunk || !descriptor->FirstThunk) continue;
++      for (size_t i = 0; i < size / sizeof(IMAGE_THUNK_DATA); ++i) {
++        const size_t nameOffset = static_cast<size_t>(descriptor->OriginalFirstThunk) + i * sizeof(IMAGE_THUNK_DATA);
++        const size_t slotOffset = static_cast<size_t>(descriptor->FirstThunk) + i * sizeof(IMAGE_THUNK_DATA);
++        if (!range(nameOffset, sizeof(IMAGE_THUNK_DATA), size) || !range(slotOffset, sizeof(IMAGE_THUNK_DATA), size)) break;
++        const auto thunk = reinterpret_cast<const IMAGE_THUNK_DATA*>(base + nameOffset);
++        if (!thunk->u1.AddressOfData) break;
++        if (IMAGE_SNAP_BY_ORDINAL(thunk->u1.Ordinal)) continue;
++        const size_t name = static_cast<size_t>(thunk->u1.AddressOfData);
++        if (!range(name, sizeof(WORD), size)) continue;
++        for (unsigned api = 0; api < 3; ++api) {
++          auto& entry = entries[api];
++          if (entry.slot || !named(base, name + sizeof(WORD), size, entry.name)) continue;
++          void** slot = reinterpret_cast<void**>(base + slotOffset);
++          if (!*slot || *slot == entry.wrapper) continue;
++          entry.original = *slot; // Publish immutable original before wrapper.
++          MemoryBarrier();
++          if (exchange(slot, entry.wrapper, entry.original)) { entry.slot = slot; found |= 1u << api; }
++          char line[400] {};
++          std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=import api=%s attached=%u slot_rva=0x%zx original=%p", entry.name, !!entry.slot, slotOffset, entry.original);
++          emit(line);
++        }
++      }
++    }
++    return found;
++  }
++  static void observe(unsigned api, const void* caller, HWND window, int kind = 0,
++    DWORD target = 0, HINSTANCE hookModule = nullptr, HHOOK result = nullptr, HOOKPROC procedure = nullptr, HWND realWindow = nullptr) noexcept {
++    if (!enabled.load(std::memory_order_acquire)) return;
++    ErrorGuard error;
++    ++calls[api];
++    if (observing || !TryAcquireSRWLockExclusive(&lock)) { ++dropped; return; }
++    observing = true;
++    const DWORD thread = GetCurrentThreadId();
++    const uintptr_t rva = reinterpret_cast<uintptr_t>(caller) - reinterpret_cast<uintptr_t>(module);
++    const ULONGLONG now = GetTickCount64();
++    Site* site = nullptr;
++    for (auto& candidate : sites) {
++      if (!candidate.used) { site = &candidate; break; }
++      if (candidate.api == api && candidate.caller == rva && candidate.thread == thread) { site = &candidate; break; }
++    }
++    if (site && lines < 4096 && (api == 2 || !site->used || site->window != window || now >= site->next)) {
++      const DWORD pid = owner(window);
++      *site = { api, rva, thread, window, pid, now + 1000, true };
++      char line[1100] {};
++      const HWND gameWindow = game.load(), presenterWindow = presenter.load();
++      if (api == 2) {
++        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=hook-install api=SetWindowsHookExW caller_rva=0x%zx thread=%lu host_pid=%lu hook_id=%d target_thread=%lu hook_module=%p procedure=%p result=%p last_error=%lu game=%p game_pid=%lu game_thread=%lu presenter=%p presenter_pid=%lu presenter_thread=%lu tick=%llu",
++          static_cast<size_t>(rva), thread, GetCurrentProcessId(), kind, target, hookModule, reinterpret_cast<void*>(procedure), result, error.error, gameWindow, owner(gameWindow), gameWindow ? GetWindowThreadProcessId(gameWindow, nullptr) : 0, presenterWindow, owner(presenterWindow), presenterWindow ? GetWindowThreadProcessId(presenterWindow, nullptr) : 0, now);
++      } else {
++        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=window-query api=%s caller_rva=0x%zx thread=%lu host_pid=%lu hwnd=%p owner_pid=%lu owner_thread=%lu same_process=%u game=%p game_pid=%lu game_thread=%lu presenter=%p presenter_pid=%lu presenter_thread=%lu last_error=%lu tick=%llu real_hwnd=%p real_pid=%lu result=%s",
++          entries[api].name, static_cast<size_t>(rva), thread, GetCurrentProcessId(), window, pid, window ? GetWindowThreadProcessId(window, nullptr) : 0, window && pid == GetCurrentProcessId(), gameWindow, owner(gameWindow), gameWindow ? GetWindowThreadProcessId(gameWindow, nullptr) : 0, presenterWindow, owner(presenterWindow), presenterWindow ? GetWindowThreadProcessId(presenterWindow, nullptr) : 0, error.error, now, realWindow, owner(realWindow), realWindow == window ? "unchanged" : "mapped");
++      }
++      ++lines; emit(line);
++      if (lines == 4096) emit("L4D2_STEAM_WINDOW event=trace-limit lines=4096");
++    } else if (!site) { ++dropped; }
++    observing = false;
++    ReleaseSRWLockExclusive(&lock);
++  }
++  static HWND WINAPI active() {
++    const HWND result = reinterpret_cast<WindowFn>(entries[0].original)();
++    HWND selected = result;
++    if (adapting.load(std::memory_order_acquire) && result) {
++      ErrorGuard error;
++      selected = selectWindow(result, GetForegroundWindow());
++    }
++    observe(0, _ReturnAddress(), selected, 0, 0, nullptr, nullptr, nullptr, result); return selected;
++  }
++  static HWND WINAPI foreground() {
++    const HWND result = reinterpret_cast<WindowFn>(entries[1].original)();
++    const HWND selected = selectWindow(result, result);
++    observe(1, _ReturnAddress(), selected, 0, 0, nullptr, nullptr, nullptr, result); return selected;
++  }
++  static HHOOK WINAPI hook(int kind, HOOKPROC procedure, HINSTANCE hookModule, DWORD target) {
++    const HHOOK result = reinterpret_cast<HookFn>(entries[2].original)(kind, procedure, hookModule, target);
++    observe(2, _ReturnAddress(), nullptr, kind, target, hookModule, result, procedure); return result;
++  }
++public:
++  static const wchar_t* rendererName() { return sizeof(void*) == 8 ? L"GameOverlayRenderer64.dll" : L"GameOverlayRenderer.dll"; }
++  // A foreground snapshot comes from the original GetForegroundWindow result,
++  // or Host USER32 for GetActiveWindow. No NULL -> child substitution: retain
++  // Steam's fallback. Validate current real ownership/hierarchy each time.
++  static HWND selectWindow(HWND real, HWND foregroundSnapshot) {
++    if (!adapting.load(std::memory_order_acquire) || !real) return real;
++    ErrorGuard error;
++    const HWND gameWindow = game.load(), child = presenter.load();
++    const DWORD host = GetCurrentProcessId();
++    if (!gameWindow || !child || !IsWindow(gameWindow) || !IsWindow(child)
++      || !IsWindow(real) || !IsWindow(foregroundSnapshot)) return real;
++    const DWORD gameOwner = owner(gameWindow);
++    if (!gameOwner || gameOwner == host || owner(real) != gameOwner || owner(child) != host) return real;
++    const HWND root = GetAncestor(gameWindow, GA_ROOT);
++    if (!root || GetAncestor(real, GA_ROOT) != root
++      || GetAncestor(foregroundSnapshot, GA_ROOT) != root
++      || !IsChild(gameWindow, child) || !(GetWindowLongPtrW(child, GWL_STYLE) & WS_CHILD)) return real;
++    return child;
++  }
++  // Called on the existing Host command thread, initially and once per second
++  // for delayed injection. No worker thread/timer, no diagnostic while off.
++  static void poll(bool requested, HWND gameWindow, HWND presenterWindow, Log log,
++    const wchar_t* moduleName = rendererName(), bool adapt = false) {
++    if (!requested && !adapt) return;
++    ErrorGuard error;
++    game.store(gameWindow); presenter.store(presenterWindow);
++    adapting.store(adapt, std::memory_order_release);
++    if (attempted) return;
++    logger = log;
++    HMODULE loaded = nullptr;
++    if (!GetModuleHandleExW(0, moduleName, &loaded)) {
++      if (!waitingReported) {
++        waitingReported = true;
++        emit("L4D2_STEAM_WINDOW event=waiting reason=renderer-not-loaded mode=observe-only");
++      }
++      return;
++    }
++    // Hold this diagnostic reference until process exit; saved originals and
++    // callbacks remain valid across concurrent calls and stop/cleanup.
++    module = loaded; attempted = true;
++    char path[MAX_PATH] {}, line[900] {};
++    GetModuleFileNameA(module, path, MAX_PATH);
++    std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=module path=%s base=%p host_pid=%lu bits=%zu reference=process-lifetime", path, module, GetCurrentProcessId(), sizeof(void*) * 8);
++    emit(line);
++    entries[0].wrapper = reinterpret_cast<void*>(&active);
++    entries[1].wrapper = reinterpret_cast<void*>(&foreground);
++    entries[2].wrapper = reinterpret_cast<void*>(&hook);
++    enabled.store(requested, std::memory_order_release);
++    const unsigned mask = attach(module);
++    std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=attached mask=%u mode=%s coverage=named-iat dynamic-resolution=not-covered", mask, adapt ? "window-adapter" : "observe-only");
++    emit(line);
++  }
++  static void stop() {
++    if (!attempted) return;
++    ErrorGuard error;
++    adapting.store(false, std::memory_order_release);
++    enabled.store(false, std::memory_order_release);
++    for (auto& entry : entries) {
++      if (entry.slot) exchange(entry.slot, entry.original, entry.wrapper);
++    }
++    char line[400] {};
++    std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=summary active_calls=%llu foreground_calls=%llu hook_calls=%llu dropped=%llu",
++      calls[0].load(), calls[1].load(), calls[2].load(), dropped.load());
++    emit(line);
++  }
++};
 +}
 diff --git a/bridge/src/server/swapchain_references.h b/bridge/src/server/swapchain_references.h
 new file mode 100644
@@ -15049,6 +15582,47 @@ index 0000000000000000000000000000000000000000..859094725b069aa6ca3b22474f34b8dc
 +  consume();
 +  return result;
 +}
++}
+diff --git a/bridge/src/util/diagnostic_file_hash.h b/bridge/src/util/diagnostic_file_hash.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65eea79563
+--- /dev/null
++++ b/bridge/src/util/diagnostic_file_hash.h
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <bcrypt.h>
++#include <array>
++#include <cstring>
++namespace l4d2_file_hash {
++struct ErrorGuard { DWORD saved=GetLastError(); ~ErrorGuard(){SetLastError(saved);} };
++inline bool hashFile(const wchar_t* path,const char* expected) {
++    ErrorGuard error;
++    HMODULE crypto=LoadLibraryExW(L"bcrypt.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);if(!crypto)return false;
++    const auto open=reinterpret_cast<decltype(&BCryptOpenAlgorithmProvider)>(GetProcAddress(crypto,"BCryptOpenAlgorithmProvider"));
++    const auto create=reinterpret_cast<decltype(&BCryptCreateHash)>(GetProcAddress(crypto,"BCryptCreateHash"));
++    const auto add=reinterpret_cast<decltype(&BCryptHashData)>(GetProcAddress(crypto,"BCryptHashData"));
++    const auto finish=reinterpret_cast<decltype(&BCryptFinishHash)>(GetProcAddress(crypto,"BCryptFinishHash"));
++    const auto destroy=reinterpret_cast<decltype(&BCryptDestroyHash)>(GetProcAddress(crypto,"BCryptDestroyHash"));
++    const auto close=reinterpret_cast<decltype(&BCryptCloseAlgorithmProvider)>(GetProcAddress(crypto,"BCryptCloseAlgorithmProvider"));
++    BCRYPT_ALG_HANDLE algorithm=nullptr;BCRYPT_HASH_HANDLE hash=nullptr;HANDLE file=INVALID_HANDLE_VALUE;bool match=false;
++    if(open && create && add && finish && destroy && close){
++      file=CreateFileW(path,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
++      LARGE_INTEGER size{};
++      if(file!=INVALID_HANDLE_VALUE && GetFileSizeEx(file,&size) && size.QuadPart>=0 && size.QuadPart<=64*1024*1024
++        && open(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,0)>=0 && create(algorithm,&hash,nullptr,0,nullptr,0,0)>=0){
++        std::array<BYTE,65536> buffer{};DWORD count=0;bool ok=true;
++        for(;;){if(!ReadFile(file,buffer.data(),static_cast<DWORD>(buffer.size()),&count,nullptr)){ok=false;break;}if(!count)break;if(add(hash,buffer.data(),count,0)<0){ok=false;break;}}
++        BYTE digest[32]{};
++        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=std::strcmp(hex,expected)==0;}
++      }
++      if(hash)destroy(hash);if(algorithm)close(algorithm,0);if(file!=INVALID_HANDLE_VALUE)CloseHandle(file);
++    }
++    FreeLibrary(crypto);return match;
++  }
 +}
 diff --git a/bridge/src/util/exception_diagnostics.cpp b/bridge/src/util/exception_diagnostics.cpp
 new file mode 100644
@@ -17444,10 +18018,10 @@ index fb5d556b9675dca0c1751822ca346729b1e7a46c..3866e560cf771689561579e7a3234faa
  	'util_bridge_assert.h',
 diff --git a/bridge/src/util/overlay_input_diagnostics.h b/bridge/src/util/overlay_input_diagnostics.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..806d34349def5146274e4e4ead1b0634d41ae332
+index 0000000000000000000000000000000000000000..a963fce6761548efe3cedf04e6d3c1d145c69716
 --- /dev/null
 +++ b/bridge/src/util/overlay_input_diagnostics.h
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,139 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -17463,7 +18037,7 @@ index 0000000000000000000000000000000000000000..806d34349def5146274e4e4ead1b0634
 +namespace l4d2_overlay {
 +// One instance per input thread; bounded observations of immediate callers only.
 +class SuppressionDiagnostics {
-+  struct Site { const char* api; const void* caller; };
++  struct Site { const char* api; const void* caller; const char* action; };
 +  Site m_sites[128] {};
 +  size_t m_count = 0;
 +  bool m_overflow = false;
@@ -17475,7 +18049,8 @@ index 0000000000000000000000000000000000000000..806d34349def5146274e4e4ead1b0634
 +      ~ErrorGuard() { SetLastError(value); }
 +    } guard;
 +    for (size_t i = 0; i < m_count; ++i) {
-+      if (std::strcmp(m_sites[i].api, api) == 0 && m_sites[i].caller == caller) { return; }
++      if (std::strcmp(m_sites[i].api, api) == 0 && m_sites[i].caller == caller
++        && std::strcmp(m_sites[i].action, action) == 0) { return; }
 +    }
 +    if (m_count == 128) {
 +      if (!m_overflow) {
@@ -17484,7 +18059,7 @@ index 0000000000000000000000000000000000000000..806d34349def5146274e4e4ead1b0634
 +      }
 +      return;
 +    }
-+    m_sites[m_count++] = { api, caller };
++    m_sites[m_count++] = { api, caller, action };
 +    HMODULE module = nullptr;
 +    char path[MAX_PATH] {}, line[1200] {};
 +    if (caller && GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -18273,6 +18848,254 @@ index 0000000000000000000000000000000000000000..307d1554610bb8743f6f1544ef1d86ac
 +    return true;
 +  }
 +};
++}
+diff --git a/bridge/src/util/steam_web_diagnostics.h b/bridge/src/util/steam_web_diagnostics.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..eaca632a8f1f9ce007e93d583fa533070c0c32fc
+--- /dev/null
++++ b/bridge/src/util/steam_web_diagnostics.h
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include "diagnostic_file_hash.h"
++#include "steam_workshop_status.h"
++#include <intrin.h>
++#include <atomic>
++#include <cstdio>
++#include <cstring>
++#include <array>
++#include <cstdint>
++namespace l4d2_web {
++class Diagnostics {
++  static_assert(sizeof(void*)==4,"Verified GameUI context and calling convention require x86");
++  using Available = bool (__thiscall*)(void*);
++  using Web = void (__thiscall*)(void*, const char*, int);
++  using Log = void (*)(const char*);
++  struct ErrorGuard { DWORD saved=GetLastError(); ~ErrorGuard(){SetLastError(saved);} };
++  inline static void* original[2] {};
++  inline static void** slots[2] {};
++  inline static Log logger=nullptr;
++  inline static std::atomic<bool> enabled {false};
++  inline static std::atomic<unsigned> availabilityCalls {0}, webCalls {0}, lines {0};
++  inline static bool checked=false, validMenu=false, waiting=false;
++  inline static std::atomic<bool> proxy {false};
++  static bool verifiedGuard(const void* caller) {
++    if(!validMenu || !menu)return false;
++    const uintptr_t address=reinterpret_cast<uintptr_t>(caller),base=reinterpret_cast<uintptr_t>(menu);
++    return address>=base && l4d2_workshop::menuGuard(address-base);
++  }
++  inline static HMODULE menu=nullptr;
++  inline static thread_local bool logging=false;
++  static void emit(const char* line,bool force=false) noexcept {
++    ErrorGuard error;
++    if(logging || !logger)return;
++    if(lines.fetch_add(1)>=512 && !force)return;
++    logging=true;try {logger(line);} catch (...) {} logging=false;
++  }
++  template<typename T> static bool read(const void* address,T& value) {
++    SIZE_T bytes=0;return address && ReadProcessMemory(GetCurrentProcess(),address,&value,sizeof(value),&bytes) && bytes==sizeof(value);
++  }
++  static bool exchange(void** slot,void* expected,void* replacement) {
++    DWORD protection=0,ignored=0;
++    if (!VirtualProtect(slot,sizeof(void*),PAGE_READWRITE,&protection)) return false;
++    const void* previous=InterlockedCompareExchangePointer(reinterpret_cast<void* volatile*>(slot),replacement,expected);
++    if (!VirtualProtect(slot,sizeof(void*),protection,&ignored)) emit("L4D2_STEAM_WEB event=protection-error");
++    return previous==expected;
++  }
++  static const char* classify(const char* url) {
++    if (!url) return "null";
++    char text[257] {};size_t used=0;
++    while (used<256) {
++      MEMORY_BASIC_INFORMATION region{};
++      if (!VirtualQuery(url+used,&region,sizeof(region)) || region.State!=MEM_COMMIT || (region.Protect&(PAGE_GUARD|PAGE_NOACCESS))) return "unreadable";
++      const uintptr_t end=reinterpret_cast<uintptr_t>(region.BaseAddress)+region.RegionSize;
++      size_t count=end-reinterpret_cast<uintptr_t>(url+used);if(count>256-used)count=256-used;
++      SIZE_T bytes=0;
++      if (!count || !ReadProcessMemory(GetCurrentProcess(),url+used,text+used,count,&bytes) || bytes!=count) return "unreadable";
++      if (std::memchr(text+used,0,count)) {
++        return std::strstr(text,"steamcommunity.com/") && (std::strstr(text,"/workshop/") || std::strstr(text,"/sharedfiles/")) ? "steam-workshop" : "other";
++      }
++      used+=count;
++    }
++    return "long";
++  }
++  static void observe(const char* api,const void* caller,bool result,const char* url=nullptr,int mode=0) {
++    if (!enabled.load(std::memory_order_acquire)) return;
++    ErrorGuard error;
++    HMODULE owner=nullptr;char path[MAX_PATH]{},line[750]{};
++    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,reinterpret_cast<LPCSTR>(caller),&owner);
++    if (owner)GetModuleFileNameA(owner,path,MAX_PATH);
++    const size_t rva=owner?reinterpret_cast<uintptr_t>(caller)-reinterpret_cast<uintptr_t>(owner):0;
++    if(menu && std::strcmp(api,"IsOverlayEnabled")==0
++      && (owner!=menu || (rva!=0x199ea && rva!=0x19aca && rva!=0x6ea9a))) return;
++    std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB event=request api=%s pid=%lu thread=%lu caller_path=%s caller_rva=0x%zx overlay_enabled=%d mode=%d url_class=%s last_error=%lu tick=%llu action=observe-only",
++      api,GetCurrentProcessId(),GetCurrentThreadId(),*path?path:"unresolved",rva,std::strcmp(api,"IsOverlayEnabled")==0?static_cast<int>(result):-1,mode,std::strcmp(api,"IsOverlayEnabled")==0?"not-applicable":classify(url),error.saved,GetTickCount64());
++    emit(line);
++  }
++  static bool __fastcall available(void* self,void*) {
++    const bool value=reinterpret_cast<Available>(original[0])(self);
++    ErrorGuard error; // Preserve the original SDK's LastError through all checks.
++    const void* caller=_ReturnAddress();
++    const bool requested=enabled.load(std::memory_order_acquire) && proxy.load(std::memory_order_acquire);
++    const bool guard=verifiedGuard(caller);
++    const bool hostReady=requested && guard && !value && l4d2_workshop::ready();
++    const bool result=l4d2_workshop::select(value,requested,guard,hostReady);
++    ++availabilityCalls;observe("IsOverlayEnabled",caller,value);
++    if(requested && guard){char line[220]{};std::snprintf(line,sizeof(line),
++      "L4D2_STEAM_WORKSHOP event=availability original=%u returned=%u host_ready=%u caller_rva=0x%zx scope=verified-menu-guard",
++      static_cast<unsigned>(value),static_cast<unsigned>(result),static_cast<unsigned>(hostReady),
++      reinterpret_cast<uintptr_t>(caller)-reinterpret_cast<uintptr_t>(menu));emit(line);}
++    return result;
++  }
++  static void __fastcall web(void* self,void*,const char* url,int mode) {
++    ++webCalls;observe("ActivateGameOverlayToWebPage",_ReturnAddress(),false,url,mode);
++    reinterpret_cast<Web>(original[1])(self,url,mode); // Exactly once, exact borrowed arguments.
++    ErrorGuard error;
++    char line[180]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB event=web-return pid=%lu thread=%lu last_error=%lu tick=%llu",GetCurrentProcessId(),GetCurrentThreadId(),error.saved,GetTickCount64());emit(line);
++  }
++  static bool attach(void* utils,void* friends) {
++    void** tables[2]{};void* objects[2]={utils,friends};const size_t index[2]={17,30};
++    for(unsigned i=0;i<2;++i){
++      if(slots[0] || slots[1])return false;
++      if(!read(objects[i],tables[i]) || !tables[i] || !read(tables[i]+index[i],original[i]) || !original[i])return false;
++      MEMORY_BASIC_INFORMATION info{};
++      if(!VirtualQuery(tables[i]+index[i],&info,sizeof(info)) || info.Type!=MEM_IMAGE)return false;
++      if(!VirtualQuery(original[i],&info,sizeof(info)) || !(info.Protect&(PAGE_EXECUTE|PAGE_EXECUTE_READ|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY)))return false;
++      HMODULE keep=nullptr;
++      if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,reinterpret_cast<LPCSTR>(original[i]),&keep))return false;
++    }
++    HMODULE self=nullptr;
++    if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,reinterpret_cast<LPCSTR>(&available),&self))return false;
++    enabled.store(true,std::memory_order_release);
++    for(unsigned i=0;i<2;++i){
++      void* wrapper=i==0?reinterpret_cast<void*>(&available):reinterpret_cast<void*>(&web);
++      void** slot=tables[i]+index[i];MemoryBarrier();
++      if(exchange(slot,original[i],wrapper))slots[i]=slot;
++    }
++    char line[220]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB event=attached utils010=%u friends017=%u scope=verified-menu-interfaces mode=observe-only",
++      static_cast<unsigned>(slots[0]!=nullptr),static_cast<unsigned>(slots[1]!=nullptr));emit(line);
++    return slots[0] && slots[1];
++  }
++public:
++  // SDK method slots are used only after the exact caller file is identified.
++  // This reads its existing verified context; never calls Steam init/accessors.
++  static void setProxy(bool requested){proxy.store(requested,std::memory_order_release);}
++  static bool hashFile(const wchar_t* path,const char* expected) {return l4d2_file_hash::hashFile(path,expected);}
++  static void poll(bool requested,Log log) {
++    if(!requested || slots[0] || slots[1])return;
++    ErrorGuard error;logger=log;
++    static ULONGLONG next=0;const ULONGLONG now=GetTickCount64();if(now<next)return;next=now+1000;
++    if(!checked){
++      if(!GetModuleHandleExW(0,L"gameui.dll",&menu))return;
++      wchar_t path[MAX_PATH]{};checked=true;
++      validMenu=GetModuleFileNameW(menu,path,MAX_PATH) && hashFile(path,"321ec9b5865582330af61e81eb347da31cc213cc6c95b80d6d98170b8a5fbb40");
++      if(!validMenu){
++        emit("L4D2_STEAM_WEB event=unsupported reason=menu-file-hash-mismatch hooks=0");return;
++      }
++      emit("L4D2_STEAM_WEB event=verified-menu sha256=321ec9b5865582330af61e81eb347da31cc213cc6c95b80d6d98170b8a5fbb40");
++    }
++    if(!validMenu)return;
++    void* context=nullptr;void* utils=nullptr;void* friends=nullptr;
++    const auto base=reinterpret_cast<BYTE*>(menu);
++    BYTE opcode[3]{};
++    if(!read(base+0x199e5,opcode) || opcode[0]!=0x8b || opcode[1]!=0x42 || opcode[2]!=0x44
++      || !read(base+0x19a42,opcode) || opcode[0]!=0x8b || opcode[1]!=0x52 || opcode[2]!=0x78
++      || !read(base+0x1fa0f0,context) || !context
++      || !read(static_cast<BYTE*>(context)+12,utils) || !utils
++      || !read(static_cast<BYTE*>(context)+8,friends) || !friends){
++      if(!waiting){waiting=true;emit("L4D2_STEAM_WEB event=waiting reason=verified-context-not-ready");}return;
++    }
++    attach(utils,friends);
++  }
++  static void stop() {
++    enabled.store(false,std::memory_order_release);
++    for(unsigned i=0;i<2;++i)if(slots[i])exchange(slots[i],i==0?reinterpret_cast<void*>(&available):reinterpret_cast<void*>(&web),original[i]);
++    if(logger){char line[180]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB event=summary availability_calls=%u web_calls=%u emitted_attempts=%u",availabilityCalls.load(),webCalls.load(),lines.load());emit(line,true);}
++  }
++  friend struct NativeTest;
++};
++}
+diff --git a/bridge/src/util/steam_workshop_status.h b/bridge/src/util/steam_workshop_status.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..4887c27d74847980f82a56d85d2b4ac644332bdb
+--- /dev/null
++++ b/bridge/src/util/steam_workshop_status.h
+@@ -0,0 +1,73 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <cstdint>
++namespace l4d2_workshop {
++// Separate, session-GUID-scoped control mapping; no rendering queue changes.
++// Immutable identity precedes atomic version publication. One aligned atomic
++// snapshot contains both host-monotonic timestamp and known/available state.
++struct alignas(8) Shared {
++  volatile LONG version;
++  DWORD hostPid;
++  alignas(8) volatile LONG64 snapshot;
++};
++static_assert(sizeof(Shared)==16,"Cross-bitness control layout");
++constexpr LONG version=0x57535001;
++constexpr ULONGLONG maxAgeMs=3000;
++inline LONG64 encode(bool known,unsigned value,ULONGLONG now) {
++  return static_cast<LONG64>((now<<2) | (known ? (value==1 ? 2u : 1u) : 0u));
++}
++inline bool fresh(LONG64 sample,ULONGLONG now) {
++  const auto bits=static_cast<ULONGLONG>(sample),time=bits>>2;
++  return (bits&3u)==2 && time<=now && now-time<=maxAgeMs;
++}
++inline bool menuGuard(uintptr_t rva) {return rva==0x199ea || rva==0x19aca || rva==0x6ea9a;}
++inline bool select(bool original,bool enabled,bool verifiedGuard,bool hostReady) {
++  return original || (enabled && verifiedGuard && hostReady);
++}
++class Channel {
++  HANDLE mapping=nullptr,host=nullptr;
++  Shared* data=nullptr;
++  DWORD expectedPid=0;
++public:
++  // Production endpoints intentionally live until process exit: callback code
++  // and borrowed targets are pinned, so late/in-flight hooks retain valid state.
++  bool publisher(const char* name) {
++    mapping=CreateFileMappingA(INVALID_HANDLE_VALUE,nullptr,PAGE_READWRITE,0,sizeof(Shared),name);
++    const DWORD error=GetLastError();
++    if(!mapping)return false;
++    if(error==ERROR_ALREADY_EXISTS){CloseHandle(mapping);mapping=nullptr;return false;}
++    data=static_cast<Shared*>(MapViewOfFile(mapping,FILE_MAP_ALL_ACCESS,0,0,sizeof(Shared)));
++    if(!data){CloseHandle(mapping);mapping=nullptr;return false;}
++    data->hostPid=GetCurrentProcessId();
++    InterlockedExchange64(&data->snapshot,encode(false,0,GetTickCount64()));
++    InterlockedExchange(&data->version,version);return true;
++  }
++  bool reader(const char* name,HANDLE actualHost) {
++    expectedPid=GetProcessId(actualHost);
++    if(!expectedPid || !DuplicateHandle(GetCurrentProcess(),actualHost,GetCurrentProcess(),&host,SYNCHRONIZE,FALSE,0))return false;
++    mapping=OpenFileMappingA(FILE_MAP_ALL_ACCESS,FALSE,name);
++    if(mapping)data=static_cast<Shared*>(MapViewOfFile(mapping,FILE_MAP_ALL_ACCESS,0,0,sizeof(Shared)));
++    if(!data){close();return false;}
++    if(InterlockedCompareExchange(&data->version,0,0)!=version || data->hostPid!=expectedPid){close();return false;}
++    return true;
++  }
++  void publish(bool known,unsigned value,ULONGLONG now) {
++    if(data)InterlockedExchange64(&data->snapshot,encode(known,value,now));
++  }
++  bool ready() const {
++    if(!data || !host || WaitForSingleObject(host,0)!=WAIT_TIMEOUT)return false;
++    return fresh(InterlockedCompareExchange64(&data->snapshot,0,0),GetTickCount64());
++  }
++  void close() {
++    if(data)UnmapViewOfFile(data);data=nullptr;
++    if(mapping)CloseHandle(mapping);mapping=nullptr;
++    if(host)CloseHandle(host);host=nullptr;
++  }
++};
++inline Channel publisher,reader;
++inline void publish(bool known,unsigned value,ULONGLONG now){publisher.publish(known,value,now);}
++inline bool ready(){return reader.ready();}
 +}
 diff --git a/bridge/src/util/util_atomiccircularqueue.h b/bridge/src/util/util_atomiccircularqueue.h
 index 4be48dacb9e519919f7fe823e411584b656c52b5..261dc3644f4261d50b4900ad8f0747c2c04a7356 100644
@@ -20409,7 +21232,7 @@ index 462334e4ff77762bab0aaf8c5841a3191bae3821..2a1b524b1e9636b9316d89db371f173c
 +
 +// NV-DXVK end
 diff --git a/bridge/src/util/util_process.h b/bridge/src/util/util_process.h
-index ef73efac42e82a2d346acd7f4b5c15bc0dec7f1b..4cfe039b1c48e07f07795d4f41dc993be9eaf6b0 100644
+index ef73efac42e82a2d346acd7f4b5c15bc0dec7f1b..d6d8dc663486ca2c4e0343f8541f4850a780a8b0 100644
 --- a/bridge/src/util/util_process.h
 +++ b/bridge/src/util/util_process.h
 @@ -1,3 +1,7 @@
@@ -20420,11 +21243,14 @@ index ef73efac42e82a2d346acd7f4b5c15bc0dec7f1b..4cfe039b1c48e07f07795d4f41dc993b
  /*
   * Copyright (c) 2022-2023, NVIDIA CORPORATION. All rights reserved.
   *
-@@ -59,6 +63,7 @@ namespace bridge_util {
+@@ -59,6 +63,10 @@ namespace bridge_util {
      bool RegisterExitCallback(ProcessExitCallback callback);
      void UnregisterExitCallback();
      HANDLE GetCurrentProcessHandle();
 +    DWORD GetProcessId() const { return ::GetProcessId(hProcess); }
++    // Borrowed local handle for actual launched child, not the Client handle
++    // duplicated into the child by GetCurrentProcessHandle() for SYN.
++    HANDLE GetChildProcessHandle() const { return hProcess; }
  
    private:
      static void CALLBACK OnExited(void* context, BOOLEAN isTimeout) {

@@ -1,14 +1,12 @@
-# v1.4.4
+# v1.5.0
 
-- 修复上传 Lock 失败、尺寸/行距、Shader 常量范围、Query 未完成结果、键盘状态空指针及共享分配边界的处理，并避免并发回复互相耗尽重试。
-- 修复 IPC 关闭时读取端可能遗漏最后一批命令的问题；以可稳定触发旧错误的 x86/x64 回归验证尾包只处理一次。
-- 减少上传池扫描、紧密上传复制和学习数据库解析开销；保留历史数据、同步、画质与默认设置。
-- 增加 IPC 批次和静态映射设置，保存后重启生效；中英文菜单可在当前会话切换。
+- 合入上游 v1.3.0 的 Steam 窗口、输入与工坊适配，补齐呈现子窗口的配套默认设置。
+- 整合 45 项台账中的已实现改进：上传与参数边界、Query 未完成结果、并发回复及 IPC 关闭尾包修复，上传池扫描与数据库解析调整。
+- 加入 IPC 批次、静态映射设置及中英文菜单；设置保存后重启生效，语言切换仅本会话有效。
 
-原生验证覆盖 x86/x64、真实跨进程传输及旧错误负对照。组件收益不代表保证提升游戏帧率；整包实机验收结果和限制随本版本 Release 记录。
+历史 v1.4.4 的 45 项候选在三组实机对照中，以 Host Present 提交间隔统计的平均 FPS 开灯/关灯分别下降 2.59%/1.97%，1% low 下降 0.72%/0.78%；维护者知悉后明确要求采用。这些结果不含本次新增 Steam 组合，最终 v1.5.0 包未重新进行完整实机性能对照，不承诺帧率收益。Steam/ReShade、重 Mod 和长期稳定性验证范围有限。本次编译与原生回归结果见下方构建记录。
 
-Steam Overlay 兼容性尚未确认，本次未包含上游整组 Steam 适配改动。
+**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+退出游戏和所有 Bridge Host 后，成套恢复 Client 与两个 Host。
 
-**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Bridge Host 后，成套恢复 Client 与两个 Host。**
-
-[45 项处理台账](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/OPTIMIZATION-45.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+[安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md) · [45 项处理台账](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/OPTIMIZATION-45.md)

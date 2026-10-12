@@ -2,7 +2,7 @@
 
 开发接入见 [完整 API 参考](API.md)，进程/资源/配置的技术边界见 [当前架构](ARCHITECTURE.md)。本文描述最终 HUD 行为；控制 ABI 仍提供 runtime Host 等字段，插件按当前菜单要求不显示这些字段。
 
-本页描述完整上游 1.2.1 的常用设置功能。Nightly 从同一源码编译 x86 `L4D2BridgePlugin.dll`，随唯一全量 ZIP 直接放在 `bin/neko/plugins/`。完整包已含 Starfelll（@Starfelll）的 L4N 2.51.0 本体及维护者提供的 `config.vdf`；来源见 [整合包说明](L4N-BUNDLE.md)。Bridge 本体不依赖设置插件，插件需支持随仓库提供的 SDK v2 的 L4N HUD。
+本页描述 Nightly v1.5.0 的 `common-settings-3` 插件，包括此前常用设置、上游 IPC 批次/静态映射设置与中英文菜单。Nightly 从配套源码编译 x86 `L4D2BridgePlugin.dll`，随唯一全量 ZIP 直接放在 `bin/neko/plugins/`。完整包已含 Starfelll（@Starfelll）的 L4N 2.51.0 本体及维护者提供的 `config.vdf`；来源见 [整合包说明](L4N-BUNDLE.md)。Bridge 本体不依赖设置插件，插件需支持随仓库提供的 SDK v2 的 L4N HUD。
 
 ## 安装与停用插件
 
@@ -28,11 +28,22 @@ L4D2 Bridge
 ├─ ReShade Presenter
 │  ├─ Enable
 │  └─ Disable
-└─ Host
-   ├─ Configured Host: x86 / x64
-   ├─ x86 Host
-   ├─ x64 Host
-   └─ Save
+├─ Host
+│  ├─ Configured Host: x86 / x64
+│  ├─ x86 Host
+│  ├─ x64 Host
+│  └─ Save
+├─ ipcBatchSize
+│  ├─ Current (conf): 1 / 2 / 4 / 8 / 16 / 32
+│  ├─ 1 / 2 / 4 / 8 / 16 / 32
+│  └─ Save
+├─ vbibMappedShadow
+│  ├─ Current (conf): True / False
+│  ├─ True / False
+│  └─ Save
+└─ Language
+   ├─ English
+   └─ 中文
 ```
 
 | 菜单 | 立即生效 | 保存配置 | 需要完整重启 |
@@ -44,16 +55,19 @@ L4D2 Bridge
 | ReShade Presenter | 不重建当前 Presenter | 是 | 是 |
 | Host: x86 / x64 | 仅暂存选择 | 否 | 否 |
 | Host: Save | 不更换当前 Host | 是 | 是 |
+| ipcBatchSize / vbibMappedShadow: 选择 | 仅暂存选择 | 否 | 否 |
+| ipcBatchSize / vbibMappedShadow: Save | 不修改当前 IPC 或 buffer 存储方式 | 是 | 是 |
+| Language: English / 中文 | 改变当前会话的菜单语言；重新进入菜单刷新 | 否 | 否 |
 
-菜单不包含测试/诊断开关。PageBlock coverage 和 GC 结果是现有功能的状态信息。说明文字的 callback 返回 nullptr，不能意外打开新页面；返回导航由 L4N HUD 处理。根菜单的 `Last action result` 只表示上一次动作结果。Status、Host、Presenter 当前值在每次进入时重新查询。
+菜单不包含诊断开关。PageBlock coverage 和 GC 结果是现有功能的状态信息。说明文字的 callback 返回 nullptr，不能意外打开新页面；返回导航由 L4N HUD 处理。根菜单的 `Last action result` 只表示上一次动作结果。Status、Host、Presenter、IPC 批次与静态映射当前值在每次进入时重新查询，没有后台轮询。
 
 Status 仅显示 PageBlock 的策略、blocks、locked/transferring、映射 VA、backing、drop/remap/reconstruction 与 coverage；不显示 Host、Presenter、配置目标或重启状态，也不调用通用设置查询。Host 页只显示 `Configured Host`，不显示运行 Host。Presenter 的已保存目标状态仍在其自身菜单中显示。
 
 ## Memory Policy
 
-`common-settings-2` 插件将修改和保存分开。首行显示 `当前策略: keep / lg / drop`：运行策略与配置值相同则标记 `(configure)`，不同则显示运行策略并标记 `(runtime)`。配置读取失败或旧 Bridge 没有通用 API 时，只显示已成功查询的 runtime 值；不会把缺省响应误当成配置值。`lg` 是 `learned-aggressive` 的菜单缩写，配置键的完整值不变。
+插件沿用 `common-settings-2` 起的修改与保存分离规则。首行显示 `当前策略: keep / lg / drop`：运行策略与配置值相同则标记 `(configure)`，不同则显示运行策略并标记 `(runtime)`。配置读取失败或旧 Bridge 没有通用 API 时，只显示已成功查询的 runtime 值；不会把缺省响应误当成配置值。`lg` 是 `learned-aggressive` 的菜单缩写，配置键的完整值不变。
 
-keep、lg、drop 三项仅调用旧 PageBlock `SetPolicy`，当前会话立即生效，文件保持原样。结果页提供底部的 `save to configure`。保存先重新查询实时 runtime 策略，再通过 Client 的既有通用 `SetMemoryPolicy` 写入 `client.pageBlockRetentionPolicy`；保存使用即时查询值，不使用打开菜单时的快照。该既有接口会重新确认同一个 runtime 值，本次没有改变 Bridge 控制 ABI 或 Client/Host 实现。若 runtime 查询失败，不尝试写配置。
+keep、lg、drop 三项仅调用旧 PageBlock `SetPolicy`，当前会话立即生效，文件保持原样。结果页提供底部的 `save to configure`。保存先重新查询实时 runtime 策略，再通过 Client 的既有通用 `SetMemoryPolicy` 写入 `client.pageBlockRetentionPolicy`；保存使用即时查询值，不使用打开菜单时的快照。该接口会重新确认同一个 runtime 值，策略操作仍采用既有 ABI 语义。若 runtime 查询失败，不尝试写配置。
 
 保存操作分别报告运行确认与持久化结果：
 
@@ -84,9 +98,19 @@ client.DirectInput.forward.mousePolicy = 0
 client.DirectInput.forward.keyboardPolicy = 0
 ```
 
-Disable 只保存 `server.presenterWindow=False`、`client.hookMessagePump=False`、`client.overrideCustomWinHooks=False`，其余配置保留。Enable/Disable 都只修改 Bridge Presenter/输入支持，不安装、卸载或重载 ReShade 本体，也不改 Host 选择。当前已验证的 ReShade 组合仍是 **x64 Host + Vulkan ReShade 6.0.1**；x86 配置允许启用，只显示非阻塞提示。
+Disable 只保存 `server.presenterWindow=False`、`client.hookMessagePump=False`、`client.overrideCustomWinHooks=False`，其余配置保留。Enable/Disable 都只修改 Bridge Presenter/输入支持，不安装、卸载或重载 ReShade 本体，也不改 Host 选择。此前验证过的 ReShade 组合为 **x64 Host + Vulkan ReShade 6.0.1**；x86 配置允许启用，只显示非阻塞提示。这些历史验证不能替代 v1.5.0 整合包的游戏测试。
 
-Client 的通用状态仍保存启动时的 Presenter 配置、真实 Host 架构与重启判定，供控制 ABI 使用；精简后的插件不在 Status 显示这些字段。Host 和 Presenter 的保存结果继续明确提示完整重启。关闭 Presenter 不会回滚用户其他设置。
+v1.5.0 新安装的主配置已启用上述 Presenter 依赖以及两端 Steam 输入、Host 原生输入、窗口适配、Client hook/query 链、鼠标捕获交接和工坊可用性代理。**Presenter 菜单不是完整 Steam 功能开关**：Disable 会停用 Steam 所需子窗口和 Client 钩子，其他 Steam 键仍保留；Enable 也不会补写缺失的 Steam 键。升级保留旧配置时按 [完整配置说明](CONFIGURATION.md#steam-窗口与输入适配) 合并依赖。不要把关闭 Presenter 当成已停用所有 Steam 工作。
+
+Client 的通用状态仍保存启动时的 Presenter 配置、真实 Host 架构与重启判定，供控制 ABI 使用；插件不在 Status 显示这些字段。Host 和 Presenter 的保存结果继续明确提示完整重启。工坊代理和窗口适配仍有功能所需的状态检查及有界观察，即使详细诊断键为 False；这与插件只在菜单操作时查询不同。
+
+## IPC 批次、静态映射与语言
+
+`ipcBatchSize` 显示已保存配置，并允许选择 1、2、4、8、16、32；随包默认 8。`vbibMappedShadow` 允许选择 True/False，随包默认 False。两页都把选择与 Save 分开：选择不写文件，重新进入菜单会放弃未保存选择；Save 只写对应配置键，成功后重新读取配置并提示完整重启游戏与 Host。不会在当前会话替换 IPC、分配器或已有 buffer，也不调用 GC。读取失败或旧 Bridge 不支持该接口时明确显示不可用。
+
+静态映射可能增加 Map/Unmap、缺页及缓存维护成本，菜单保留仅在 Client 地址空间十分紧张时考虑启用的提示；它不保证改善 FPS。`client.vbibMappedShadowMinKB` 与 `client.vbibShadowCacheMB` 仍需手工编辑。保留 C8/映射关闭的默认值也不代表整合候选没有性能代价，相关实测和回退提示见 [本次发布说明](RELEASE-NOTES.md)。
+
+Language 提供 English 与中文，立即改变当前插件会话的菜单文字；已打开页面需重新进入以刷新。语言不写 `bridge.conf` 或 L4N 配置、不保存到下次启动、不修改 Bridge 运行状态；菜单键名和配置含义保持不变。
 
 ## 控制接口与向后兼容
 
@@ -94,23 +118,23 @@ Client 的通用状态仍保存启动时的 Presenter 配置、真实 Host 架�
 
 - Request 16 字节：bytes、version、operation、value。
 - Response 64 字节，pack(8)，全部固定宽度；无跨 DLL 的 STL、路径或指针字段。
-- 操作 0..6：GetStatus、SetMemoryPolicy、GetMemoryPolicy、SetHostMode、GetHostMode、SetReShadePresenter、GetReShadePresenter。
+- 操作 0..6 保留 GetStatus、SetMemoryPolicy、GetMemoryPolicy、SetHostMode、GetHostMode、SetReShadePresenter、GetReShadePresenter；追加 7..10：GetIpcBatchSize、SetIpcBatchSize、GetVbibMappedShadow、SetVbibMappedShadow。
 - Host 值：Unknown=0、x86=1、x64=2；Policy 保持 keep=0、learned-aggressive=1、drop=2。
-- 响应包含 runtime/configured Host、runtime/configured Policy、Presenter configured/startup、restartRequired、flags、runtimeResult、configResult、queryResult、configWriteSucceeded。
+- 响应包含 runtime/configured Host、runtime/configured Policy、Presenter configured/startup、restartRequired、flags、runtimeResult、configResult、queryResult、configWriteSucceeded。`ConfigMenuSupported=4` 标记存在时，两个原保留字段分别返回已保存 IPC 批次与静态映射值；结构大小和 ABI 版本不变。
 - flags 区分是否尝试 runtime 修改与配置写入。完整成功返回 S_OK；已处理的部分失败返回 S_FALSE，并保留独立错误码；错误请求/未初始化分别返回 E_INVALIDARG/E_PENDING。S_FALSE 不代表“全部成功”。
 
-保留 `L4D2BridgePageBlockControl` ordinal 41、Request=16、v1 Response=208、v2 DetailedResponse=656、所有枚举和写入范围；原导出实现与头文件未改变。旧插件在新 Bridge 上继续使用原语义。新插件在已加载模块中枚举并查找控制导出；优先使用该 Bridge 同一模块的新导出，Stats/GC 继续使用旧导出并按 v2→v1 回退。旧 Bridge 下 Stats/GC/运行策略保留，策略明确提示不保存，Host/Presenter 显示 unavailable。没有控制导出也安全返回失败；插件不加载另一个 D3D9 runtime，不访问配置文件或游戏私有接口。
+保留 `L4D2BridgePageBlockControl` ordinal 41、Request=16、v1 Response=208、v2 DetailedResponse=656、所有枚举和写入范围；旧插件在新 Bridge 上继续使用原语义。新插件在已加载模块中枚举并查找控制导出；优先使用该 Bridge 同一模块的新导出，Stats/GC 继续使用旧导出并按 v2→v1 回退。旧 Bridge 下 Stats/GC/运行策略保留；没有通用 API 时策略明确提示不保存，Host/Presenter 显示 unavailable。IPC/静态映射页同时检查返回结果及 `ConfigMenuSupported`，不会把旧 ABI 的零保留字段视为新设置；语言切换仍可使用。没有控制导出也安全返回失败；插件不加载另一个 D3D9 runtime，不访问配置文件或游戏私有接口。
 
 ## Client 保存配置
 
-配置路径使用 Client 初始化 Config 时实际读取的路径，并用同一路径读取目标/写入更新；不依赖插件路径、工作目录或 Host 位数。标准路径为 `<L4D2>/bin/.l4d2bridge/bridge.conf`。Host 进程的 Config 拒绝调用新增持久化接口。保存不修改启动配置缓存，因此不会在当前 session 动态应用 Host、窗口或输入设置。
+配置路径使用 Client 初始化 Config 时实际读取的路径，并用同一路径读取目标/写入更新；不依赖插件路径、工作目录或 Host 位数。标准路径为 `<L4D2>/bin/.l4d2bridge/bridge.conf`。Host 进程的 Config 拒绝调用新增持久化接口。保存不修改启动配置缓存，因此不会在当前 session 动态应用 Host、窗口、输入、IPC 批次或静态映射设置。
 
 编辑器复用 Config 的 key/value 词法规则，按行只更新指定键，保留注释、空行、顺序、未知键、UTF-8 Unicode/BOM、原有 CRLF/LF。目标重复键只保留第一个有效定义，其余原行改为注释，避免继续产生有效重复；不存在的键追加。无关 DXVK/ReShade/custom/diagnostic 值保持原样。UTF-16 等不支持的文本返回编码错误，保留原文件。
 
-Client 内部序列化读写。用同目录 `bridge.conf.tmp` 的 CREATE_NEW 防止覆盖已有临时文件，写完检查长度、FlushFileBuffers、close，再检查原文件是否发生外部变化，最后 MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH) 同卷替换。失败清理自己创建的临时文件，保留原配置；已存在的临时文件不会被删除。返回 Win32→HRESULT 和 HUD 英文错误说明。原子替换是 Windows 本地文件系统的正常语义，不保证网络盘、断电或第三方编辑器的所有竞争场景；不覆盖检测到的外部修改。
+Client 内部序列化读写。用同目录 `bridge.conf.tmp` 的 CREATE_NEW 防止覆盖已有临时文件，写完检查长度、FlushFileBuffers、close，再检查原文件是否发生外部变化，最后 MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH) 同卷替换。失败清理自己创建的临时文件，保留原配置；已存在的临时文件不会被删除。返回 Win32→HRESULT 和 HUD 错误说明。原子替换是 Windows 本地文件系统的正常语义，不保证网络盘、断电或第三方编辑器的所有竞争场景；不覆盖检测到的外部修改。
 
 ## 验证与实机检查
 
-自动测试包含：新/旧/缺失控制导出的 SDK v2 菜单回调、严格菜单顺序和 GC 映射、Status 仅查询 PageBlock、说明文字不新增层级、100 轮导航、新鲜状态、策略 configure/runtime 来源、三种选择不写配置、保存实时策略及部分失败、Host 暂存/保存/放弃选择、保存后重新读取配置、Presenter 行为、配置读失败和旧 Bridge 保存不可用。既有 Client 测试继续覆盖 Presenter 配套键、restart 判定、配置文本保留/重复键/换行/Unicode、实际 Config 路径与缓存隔离、写入和替换失败、Host 拒绝写配置、旧 ABI 大小和边界。Windows 脚本为 `scripts/test_pageblock_gc.ps1`；构建保留 x86 插件。
+自动测试包含：新/旧/缺失控制导出的 SDK v2 菜单回调、菜单顺序和 GC 映射、Status 仅查询 PageBlock、说明文字不新增层级、100 轮导航、新鲜状态、策略 configure/runtime 来源、选择不写配置、保存实时策略及部分失败、Host 暂存/保存/放弃选择、保存后重新读取配置、Presenter 行为、配置读失败和旧 Bridge 保存不可用。IPC/映射覆盖合法值、无效请求、仅写目标键、保存与未保存导航、失败提示、无运行时 GC/策略调用、旧 API 能力标记以及中英文菜单。Client 测试继续覆盖 Presenter 配套键、restart 判定、配置文本保留/重复键/换行/Unicode、实际 Config 路径与缓存隔离、写入和替换失败、Host 拒绝写配置、旧 ABI 大小和边界。Windows 脚本为 `scripts/test_pageblock_gc.ps1`；构建保留 x86 插件。
 
-仍需真实 L4D2 + L4N 检查 HUD 布局/文字容量、保存失败提示、操作后返回导航、完整重启后的 Host/Presenter 应用，以及 x64 Vulkan ReShade 6.0.1 与用户配置组合。原生 mock/unit 检查不代替游戏和 GPU 验证。
+真实 L4D2 + L4N 的 HUD 布局/文字容量、保存失败提示、操作后返回导航、完整重启后的设置应用，以及 Steam/ReShade 与用户配置组合，均需对应整合包实机证据。此前候选的 smoke/性能记录不能证明最终 v1.5.0 包已经完成这些验证；原生 mock/unit 检查也不代替游戏和 GPU 验证。

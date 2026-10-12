@@ -4,13 +4,14 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdint>
-#include <array>
-#include <cstring>
 #include <cassert>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <atomic>
+#include <cstring>
+#include <array>
 
 // Deterministic Win32/COM adapters; production method bodies are inserted below.
 using DWORD = unsigned long;
@@ -18,13 +19,28 @@ using ULONG = unsigned long;
 using HRESULT = int32_t;
 using HINSTANCE = void*;
 using HHOOK = void*;
-using HOOKPROC = void(*)();
+using HWND = void*;
+using BOOL = int;
+using WPARAM = uintptr_t;
+using LPARAM = intptr_t;
+using LRESULT = intptr_t;
+using SHORT = int16_t;
+using BYTE = unsigned char;
+using PBYTE = BYTE*;
+struct POINT { long x, y; };
+using LPPOINT = POINT*;
+using HOOKPROC = LRESULT(*)(int, WPARAM, LPARAM);
 using LPDIRECTINPUTA = void*;
 using LPDIRECTINPUTW = void*;
 using LPUNKNOWN = void*;
 using Create = HRESULT(*)(HINSTANCE, DWORD, void**, LPUNKNOWN);
+#define CALLBACK
+#define _ReturnAddress() nullptr
 #define WINAPI
 #define FAILED(result) ((result) < 0)
+constexpr int TRUE = 1;
+constexpr int FALSE = 0;
+constexpr DWORD ERROR_INVALID_PARAMETER = 87;
 constexpr int WH_CALLWNDPROC = 4, WH_GETMESSAGE = 3, WH_KEYBOARD = 2, WH_KEYBOARD_LL = 13;
 
 static unsigned formats = 0, lastErrorReads = 0, functionCalls = 0, missingCalls = 0;
@@ -62,13 +78,95 @@ struct ClientOptions {
   static bool getOverrideCustomWinHooks() { return customHooks; }
 };
 static DWORD GetCurrentThreadId() { return 73; }
-[[maybe_unused]] static DWORD GetLastError() { ++lastErrorReads; return lastError; }
-static void HookedCallWndProc() {}
-static void HookedGetMsgProc() {}
-static void HookedKeyboardProc() {}
+static DWORD GetLastError() { ++lastErrorReads; return lastError; }
+static LRESULT CALLBACK HookedCallWndProc(int, WPARAM, LPARAM);
+static LRESULT CALLBACK HookedGetMsgProc(int, WPARAM, LPARAM);
+static LRESULT CALLBACK HookedKeyboardProc(int, WPARAM, LPARAM);
 #ifdef OLD_THREAD_HOOK
-static void HookedLowLevelKeyboardProc() {}
+static LRESULT CALLBACK HookedLowLevelKeyboardProc(int, WPARAM, LPARAM) { return 0; }
 #endif
+namespace WndProc {
+  std::atomic<bool> g_steamActive{false}, g_steamKnown{false};
+  bool allowSteamInputHookChain();
+  bool allowSteamInputPollingChain();
+  bool isSteamOverlayActive();
+  HWND getHwnd();
+}
+struct RemixState {
+  inline static bool active=false;
+  static bool isUIActive() { return active; }
+};
+struct Config {
+  inline static bool steamInput=true, passChain=false, mouseHandoff=false, pollChain=false;
+  template<class T> static T getOption(const char* key,T fallback) {
+    if(std::strcmp(key,"client.steamOverlayInput")==0) return static_cast<T>(steamInput);
+    if(std::strcmp(key,"client.steamHookChainPassThrough")==0) return static_cast<T>(passChain);
+    if(std::strcmp(key,"client.steamMouseCaptureHandoff")==0) return static_cast<T>(mouseHandoff);
+    if(std::strcmp(key,"client.steamPollChainPassThrough")==0) return static_cast<T>(pollChain);
+    return fallback;
+  }
+};
+static unsigned nextCalls=0,polled=0,suppressions=0;
+static int nextCode=0;
+static WPARAM nextW=0;
+static LPARAM nextL=0;
+static HHOOK nextHandle=nullptr;
+static std::string hookAction;
+static HHOOK accessWinHook(int hook) { return gWinHooks.at(hook); }
+static LRESULT CallNextHookEx(HHOOK hook,int code,WPARAM w,LPARAM l) {
+  ++nextCalls;nextHandle=hook;nextCode=code;nextW=w;nextL=l;return 47;
+}
+static void observeInputSuppression(const char* api,void*,const char* action="neutralize") {
+  ++suppressions;hookAction=action;
+  if(std::strcmp(api,"SetCapture")==0 || std::strcmp(api,"ReleaseCapture")==0) lastError=998;
+}
+namespace DI { void releaseSteamMouseCapture(); }
+static HWND WINAPI HookedSetCapture(HWND);
+static HWND window(unsigned id) { return reinterpret_cast<HWND>(static_cast<uintptr_t>(id)); }
+static HWND captureWindow=nullptr,foregroundWindow=window(1);
+static unsigned captureCalls=0,releaseCalls=0;
+static bool failedRelease=false,reacquire=false,failedAncestor=false;
+constexpr unsigned GA_ROOT=2;
+static DWORD GetCurrentProcessId() { return 1; }
+static void SetLastError(DWORD error) { lastError=error; }
+HWND WndProc::getHwnd() { return window(1); }
+static bool IsWindow(HWND hwnd) { const auto id=reinterpret_cast<uintptr_t>(hwnd);return id>=1 && id<=6; }
+static HWND GetForegroundWindow() { lastError=777;return foregroundWindow; }
+static HWND GetAncestor(HWND hwnd,unsigned) {
+  if(failedAncestor) { lastError=777;return nullptr; }
+  if(hwnd==window(2) || hwnd==window(4) || hwnd==window(5)) return window(1);
+  return hwnd;
+}
+static DWORD GetWindowThreadProcessId(HWND hwnd,DWORD* pid) {
+  if(pid) *pid=hwnd==window(5) || hwnd==window(6) ? 2 : 1;
+  return hwnd==window(4) || hwnd==window(5) || hwnd==window(6) ? 74 : 73;
+}
+static HWND GetCapture() { return captureWindow; }
+static BOOL ReleaseCapture() {
+  ++releaseCalls;lastError=444;
+  if(failedRelease) return 0;
+  captureWindow=nullptr;
+  if(reacquire) HookedSetCapture(window(1));
+  return 1;
+}
+static HWND OrigSetCapture(HWND hwnd) { ++captureCalls;const HWND previous=captureWindow;captureWindow=hwnd;lastError=444;return previous; }
+static int polledAsyncKey=0,polledQueueKey=0;
+static PBYTE observedKeyboard=nullptr;
+static bool failedPoll=false;
+static SHORT keyboardResult=1;
+static SHORT OrigGetAsyncKeyState(int key) { ++polled;polledAsyncKey=key;lastError=555;return 42; }
+static SHORT OrigGetKeyState(int key) { ++polled;polledQueueKey=key;lastError=555;return 43; }
+static SHORT OrigGetKeyboardState(PBYTE keys) {
+  ++polled;observedKeyboard=keys;lastError=555;
+  if(!keys) { lastError=998;return 0; }
+  if(failedPoll) return 0;
+  std::memset(keys,0x80,256);return keyboardResult;
+}
+static POINT g_uiActiveCursorPos{10,20},g_lastKnownCursorPos{0,0};
+static bool g_uiActiveCursorPosValid=false,g_lastKnownCursorPosValid=false,g_gameObservesCursor=false;
+static unsigned cursorPolls=0,cursorSets=0;
+static BOOL OrigGetCursorPos(LPPOINT point) { ++cursorPolls;lastError=555;if(failedPoll) return 0;*point={96,71};return 1; }
+static BOOL OrigSetCursorPos(int,int) { ++cursorSets;lastError=555;return 1; }
 static HHOOK SetWindowsHookEx(int id, HOOKPROC proc, HINSTANCE module, DWORD thread) {
   if (id == WH_KEYBOARD_LL || !proc || module || thread != 73) {
     throw std::runtime_error("Unexpected global hook or installation arguments");
@@ -104,27 +202,6 @@ static HRESULT createW(HINSTANCE instance, DWORD version, void** output, LPUNKNO
 #define LogStaticFunctionCall() (++functionCalls)
 #define LogFunctionCall() (++functionCalls)
 #define LogMissingFunctionCall() (++missingCalls)
-using SHORT = int16_t;
-using PBYTE = unsigned char*;
-constexpr SHORT FALSE = 0, TRUE = 1;
-constexpr DWORD ERROR_INVALID_PARAMETER = 87;
-[[maybe_unused]] static void SetLastError(DWORD value) { lastError = value; }
-struct RemixState {
-  inline static bool uiActive = false;
-  static bool isUIActive() { return uiActive; }
-};
-static unsigned keyboardCalls = 0, suppressions = 0;
-static PBYTE keyboardArgument = nullptr;
-static SHORT OrigGetKeyboardState(PBYTE keys) {
-  ++keyboardCalls; keyboardArgument = keys;
-  if (!keys) { lastError = 998; return FALSE; }
-  std::memset(keys, 0x80, 256); lastError = 555; return 7;
-}
-static void observeInputSuppression(const char*, const void*) { ++suppressions; }
-static void* checkedMemset(void* output, int byte, size_t length) {
-  if (!output) { throw std::runtime_error("Keyboard null output written"); }
-  return std::memset(output, byte, length);
-}
 struct D3DBase {
   ULONG refs = 1;
   unsigned releases = 0, additions = 0, destructions = 0;
@@ -136,7 +213,10 @@ struct Direct3DQuery9_LSS : D3DBase {
   ULONG Release();
 };
 
-#define _ReturnAddress() nullptr
+static void* checkedMemset(void* output, int byte, size_t length) {
+  if (!output) { throw std::runtime_error("Keyboard null output written"); }
+  return std::memset(output, byte, length);
+}
 #define memset checkedMemset
 // PRODUCTION_METHODS
 #undef memset
@@ -145,8 +225,109 @@ static void check(bool success, const char* message) {
   if (!success) { throw std::runtime_error(message); }
 }
 static void clearLogs() { warnings.clear(); debugMessages.clear(); formats = 0; }
-int main() {
+int main(int argc,char** argv) {
   try {
+    const bool master=!(argc>1 && std::strcmp(argv[1],"steam-master-off")==0);
+    const std::string mode=argc>1 ? argv[1] : "steam-off";
+    const bool option=mode=="steam-on" || mode=="steam-all-on" || mode=="steam-master-off";
+    const bool mouse=mode=="steam-mouse-only" || mode=="steam-on" || mode=="steam-master-off";
+    const bool poll=mode=="steam-poll-only" || mode=="steam-all-on" || mode=="steam-master-off";
+    Config::steamInput=master;Config::passChain=option;Config::mouseHandoff=mouse;Config::pollChain=poll;
+    const std::array<HOOKPROC,3> hooks{{HookedCallWndProc,HookedGetMsgProc,HookedKeyboardProc}};
+    const std::array<int,3> ids{{WH_CALLWNDPROC,WH_GETMESSAGE,WH_KEYBOARD}};
+    for(int id:ids) gWinHooks[id]=reinterpret_cast<HHOOK>(static_cast<uintptr_t>(id));
+    for(bool ui:{false,true}) for(bool known:{false,true}) for(bool steam:{false,true}) {
+      RemixState::active=ui;WndProc::g_steamKnown.store(known);WndProc::g_steamActive.store(steam);
+      for(unsigned i=0;i<hooks.size();++i) for(int code:{-1,0,1}) {
+        nextCalls=0;hookAction.clear();
+        const auto result=hooks[i](code,123,456);
+        const bool pass=code<0 || !ui || (master && option && known && steam);
+        check(result==(pass?47:0) && nextCalls==(pass?1u:0u),"hook-chain result/count changed");
+        if(pass) check(nextHandle==gWinHooks.at(ids[i]) && nextCode==code && nextW==123 && nextL==456,"downstream arguments changed");
+        if(code>=0 && ui) check(hookAction==(pass?"pass-hook-chain":"stop-hook-chain"),"capture decision not observable");
+      }
+      // Original polling can execute for downstream observers while the game stays neutralized.
+      const bool passPoll=master && poll && known && steam;
+      polled=0;std::array<BYTE,258> guardedKeys{};guardedKeys.fill(0x99);
+      std::array<BYTE,256> keys{};lastError=88;
+      check(HookedGetAsyncKeyState(1)==(ui?0:42),"Steam bypassed asynchronous suppression");
+      check(lastError==(ui?88u:555u),"async polling changed suppression/original error state");
+      lastError=88;
+      check(HookedGetKeyState(2)==(ui?0:43),"Steam bypassed queue-state suppression");
+      check(lastError==(ui?88u:555u),"queue polling changed suppression/original error state");
+      lastError=88;
+      check(HookedGetKeyboardState(keys.data())==1 && polled==(!ui || passPoll?3u:0u),"keyboard suppression or original calls changed");
+      check(lastError==(ui?88u:555u),"keyboard polling changed suppression/original error state");
+      if(!ui || passPoll) {
+        check(polledAsyncKey==1 && polledQueueKey==2,"original key argument changed");
+        check((observedKeyboard==keys.data())==!ui,"observed keyboard leaked real state into game buffer");
+      }
+      for(auto key:keys) check(key==(ui?0:0x80),"keyboard state contents changed");
+      check(HookedGetKeyboardState(guardedKeys.data()+1)==1,"bounded keyboard result changed");
+      check(guardedKeys.front()==0x99 && guardedKeys.back()==0x99,"Keyboard output bounds changed");
+      for(size_t i=1;i<=256;++i) check(guardedKeys[i]==(ui?0:0x80),"bounded keyboard contents changed");
+      POINT point{0,0};cursorPolls=0;g_uiActiveCursorPos={10,20};g_lastKnownCursorPos={0,0};g_gameObservesCursor=false;lastError=88;
+      check(HookedGetCursorPos(&point)==1 && cursorPolls==(!ui || passPoll?1u:0u),"cursor polling original count/result changed");
+      check(point.x==(ui?10:96) && point.y==(ui?20:71),"real cursor leaked into game echo");
+      check(g_gameObservesCursor==!ui && g_lastKnownCursorPos.x==(ui?0:96),"UI polling changed gameplay cursor cache");
+      check(lastError==(ui?88u:555u),"cursor polling error state changed");
+      if(ui) check(hookAction==(passPoll?"poll-chain-neutralize":"neutralize"),"poll decision not observable");
+      cursorSets=0;HookedSetCursorPos(30,40);
+      check(cursorSets==(ui?0u:1u) && (ui ? g_uiActiveCursorPos.x : g_lastKnownCursorPos.x)==30,"cursor setter moved OS cursor while UI active");
+      cursorPolls=0;lastError=88;
+      check(HookedGetCursorPos(nullptr)==0 && cursorPolls==0 && lastError==ERROR_INVALID_PARAMETER,"invalid cursor output delegated");
+      if(ui) {
+        const unsigned before=polled;
+        check(HookedGetKeyboardState(nullptr)==0 && polled==before && lastError==ERROR_INVALID_PARAMETER,"invalid keyboard output delegated or written");
+      }
+      if(ui && passPoll) {
+        failedPoll=true;keys.fill(0x99);polled=0;lastError=88;
+        check(HookedGetKeyboardState(keys.data())==1 && polled==1 && lastError==88,"failed original keyboard query changed game result/error");
+        for(auto key:keys) check(key==0,"failed original keyboard query leaked buffer contents");
+        point={0,0};cursorPolls=0;lastError=88;
+        check(HookedGetCursorPos(&point)==1 && cursorPolls==1 && point.x==30 && point.y==40 && lastError==88,"failed original cursor query changed game echo/error");
+        failedPoll=false;
+      }
+    }
+    for(bool ui:{false,true}) for(bool known:{false,true}) for(bool steam:{false,true}) for(bool foreground:{false,true}) {
+      RemixState::active=ui;WndProc::g_steamKnown.store(known);WndProc::g_steamActive.store(steam);
+      foregroundWindow=foreground ? window(1) : window(3);
+      const bool active=master && mouse && ui && known && steam && foreground;
+      for(unsigned target=0;target<=6;++target) {
+        captureWindow=window(5);captureCalls=0;lastError=88;hookAction.clear();
+        const bool denied=active && (target==1 || target==2 || target==4);
+        const HWND previous=HookedSetCapture(window(target));
+        check(previous==window(5) && captureCalls==(denied?0u:1u),"capture delegation/previous HWND changed");
+        check(captureWindow==(denied?window(5):window(target)),"capture targeted wrong window");
+        check(lastError==(denied?88u:444u),"capture error state changed");
+        if(denied) check(hookAction=="deny-game-capture","missing capture denial observation");
+        captureWindow=window(target);releaseCalls=0;lastError=88;hookAction.clear();
+        const bool release=active && (target==1 || target==2);
+        DI::releaseSteamMouseCapture();
+        check(releaseCalls==(release?1u:0u) && captureWindow==(release?nullptr:window(target)),"release crossed process/thread/root boundary");
+        check(lastError==88,"release changed caller error state");
+        if(release) check(hookAction=="release-game-capture","missing release observation");
+      }
+    }
+    RemixState::active=true;WndProc::g_steamKnown=true;WndProc::g_steamActive=true;foregroundWindow=window(1);
+    failedAncestor=true;captureWindow=window(1);captureCalls=0;releaseCalls=0;lastError=88;
+    DI::releaseSteamMouseCapture();
+    check(releaseCalls==0 && captureWindow==window(1) && lastError==88,"unknown root released capture or changed error");
+    HookedSetCapture(window(1));
+    check(captureCalls==1 && lastError==444,"unknown root denied original capture");
+    failedAncestor=false;
+    if(master && mouse) {
+      captureWindow=window(1);releaseCalls=0;lastError=88;failedRelease=true;
+      DI::releaseSteamMouseCapture();
+      check(releaseCalls==1 && captureWindow==window(1) && lastError==88 && hookAction=="release-game-capture-failed","failed release hidden or retried");
+      failedRelease=false;reacquire=true;captureCalls=0;releaseCalls=0;
+      DI::releaseSteamMouseCapture();
+      check(releaseCalls==1 && captureCalls==0 && captureWindow==nullptr,"capture-change recapture loop allowed");
+      reacquire=false;WndProc::g_steamActive=false;
+      HookedSetCapture(window(1));check(captureCalls==1 && captureWindow==window(1),"game capture not restored after Steam deactivation");
+    }
+    RemixState::active=false;gWinHooks.clear();lastErrorReads=0;lastError=0;
+
     InputWinHooksAttach();
     check(installed.empty() && formats == 0 && lastErrorReads == 0, "OFF installed or observed hooks");
     ClientOptions::customHooks = true;
@@ -209,26 +390,24 @@ int main() {
       "Query failed to delegate reference operations/results");
     check(query.additions == 1 && query.releases == 2 && query.destructions == 1
       && missingCalls == 0 && functionCalls == before + 3, "Query lifecycle delegation or log classification changed");
-    for (bool active : {false, true}) {
-      RemixState::uiActive = active;
-      keyboardCalls = 0; suppressions = 0; keyboardArgument = nullptr; lastError = 88;
-      check(HookedGetKeyboardState(nullptr) == FALSE, "Null keyboard output result changed");
-      check(keyboardCalls == (active ? 0u : 1u) && keyboardArgument == nullptr
-        && suppressions == 0 && lastError == (active ? ERROR_INVALID_PARAMETER : 998),
-        "Null keyboard output suppression/pass-through contract changed");
-      std::array<unsigned char, 258> keys; keys.fill(0x99);
-      keyboardCalls = 0; suppressions = 0; lastError = 88;
-      check(HookedGetKeyboardState(keys.data() + 1) == (active ? TRUE : 7),
-        "Valid keyboard result changed");
-      check(keyboardCalls == (active ? 0u : 1u) && suppressions == (active ? 1u : 0u)
-        && (active || keyboardArgument == keys.data() + 1) && lastError == (active ? 88u : 555u),
+    // Preserve the prior parameter/result contract in addition to Steam's matrix.
+    WndProc::g_steamKnown=false;keyboardResult=7;
+    for(bool active:{false,true}) {
+      RemixState::active=active;
+      polled=0;suppressions=0;observedKeyboard=nullptr;lastError=88;
+      check(HookedGetKeyboardState(nullptr)==FALSE,"Null keyboard output result changed");
+      check(polled==(active?0u:1u) && observedKeyboard==nullptr && suppressions==0
+        && lastError==(active?ERROR_INVALID_PARAMETER:998),"Null keyboard output suppression/pass-through contract changed");
+      std::array<BYTE,258> keys;keys.fill(0x99);polled=0;suppressions=0;lastError=88;
+      check(HookedGetKeyboardState(keys.data()+1)==(active?TRUE:7),"Valid keyboard result changed");
+      check(polled==(active?0u:1u) && suppressions==(active?1u:0u)
+        && (active || observedKeyboard==keys.data()+1) && lastError==(active?88u:555u),
         "Valid keyboard arguments, delegation or error changed");
-      check(keys.front() == 0x99 && keys.back() == 0x99, "Keyboard output bounds changed");
-      for (size_t i = 1; i <= 256; ++i) {
-        check(keys[i] == (active ? 0 : 0x80), "Keyboard suppression/pass-through contents changed");
-      }
+      check(keys.front()==0x99 && keys.back()==0x99,"Keyboard output bounds changed");
+      for(size_t i=1;i<=256;++i) check(keys[i]==(active?0:0x80),"Keyboard suppression/pass-through contents changed");
     }
-    std::puts("PASS: hooks OFF/ON/failure; original DirectInput A/W versions/results; lazy logs; Query delegation; keyboard null/256-byte output");
+    keyboardResult=1;
+    std::puts("PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation");
     return 0;
   } catch (const std::exception& error) {
     std::fprintf(stderr, "FAIL: %s\n", error.what());

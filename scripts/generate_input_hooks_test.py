@@ -33,8 +33,22 @@ def generate(source, output, negative_control=None):
     client = source / 'bridge/src/client'
     di = (client / 'di_hook.cpp').read_text(encoding='utf-8')
     query = (client / 'd3d9_query.cpp').read_text(encoding='utf-8')
+    window = (client / 'window.cpp').read_text(encoding='utf-8')
     pieces = []
+    for name in ('isSteamOverlayActive', 'allowSteamInputHookChain', 'allowSteamInputPollingChain'):
+        start, end = method(window, f'bool {name}()')
+        pieces.append(window[start:end].replace(f'bool {name}()', f'bool WndProc::{name}()'))
+    for marker in ['static bool steamMouseHandoffActive()', 'static bool steamGameCaptureWindow(',
+                   'void DI::releaseSteamMouseCapture()', 'static HWND WINAPI HookedSetCapture(']:
+        start, end = method(di, marker)
+        pieces.append(di[start:end])
     for marker in ['static void InputWinHooksAttach()', 'static void InputWinHooksDetach()']:
+        start, end = method(di, marker)
+        pieces.append(di[start:end])
+    for marker in ['static LRESULT CALLBACK HookedCallWndProc(', 'static LRESULT CALLBACK HookedGetMsgProc(',
+                   'static LRESULT CALLBACK HookedKeyboardProc(', 'static SHORT WINAPI HookedGetAsyncKeyState(',
+                   'static SHORT WINAPI HookedGetKeyState(', 'static SHORT WINAPI HookedGetKeyboardState(',
+                   'static BOOL WINAPI HookedGetCursorPos(', 'static BOOL WINAPI HookedSetCursorPos(']:
         start, end = method(di, marker)
         pieces.append(di[start:end])
     pieces.append('class DirectInput7Hook { public:')
@@ -45,8 +59,6 @@ def generate(source, output, negative_control=None):
         start, end = method(di, marker)
         pieces.append(di[start:end])
     pieces.append('};')
-    start, end = method(di, 'static SHORT WINAPI HookedGetKeyboardState(')
-    pieces.append(di[start:end])
     for marker in ['ULONG Direct3DQuery9_LSS::AddRef()', 'ULONG Direct3DQuery9_LSS::Release()']:
         start, end = method(query, marker)
         pieces.append(query[start:end])
@@ -58,8 +70,10 @@ def generate(source, output, negative_control=None):
             'attachWinHook(WH_KEYBOARD,    HookedKeyboardProc),\n'
             '    attachWinHook(WH_KEYBOARD_LL, HookedLowLevelKeyboardProc),')
     elif negative_control == 'hook-error':
-        production = replace_once(production,
+        start, end = method(production, 'static void InputWinHooksAttach()')
+        attach = replace_once(production[start:end],
             'const DWORD error = GetLastError();', 'const DWORD error = 0;')
+        production = production[:start] + attach + production[end:]
     elif negative_control == 'null-unhook':
         production = replace_once(production,
             'if (hook) { UnhookWindowsHookEx(hook); }', 'UnhookWindowsHookEx(hook);')

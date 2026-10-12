@@ -81,8 +81,24 @@ class RuntimeSeparation(unittest.TestCase):
         config = (ROOT / 'config/bridge.conf').read_text(encoding="utf-8")
         for side in ['client', 'server']:
             for switch in ['memoryMonitoring', 'crashDiagnostics', 'apiWaitDiagnostics',
-                           'dataDiagnostics', 'colorDiagnostics', 'steamInputDiagnostics', 'steamOverlayInput']:
+                           'dataDiagnostics', 'colorDiagnostics', 'steamInputDiagnostics']:
                 self.assertRegex(config, re.escape(side + '.' + switch) + r'\s*=\s*False')
+        # The upstream Steam fix is one dependency-complete runtime capability.
+        # Its required presenter/input/proxy switches are separate from observers.
+        expected_steam = {
+            'forceX64Server': 'True', 'client.testX86Server': 'False',
+            'server.presenterWindow': 'True', 'server.presenterInput': 'True',
+            'client.hookMessagePump': 'True', 'client.overrideCustomWinHooks': 'True',
+            'client.steamOverlayInput': 'True', 'server.steamOverlayInput': 'True',
+            'server.steamNativeInput': 'True', 'client.steamHookChainPassThrough': 'True',
+            'client.steamMouseCaptureHandoff': 'True', 'client.steamPollChainPassThrough': 'True',
+            'server.steamWindowAdapter': 'True', 'client.steamWorkshopAvailabilityProxy': 'True',
+            'server.steamWindowDiagnostics': 'False', 'client.steamWebDiagnostics': 'False',
+        }
+        for key, value in expected_steam.items():
+            with self.subTest(config_key=key):
+                matches = re.findall(r'^\s*' + re.escape(key) + r'\s*=\s*(\S+)\s*$', config, re.MULTILINE)
+                self.assertEqual(matches, [value])
         self.assertRegex(config, r'client.pageBlockRetentionPolicy\s*=\s*learned-aggressive')
         for file, side in [('client/d3d9_lss.cpp', 'client'), ('server/main.cpp', 'server')]:
             startup = (SOURCE / ('bridge/src/' + file)).read_text(encoding="utf-8")

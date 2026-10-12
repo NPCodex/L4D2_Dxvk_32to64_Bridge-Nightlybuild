@@ -6,7 +6,9 @@
 
 配置所有权与 Client 安全持久化实现见 [技术架构](ARCHITECTURE.md#configuration-persistence)，接口的分别失败和重启判定见 [API 参考](API.md#general-control)。
 
-当前 Nightly **1.3.0** 按维护者明确授权整合上游 **1.3.0-pre.1 / d063395**；使用完整 IPC v2，新增默认 C8 及默认关闭的静态 VB/IB 映射配置。“相比 1.1”列仍以原项目 v1.1.0 为参照。Nightly 与上游的发行区别是默认 x64 Host、GPLALL 后端，以及包含 ThinFlex 并直接安装 L4N 设置插件的单一全量包。表中的“随包值”是当前 [config/bridge.conf](../config/bridge.conf) 写明的值；“缺省值”指不写该键时实现采用的值，两者不一定相同。旧实验 ZIP 保持原样；升级保留已有配置，不能用本文的推荐值代替实际安装配置。下载与安装以 [Nightly README](../README.md) 为准。
+当前 Nightly **1.5.0** 按维护者明确授权整合上游 **1.3.0 / f6a059b** 与 [45 项处理结果](OPTIMIZATION-45.md)。新安装完整启用 Steam 窗口/输入适配的配套依赖；IPC 默认 C8，静态 VB/IB 映射仍默认关闭。“相比 1.1”列仍以原项目 v1.1.0 为参照。Nightly 保留默认 x64 Host、GPLALL 后端，以及包含 ThinFlex 并直接安装 L4N 设置插件的单一全量包。表中的“随包值”是当前 [config/bridge.conf](../config/bridge.conf) 写明的值；“缺省值”指不写该键时实现采用的值，两者不一定相同。旧实验 ZIP 保持原样；升级保留已有配置，不能用本文的随包值代替实际安装配置。下载与安装以 [Nightly README](../README.md) 为准。
+
+本次采用不等于确认帧率收益。此前 v1.4.4 的 45 项整合候选相对 v1.3.0 出现平均 FPS 和 low 帧下降，见 [实测记录](../results/optimization45/game/PERFORMANCE-GATE-REPORT.md)；该数据不是新增 Steam 组合或最终 v1.5.0 包的游戏测试。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** Client 与两个 Host 必须成套回退。
 
 运行配置位于游戏的 **`bin/.l4d2bridge/bridge.conf`**。`client.*` 作用于游戏内的 Bridge Client；`server.*` 作用于渲染 Host，不指联机游戏服务器。更改后退出游戏及 Host，再重启；同一个键只保留一份。可选片段需要合并到该文件，不会因为放在旁边就自动生效。`dxvk.conf` 是后端配置，不能与 `bridge.conf` 混用。
 
@@ -19,7 +21,7 @@
 | `client.vbibMappedShadowMinKB` | `256` | KiB，下限 64；映射关闭时不参与普通 VB/IB 分配。 |
 | `client.vbibShadowCacheMB` | `32` | MiB，上限 1024；0 为最后 Unlock 后立即解除映射，活动 Lock 不受空闲预算限制。 |
 
-已有配置的显式值优先，修改后完整重启游戏及 Host。关闭静态映射不会切回旧 IPC 3；不改变纹理 shadow、surface 映射预算或上传池容量。匹配更新 Client 和两个 Host，详见 [本次集成与已知性能取舍](UPSTREAM-1.3.0-INTEGRATION.md)。当前插件仍为已有常用设置版本，这些新键需手工编辑，不包含后续实验菜单。
+已有配置的显式值优先，修改后完整重启游戏及 Host。关闭静态映射不会切回旧 IPC 3；不改变纹理 shadow、surface 映射预算或上传池容量。Client 和两个 Host 必须配套更新。随包插件已提供 `ipcBatchSize` 与 `vbibMappedShadow` 菜单：选择只暂存，点击 Save 才分别保存对应配置，完整重启后生效；映射阈值与缓存预算仍手工编辑。此前 IPC v2 集成的历史取舍见 [v1.3.0 集成记录](UPSTREAM-1.3.0-INTEGRATION.md)。
 
 ## L4N 常用设置
 
@@ -27,7 +29,7 @@
 
 随包安装的 x86 L4N SDK v2 插件可通过 [常用设置菜单](L4N-BRIDGE-CONTROLS.md) 减少手工编辑。Bridge 本体不依赖插件；插件只查询状态和发送控制请求，由游戏内 Bridge Client（默认 `d3d9.dll`，`-vulkan` 模式为 `dxvk_d3d9.dll`） 复用实际 Config 路径安全保存。安装和加载插件不修改配置或执行 GC，设置变更由玩家在菜单中主动操作。
 
-Memory Policy 的 keep / lg / drop 仅调用运行时 SetPolicy，点击 `save to configure` 才保存当前 runtime 策略到 `client.pageBlockRetentionPolicy`。运行与配置相同时首行标记 configure，否则显示 runtime。Host 只显示配置值，选择 x86/x64 后点击 Save 才写入；Host 与 ReShade Presenter 下次完整启动生效，不能运行时切换 Host，Presenter 菜单不负责安装 ReShade。Status 仅显示 PageBlock。当前验证的 ReShade 组合仍是 x64 Host + Vulkan ReShade 6.0.1，启用 Presenter 不自动修改 Host。菜单没有测试/诊断选项；旧 Bridge 下保存不可用，原 Stats/GC/会话策略仍可用。
+Memory Policy 的 keep / lg / drop 仅调用运行时 SetPolicy，点击 `save to configure` 才保存当前 runtime 策略到 `client.pageBlockRetentionPolicy`。运行与配置相同时首行标记 configure，否则显示 runtime。Host 只显示配置值，选择 x86/x64 后点击 Save 才写入；Host、ReShade Presenter、IPC 批次及静态映射在下次完整启动生效，不能运行时切换。Language 提供 English/中文，仅改变当前会话的菜单文字，重新进入菜单即可刷新，不写 Bridge 配置。Status 仅显示 PageBlock。Presenter 菜单不安装 ReShade，也不自动修改 Host；此前验证过的 ReShade 组合为 x64 Host + Vulkan ReShade 6.0.1，不代表本次 Steam 整合包已重新实测。菜单没有诊断开关；旧 Bridge 下原 Stats/GC/会话策略仍可用，不支持的设置菜单显示不可用。
 
 v1.2.0 正式版包含通用设置 API，Nightly 完整 ZIP 将 L4N 插件直接安装到 `bin/neko/plugins/L4D2BridgePlugin.dll`，下次启动游戏时加载。不需要菜单时，退出游戏后移走或删除该 DLL 即可。旧 `v1.2.0-dev.1` 附件不包含该 API。普通手工修改配置仍按上文完整重启；插件策略选项即时生效，保存为独立动作。
 
@@ -68,22 +70,39 @@ Nightly 默认 x64；可选 x86 通常降低指针相关占用，但地址空间
 
 回收检查只针对桥管理的资源内容，不干预游戏内部对象或任务队列。实际 Host ACK 是桥端命令处理确认，不等于 GPU idle。恢复读取 Host/DXVK 当前内容，可能使用其 CPU backing，不保证每次都是 GPU image readback。
 
-## 可选 ReShade 输入
+## Presenter 与 ReShade 输入
 
-以下键在 1.1 已有。默认 `server.presenterWindow=False`，所以 `presenterInput=True` **不会单独创建 Presenter 或开启其输入线程**。完整已测试组合为 x64 Host + Vulkan ReShade 6.0.1；Nightly 默认 x64 与该 Host 位数组合一致；上游验证不能替代 GPLALL 组合实测。
+以下键在 1.1 已有。v1.5.0 随包启用 `server.presenterWindow=True`、`server.presenterInput=True` 和两项 Client 钩子，供 Steam 窗口/输入适配使用；保持窗口模式、普通 DXVK 和 `exposeRemixApi=False`。Presenter 因此会创建 Host 子窗口和相应输入处理。此前 x64 Host + Vulkan ReShade 6.0.1 的测试仅证明当时的组合，上游测试不能替代本次 GPLALL/Steam 整合包实测。
 
 | 配置 | 当前随包值 | 作用 |
 |---|---|---|
-| `server.presenterWindow` | `False` | 按需创建 Host 拥有、嵌入游戏窗口的呈现子窗口，供 Vulkan Overlay 接收输入；当前只在窗口模式、普通 DXVK、未暴露 Remix API 时采用。开启会改变呈现/输入路径并增加窗口线程等工作。 |
+| `server.presenterWindow` | `True` | 按需创建 Host 拥有、嵌入游戏窗口的呈现子窗口，供 Vulkan Overlay 接收输入及 Steam 窗口适配使用；只在窗口模式、普通 DXVK、未暴露 Remix API 时采用。会改变呈现/输入路径并增加窗口线程等工作；省略键时为 False。 |
 | `server.presenterInput` | `True` | Presenter 启用后允许对应键鼠输入处理；False 可用于只呈现、不启用该输入路径。 |
 | `server.presenterOverlayKey` | `36` | Windows VK_HOME，默认 Home。并非游戏按键绑定，主要用于 Overlay 热键相关处理。 |
 | `server.presenterHotkeyFallback` | `False` | 未绑定 ReShade 时是否允许热键兜底切换输入捕获；不是修复切屏或 Steam Overlay 的开关。 |
-| `client.hookMessagePump` | `False` | 可选挂接 Client 消息泵，使 Overlay 消息/输入协调生效；开启会增加输入消息处理。 |
-| `client.overrideCustomWinHooks` | `False` | 可选兼容游戏自己的窗口钩子；与 Overlay 片段配套，不用于修改游戏对象或渲染任务。 |
+| `client.hookMessagePump` | `True` | 挂接 Client 消息泵，使 Overlay 消息/输入协调生效；会增加输入消息处理，省略键时为 False。 |
+| `client.overrideCustomWinHooks` | `True` | 兼容游戏自己的窗口钩子；与 Steam/Presenter 配套，不用于修改游戏对象或渲染任务，省略键时为 False。 |
 | `client.DirectInput.forward.mousePolicy` | `0` | 独占 DirectInput 鼠标消息向上游 Remix 窗口过程转发策略：0 从不，1 UI 不活动时，2 UI 活动时，3 总是。源码缺省 2；0 不代表禁用游戏鼠标，也不禁用独立 Presenter 输入。 |
 | `client.DirectInput.forward.keyboardPolicy` | `0` | 同上，作用于键盘。源码缺省 2。 |
 
-使用 [OVERLAY-INPUT.conf](../config/OVERLAY-INPUT.conf) 时需合并其中的配套设置；不要只改一个钩子便假设完整输入路径已开启。1.1.1 的点击重新激活修复继承在实现中，没有新增独立配置键。
+新包主配置已包含配套值，不需要单独安装另一份 Overlay 包。升级保留旧 `bridge.conf` 时，按下节合并完整 Steam 功能组；仅复制新二进制或开启 `server.steamWindowAdapter` 不会自动创建 Presenter。历史 [OVERLAY-INPUT.conf](../config/OVERLAY-INPUT.conf) 只列 Presenter 依赖，不代表完整 Steam 配置。1.1.1 的点击重新激活修复继承在实现中，没有新增独立配置键。
+
+## Steam 窗口与输入适配
+
+下列功能键在 v1.5.0 主配置中启用，省略键时仍采用源码的保守 False。它们与上节 Presenter、窗口模式和 Client 钩子共同使用；保存后完整退出并重启游戏与 Host。详细诊断键保持 False。
+
+| 配置 | 当前随包值 | 作用与边界 |
+|---|---|---|
+| `client.steamOverlayInput` / `server.steamOverlayInput` | `True` | 协调真实 Steam 激活通知、游戏输入抑制和 Host 输入捕获。 |
+| `server.steamNativeInput` | `True` | 配套 Host Steam 原生输入与焦点交互，依赖两端 Steam 输入及 Presenter 路径。 |
+| `client.steamHookChainPassThrough` | `True` | Steam 激活时保留下游 Win32 hook 链，继续抑制游戏输入。 |
+| `client.steamMouseCaptureHandoff` | `True` | 在所属游戏窗口线程移交/恢复鼠标捕获，不修改其他线程的捕获。 |
+| `client.steamPollChainPassThrough` | `True` | Steam 活动时执行原输入查询，游戏仍收到受抑制的结果。 |
+| `server.steamWindowAdapter` | `True` | 限定 Steam Renderer 查询的游戏/Host 窗口身份适配；需要 Presenter 创建 Host 子窗口。 |
+| `client.steamWorkshopAvailabilityProxy` | `True` | 限定已知 GameUI 菜单调用位置，用新鲜且存活的 Host 状态补充 Overlay 可用性；不注入 URL，不全局强制可用。已支持的 Renderer 版本限定 x64，未知版本保留原行为。 |
+| `server.steamWindowDiagnostics` / `client.steamWebDiagnostics` | `False` | 不单独请求详细窗口/网页入口观察；关闭不能取消功能适配和工坊代理自身的观察成本。 |
+
+工坊代理开启时，Client 仍安装观察包装、检查调用来源并更新有界计数/日志，Host 仍检查及发布可用性状态。窗口适配也保留每秒的窗口检查和挂接状态处理。因此 `steamWebDiagnostics=False`、`steamWindowDiagnostics=False` 不是“Steam 功能零观察开销”。这些成本没有新整合包的独立帧时间测量；不能据此声称性能改善或已证明 Steam 组导致此前的性能下降。上游的 x64 Steam 操作反馈、原生指纹/调用位置及新鲜度检查也不证明所有 Steam 版本、ReShade 组合或最终包的游戏表现。
 
 ## 运行职责与诊断停用
 
@@ -93,7 +112,7 @@ PR #4 第二轮进一步分离存储与失败：关闭 API wait 不分配线程�
 
 始终运行的核心是转发、资源/shadow 生命周期、统一 PageBlock residency/reclaim、所选 keep/learned-aggressive/drop 策略、恢复、Reset 和 IPC 同步。GC 是同一系统的用户触发 sweep，不是独立内存子系统。learned-aggressive 继续是推荐随包策略。
 
-可选运行功能是 Presenter/Input、显式输入转发和 Steam 实验；诊断功能是 memory、crash history、API wait、color、data、PageBlock 详细观察及 profiling。它们分别按启动配置启用，没有插件轮询或菜单配置定时读取。
+按启动配置控制的运行功能是 Presenter/Input、显式输入转发和 Steam 适配；v1.5.0 主配置启用完整 Steam 依赖组。诊断功能是 memory、crash history、API wait、color、data、PageBlock 详细观察及 profiling，随包保持关闭。插件没有定时轮询或定时读取菜单配置；Steam 工坊/窗口功能仍有上节所述状态检查和有界观察。
 
 ## 主配置中的诊断与日志
 
@@ -125,13 +144,12 @@ PR #4 第二轮进一步分离存储与失败：关闭 API wait 不分配线程�
 | `server.colorSnapshotMs` | `5000` | Host 状态快照共享限频间隔，最小 1000 ms；缩短间隔会增加后端查询和汇总工作。 | **新增** |
 | `client.steamInputDiagnostics` | `False` | 观察 Client 输入消息、窗口/模块/激活状态；开启增加事件计数、限频查询及日志，可注册被动 Overlay 激活通知。不是完整 Steam Overlay 输入修复。 | **新增实验项** |
 | `server.steamInputDiagnostics` | `False` | Host 输入状态观察，成本同类；相关窗口/输入路径存在时记录对应状态。 | **新增实验项** |
-| `client.steamOverlayInput` | `False` | 尝试将 Overlay 激活状态与 Client 输入协调；会改变输入行为，诊断开关本身不启用此项。 | **新增、未解决的实验** |
-| `server.steamOverlayInput` | `False` | Host Overlay 输入捕获实验；需相关 Presenter 输入路径，不作日常推荐。 | **新增、未解决的实验** |
-| `server.steamNativeInput` | `False` | Host 原生焦点/输入实验，只有 Host Overlay 实验及输入路径生效才采用。 | **新增、未解决的实验** |
+| `server.steamWindowDiagnostics` | `False` | 详细窗口查询/Hook 观察；窗口适配开启时，即使本项关闭仍保留其功能挂接和定期检查。 | **新增** |
+| `client.steamWebDiagnostics` | `False` | 详细工坊可用性/网页入口观察；工坊代理开启时仍启用代理所需观察包装及有界日志/计数。 | **新增** |
 
 [API-WAIT-DIAGNOSTICS.conf](../config/API-WAIT-DIAGNOSTICS.conf) 会开启两端等待诊断并将输出周期设为 1000 ms。[NETWORK-COLOR-DIAGNOSTICS.conf](../config/NETWORK-COLOR-DIAGNOSTICS.conf) 及偏色安装脚本会开启两端偏色诊断（5000 ms）；测试结束后将两个 `colorDiagnostics` 改为 False 并重启。异步写日志只把磁盘写入移出生产路径，不能消除生产路径中的哈希、状态锁、查询和记录构造成本。
 
-[STEAM-INPUT-DIAGNOSTICS.conf](../config/STEAM-INPUT-DIAGNOSTICS.conf) 开启被动输入诊断，三个输入实验键仍为 False。[PAGEBLOCK-DROP.conf](../config/PAGEBLOCK-DROP.conf) 会选择 drop，并开启普通 PageBlock 诊断；它不是正常配置。[X86-HOST.conf](../config/X86-HOST.conf) / [X64-HOST.conf](../config/X64-HOST.conf) 只选择 Host 模式。
+[STEAM-INPUT-DIAGNOSTICS.conf](../config/STEAM-INPUT-DIAGNOSTICS.conf) 是历史被动诊断片段，其中三个 Steam 输入键为 False；不要将整段覆盖到 v1.5.0 主配置后仍假定 Steam 功能保持启用。短时诊断仅合并实际需要的诊断键。[PAGEBLOCK-DROP.conf](../config/PAGEBLOCK-DROP.conf) 会选择 drop，并开启普通 PageBlock 诊断；它不是正常配置。[X86-HOST.conf](../config/X86-HOST.conf) / [X64-HOST.conf](../config/X64-HOST.conf) 只选择 Host 模式。
 
 可选 [dxvk-memory-1.0.1.conf](../config/dxvk-memory-1.0.1.conf) 属于 **mem1 x64 后端的 `dxvk.conf`**：`dxvk.bridgeMappedChunkSize=16` 限制普通可映射分配块大小；`dxvk.bridgeMemoryDiagnostics=False` 关闭该后端专用诊断。这两项在 1.1 已有，官方 DXVK 不实现这些自定义键。`dxvk.hud=memory,allocations` 是可选 HUD，不是桥的诊断总开关。
 
@@ -147,13 +165,15 @@ PR #4 第二轮进一步分离存储与失败：关闭 API wait 不分配线程�
 | 两侧 `dataDiagnostics=False` | 不创建每资源 metadata；无 resource detail 分配、lock histogram、状态/载荷同值比较、dispatch/backend 计时、data counters、线程/日志/摘要。 | FULL_SHADOW、LockInfo、shader/declaration/StateBlock 正确性存储；空 token/启用检查仍编译在二进制内。 |
 | `client.pageBlockDiagnostics=False` | 无诊断资源记录、锁时间/历史、模拟 LRU、learned 摘要计数、日志格式化、pageblock/retention/gc 详细文件；恢复纯 profiling 计时关闭。 | 统一 residency gate、capability/safety、真实策略、DB/身份哈希/恢复校验、drop/remap/failure 的控制 ABI 计数、用户 GC/策略变更的普通日志。 |
 | `client.pageBlockDiagnosticsDetailed=False` | 不扩展逐资源销毁输出；只有基础 pageBlockDiagnostics=True 才存在观察工作。 | 不是 PageBlock 关闭模式。 |
-| 两侧 `steamInputDiagnostics=False` | 不维护输入诊断事件、suppression TLS 观察、模块/窗口诊断轮询或状态日志。 | 若显式 steamOverlayInput=True，仍按用户请求执行实验输入状态转发，诊断日志独立关闭。 |
+| 两侧 `steamInputDiagnostics=False` | 不维护该诊断器的输入事件、suppression TLS 观察或诊断采样。 | Steam 输入功能继续执行状态转发；独立的窗口适配、工坊代理及其有界观察不受此键关闭。 |
+| `server.steamWindowDiagnostics=False` | 不请求详细窗口查询和 Hook 观察记录。 | `steamWindowAdapter=True` 时仍执行窗口身份适配、定期检查及挂接状态日志。 |
+| `client.steamWebDiagnostics=False` | 不单独请求网页/可用性诊断。 | `steamWorkshopAvailabilityProxy=True` 时仍执行观察包装、来源校验、有界计数/日志及 Host 状态检查。 |
 | `client.testReadbackRecovery=False` | 不保留参考副本、不执行实验回读/比较；不启用参考测试计时。 | 正常真实恢复与正确性校验；不能关闭 recovery。 |
 | `logLevel=Info` | Trace/Debug producer 不求值，不先分配格式化字符串；Tracy 在默认构建中编译为 no-op。 | 生命周期、用户 GC/配置动作、真实警告/错误；初始化前的一次性日志缓存保持兼容。 |
 
 内存和 crash-history 开关只在启动配置一次，不能运行中切换；开启诊断不会追补本次进程先前的采样。False 不删除以前运行留下的日志，测试文件是否新建要先清理旧文件。诊断文件打开失败仍采用原诊断的失败行为；普通警告/错误不依赖详细文件。PageBlock diagnostics 可单独启用；memory_monitoring=0 时 learned summary 的 global current/peak backing 字段未采集，零值不代表没有 backing，Stats 仍从真实 entries 查询。
 
-Presenter 全关闭组合为 presenterWindow=False、hookMessagePump=False、overrideCustomWinHooks=False、disableExclusiveInput=False、两种 DirectInput.forward policy=0、Steam 实验 False，且为随包 vanilla DXVK、exposeRemixApi=False。此时无 Presenter HWND/thread/keyboard hook、ReShade addon binding/module polling、可选消息泵/input detour、DirectInput dummy-device/forwarder 初始化；输入消息只保留核心窗口/session 通知。仅 presenterWindow=False 并不会否定用户单独启用的其他输入功能；旧配置省略 DirectInput policy 时仍保持源码缺省 2，不静默更改。Presenter=True / Input=False 仍创建用户请求的呈现窗口，但没有 addon/input/capture 处理。游戏 WndProc 与必要 Set/GetWindowLong 协作保留以维持窗口与 Reset 正确性。
+历史 Presenter 全关闭组合为 presenterWindow=False、hookMessagePump=False、overrideCustomWinHooks=False、disableExclusiveInput=False、两种 DirectInput.forward policy=0，且 vanilla DXVK、exposeRemixApi=False。要在当前实现中同时停用 Steam 额外路径，还需将上节所有 Steam 功能和诊断键设为 False；这不是 v1.5.0 随包配置。全部停用时不创建 Presenter HWND/thread/keyboard hook、ReShade addon binding/module polling、可选消息泵/input detour 或 DirectInput dummy-device/forwarder；核心游戏 WndProc 和窗口/session 通知保留以维持窗口与 Reset 正确性。仅关闭 presenterWindow 不会关闭仍启用的 Steam 工坊代理、窗口观察或 Client 输入功能。旧配置省略 DirectInput policy 时仍保持源码缺省 2，不静默更改。Presenter=True / Input=False 仍创建呈现窗口，但停用其输入/capture 处理。
 
 默认关闭不会让 Bridge“停止管理自身资源”：视图 LRU/预算、资源 ID/command UID、pin/transfer、恢复请求名称、learned 创建来源/内容指纹/DB、安全检查和核心状态计数仍运行。手动 GC 仍有扫表、Host ACK、FGC drain、结果计时和普通 PB_GC 日志；memoryMonitoring=False 时不强制全进程扫描。详细开关仅移除 D 类观察工作，不修改 A/B 核心语义。
 

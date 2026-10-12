@@ -1,5 +1,7 @@
 # Performance Gate Report
 
+Historical decision: after reviewing this report, the maintainer explicitly authorized merging upstream f6a059b with the 45-item candidate and publishing a new version with the v1.1.10 rollback warning. That adoption supersedes the publication block below; these measurements and the failed performance gate remain unchanged. See docs/UPSTREAM-45-INTEGRATION.md for the new scope.
+
 - Candidate: v1.4.4 (84aff8bc678052f00bac7a962023e2dd59a466e0)
 - Baseline: v1.3.0 package d41eb95affa86af9589c7f9f40c6279a7f003a5fbba47d5f1e962d456580d5e6
 - Candidate package SHA256: ca26dd588da4a563c156bbeb0e9283cde8d4b8908a2901fc9997886103a0d348

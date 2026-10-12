@@ -18,8 +18,9 @@ if (!$CompileArchitecture) {
   }
   exit 0
 }
-. (Join-Path $SourceDirectory 'bridge/build_common.ps1')
-SetupVS -Platform $CompileArchitecture -VcVarsVer '14.29'
+. (Join-Path $PSScriptRoot 'setup_native_test_compiler.ps1')
+. (Join-Path $PSScriptRoot 'assert_native_architecture.ps1')
+Set-NativeTestCompiler -Architecture $CompileArchitecture
 $controls = @{
   'thread-hook' = 'Unexpected global hook or installation arguments'
   'hook-error' = 'Hook error not captured immediately'
@@ -40,25 +41,30 @@ foreach ($variant in @('current','thread-hook','hook-error','null-unhook','direc
   try {
     & cl.exe /nologo /std:c++17 /EHsc /O2 /MT /W4 /WX $generated /Fe:input-hooks-test.exe
     if ($LASTEXITCODE -ne 0) { throw "Input hook regression compilation failed: $variant" }
-    # Capture expected stderr failures without PowerShell 5.1 converting them
-    # into terminating NativeCommandError records under ErrorActionPreference.
-    $testProcess = [System.Diagnostics.Process]::new()
-    $testProcess.StartInfo.FileName = Join-Path $testDir 'input-hooks-test.exe'
-    $testProcess.StartInfo.UseShellExecute = $false
-    $testProcess.StartInfo.CreateNoWindow = $true
-    $testProcess.StartInfo.RedirectStandardOutput = $true
-    $testProcess.StartInfo.RedirectStandardError = $true
-    try {
-      if (!$testProcess.Start()) { throw "Failed to start input hook test: $variant" }
-      $testOutput = $testProcess.StandardOutput.ReadToEnd() + $testProcess.StandardError.ReadToEnd()
-      $testProcess.WaitForExit()
-      $testExit = $testProcess.ExitCode
-    } finally { $testProcess.Dispose() }
-    $testOutput | Write-Host
-    if ($variant -eq 'current') {
-      if ($testExit -ne 0) { throw 'Input hook/log classification regression failed' }
-    } elseif ($testExit -ne 1 -or ($testOutput -join "`n") -notmatch [regex]::Escape($controls[$variant])) {
-      throw "Input hook regression did not detect the old defect: $variant"
+    Assert-NativeArchitecture -Path (Join-Path $testDir 'input-hooks-test.exe') -Architecture $CompileArchitecture
+    $modes = if ($variant -eq 'current') { @('steam-off','steam-on','steam-master-off','steam-mouse-only','steam-poll-only','steam-all-on') } else { @('steam-off') }
+    foreach ($mode in $modes) {
+      # Capture expected stderr failures without PowerShell 5.1 converting them
+      # into terminating NativeCommandError records under ErrorActionPreference.
+      $testProcess = [System.Diagnostics.Process]::new()
+      $testProcess.StartInfo.FileName = Join-Path $testDir 'input-hooks-test.exe'
+      $testProcess.StartInfo.Arguments = $mode
+      $testProcess.StartInfo.UseShellExecute = $false
+      $testProcess.StartInfo.CreateNoWindow = $true
+      $testProcess.StartInfo.RedirectStandardOutput = $true
+      $testProcess.StartInfo.RedirectStandardError = $true
+      try {
+        if (!$testProcess.Start()) { throw "Failed to start input hook test: $variant" }
+        $testOutput = $testProcess.StandardOutput.ReadToEnd() + $testProcess.StandardError.ReadToEnd()
+        $testProcess.WaitForExit()
+        $testExit = $testProcess.ExitCode
+      } finally { $testProcess.Dispose() }
+      $testOutput | Write-Host
+      if ($variant -eq 'current') {
+        if ($testExit -ne 0) { throw 'Input hook/log classification regression failed' }
+      } elseif ($testExit -ne 1 -or ($testOutput -join "`n") -notmatch [regex]::Escape($controls[$variant])) {
+        throw "Input hook regression did not detect the old defect: $variant"
+      }
     }
   } finally { Pop-Location }
 }
