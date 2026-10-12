@@ -11,7 +11,7 @@ remain historical evidence. No new post-fix telemetry, FPS result, x86 proxy
 validation or ReShade coexistence validation accompanies this user acceptance.
 
 
-Status: **INPUT VALIDATED in the reported 294eafb0349ce3aa session: Shift+Tab opens/closes, mouse interaction and Join Server UI work. Add-on View Workshop web opening remains under investigation. Broader map/Reset/performance and reduced-flag validation are not complete. Earlier sections below preserve historical failures.**
+Historical control status: **INPUT VALIDATED in the reported 294eafb0349ce3aa session: Shift+Tab opens/closes, mouse interaction and Join Server UI work. Add-on View Workshop web opening remains under investigation. Broader map/Reset/performance and reduced-flag validation are not complete. Earlier sections below preserve historical failures.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
