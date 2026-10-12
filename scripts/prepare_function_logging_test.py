@@ -53,7 +53,7 @@ def prepare(source, output, old_signature=False):
             "d3d9_lss.cpp": hashlib.sha256(implementation.encode()).hexdigest(),
         },
         "extracted_sha256": {name: hashlib.sha256(text.encode()).hexdigest() for name, text in outputs.items()},
-        "boundary": "Actual production class, macros, constructor and destructor; configuration getters and log sink are test adapters. No D3D or GPU work is measured.",
+        "boundary": "Actual production logger class, macros, constructor and destructor; configuration getters and log sink are test adapters. Crash observation and IPC API-entry scopes are no-op adapters, independently covered by native transport/diagnostic suites. No IPC, D3D or GPU work is measured.",
     }
     (output / "extraction.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 

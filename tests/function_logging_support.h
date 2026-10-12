@@ -34,3 +34,9 @@ void _LogFunctionCall(const std::string& functionName, void* thiz);
 namespace bridge_exception {
 struct CallScope { CallScope(const char*, uintptr_t) {} };
 }
+
+// The production macros also enter IPC v2. Its flushing and nested-call behavior
+// are covered by the full transport suite; this fixture isolates logger cost.
+namespace ldb_c32 {
+struct ApiEntryScope { ApiEntryScope() {} };
+}

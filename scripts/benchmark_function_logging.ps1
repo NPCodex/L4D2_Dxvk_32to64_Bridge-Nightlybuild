@@ -29,7 +29,7 @@ try { $processors = @(Get-CimInstance Win32_Processor | Select-Object -ExpandPro
   rounds = $Rounds
   iterations = $Iterations
   hashes_sha256 = $hashes
-  measurement = 'Extracted production logger class, macros, constructor and destructor with disabled log options; separate translation units, /O2 /MT DEBUGOPT; 25000-call warmup. Configuration getters and log sink are adapters. Global operator new counts allocations in a separate loop after timing; counting is disabled during timing.'
+  measurement = 'Extracted production logger class, macros, constructor and destructor with disabled log options; separate translation units, /O2 /MT DEBUGOPT; 25000-call warmup. Configuration getters and log sink are adapters; crash-observation and IPC API-entry scopes are no-op adapters. No IPC work is measured. Global operator new counts allocations in a separate loop after timing; counting is disabled during timing.'
   interpretation = 'Adjacent paired runs alternate current/old-signature order. Positive time reduction favors current. Both variants use the same replacement operator new; this isolated allocation/call benchmark is not game FPS or a prediction of FPS gain.'
 } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $TestDirectory 'benchmark-environment.json') -Encoding UTF8
 foreach ($architecture in @('x86','x64')) {
