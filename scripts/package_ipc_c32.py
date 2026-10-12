@@ -66,6 +66,10 @@ if (ROOT/'config/STEAM-WINDOW-ADAPTER.conf').exists():
     shutil.copy2(ROOT/'config/STEAM-WINDOW-ADAPTER.conf',out/'config/STEAM-WINDOW-ADAPTER.conf')
     shutil.copy2(ROOT/'docs/STEAM-WINDOW-ADAPTER.md',out/'STEAM-WINDOW-ADAPTER.md')
     receipt['steam_experiment']='renderer-window-adapter'
+if (ROOT/'config/STEAM-WORKSHOP-DIAGNOSTICS.conf').exists():
+    shutil.copy2(ROOT/'config/STEAM-WORKSHOP-DIAGNOSTICS.conf',out/'config/STEAM-WORKSHOP-DIAGNOSTICS.conf')
+    shutil.copy2(ROOT/'docs/STEAM-WORKSHOP-DIAGNOSTICS.md',out/'STEAM-WORKSHOP-DIAGNOSTICS.md')
+    receipt['steam_experiment']='workshop-request-observer'
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')
