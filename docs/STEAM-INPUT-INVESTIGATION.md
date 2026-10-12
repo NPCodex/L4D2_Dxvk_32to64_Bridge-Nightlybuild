@@ -263,3 +263,24 @@ This [combined hardware result](STEAM-POLL-CHAIN-EXPERIMENT.md#combined-hardware
 ### Renderer DLL supplied: specific process-ownership gate found
 
 The user supplied GameOverlayRenderer64.dll rather than a log. [Static analysis](STEAM-RENDERER-WINDOW-GATE.md) identifies a Vulkan-reachable input-window selector that takes GetActiveWindow or GetForegroundWindow and rejects windows whose owner PID differs from its current process. This concrete gate is consistent with the Bridge's game-owned root and Host-owned child arrangement, but existing logs do not prove the actual loaded sample or returned candidate on Steam's call thread. The next narrowly scoped evidence is that window-query return and PID comparison, before any compatibility mapping or new behavioral candidate. The proprietary DLL is not executed, modified or uploaded to the fork.
+
+### User-confirmed renderer: actual window-query and hook-install diagnostic
+
+The user confirmed the uploaded renderer is the DLL used by LDB64 and requested
+PID/window/hook diagnostics. The default-off
+[Steam window diagnostic](STEAM-WINDOW-DIAGNOSTICS.md) now wraps only the loaded
+renderer's named GetActiveWindow/GetForegroundWindow/SetWindowsHookExW imports.
+It records authentic results, calling RVA/thread, HWND owner PID/thread, game
+and presenter identity, and actual hook installation target/result. Arguments,
+results and LastError are preserved; no window mapping, PID spoofing or new
+input/focus/capture behavior is introduced. Dynamic/unnamed calls remain outside
+coverage. A held module reference protects in-flight wrappers until process exit.
+
+Matched build `ldb-ipc-c32-dev+15dd529becdee47f` passed native x86/x64 observation
+semantics tests, all ten regressions, 252 IPC pairs, 30 faults and 39 Python
+contracts, and was uploaded as a new immutable fork ZIP with verified checksum.
+Keep the ineffective combined C8 control settings, add only
+`server.steamWindowDiagnostics=True`, and test shortcuts before and after normal
+Overlay activation. Actual renderer selection/hook binding remains unconfirmed.
+Status: **BLOCKED — awaiting real Steam window/hook evidence**. This delivers
+observation capability, not a claimed input repair.

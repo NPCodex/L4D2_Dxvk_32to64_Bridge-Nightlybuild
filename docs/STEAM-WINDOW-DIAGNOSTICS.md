@@ -89,3 +89,26 @@ proprietary Steam DLL is neither executed by these tests nor redistributed.
 
 Status: **BLOCKED — awaiting actual Steam window-selection evidence**. Native
 fixtures can validate observation semantics, not actual gameplay or Steam input.
+
+## Verified experimental delivery
+
+- Source: `6f65a91579aeb56c7c36ca177cfd6a1c664d15fd`.
+- Build: `ldb-ipc-c32-dev+15dd529becdee47f`. All three binaries rebuilt and matched.
+- [ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/dd9a3319b8e8820a6a207ffb4430c5e78383d858/l4d2-bridge-steam-window-diagnostics-dev-15dd529becdee47f-r38195378579.zip), 1,380,085 bytes.
+- SHA-256: `2938c78dc0eabbabdbef81ff5d8ef95742fe274c20070fde92081475f5608b2c`.
+- [Windows run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38195378579) succeeded: 252 IPC process pairs, 30 fail-closed cases,
+  both batching-policy fixtures, all ten native regression suites and 39 Python
+  contracts. The new suite passed x86/x64 × real USER32/prior-IAT-chain modes.
+- Artifact inspection independently verified x86 Client, x64/x86 Hosts, Release
+  build receipts, embedded identity, x86 Host LAA, all binary SHA-256 values,
+  diagnostic code in both Hosts and disabled defaults. The downloaded public
+  fork ZIP was checked byte-for-byte by SHA-256 after upload.
+- [Raw native diagnostics](steam-input-evidence/38195378579-native-pass.log),
+  [IPC results](steam-input-evidence/38195378579-ipc-raw.json),
+  [fault results](steam-input-evidence/38195378579-ipc-faults.json),
+  [binary inspection](steam-input-evidence/38195378579-artifact-inspection.json),
+  [upload receipt](steam-input-evidence/window-diagnostics-upload-receipt.json).
+
+No real Steam/game validation yet. This ZIP is a diagnostic build, not a working
+Steam Overlay fix. main, the tested IPC branch, VERSION, tags, releases and
+previous ZIPs remain unchanged.
