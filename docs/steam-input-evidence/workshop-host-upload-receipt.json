@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "cb92977856f73c5ca6534bf206ebfa36eff31460",
+  "zip": "l4d2-bridge-steam-workshop-host-dev-4833cce93dfc4dc0-r38205119024.zip",
+  "sha256": "63c27c56287c2cf603b1b69a0285b17a1114e16e607853238f501498aefe5093",
+  "bytes": 1402044,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/cb92977856f73c5ca6534bf206ebfa36eff31460/l4d2-bridge-steam-workshop-host-dev-4833cce93dfc4dc0-r38205119024.zip",
+  "build": "ldb-ipc-c32-dev+4833cce93dfc4dc0"
+}

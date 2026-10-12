@@ -1,0 +1,30 @@
+{
+  "build_id": "ldb-vbib-map-dev+0064e06ff547c453",
+  "protocol_source_sha256": "0064e06ff547c453e80984aa39ac1dc67030be1fcc8af6e816768f01652df784",
+  "foundation": "C1/C2/C4/C8/C16/C32 production d59493c + VA allocator b90d056",
+  "protocol_version": "0x00020004",
+  "message_blocks": 64,
+  "message_block_bytes": 4096,
+  "upload_page_bytes": 4096,
+  "upload_slots": 1024,
+  "supported_batches": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "legacy_data_ring": false,
+  "reply_v2": true,
+  "upload_leases": true,
+  "reply_slots": false,
+  "gameplay_validated": false,
+  "ipc_foundation_build": "ldb-ipc-full-dev+9f30cbf7ddabdb95",
+  "variant": "vbib-map",
+  "install_document": "docs/VBIB-MAPPED-DEVELOPMENT.md",
+  "mapped_static_vbib": true,
+  "mapped_minimum_bytes": 262144,
+  "mapped_idle_cache_bytes": 33554432,
+  "mapped_default_enabled": true
+}

@@ -9,6 +9,7 @@ on:
       - codex/l4d2-demo
       - codex/development-1.1.2-dev.1
       - main
+      - codex/release-1.3.0
       - codex/ipc-data-queue-correctness
   workflow_dispatch:
     inputs:
@@ -36,6 +37,16 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 8730d84b77c596efdabfad54b7458a8f0aeb01a4
+          path: .deps/ipc-v2-pr6
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 00007e8762385704afdacabea6e48444d798d27a
+          path: .deps/c32-frozen
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -58,6 +69,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'DXVK extraction failed' }
       - name: Prepare pinned Bridge sources
         run: python scripts/prepare_bridge.py
+      - name: Full IPC v2 and integrated Steam native regressions
+        shell: powershell
+        run: |
+          python scripts/prepare_v130_fixture.py
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen fixture preparation failed' }
+          foreach ($test in @('ipc_full','buffer_shadow_arena','steam_window_diagnostics','steam_web_diagnostics','steam_availability_diagnostics','steam_workshop_status')) {
+            & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
+            if ($LASTEXITCODE -ne 0) { throw "$test failed" }
+          }
       - name: Test Client input hooks, legacy DirectInput results and Query logging
         shell: powershell
         run: ./scripts/test_input_hooks.ps1
@@ -67,12 +87,11 @@ jobs:
           ./scripts/test_runtime_observation.ps1
           python -m unittest discover -s tests -p test_runtime_separation.py
           if ($LASTEXITCODE -ne 0) { throw 'Runtime separation contract tests failed' }
-      - name: Test IPC layouts, failure ownership and native cross-process transport
+      - name: Retained legacy layout units and production API failure ownership
         shell: powershell
         run: |
           ./scripts/test_data_ring_contract.ps1
           ./scripts/test_ipc_api_failure.ps1
-          ./scripts/test_ipc_transport.ps1
       - name: Build optional L4N v2 HUD control plugin
         if: github.event_name != 'workflow_dispatch' || inputs.build_l4n
         shell: powershell
@@ -179,6 +198,20 @@ jobs:
           path: dist/l4d2-pageblock-drop-experiment/
           include-hidden-files: true
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l4d2-native-v${{ env.L4D2_PROJECT_VERSION }}-${{ github.run_id }}
+          path: |
+            work/ipc-full-native/
+            work/release-build.json
+            .deps/observation-test-*/
+            .deps/steam-*/
+            .deps/pageblock-gc-test/
+            .deps/dxvk-remix/bridge/_compRelease_*/meson-logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
   publish-existing-prerelease:
     if: github.event_name == 'workflow_dispatch' && inputs.publish_existing_prerelease
     runs-on: ubuntu-latest

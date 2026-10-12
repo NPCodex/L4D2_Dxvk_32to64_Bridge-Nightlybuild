@@ -1,0 +1,56 @@
+name: Publish verified IPC experimental prerelease
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/ipc-c32-development]
+    paths: [.github/workflows/publish-ipc-experiment.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+      RELEASE_TAG: ipc-experimental-c1-dev.1
+    steps:
+      - name: Download exact passing Windows build
+        run: |
+          gh run view 38110092989 --json conclusion,headSha > run.json
+          python -c "import json; r=json.load(open('run.json')); assert r['conclusion']=='success' and r['headSha']=='2ce9f9b0e50ca9bc9af592478769fa8374596344'"
+          gh run download 38110092989 --name ipc-c32-development-38110092989 --dir artifact
+      - name: Verify matched binary payload and draft target
+        run: |
+          gh release view "$RELEASE_TAG" --json isDraft,isPrerelease,targetCommitish,assets > release.json
+          python - <<'PYCODE'
+          from pathlib import Path
+          import json,zipfile,hashlib,struct
+          r=json.load(open('release.json'))
+          assert r['isDraft'] and r['isPrerelease'] and not r['assets']
+          assert r['targetCommitish']=='2ce9f9b0e50ca9bc9af592478769fa8374596344'
+          p=Path('artifact/dist/l4d2-bridge-ipc-c32-dev-e4d67030061eb06b.zip')
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='1524ebb671d8d4a8802b72f58dd9060ce463e4cfcc4f7e4a305f4d4c053de8e9'
+          with zipfile.ZipFile(p) as z:
+              info=json.loads(z.read('BUILD-INFO.json'))
+              assert info['source_commit']==r['targetCommitish']
+              assert info['default_batch']==1 and info['build_type']=='Release'
+              assert not info['gameplay_validated']
+              assert b'client.ipcBatchSize = 1' in z.read('config/bridge.conf')
+              for name,digest in info['files'].items():
+                  data=z.read(name)
+                  assert hashlib.sha256(data).hexdigest()==digest and info['build_id'].encode() in data
+                  pe=struct.unpack_from('<I',data,60)[0]
+                  assert struct.unpack_from('<H',data,pe+4)[0]==(0x8664 if '64.exe' in name else 0x14c)
+                  if '32.exe' in name: assert struct.unpack_from('<H',data,pe+22)[0]&0x20
+              Path('BUILD-INFO.json').write_bytes(z.read('BUILD-INFO.json'))
+          rows=json.load(open('artifact/work/ipc-c32-native/c32-native-results.json'))
+          assert len(rows)==84 and all(row['client_rc']==row['host_rc']==0 for row in rows)
+          PYCODE
+      - name: Upload verified assets and publish as prerelease
+        run: |
+          gh release upload "$RELEASE_TAG" artifact/dist/l4d2-bridge-ipc-c32-dev-e4d67030061eb06b.zip artifact/dist/SHA256SUMS.txt BUILD-INFO.json artifact/work/ipc-c32-native/c32-native-results.json
+          gh release view "$RELEASE_TAG" --json assets > assets.json
+          python -c "import json; a=json.load(open('assets.json'))['assets']; assert len(a)==4 and all(x['size']>0 for x in a)"
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false

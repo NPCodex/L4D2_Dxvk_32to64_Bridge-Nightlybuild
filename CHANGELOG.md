@@ -5,8 +5,23 @@
 
 # 更新记录 / Changelog
 
-当前正式版为 **v1.2.2（Optional / 可选更新）**；以下开发版条目保留当时状态，不代表正式版现状。简明记录见 [LDBREADME](LDBREADME.md)。
+当前正式版为 **v1.3.0**。简明记录见 [LDBREADME](LDBREADME.md)。
 
+## 1.3.0（正式发布 / Stable）
+
+- 整合完整 IPC v2 四方向传输与独立上传/长 Lock lease；默认 C8，六档保留。
+- 使用 VB/IB VA allocator，空 region 释放；保留默认关闭的静态 VB/IB Shadow 按需映射。
+- 合入 Steam 输入、窗口身份适配及限定 GameUI 调用位置的 Workshop 可用性代理，修复 Overlay 开关、鼠标、Join Server 和工坊入口。
+- L4N 增加两项仅配置菜单和默认英文的 English/中文切换；Save 写 conf，IPC/Shadow 完整重启生效。
+- 新安装默认 x64 Host 和 Steam 修复启用，详细诊断关闭；升级保留已有配置、后端、ReShade、DB。说明见 [v1.3.0](docs/RELEASE-V1.3.0.md)。
+
+## 1.3.0-pre.1（预发布 / Prerelease）
+
+- 保留当前完整 IPC v2 四方向传输、独立上传 lease 与已验证的 VA allocator；配套 x86 Client、x86 Host、x64 Host。
+- 默认 `client.ipcBatchSize=8`（C8），六档 C1/C2/C4/C8/C16/C32 均保留。
+- 静态 VB/IB 按需映射默认关闭：`client.vbibMappedShadow=False`。原 FULL_SHADOW 内容、动态缓冲和原分配路径保留；实验开关、256 KiB 阈值和 32 MiB 空闲映射预算仍可配置。
+- 仅发布配套三件套升级包，保留 DXVK、配置、ReShade、插件和 retention DB。旧配置显式值覆盖默认值，需要按说明编辑后完整重启。
+- 不宣称 C8 最优、不保证 FPS/低帧或重度 4K AV 收益；原生检查与新包实机验收分开记录。说明见 [预发布安装与限制](docs/RELEASE-V1.3.0-pre.1.md)。
 ## 1.2.2（正式发布 / Optional）
 
 - 修复地图加载/切换期间可能触发的数据队列覆盖、遗漏唤醒、等待失败后继续提交，以及完整大包回绕预留失败。

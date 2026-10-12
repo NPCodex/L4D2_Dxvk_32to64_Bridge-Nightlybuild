@@ -1,5 +1,7 @@
 # L4N Bridge 常用设置
 
+当前实验分支新增 `ipcBatchSize`、`vbibMappedShadow` 的仅配置菜单，以及默认英文的 English/中文语言切换；安装与重启规则见 [新菜单说明](L4N-CONFIG-MENU.md)。下文 v1.2.0 的五项菜单记录保留原版本范围。
+
 开发接入见 [完整 API 参考](API.md)，进程/资源/配置的技术边界见 [当前架构](ARCHITECTURE.md)。本文描述最终 HUD 行为；控制 ABI 仍提供 runtime Host 等字段，插件按当前菜单要求不显示这些字段。
 
 本页对应 `main` 的 v1.2.0 常用设置功能。正式 Release 的插件单独提供 ZIP，本体和补丁均不内置插件 DLL；旧 `v1.2.0-dev.1` 附件不含通用设置 API。Bridge 本体不依赖 L4N；x86 `L4D2BridgePlugin.dll` 是可选组件，安装到 `bin/neko/plugins/`，需要支持随仓库提供的 SDK v2 的 L4N HUD。本次插件代码未修改，正式包复用已通过测试的 `common-settings-2` DLL，并记录原构建来源。

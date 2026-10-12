@@ -1,0 +1,81 @@
+name: Full IPC v2 production integration
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/ipc-v2-full-integration']
+    paths: ['patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'tests/**', 'scripts/test_*.ps1', 'scripts/generate_*_test.py', '.github/workflows/ipc-full-development.yml']
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 8730d84b77c596efdabfad54b7458a8f0aeb01a4
+          path: .deps/ipc-v2-pr6
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 00007e8762385704afdacabea6e48444d798d27a
+          path: .deps/c32-frozen
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned build tools
+        run: python -m pip install meson==1.3.2 ninja==1.11.1.1
+      - name: Fetch pinned DXVK only for the existing x86 loader check
+        shell: pwsh
+        run: |
+          curl.exe --fail --location --retry 3 --max-time 90 https://github.com/doitsujin/dxvk/releases/download/v2.6.1/dxvk-2.6.1.tar.gz --output .deps/dxvk.tar.gz
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned test dependency download failed' }
+          if ((Get-FileHash .deps/dxvk.tar.gz -Algorithm SHA256).Hash.ToLower() -ne '7ee0bef415910c943d3bda47d9d6821b9c8ca7a74f1e9f6151707d268cf3ce7f') { throw 'Pinned DXVK checksum mismatch' }
+          tar -xzf .deps/dxvk.tar.gz -C .deps
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned DXVK extraction failed' }
+      - name: Prepare C1 C32 foundation, VA allocator and full transport
+        run: |
+          python scripts/prepare_bridge.py
+          python scripts/prepare_ipc_c32.py
+          python scripts/prepare_ipc_full.py
+      - name: Actual production full serializer, reverse replies, leases and failure boundaries
+        shell: powershell
+        run: ./scripts/test_ipc_full.ps1
+      - name: Existing resource and native regressions
+        shell: powershell
+        run: |
+          foreach ($test in @('buffer_contract','buffer_shadow_arena','volume_layout','device_reset','readback_recovery','input_hooks','adapter_information','ati_texture_layout','command_queue','runtime_observation','exception_diagnostics','color_diagnostics','data_diagnostics','diagnostics','host_diagnostics','overlay_presenter','api_wait_diagnostics')) {
+            & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
+            if ($LASTEXITCODE -ne 0) { throw "$test failed" }
+          }
+          & powershell.exe -NoProfile -File ./scripts/test_pageblock_gc.ps1 -SkipPluginTests
+          if ($LASTEXITCODE -ne 0) { throw 'PageBlock GC failed' }
+          & powershell.exe -NoProfile -File ./scripts/test_host_diagnostics.ps1 -Platform x86
+          if ($LASTEXITCODE -ne 0) { throw 'Host32 diagnostics failed' }
+          & powershell.exe -NoProfile -File ./scripts/test_x86_backend.ps1 -DllPath .deps/dxvk-2.6.1/x32/d3d9.dll
+          if ($LASTEXITCODE -ne 0) { throw 'x86 backend loader failed' }
+      - name: Repeat published C1 C32 versus full with same budget and identical caller
+        shell: powershell
+        run: ./scripts/test_ipc_full_comparison.ps1
+      - name: Python contracts
+        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Build and verify matched experimental Release bridge
+        shell: powershell
+        run: ./scripts/build_ipc_full.ps1
+      - name: Preserve binaries, tests, raw data and checksums
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipc-full-development-${{ github.run_id }}
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+            work/ipc-full-build.json
+            work/ipc-full-native/
+            work/ipc-full-comparison/
+            .deps/dxvk-remix/bridge/_ipcFull_*/meson-logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

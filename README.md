@@ -1,3 +1,11 @@
+# LDB v1.3.0
+
+当前版本使用完整 IPC v2，默认 C8，包含 VA allocator、默认关闭的 Shadow 按需映射、Steam Overlay 修复及 L4N 配置/语言菜单。
+
+[更新说明](docs/RELEASE-V1.3.0-NOTES.md) · [安装、默认值与回退](docs/RELEASE-V1.3.0.md)
+
+以下旧版说明保留历史上下文；本版安装以 v1.3.0 说明为准。
+
 # L4D2 DXVK Bridge
 
 [中文](#chinese) | [English](#english) · [v1.2.2 可选更新说明](docs/RELEASE-V1.2.2.md) · [简明版本记录](LDBREADME.md) · [详细更新历史](CHANGELOG.md)

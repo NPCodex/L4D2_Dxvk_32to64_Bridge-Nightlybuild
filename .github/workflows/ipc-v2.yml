@@ -1,0 +1,50 @@
+name: IPC v2 independent prototype
+on:
+  # Benchmark this development branch once per source change. PR path filters
+  # examine the whole PR diff and otherwise rerun/cancel measurements on docs edits.
+  push:
+    branches: ['codex/ipc-v2-prototype']
+    paths:
+      - 'experiments/ipc-v2/**'
+      - 'tests/ipc-v2/**'
+      - 'scripts/*ipc_v2*'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ipc-v2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: 8730d84b77c596efdabfad54b7458a8f0aeb01a4
+          path: .deps/ipc-v2-pr6
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Freeze actual A and B production fixtures
+        run: python scripts/prepare_ipc_v2_baselines.py
+      - name: Build x86 and x64 prototype and actual baselines
+        shell: powershell
+        run: ./scripts/test_ipc_v2.ps1 -BuildOnly
+      - name: Cross-process correctness and alternating A B C measurements
+        run: python scripts/run_ipc_v2.py --no-build --windows-baselines --rounds 11
+      - name: Preserve raw evidence and experimental test binaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipc-v2-independent-evidence-${{ github.run_id }}
+          path: |
+            work/ipc-v2/
+            .deps/ipc-v2-A/
+            .deps/ipc-v2-B/
+          retention-days: 30

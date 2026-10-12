@@ -1,0 +1,21 @@
+{
+  "build": "ldb-ipc-c32-dev+294eafb0349ce3aa",
+  "client_log_sha256": "cc3c5280f0ca9d2cbbf2aaa305bda4ec72bee4014607d1fa5644105c085ad981",
+  "host_log_sha256": "1127fc5daefeba563febbc55acc0b776200453ff36c3d9784c07c9b2d0c89c16",
+  "user_report": {
+    "shift_tab_open_close": "passed",
+    "mouse_ui": "passed",
+    "join_server_ui": "passed",
+    "addon_view_workshop": "no reaction/no Overlay; other operations unaffected",
+    "overlay_browser": "works",
+    "native_dxvk_view_workshop": "works"
+  },
+  "hook_installations": 22,
+  "hook_results_nonnull": true,
+  "targets_match_presenter_thread": true,
+  "activity_on": 11,
+  "activity_off": 11,
+  "duration_seconds": 175,
+  "web_request_trace_available": false,
+  "broader_regression_complete": false
+}

@@ -1,0 +1,24 @@
+{
+  "build": "ldb-ipc-c32-dev+294eafb0349ce3aa",
+  "source_commit": "e987a8c1832c3328e0326a99e901f4c2041d4a51",
+  "zip_sha256": "aed19c7249fda6ca9df19747ded086ddf622be81622f94d57c98194d4ba49ffa",
+  "binaries": [
+    {
+      "path": "bin/dxvk_d3d9.dll",
+      "machine": "0x14c",
+      "sha256": "638c105201dad3010a56942278c055cd27bba822e1958a835aa871466b8463d3"
+    },
+    {
+      "path": "bin/.l4d2bridge/L4D2Bridge64.exe",
+      "machine": "0x8664",
+      "sha256": "d2aaf02539b4ade571e8d0e737a6d2a5994d0d1214babf37f8e556a532e6dbf1"
+    },
+    {
+      "path": "bin/.l4d2bridge/L4D2Bridge32.exe",
+      "machine": "0x14c",
+      "sha256": "575259c21838165c7ea4bd3ce9edaaa6e85d80c56d3185120ccba713de87c749"
+    }
+  ],
+  "ipc_pairs": 252,
+  "fault_cases": 30
+}

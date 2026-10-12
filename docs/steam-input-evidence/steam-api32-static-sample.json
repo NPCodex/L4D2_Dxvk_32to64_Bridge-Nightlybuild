@@ -1,0 +1,35 @@
+{
+  "bytes": 263080,
+  "sha256": "25a1975363e587f7c64eee7cf2fdcb02eb7511e178f1ae0b38783322a2bd6339",
+  "machine": "0x14c",
+  "image_base": "0x3b400000",
+  "exports": {
+    "SteamAPI_ISteamFriends_ActivateGameOverlayToWebPage": "0x20a0",
+    "SteamAPI_ISteamFriends_ActivateGameOverlay": "0x2010",
+    "SteamAPI_ISteamFriends_ActivateGameOverlayToUser": "0x1ae0",
+    "SteamAPI_SteamFriends_v017": "0x5800",
+    "SteamInternal_ContextInit": "0xa310",
+    "SteamInternal_CreateInterface": "0xa360",
+    "SteamInternal_FindOrCreateUserInterface": "0xa3a0",
+    "SteamAPI_ISteamClient_GetISteamFriends": "0x1980",
+    "SteamAPI_ISteamUtils_IsOverlayEnabled": "0x5660",
+    "SteamAPI_SteamUtils_v010": "0x6220",
+    "SteamAPI_ISteamUtils_BOverlayNeedsPresent": "0x5430"
+  },
+  "known_sample": true,
+  "executed": false,
+  "known_sample_annotations": {
+    "interface_string": "SteamFriends017",
+    "flat_web_export_rva": "0x20a0",
+    "flat_calling_convention": "x86 cdecl; self, URL pointer, int32 mode",
+    "virtual_call": "ECX=self; push mode; push URL; call [vtable+0x78]",
+    "virtual_slot_index": 30,
+    "virtual_calling_convention": "x86 thiscall; URL pointer, int32 mode",
+    "flat_thunk_bytes_sha256": "97b3f993ccef0addf72059b8b1d73aa54f83871c60ca352fab97264c435b3f7c",
+    "friends_accessor_export_rva": "0x5800",
+    "find_or_create_user_interface_rva": "0xa3a0",
+    "steamclient_getfriends_flat_export_rva": "0x1980",
+    "claim_scope": "static sample ABI only; actual game interface/request path not established",
+    "runtime_interface_object": "returned by installed Steam client; not present in this API DLL"
+  }
+}

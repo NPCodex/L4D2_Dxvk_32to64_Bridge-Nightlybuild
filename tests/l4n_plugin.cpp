@@ -45,6 +45,9 @@ static l4d2_settings::Controls& settings() {
   return instance;
 }
 extern "C" HRESULT WINAPI L4D2BridgeControl(const general::Request* request, general::Response* response) {
+#ifdef L4D2_TEST_OLD_GENERAL
+  if (request->operation > general::Operation::GetReShadePresenter) { return E_INVALIDARG; }
+#endif
   ++settingsCalls; return settings().invoke(request,response);
 }
 static void initializeSettings() {
@@ -54,6 +57,8 @@ static void initializeSettings() {
     ++configWrites;
     if (FAILED(configError)) { return configError; }
     for (const auto& entry : updates) {
+      if (entry.first == "client.ipcBatchSize") { configured.ipcBatchSize = static_cast<uint32_t>(std::stoul(entry.second)); }
+      if (entry.first == "client.vbibMappedShadow") { configured.vbibMappedShadow = entry.second == "True" ? 1u : 0u; }
       if (entry.first == "client.testX86Server") { configured.host = entry.second == "True" ? general::Host::X86 : general::Host::X64; }
       if (entry.first == "client.pageBlockRetentionPolicy") { configured.policy = entry.second == "keep" ? l4d2_control::Policy::Keep : entry.second == "drop" ? l4d2_control::Policy::Drop : l4d2_control::Policy::LearnedAggressive; }
       for (size_t i = 0; i < 9; ++i) {
@@ -88,7 +93,7 @@ struct MenuHost {
   void back() { assert(pages.size() > 1); pages.pop_back(); }
 };
 static void rootOrder(const std::string& menu) {
-  const char* labels[] = { "Status", "GC", "Memory Policy", "ReShade Presenter", "Host" };
+  const char* labels[] = { "Status", "GC", "Memory Policy", "ReShade Presenter", "Host", "ipcBatchSize", "vbibMappedShadow", "Language" };
   size_t previous = 0;
   for (const auto* label : labels) {
     const auto position = menu.find(std::string("\"") + label + "\"");
@@ -106,7 +111,7 @@ static void pageBlockOnly(const std::string& page) {
 }
 #ifndef L4D2_TEST_NO_API
 static void policyOrder(const std::string& page) {
-  size_t previous = page.find(u8"当前策略:");
+  size_t previous = page.find("Current policy:");
   assert(previous != std::string::npos);
   for (const auto* label : { "keep", "lg", "drop [experimental]" }) {
     const auto next = page.find(std::string("\"") + label + "\"");
@@ -124,11 +129,63 @@ int wmain(int argc, wchar_t** argv) {
   const auto module = LoadLibraryW(argv[1]); assert(module);
   const auto get = reinterpret_cast<GetL4NPluginInstanceFunc>(GetProcAddress(module, "GetL4NPluginInstance")); assert(get);
   auto* plugin = get(); assert(plugin && plugin->GetInterfaceVersion() == 2);
-  assert(std::string(plugin->GetVersion()) == "common-settings-2");
+  assert(std::string(plugin->GetVersion()) == "common-settings-3");
   assert(std::string(plugin->RequestHudMenu(true)) == "L4D2 Bridge");
   MenuHost host(plugin->RequestHudMenu(false)); rootOrder(host.page());
+  const auto languageWrites = configWrites, languageRuntime = runtimeSets;
+  host.select("Language"); host.select(u8"中文");
+  assert(host.page().find(u8"语言立即生效") != std::string::npos);
+  MenuHost chinese(plugin->RequestHudMenu(false));
+  assert(chinese.page().find(u8"状态") != std::string::npos && chinese.page().find(u8"保存") == std::string::npos);
+  chinese.select(u8"语言"); chinese.select("English");
+  assert(chinese.page().find("Language applies immediately") != std::string::npos);
+  assert(configWrites == languageWrites && runtimeSets == languageRuntime);
+  host.back(); host.back();
+#if defined(L4D2_TEST_GENERAL) && !defined(L4D2_TEST_OLD_GENERAL)
+  for (const char* batch : { "1", "2", "4", "8", "16", "32" }) {
+    const auto beforeWrite = configWrites, beforeCalls = calls;
+    const auto previousBatch = configured.ipcBatchSize;
+    host.select("ipcBatchSize");
+    assert(host.page().find("Current (conf): " + std::to_string(previousBatch)) != std::string::npos);
+    size_t pos = host.page().find("Current (conf):");
+    for (const char* label : { "1", "2", "4", "8", "16", "32", "Save" }) {
+      const auto next = host.page().find(std::string("\"") + label + "\""); assert(next > pos && next != std::string::npos); pos = next;
+    }
+    host.select(batch); assert(configWrites == beforeWrite && configured.ipcBatchSize == previousBatch && calls == beforeCalls);
+    host.select("Save"); assert(configured.ipcBatchSize == std::stoul(batch) && configWrites == beforeWrite + 1 && calls == beforeCalls);
+    assert(host.page().find("restart L4D2 and Host") != std::string::npos);
+    host.back(); host.back(); host.back();
+  }
+  for (const char* shadow : { "True", "False" }) {
+    const auto beforeWrite = configWrites, beforeCalls = calls;
+    host.select("vbibMappedShadow"); assert(host.page().find("Enable only if Client AV is very tight") != std::string::npos);
+    host.select(shadow); assert(configWrites == beforeWrite);
+    host.select("Save"); assert(configWrites == beforeWrite + 1 && configured.vbibMappedShadow == (std::string(shadow) == "True" ? 1u : 0u) && calls == beforeCalls);
+    host.back(); host.back(); host.back();
+  }
+  configured.ipcBatchSize = 8;
+  host.select("ipcBatchSize"); host.select("16"); host.back(); host.back();
+  host.select("ipcBatchSize"); host.select("Save"); assert(configured.ipcBatchSize == 8); host.back(); host.back();
+  configError = E_ACCESSDENIED;
+  host.select("vbibMappedShadow"); host.select("True"); host.select("Save");
+  assert(host.page().find("Failed to persist configuration") != std::string::npos && configured.vbibMappedShadow == 0);
+  host.back(); host.back(); host.back(); configError = S_OK;
+  host.select("Language"); host.select(u8"中文"); host.back(); host.back();
+  MenuHost localized(plugin->RequestHudMenu(false)); localized.select("vbibMappedShadow");
+  assert(localized.page().find(u8"当前选项（conf）：False") != std::string::npos && localized.page().find(u8"AV 非常紧张") != std::string::npos);
+  localized.select("True"); assert(localized.page().find(u8"配置尚未修改") != std::string::npos);
+  localized.select(u8"保存"); assert(localized.page().find(u8"重启游戏和 Host") != std::string::npos && configured.vbibMappedShadow == 1);
+  configured.vbibMappedShadow = 0;
+  MenuHost resetLanguage(plugin->RequestHudMenu(false)); resetLanguage.select(u8"语言"); resetLanguage.select("English");
+#else
+  for (const char* menu : { "ipcBatchSize", "vbibMappedShadow" }) {
+    host.select(menu); assert(host.page().find("Settings unavailable") != std::string::npos);
+    assert(host.page().find("\"Save\"") == std::string::npos); host.back();
+  }
+#endif
+  const auto settingsBeforeStatus = settingsCalls;
   host.select("Status"); assert(host.pages.size() == 2); pageBlockOnly(host.page());
-  assert(settingsCalls == 0);
+  assert(settingsCalls == settingsBeforeStatus);
 #ifdef L4D2_TEST_NO_API
   assert(host.page().find("PageBlock status failed") != std::string::npos);
   host.back(); host.select("Host"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
@@ -161,14 +218,14 @@ int wmain(int argc, wchar_t** argv) {
     assert(host.page().find("configuration unchanged") != std::string::npos);
 #ifdef L4D2_TEST_GENERAL
     const auto source = configured.policy == policy ? " (configure)" : " (runtime)";
-    assert(host.page().find(std::string(u8"当前策略: ") + policyLabels[i] + source) != std::string::npos);
+    assert(host.page().find(std::string("Current policy: ") + policyLabels[i] + source) != std::string::npos);
     host.select("save to configure");
     assert(host.pages.size() == 4 && configured.policy == policy && configWrites == writesBefore + 1);
     assert(host.page().find("Config saved successfully") != std::string::npos);
-    assert(host.page().find(std::string(u8"当前策略: ") + policyLabels[i] + " (configure)") != std::string::npos);
+    assert(host.page().find(std::string("Current policy: ") + policyLabels[i] + " (configure)") != std::string::npos);
     host.back();
 #else
-    assert(host.page().find(std::string(u8"当前策略: ") + policyLabels[i] + " (runtime)") != std::string::npos);
+    assert(host.page().find(std::string("Current policy: ") + policyLabels[i] + " (runtime)") != std::string::npos);
     host.select("save to configure [unavailable]"); assert(host.pages.size() == 3);
 #endif
     host.back(); host.back();
@@ -190,10 +247,10 @@ int wmain(int argc, wchar_t** argv) {
   assert(configured.policy == l4d2_control::Policy::Drop);
   policy = l4d2_control::Policy::LearnedAggressive;
   host.select("save to configure"); assert(configured.policy == policy);
-  assert(host.page().find(u8"当前策略: lg (configure)") != std::string::npos);
+  assert(host.page().find("Current policy: lg (configure)") != std::string::npos);
   host.back(); host.back(); host.back();
   host.select("Memory Policy");
-  assert(host.page().find(u8"当前策略: lg (configure)") != std::string::npos); host.back();
+  assert(host.page().find("Current policy: lg (configure)") != std::string::npos); host.back();
 
   const auto setsBeforeHost = runtimeSets;
   auto writesBefore = configWrites;
@@ -232,7 +289,7 @@ int wmain(int argc, wchar_t** argv) {
   assert(host.page().find("Runtime policy changed to keep") != std::string::npos && configured.policy == l4d2_control::Policy::LearnedAggressive);
   host.select("save to configure");
   assert(host.page().find("Warning: failed to persist") != std::string::npos && host.page().find("denied") != std::string::npos);
-  assert(host.page().find(u8"当前策略: keep (runtime)") != std::string::npos);
+  assert(host.page().find("Current policy: keep (runtime)") != std::string::npos);
   host.back(); host.back(); host.back();
   host.select("Host"); host.select("x64 Host"); host.select("Save");
   assert(host.page().find("Failed to persist") != std::string::npos && configured.host == general::Host::X86); host.back(); host.back(); host.back();
@@ -252,7 +309,7 @@ int wmain(int argc, wchar_t** argv) {
   readError = E_ACCESSDENIED;
   policy = l4d2_control::Policy::Drop;
   host.select("Memory Policy");
-  assert(host.page().find(u8"当前策略: drop (runtime)") != std::string::npos && host.page().find("Configuration unavailable") != std::string::npos); host.back();
+  assert(host.page().find("Current policy: drop (runtime)") != std::string::npos && host.page().find("Configuration unavailable") != std::string::npos); host.back();
   host.select("Host"); assert(host.page().find("Configured Host unavailable") != std::string::npos);
   host.select("Save"); assert(host.page().find("Select a Host before saving") != std::string::npos); host.back(); host.back();
   readError = S_OK;

@@ -1,0 +1,34 @@
+name: Verify Workshop diagnostic installer
+on:
+  push:
+    branches: ['codex/steam-web-request-diagnostics']
+    paths: ['scripts/install_steam_workshop_diagnostics.ps1', '.github/workflows/steam-workshop-installer.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install immutable verified bridge into disposable game fixture
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'ldb-installer-fixture'
+          New-Item -ItemType Directory -Force "$root/bin/.l4d2bridge" | Out-Null
+          Set-Content "$root/left4dead2.exe" 'fixture, never executed'
+          Set-Content "$root/bin/dxvk_d3d9.dll" 'original fixture DLL'
+          Set-Content "$root/bin/.l4d2bridge/L4D2Bridge64.exe" 'original fixture Host'
+          Set-Content "$root/bin/.l4d2bridge/bridge.conf" 'client.ipcBatchSize = 8'
+          Set-Content "$root/bin/.l4d2bridge/d3d9vk_x64.dll" 'backend fixture'
+          ./scripts/install_steam_workshop_diagnostics.ps1 -GameRoot $root -CheckOnly
+          ./scripts/install_steam_workshop_diagnostics.ps1 -GameRoot $root
+          ./scripts/install_steam_workshop_diagnostics.ps1 -GameRoot $root -CheckOnly
+          if ((Get-Content "$root/bin/.l4d2bridge/bridge.conf").Trim() -ne 'client.ipcBatchSize = 8') { throw 'Config changed' }
+          if ((Get-Content "$root/bin/.l4d2bridge/d3d9vk_x64.dll").Trim() -ne 'backend fixture') { throw 'Backend changed' }
+          $saved = @(Get-ChildItem "$root/bin/.l4d2bridge/backups" -Recurse -File)
+          if ($saved.Count -ne 2) { throw 'Backup contents mismatch' }
+          if (-not ($saved | Where-Object { (Get-Content $_.FullName).Trim() -eq 'original fixture DLL' })) { throw 'Original DLL backup missing' }
+          Write-Output 'PASS immutable-download installer, three hashes/build identities, original backups, unchanged config/backend'

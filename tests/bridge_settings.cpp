@@ -74,13 +74,15 @@ static void controls() {
   Target configured; configured.host = Host::X86; configured.policy = l4d2_control::Policy::LearnedAggressive;
   auto runtimePolicy = configured.policy;
   Updates lastWrite;
-  unsigned sets = 0, reads = 0, writes = 0;
+  unsigned sets = 0, reads = 0, writes = 0, runtimeCalls = 0;
   HRESULT runtimeError = S_OK, writeError = S_OK, readError = S_OK;
   control.read = [&](Target& result) { ++reads; result = configured; return readError; };
   control.write = [&](const Updates& updates) {
     ++writes; lastWrite = updates;
     if (FAILED(writeError)) { return writeError; }
     for (const auto& entry : updates) {
+      if (entry.first == "client.ipcBatchSize") { configured.ipcBatchSize = static_cast<uint32_t>(std::stoul(entry.second)); }
+      if (entry.first == "client.vbibMappedShadow") { configured.vbibMappedShadow = entry.second == "True" ? 1u : 0u; }
       if (entry.first == "client.testX86Server") { configured.host = entry.second == "True" ? Host::X86 : Host::X64; }
       if (entry.first == "client.pageBlockRetentionPolicy") {
         configured.policy = entry.second == "drop" ? l4d2_control::Policy::Drop : entry.second == "keep" ? l4d2_control::Policy::Keep : l4d2_control::Policy::LearnedAggressive;
@@ -92,6 +94,7 @@ static void controls() {
     return S_OK;
   };
   control.runtime = [&](const l4d2_control::Request& request, l4d2_control::Response& response) {
+    ++runtimeCalls;
     if (request.operation == l4d2_control::Operation::SetPolicy) {
       ++sets;
       if (FAILED(runtimeError)) { return runtimeError; }
@@ -135,6 +138,41 @@ static void controls() {
   runtimeError = S_OK; readError = E_ACCESSDENIED; request.operation = Operation::GetStatus; response = {};
   assert(control.invoke(&request, &response) == S_FALSE && FAILED(response.queryResult) && response.configuredHost == Host::Unknown);
   readError = S_OK;
+  Controls configOnly; configOnly.read = control.read; configOnly.write = control.write; configOnly.runtime = control.runtime;
+  configOnly.initialize(configured); configOnly.recordHost(Host::X86);
+  const auto callsBefore = runtimeCalls;
+  for (uint32_t batch : { 1u, 2u, 4u, 8u, 16u, 32u }) {
+    request.operation = Operation::SetIpcBatchSize; request.value = batch; response = {};
+    assert(configOnly.invoke(&request, &response) == S_OK && response.configWriteSucceeded);
+    assert(lastWrite.size() == 1 && lastWrite[0] == std::make_pair(std::string("client.ipcBatchSize"), std::to_string(batch)));
+    assert(response.reserved[0] == batch && (response.flags & ConfigMenuSupported) && !(response.flags & RuntimeAttempted));
+    assert(response.restartRequired == (batch != 8 ? 1u : 0u));
+    const auto saved = writes;
+    request.operation = Operation::GetIpcBatchSize; response = {};
+    assert(configOnly.invoke(&request, &response) == S_OK && response.reserved[0] == batch && writes == saved);
+  }
+  for (uint32_t enabled : { 1u, 0u }) {
+    request.operation = Operation::SetVbibMappedShadow; request.value = enabled; response = {};
+    assert(configOnly.invoke(&request, &response) == S_OK && response.configWriteSucceeded && response.reserved[1] == enabled);
+    assert(lastWrite.size() == 1 && lastWrite[0].first == "client.vbibMappedShadow" && lastWrite[0].second == (enabled ? "True" : "False"));
+    assert(!(response.flags & RuntimeAttempted));
+    const auto saved = writes;
+    request.operation = Operation::GetVbibMappedShadow; response = {};
+    assert(configOnly.invoke(&request, &response) == S_OK && response.reserved[1] == enabled && writes == saved);
+  }
+  configured.ipcBatchSize = 8;
+  request.operation = Operation::SetIpcBatchSize; request.value = 16; response = {};
+  writeError = E_ACCESSDENIED;
+  assert(configOnly.invoke(&request, &response) == S_FALSE && !response.configWriteSucceeded && configured.ipcBatchSize == 8);
+  writeError = S_OK; readError = E_ACCESSDENIED; request.operation = Operation::GetIpcBatchSize; response = {};
+  assert(configOnly.invoke(&request, &response) == S_FALSE && FAILED(response.queryResult)); readError = S_OK;
+  for (uint32_t invalid : { 0u, 3u, 64u, 0xffffffffu }) {
+    request.operation = Operation::SetIpcBatchSize; request.value = invalid; const auto saved = writes;
+    assert(configOnly.invoke(&request, &response) == E_INVALIDARG && writes == saved);
+  }
+  request.operation = Operation::SetVbibMappedShadow; request.value = 2; const auto saved = writes;
+  assert(configOnly.invoke(&request, &response) == E_INVALIDARG && writes == saved);
+  assert(runtimeCalls == callsBefore);
   for (auto op : { Operation::GetStatus, Operation::GetMemoryPolicy, Operation::GetHostMode, Operation::GetReShadePresenter }) {
     const auto priorWrites = writes, priorSets = sets, priorReads = reads;
     request.operation = op; response = {};

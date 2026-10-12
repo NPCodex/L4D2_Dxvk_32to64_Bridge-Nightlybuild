@@ -1,0 +1,77 @@
+{
+  "source_commit": "92c1bb9557474d24ee9ea4a0531737347ee38ec6",
+  "run_id": 38085879074,
+  "zip_sha256": "cf04a518101a1f1f46c0d84acbdeab4fefe51701916bd87afb72f14ec88a8f1f",
+  "build": {
+    "build_id": "ipc-v2-prototype-a73324866c79abab4c2ea52e67aa499e",
+    "source_sha256": "a73324866c79abab4c2ea52e67aa499ece4a699134081460075db8fe8ba7a6db",
+    "gameplay_validated": false,
+    "production_integrated": false
+  },
+  "verified_binaries": [
+    {
+      "name": "benchmark-old-controls32.exe",
+      "sha256": "54774dbb42b57a4a287bac79f67c2a03e670fd8af721fa8d9edd820e12c93b64",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "benchmark-old-controls64.exe",
+      "sha256": "b4f4f946658bd2752cec1b87a4b2e4fbe422d8486c96e5f1662a6d53734214e1",
+      "pe_machine": "0x8664"
+    },
+    {
+      "name": "benchmark32.exe",
+      "sha256": "0058b62068a40827ef5ed48b6c408e16ec28b7afae7abb2b6bc6942943e5d9ca",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "benchmark64.exe",
+      "sha256": "0012d80d04dc2374ba0af40f9d95f86b1063abbf2f6cc77cb8e24b4cb830d277",
+      "pe_machine": "0x8664"
+    },
+    {
+      "name": "native32.exe",
+      "sha256": "624b7df13de67c47f99f82d81bd9734d85c18c489ddf0279b637ff9ec362e17b",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "native64.exe",
+      "sha256": "f8ffcc65d08217e4713ab9789617eb0b8c7a02aa9d7c23fe67c2da622e204679",
+      "pe_machine": "0x8664"
+    },
+    {
+      "name": "perf-client32.exe",
+      "sha256": "99daf5390f7bc2d85134403cfff8d62829506aa630a865425f6e253f9702abcd",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "perf-host32.exe",
+      "sha256": "0b9d32212af5cf45cb09a0fc8c60d05f0710f8b125b5ac5453cf4c13af6d1af4",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "perf-host64.exe",
+      "sha256": "29358f508f93101dd3cd7c5a848abadc2556659c52ef309bbe7c7ca9d86b2d0a",
+      "pe_machine": "0x8664"
+    },
+    {
+      "name": "perf-client32.exe",
+      "sha256": "1e67cf039f4d7cd9ffc1c6e99e3abf2eaf5c49588f733fa4279671d10adcd7ed",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "perf-host32.exe",
+      "sha256": "f545a16bddfc6d10ad24b7be77b7e0f055bcffd55954edbf710aca15f3556d06",
+      "pe_machine": "0x14c"
+    },
+    {
+      "name": "perf-host64.exe",
+      "sha256": "f6d0e2d1999db06608143ca20edfa887a62d7f2bdb472494cb0c28e32a580fa1",
+      "pe_machine": "0x8664"
+    }
+  ],
+  "samples": 2843,
+  "failed": 21,
+  "logical_lf_source_sha256": "25a21e18026c54a0f3c2bfbb3efbe95f7d984adab2a9542d2e08a7bc48aa43de",
+  "line_endings": "Windows CRLF verified against LF source"
+}

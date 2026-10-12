@@ -13,8 +13,22 @@ def generate(source, output):
     client = source / 'bridge/src/client'
     di = (client / 'di_hook.cpp').read_text(encoding='utf-8')
     query = (client / 'd3d9_query.cpp').read_text(encoding='utf-8')
+    window = (client / 'window.cpp').read_text(encoding='utf-8')
     pieces = []
+    for name in ('isSteamOverlayActive', 'allowSteamInputHookChain', 'allowSteamInputPollingChain'):
+        start, end = method(window, f'bool {name}()')
+        pieces.append(window[start:end].replace(f'bool {name}()', f'bool WndProc::{name}()'))
+    for marker in ['static bool steamMouseHandoffActive()', 'static bool steamGameCaptureWindow(',
+                   'void DI::releaseSteamMouseCapture()', 'static HWND WINAPI HookedSetCapture(']:
+        start, end = method(di, marker)
+        pieces.append(di[start:end])
     for marker in ['static void InputWinHooksAttach()', 'static void InputWinHooksDetach()']:
+        start, end = method(di, marker)
+        pieces.append(di[start:end])
+    for marker in ['static LRESULT CALLBACK HookedCallWndProc(', 'static LRESULT CALLBACK HookedGetMsgProc(',
+                   'static LRESULT CALLBACK HookedKeyboardProc(', 'static SHORT WINAPI HookedGetAsyncKeyState(',
+                   'static SHORT WINAPI HookedGetKeyState(', 'static SHORT WINAPI HookedGetKeyboardState(',
+                   'static BOOL WINAPI HookedGetCursorPos(', 'static BOOL WINAPI HookedSetCursorPos(']:
         start, end = method(di, marker)
         pieces.append(di[start:end])
     pieces.append('class DirectInput7Hook { public:')

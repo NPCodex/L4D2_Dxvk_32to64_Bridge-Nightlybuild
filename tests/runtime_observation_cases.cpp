@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
     assert(!l4d2_api_wait::initialize(true, "client") && !l4d2_api_wait::state);
     assert(!l4d2_data::initialize("client", "test"));
     assert(!l4d2_color::initialize("client", "test"));
-    auto* core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); assert(core); delete[] core;
+    auto core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); assert(core); core.reset();
     std::puts("init-failure: file/thread failures isolated; no published ApiWait state; core allocation succeeds");
     return 0;
   }
@@ -182,11 +182,11 @@ int main(int argc, char** argv) {
     assert(!l4d2_color::initialize("client", "test"));
     assert(!l4d2_data::initialize("client", "test"));
     bool failed = false;
-    try { delete[] l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); }
+    try { auto discarded = l4d2_buffer::allocate(64, l4d2_memory::Kind::Vertex, true); }
     catch (const std::bad_alloc&) { failed = true; }
     assert(failed && !l4d2_memory::nextSample);
     failAllocation = false;
-    auto* core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Index, true); assert(core && !core[0]); delete[] core;
+    auto core = l4d2_buffer::allocate(64, l4d2_memory::Kind::Index, true); assert(core && !core[0]); core.reset();
     std::puts("allocation-failure: optional state unavailable; core allocation/exception contract preserved");
     return 0;
   }
@@ -319,9 +319,9 @@ int main(int argc, char** argv) {
   assert(!l4d2_api_wait::state && !bridge_exception::testHistoryState());
   assert(!scans && !files && !clocks && !threads && !hooks && !windows && !modules && !locks && !allocations);
   for (const auto kind : { l4d2_memory::Kind::Vertex, l4d2_memory::Kind::Index }) {
-    auto* shadow = l4d2_buffer::allocate(64, kind, true); assert(shadow);
+    auto shadow = l4d2_buffer::allocate(64, kind, true); assert(shadow);
     for (unsigned i = 0; i < 64; ++i) { assert(shadow[i] == 0); shadow[i] = static_cast<uint8_t>(i); }
-    delete[] shadow; l4d2_memory::released(64, kind);
+    shadow.reset(); l4d2_memory::released(64, kind);
   }
   assert(!files && !clocks && !scans && !l4d2_memory::nextSample && !l4d2_memory::bytes[1] && !l4d2_memory::bytes[2]);
   // Real shadow allocation and GC still work with the monitor off. Intrinsic

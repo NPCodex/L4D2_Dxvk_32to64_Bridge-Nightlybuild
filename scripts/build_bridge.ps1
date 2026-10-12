@@ -23,19 +23,17 @@ Invoke-Checked 'python' @("$PSScriptRoot/prepare_bridge.py")
 $source = Join-Path $repoRoot '.deps/dxvk-remix'
 Push-Location (Join-Path $source 'bridge')
 try {
-  # Each architecture gets a fresh PowerShell process and its own MSVC environment.
-  foreach ($arch in @('x64', 'x86')) {
-    $buildCommand = ". .\build_bridge.ps1; Build -Platform $arch -BuildFlavour debugoptimized -BuildSubDir _compDebugOptimized_$arch -VcVarsVer $VcVarsVer; exit `$LASTEXITCODE"
-    Invoke-Checked 'powershell.exe' @('-NoProfile', '-Command', $buildCommand)
-  }
-  if ($Dxvk32Dll) {
-    # A separate directory gives all utility code SERVER definitions instead of CLIENT.
-    $buildCommand = ". .\build_common.ps1; SetupVS -Platform x86 -VcVarsVer $VcVarsVer; & meson setup _compDebugOptimized_x86_server --buildtype debugoptimized --backend ninja --debug -Dexperimental_x86_server=true; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; & meson compile -C _compDebugOptimized_x86_server; exit `$LASTEXITCODE"
+  foreach ($role in @('x64','x86','x86_server')) {
+    $arch = if ($role -eq 'x64') { 'x64' } else { 'x86' }
+    $extra = if ($role -eq 'x86_server') { '-Dexperimental_x86_server=true' } else { '' }
+    $buildCommand = ". .\build_common.ps1; SetupVS -Platform $arch -VcVarsVer $VcVarsVer; & meson setup _compRelease_$role --buildtype release --backend ninja $extra; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; Copy-Item Directory.Build.Props _compRelease_$role; & meson compile -C _compRelease_$role; exit `$LASTEXITCODE"
     Invoke-Checked 'powershell.exe' @('-NoProfile', '-Command', $buildCommand)
   }
 } finally { Pop-Location }
+$receiptPath = Join-Path $repoRoot 'work/release-build.json'
+Invoke-Checked 'python' @("$PSScriptRoot/verify_release_compile.py", '--output', $receiptPath)
 $packager = 'package_development.py'
-$packageArgs = @("$PSScriptRoot/$packager", '--source', $source, '--dxvk', $dxvkPath)
+$packageArgs = @("$PSScriptRoot/$packager", '--source', $source, '--dxvk', $dxvkPath, '--client', "$source/bridge/_compRelease_x86/src/client/d3d9.dll", '--host64', "$source/bridge/_compRelease_x64/src/server/L4D2Bridge64.exe", '--host32', "$source/bridge/_compRelease_x86_server/src/server/L4D2Bridge32.exe", '--build-info', $receiptPath)
 if ($Dxvk32Dll) { $packageArgs += @('--dxvk-x86', (Resolve-Path $Dxvk32Dll).Path) }
 if ($PatchOnly) {
   $packageArgs += '--patch-only'

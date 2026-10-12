@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "dd9a3319b8e8820a6a207ffb4430c5e78383d858",
+  "zip": "l4d2-bridge-steam-window-diagnostics-dev-15dd529becdee47f-r38195378579.zip",
+  "sha256": "2938c78dc0eabbabdbef81ff5d8ef95742fe274c20070fde92081475f5608b2c",
+  "bytes": 1380085,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/dd9a3319b8e8820a6a207ffb4430c5e78383d858/l4d2-bridge-steam-window-diagnostics-dev-15dd529becdee47f-r38195378579.zip",
+  "build": "ldb-ipc-c32-dev+15dd529becdee47f"
+}

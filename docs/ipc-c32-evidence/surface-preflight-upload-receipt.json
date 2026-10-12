@@ -1,0 +1,9 @@
+{
+  "branch": "experimental-downloads-1.1.2-dev.2",
+  "commit": "acfebdaca7371e2dd889ca3bd7c64bafa79b5572",
+  "zip": "l4d2-bridge-ipc-c32-dev-e12fa129cc05a413.zip",
+  "sha256": "e533b381a7ca205df6c733ac45a930d12361a2fcd7e8fdeb80781db2f439bca5",
+  "bytes": 1327220,
+  "download_url": "https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/acfebdaca7371e2dd889ca3bd7c64bafa79b5572/l4d2-bridge-ipc-c32-dev-e12fa129cc05a413.zip",
+  "build": "ldb-ipc-c32-dev+e12fa129cc05a413"
+}

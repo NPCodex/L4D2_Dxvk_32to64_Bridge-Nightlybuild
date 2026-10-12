@@ -1,0 +1,12 @@
+{
+  "build": "ldb-ipc-full-dev+9f30cbf7ddabdb95",
+  "compiled_commit": "d0dd21c087f0927ce666301d3290289d61e05945",
+  "artifact": 11698201946,
+  "zip": "l4d2-bridge-ipc-full-dev-9f30cbf7ddabdb95.zip",
+  "zip_sha256": "5f2e6f6547297ea313e47a45772034c3dc89f14186f7df68f441726b29777c58",
+  "files": {
+    "bin/dxvk_d3d9.dll": "f24e0054be493ba6bd8f22b41ce5e21580e177497625bdb611a0d9de940f2421",
+    "bin/.l4d2bridge/L4D2Bridge64.exe": "bbbf567f40ac730a104e7675f73e7d85c039bc59e0195bed5d13f798913053f9",
+    "bin/.l4d2bridge/L4D2Bridge32.exe": "48b8dec25dda2e6f723d9e871f5daee8cca9432a1da6db34eeb66ab0d352801d"
+  }
+}

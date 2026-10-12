@@ -1,0 +1,54 @@
+{
+  "bytes": 2325296,
+  "sha256": "321ec9b5865582330af61e81eb347da31cc213cc6c95b80d6d98170b8a5fbb40",
+  "machine": "0x14c",
+  "image_base": "0x10000000",
+  "exports": {
+    "CreateInterface": "0xc84d0",
+    "cvar": "0x21ff84",
+    "g_pCVar": "0x21ff88"
+  },
+  "known_sample": true,
+  "executed": false,
+  "known_sample_annotations": {
+    "visit_command_call_rva": "0x20227",
+    "visit_helper_range": [
+      "0x199a0",
+      "0x19a73"
+    ],
+    "browse_command_call_rva": "0x201f1",
+    "browse_helper_range": [
+      "0x19a80",
+      "0x19b4c"
+    ],
+    "context_pointer_rva": "0x1fa0f0",
+    "context_friends_offset": 8,
+    "context_utils_offset": 12,
+    "friends_factory_rva": "0x861a0",
+    "friends_version": "SteamFriends017",
+    "utils_factory_rva": "0x861c0",
+    "utils_version": "SteamUtils010",
+    "overlay_guard_virtual_offset": "0x44",
+    "overlay_guard_slot": 17,
+    "overlay_guard_return_sites": [
+      "0x199ea",
+      "0x19aca",
+      "0x6ea9a"
+    ],
+    "guard_false_return_branch": "0x199ec -> 0x19a63",
+    "web_virtual_offset": "0x78",
+    "web_virtual_slot": 30,
+    "web_mode": 0,
+    "web_return_sites": [
+      "0x19a53",
+      "0x19b3d",
+      "0x6eb0d"
+    ],
+    "flat_web_export_imported": false,
+    "helper_hashes": {
+      "0x199a0": "160b8a2af60bcc064d1ae01b099aaea0c213d9274093911c0c03da4759fd95c9",
+      "0x19a80": "9a61a8a6891a412231324d1c6df4ba6f6f683174394a629bcb1e46f708b4071b"
+    },
+    "claim_scope": "static menu control flow; real guard values and requests not yet observed"
+  }
+}

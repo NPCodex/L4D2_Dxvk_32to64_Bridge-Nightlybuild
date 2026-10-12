@@ -55,6 +55,12 @@ int main(int argc, char** argv) {
     const std::string firstCaller = diagnosticLog;
     suppression.observe("test-api", knownCaller, "neutralize", appendSuppression);
     require(firstCaller == diagnosticLog, "repeated input polling does not flood suppression logs");
+    suppression.observe("test-api", knownCaller, "poll-chain-neutralize", appendSuppression);
+    require(diagnosticLog.find("action=poll-chain-neutralize") != std::string::npos,
+      "same caller's transition to polling delegation must be observed");
+    const std::string changedAction = diagnosticLog;
+    suppression.observe("test-api", knownCaller, "poll-chain-neutralize", appendSuppression);
+    require(changedAction == diagnosticLog, "repeated delegation action stays deduplicated");
     for (uintptr_t i = 1; i <= 130; ++i) {
       suppression.observe("test-api", reinterpret_cast<const void*>(i), "neutralize", appendSuppression);
     }

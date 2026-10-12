@@ -11,9 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / '.deps/dxvk-remix'
 # Project digests normalize only checkout CRLF/LF; all other bytes are protected.
 # Volume status propagation updated for IPC v2; unchanged layout, wire and Host handlers remain pinned.
+# Bridge control/plugin digests updated for the explicitly requested configuration menus; ABI sizes remain native-tested.
 # Other digests from the patched v1.2.0 baseline, commit 47c4da5403e3b8f1b1beca0ffa35474be3027394.
-PROTECTED_RUNTIME = {'bridge/src/client/d3d9_volume.cpp': '00743b1442d8d81d47bc79e2f3d2bb449a4894a4eec7c665de8777b7690ef9b9', 'bridge/src/client/d3d9_volume.h': 'e35bd6c55e2e662597be4138406c365db880029f4f742f022034947a902a8632', 'bridge/src/client/d3d9_volumetexture.cpp': '678385c548b2612f4f415009e99d5630d8d560347ea6a00a0fac19a408d43153', 'bridge/src/util/volume_layout.h': '8c4ea033ae1eba2441642ffa5ef2a3c82c732654b95857defcfecfe766d423d1', 'bridge/src/util/util_texture_and_volume.h': 'c53ac762333bc5192f23a4b397a5325903d542313609abbd5f476f8cd7349ae1', 'bridge/src/util/pageblock_control.h': 'c91375dc22442cc3162b2361fd7ac1b57fadd5155ed38026a17370f5c8d1d52e', 'bridge/src/util/bridge_control.h': '512739b3c28052f6ce48ac42c5762ea7aab1c4276729c863f22b9c48252b8ef4', 'bridge/src/client/d3d9_bootstrap.cpp': '81037c8c457ca557d4a5e040d4d1e7afbd22881bbe6b2a31d6de9cde182d5a56', 'bridge/src/util/device_reset.h': '661b781c69b21084751cb0a2a1fad3c3bc6dac9a4dd750d74dbc19237b54d06c'}
-PROTECTED_PROJECT = {'tests/volume_layout_test.cpp': '8ac62a56526cbadaecbe92785665176fb653ae40c54c14df01e8b92be4a8f527', 'scripts/test_volume_layout.ps1': '10f5349ab3aecc11228bdaa363bddb2ca1e13cd586129a2696bb03c793c732e8', 'plugins/l4n/L4D2BridgePlugin.cpp': '87de950b7fc0c178e4e7131dc529b8ccc959fe131d7d37e8e5aa45e23cd0cb82'}
+PROTECTED_RUNTIME = {'bridge/src/client/d3d9_volume.cpp': '00743b1442d8d81d47bc79e2f3d2bb449a4894a4eec7c665de8777b7690ef9b9', 'bridge/src/client/d3d9_volume.h': 'e35bd6c55e2e662597be4138406c365db880029f4f742f022034947a902a8632', 'bridge/src/client/d3d9_volumetexture.cpp': '678385c548b2612f4f415009e99d5630d8d560347ea6a00a0fac19a408d43153', 'bridge/src/util/volume_layout.h': '8c4ea033ae1eba2441642ffa5ef2a3c82c732654b95857defcfecfe766d423d1', 'bridge/src/util/util_texture_and_volume.h': 'c53ac762333bc5192f23a4b397a5325903d542313609abbd5f476f8cd7349ae1', 'bridge/src/util/pageblock_control.h': 'c91375dc22442cc3162b2361fd7ac1b57fadd5155ed38026a17370f5c8d1d52e', 'bridge/src/util/bridge_control.h': '9927cb1506b9856296544f6e40a6a93e81da37cd69c9e63a6493fe140cae5134', 'bridge/src/client/d3d9_bootstrap.cpp': '81037c8c457ca557d4a5e040d4d1e7afbd22881bbe6b2a31d6de9cde182d5a56', 'bridge/src/util/device_reset.h': '661b781c69b21084751cb0a2a1fad3c3bc6dac9a4dd750d74dbc19237b54d06c'}
+PROTECTED_PROJECT = {'tests/volume_layout_test.cpp': '8ac62a56526cbadaecbe92785665176fb653ae40c54c14df01e8b92be4a8f527', 'scripts/test_volume_layout.ps1': '10f5349ab3aecc11228bdaa363bddb2ca1e13cd586129a2696bb03c793c732e8', 'plugins/l4n/L4D2BridgePlugin.cpp': '497339e0937c231965630b506ab042832589821a023ed678d3547b219d5d7c65'}
 VOLUME_HANDLERS = {'IDirect3DVolume9_UnlockBox': '4d8c518fb453a3a27a4cad09de54bfb89cf75556e51305f0ae7c6aacef7629bc', 'IDirect3DVolumeTexture9_UnlockBox': '8bc4482d0ea7c4b4aaad70c70bbdbb1a85ca7064acedeb2aee96b8b50219defe'}
 
 
@@ -26,11 +27,18 @@ class RuntimeSeparation(unittest.TestCase):
         self.assertIn('new uint8_t[size]', allocator)
         self.assertNotIn('new uint8_t[', observer)
         self.assertIn('l4d2_buffer::allocate', buffer)
-        self.assertNotIn('l4d2_memory::allocate', buffer)
+        # Match the removed allocating function, not the allocated() notification.
+        self.assertNotRegex(buffer, r'l4d2_memory::allocate\b')
         wait = (SOURCE / 'bridge/src/util/api_wait_diagnostics.h').read_text(encoding='utf-8')
         crash = (SOURCE / 'bridge/src/util/exception_diagnostics.cpp').read_text(encoding='utf-8')
         self.assertNotIn('inline ThreadStats threads[kThreads]', wait)
         self.assertNotIn('thread_local ThreadState s_thread', crash)
+
+    def test_allocator_guard_distinguishes_notification(self):
+        pattern = r'l4d2_memory::allocate\b'
+        for text in ('l4d2_memory::allocate(size)', 'l4d2_memory::allocate (size)', '&l4d2_memory::allocate'):
+            self.assertRegex(text, pattern)
+        self.assertNotRegex('l4d2_memory::allocated(size, kind)', pattern)
 
     def test_diagnostic_log_cannot_trigger_policy_fallback(self):
         retention = (SOURCE / 'bridge/src/client/retention_runtime.h').read_text(encoding='utf-8')
@@ -62,7 +70,7 @@ class RuntimeSeparation(unittest.TestCase):
         config = (ROOT / 'config/bridge.conf').read_text(encoding="utf-8")
         for side in ['client', 'server']:
             for switch in ['memoryMonitoring', 'crashDiagnostics', 'apiWaitDiagnostics',
-                           'dataDiagnostics', 'colorDiagnostics', 'steamInputDiagnostics', 'steamOverlayInput']:
+                           'dataDiagnostics', 'colorDiagnostics', 'steamInputDiagnostics']:
                 self.assertRegex(config, re.escape(side + '.' + switch) + r'\s*=\s*False')
         self.assertRegex(config, r'client.pageBlockRetentionPolicy\s*=\s*learned-aggressive')
         for file, side in [('client/d3d9_lss.cpp', 'client'), ('server/main.cpp', 'server')]:

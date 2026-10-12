@@ -15,11 +15,29 @@
 #include "data_diagnostics.h"
 #include "exception_diagnostics.h"
 #include "api_wait_diagnostics.h"
+inline LPVOID observationShadowVirtualAlloc(LPVOID address, SIZE_T bytes, DWORD type, DWORD protect) {
+  if (diagnostic_work::failAllocation) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return nullptr; }
+  return ::VirtualAlloc(address, bytes, type, protect);
+}
+#define VirtualAlloc observationShadowVirtualAlloc
 #include "buffer_shadow.h"
+#undef VirtualAlloc
 #include "readback_backend.h"
 #include "pageblock_residency.h"
 #include "retention_policy.h"
 #include "steam_activity_diagnostics.h"
+#include "steam_window_diagnostics.h"
+#include "steam_availability_diagnostics.h"
+#ifndef _WIN64
+#include "steam_web_diagnostics.h"
+#else
+// The real Client is x86; keep the x64 startup-gate fixture fail-closed.
+namespace l4d2_web { struct Diagnostics {
+ static void setProxy(bool) { assert(false); }
+ static void poll(bool, void(*)(const char*)) { assert(false); }
+}; }
+#endif
+
 #include "util_commands.h"
 #include "util_common.h"
 
