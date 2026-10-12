@@ -57,6 +57,11 @@ if (ROOT/'config/STEAM-POLL-CHAIN-EXPERIMENT.conf').exists():
     shutil.copy2(ROOT/'config/STEAM-POLL-CHAIN-EXPERIMENT.conf',out/'config/STEAM-POLL-CHAIN-EXPERIMENT.conf')
     shutil.copy2(ROOT/'docs/STEAM-POLL-CHAIN-EXPERIMENT.md',out/'STEAM-POLL-CHAIN-EXPERIMENT.md')
     receipt['steam_experiment']='poll-chain-neutralize'
+if (ROOT/'config/STEAM-WINDOW-DIAGNOSTICS.conf').exists():
+    shutil.copy2(ROOT/'config/STEAM-WINDOW-DIAGNOSTICS.conf',out/'config/STEAM-WINDOW-DIAGNOSTICS.conf')
+    shutil.copy2(ROOT/'docs/STEAM-WINDOW-DIAGNOSTICS.md',out/'STEAM-WINDOW-DIAGNOSTICS.md')
+    shutil.copy2(ROOT/'docs/STEAM-RENDERER-WINDOW-GATE.md',out/'STEAM-RENDERER-WINDOW-GATE.md')
+    receipt['steam_experiment']='window-query-diagnostics'
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')
