@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 yeyunyyds.
 // Problem cases informed by NPCodex Nightly Build; see docs/IPC-UPLOAD-SAFETY.md.
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <d3d9.h>
@@ -214,6 +216,8 @@ static void volumeCase(bool texture,const std::string& mode) {
     require(DeviceBridge::faults==1,"short volume accepted");
 #ifndef HOST_ROW_UPLOADS
     require(!target.locks,"short packed volume reached backend");
+#else
+    require(target.locks==1 && target.unlocks==1,"short row upload leaked backend Lock");
 #endif
     return;
   }
@@ -231,7 +235,12 @@ int main(int argc,char** argv) {
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);
   try {
     const std::string mode=argc>1?argv[1]:"all";
-    if(mode=="lock-failure") {bufferCase(false,mode);surfaceCase(mode);volumeCase(false,mode);}
+    if(mode=="lock-failure-vb") {bufferCase(false,"lock-failure");}
+    else if(mode=="lock-failure-ib") {bufferCase(true,"lock-failure");}
+    else if(mode=="lock-failure-surface") {surfaceCase("lock-failure");}
+    else if(mode=="lock-failure-volume") {volumeCase(false,"lock-failure");}
+    else if(mode=="lock-failure-volume-texture") {volumeCase(true,"lock-failure");}
+    else if(mode=="lock-failure") {bufferCase(false,mode);surfaceCase(mode);volumeCase(false,mode);}
     else if(mode=="small-mip") {surfaceCase("valid");surfaceCase("rgb24");}
     else {
       for(bool index:{false,true}) for(const auto& test:{"valid","lock-failure","reserved-valid","reserved-lock-failure","unlock-failure","null-bits","zero"}) {bufferCase(index,test);}

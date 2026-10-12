@@ -39,8 +39,10 @@ foreach($variant in @('fixed','baseline')) {
         & ".\upload-$layout.exe"
         if($LASTEXITCODE -ne 0) {throw "Upload correctness failed $layout"}
       } else {
-        & ".\upload-$layout.exe" lock-failure
-        if($LASTEXITCODE -ne 2) {throw 'Old backend failure was not detected by the same test'}
+        foreach($handler in @('vb','ib','surface','volume','volume-texture')) {
+          & ".\upload-$layout.exe" "lock-failure-$handler"
+          if($LASTEXITCODE -ne 2) {throw "Old backend failure was not detected: $handler"}
+        }
         if($Platform -eq 'x64') {
           & ".\upload-$layout.exe" small-mip
           if($LASTEXITCODE -ne 2) {throw 'Old x64 small mip widening was not detected'}
