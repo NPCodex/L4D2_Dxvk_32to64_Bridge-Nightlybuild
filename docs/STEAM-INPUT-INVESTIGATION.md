@@ -1,6 +1,6 @@
 # Steam Overlay input investigation after v1.1
 
-Status: **Steam remains unusable. Combined input conditions are verified but ineffective. Static analysis of an uploaded Steam renderer now identifies a concrete same-process window-selection gate reachable from Vulkan presentation; its actual runtime rejection still requires confirmation.**
+Status: **INPUT VALIDATED in the reported 294eafb0349ce3aa session: Shift+Tab opens/closes, mouse interaction and Join Server UI work. Add-on View Workshop web opening remains under investigation. Broader map/Reset/performance and reduced-flag validation are not complete. Earlier sections below preserve historical failures.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
 
@@ -314,3 +314,40 @@ latest C8 control settings; change only server.steamWindowAdapter False -> True
 and retain diagnostics for this comparison, restarting game/Host between runs.
 Expect real-versus-returned HWND/PID and subsequent authentic hook targets.
 Status: **AWAITING GAME VALIDATION**; Steam support remains unproven.
+
+### Hardware acceptance: shortcuts and mouse work; Workshop navigation unresolved
+
+The user explicitly reports normal operation of Shift+Tab opening/closing, mouse
+UI interaction and the Join Server interface on 294eafb0349ce3aa. The paired
+175-second logs confirm mode=window-adapter, 11 active/inactive callback pairs,
+22 non-NULL WH_GETMESSAGE/WH_CALLWNDPROC installation results, all targeting the
+actual Presenter thread23612 in Host PID20956. The foreground selector records
+48 mapped samples from Client PID23436 to Host PID20956, with other foreground
+applications remaining unchanged. Both processes exit cleanly. These observations
+support the specific input acceptance reported, not general gameplay/performance
+or every window/navigation regression.
+
+The user separately reports Add-ons -> View Workshop appears not to open. The
+current Bridge diagnostics do not trace Steamworks web activation, URL delivery
+or browser navigation, and neither log contains that request. No particular
+click or callback pair can be attributed to Workshop without action timestamps.
+The activity callback carries no URL. Preserve this successful binary and flag
+combination as the control; do not remove input experiments or add web activation
+workarounds before distinguishing no activation from browser/no-page behavior
+and checking Steam's own browser and the native DXVK control.
+
+[Derived hardware evidence](steam-input-evidence/window-adapter-input-hardware-result.json)
+contains counts and raw-log hashes, not private raw user logs. Status for input:
+**VALIDATED IN REPORTED SESSION**. Status for Workshop navigation:
+**INVESTIGATING**. main remains unmodified; no new binary accompanies this result.
+
+Follow-up clarification: View Workshop produces no reaction/no Overlay and does
+not block other actions. Steam Overlay's own browser works on the candidate;
+the same game button works under native DXVK. This narrows the unresolved issue
+to the game's web-activation path in the bridged configuration, while leaving
+request dispatch/instance routing unproven. Do not treat it as a general browser
+or mouse-input failure. Investigate Client steam_api.dll's actual web-activation
+interface/request before introducing forwarding. The installed x86 module and
+its interface version/signature are absent from the supplied evidence; hardcoded
+vtable indices or a guessed old/new method ABI would risk corrupting the game.
+The existing callback331 carries only active state, not URL or request target.

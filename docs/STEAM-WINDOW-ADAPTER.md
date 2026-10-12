@@ -1,7 +1,6 @@
 # Steam renderer window adapter (experimental)
 
-Status: **AWAITING GAME VALIDATION**. This is a narrow compatibility candidate,
-not a claim that Steam Overlay input works. It adds no IPC, renderer-thread,
+Status: **INPUT VALIDATED IN REPORTED SESSION** for Shift+Tab, mouse and Join Server UI on 294eafb0349ce3aa. View Workshop web opening remains under investigation; wider map/Reset/performance and reduced-flag validation are pending. The build was originally delivered as a compatibility candidate; historical pending-validation statements below describe that delivery. It adds no IPC, renderer-thread,
 keyboard-state, focus, capture or ReShade behavior.
 
 ## Hardware evidence and scope
