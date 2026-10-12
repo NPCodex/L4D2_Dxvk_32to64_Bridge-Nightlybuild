@@ -361,3 +361,19 @@ export does not establish the menu's actual interface, cached C++ path or
 availability guard. Inspect the actual Add-ons menu caller (normally GameUI)
 before a runtime observer, covering both availability and web invocation, and
 report partial coverage explicitly. No new binary or working-input change.
+
+### Actual menu audited; observation-only Workshop build delivered
+
+The supplied GameUI sample confirms Visit/Browse guard on Utils010 slot17
+IsOverlayEnabled before direct Friends017 slot30 web activation with URL+mode0.
+It does not import/use the flat web export on those paths. Caller SHA-gated
+existing context inspection now supports an observer of the actual two methods,
+with original bool, borrowed arguments and LastError preserved. Unknown files
+are refused; no new SDK context/request or forced availability result.
+
+[Workshop diagnostic](STEAM-WORKSHOP-DIAGNOSTICS.md) build06abe08be638118c passed
+the new native observer fixture and full retained regression/build checks, then
+was uploaded as a verified immutable fork ZIP. Preserve working C8/input/backend
+settings; add only client.steamWebDiagnostics=True. Actual runtime guard values
+and click routing are still pending. This is diagnostic delivery, not a claim
+to have fixed Workshop. main and previous accepted bridge remain unchanged.

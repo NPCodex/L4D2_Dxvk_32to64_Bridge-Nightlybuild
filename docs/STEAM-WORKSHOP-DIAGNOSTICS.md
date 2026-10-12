@@ -98,3 +98,26 @@ Steam/game DLL is executed in CI. Retained IPC/input regressions must pass.
 Rollback restores all three prior 294eafb0349ce3aa binaries and removes/disables
 client.steamWebDiagnostics. Current successful input configuration is preserved.
 main, formal VERSION/tags/releases and previous ZIPs remain unchanged.
+
+## Verified experimental delivery
+
+Build `ldb-ipc-c32-dev+06abe08be638118c`, source14bf94b43887c287e1d336526fecb655fa2d81cc.
+[ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/b148ca9f23f7f37be0f4de7bc9f150abd0220343/l4d2-bridge-steam-workshop-diagnostics-dev-06abe08be638118c-r38202917325.zip) (1,397,408 bytes).
+SHA256 `2e400df86133c068f08d9a416e97542fd85e7d745d54d41f9b03159d3313cf3a`. Public download was independently verified after upload.
+
+[Windows run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38202917325)
+passed the new x86 web observer ABI/hash/guard tests, all eleven native suites,
+39 Python contracts, 252 IPC process pairs, 30 fail-closed cases and both batching
+policy tests. Release receipts, Client x86 and both Host architectures, shared
+embedded identity, Host LAA, binary hashes, Client web observer code, retained
+Host adapter and disabled defaults were independently inspected.
+
+[Native evidence](steam-input-evidence/38202917325-native-pass.log),
+[IPC data](steam-input-evidence/38202917325-ipc-raw.json),
+[fault data](steam-input-evidence/38202917325-ipc-faults.json),
+[artifact inspection](steam-input-evidence/38202917325-artifact-inspection.json),
+[upload receipt](steam-input-evidence/workshop-diagnostics-upload-receipt.json).
+
+No runtime Workshop guard/request observation yet. The uploaded Steam/GameUI
+files are not executed or included. Current input fix is retained; no new
+Workshop compatibility behavior is claimed.
