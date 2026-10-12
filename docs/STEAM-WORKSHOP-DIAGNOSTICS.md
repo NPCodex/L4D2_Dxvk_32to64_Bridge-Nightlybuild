@@ -121,3 +121,18 @@ Host adapter and disabled defaults were independently inspected.
 No runtime Workshop guard/request observation yet. The uploaded Steam/GameUI
 files are not executed or included. Current input fix is retained; no new
 Workshop compatibility behavior is claimed.
+
+## Verified installation helper
+
+[Installer](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/096367f8436f8e37bd2488354caa569935a5e0e1/scripts/install_steam_workshop_diagnostics.ps1)
+downloads exactly this immutable ZIP, checks ZIP and all three binary hashes/IDs,
+backs up originals before replacement and leaves actual config/backend alone.
+Close game and Hosts first. Use powershell -NoProfile -ExecutionPolicy Bypass
+-File .\install_steam_workshop_diagnostics.ps1, then add
+client.steamWebDiagnostics=True to the retained actual config. -CheckOnly prints
+installed identities/hashes without writes. -GameRoot selects another library.
+
+[Windows installer run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38203507361)
+passed immutable download, actual copy/verification of all three new files,
+backup and config/backend preservation in a disposable fixture. No supplied
+Steam/GameUI DLL or bridge binary was executed in this installer test.
