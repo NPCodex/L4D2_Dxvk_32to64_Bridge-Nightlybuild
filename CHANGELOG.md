@@ -5,7 +5,15 @@
 
 # 更新记录 / Changelog
 
-当前正式版为 **v1.2.0**；以下开发版条目保留当时状态，不代表正式版现状。简明记录见 [LDBREADME](LDBREADME.md)。
+main 正式版仍为 **v1.2.2**；本分支的 v1.3.0-pre.1 是预发布，不合并 main。以下旧条目保留当时状态。简明记录见 [LDBREADME](LDBREADME.md)。
+
+## 1.3.0-pre.1（预发布 / Prerelease）
+
+- 保留当前完整 IPC v2 四方向传输、独立上传 lease 与已验证的 VA allocator；配套 x86 Client、x86 Host、x64 Host。
+- 默认 `client.ipcBatchSize=8`（C8），六档 C1/C2/C4/C8/C16/C32 均保留。
+- 静态 VB/IB 按需映射默认关闭：`client.vbibMappedShadow=False`。原 FULL_SHADOW 内容、动态缓冲和原分配路径保留；实验开关、256 KiB 阈值和 32 MiB 空闲映射预算仍可配置。
+- 仅发布配套三件套升级包，保留 DXVK、配置、ReShade、插件和 retention DB。旧配置显式值覆盖默认值，需要按说明编辑后完整重启。
+- 不宣称 C8 最优、不保证 FPS/低帧或重度 4K AV 收益；原生检查与新包实机验收分开记录。说明见 [预发布安装与限制](docs/RELEASE-V1.3.0-pre.1.md)。
 
 ## 1.2.0（正式发布 / Stable）
 

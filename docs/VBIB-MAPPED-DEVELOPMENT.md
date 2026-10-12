@@ -2,10 +2,11 @@
 
 基于完整 IPC v2＋VA allocator。保留四方向 v2、C1/C2/C4/C8/C16/C32，以及动态 VB/IB 的原有存储、Lock/Unlock 和上传。仅非 DYNAMIC、大小达到阈值、非 SharedHeap 的 VB/IB 使用新的 section 存储。FULL_SHADOW 的完整历史内容仍保存；减少的是解锁后的 x86 映射，内容没有转移到 Host。
 
-默认实验设置（旧 bridge.conf 无这些键也生效）：
+v1.3.0-pre.1 默认设置（旧 bridge.conf 无这些键时生效；已有显式值优先）：
 
 ```ini
-client.vbibMappedShadow = True
+client.ipcBatchSize = 8
+client.vbibMappedShadow = False
 client.vbibMappedShadowMinKB = 256
 client.vbibShadowCacheMB = 32
 ```
@@ -22,8 +23,8 @@ Windows 成本对照使用冻结的原生产 LockableBuffer 和新生产模板�
 
 ## 安装和 A/B
 
-配套包只包含 x86 Client、x86 Host、x64 Host，以及构建/校验、许可证与说明。退出游戏和全部 Host，备份并成套替换 `bin/dxvk_d3d9.dll`、`bin/.l4d2bridge/L4D2Bridge32.exe`、`bin/.l4d2bridge/L4D2Bridge64.exe`。保留原 DXVK、配置、ReShade 和 retention DB；自定义 Client DLL 名称按实际 Bridge 文件更新。三端必须为同一 ldb-vbib-map-dev 构建。
+配套包只包含 x86 Client、x86 Host、x64 Host，以及构建/校验、许可证与说明。退出游戏和全部 Host，备份并成套替换 `bin/dxvk_d3d9.dll`、`bin/.l4d2bridge/L4D2Bridge32.exe`、`bin/.l4d2bridge/L4D2Bridge64.exe`。保留原 DXVK、配置、ReShade 和 retention DB；自定义 Client DLL 名称按实际 Bridge 文件更新。三端必须为同一 `l4d2-1.3.0-pre.1+…` 构建。
 
-保持同一个 IPC 档位与 Host 位数：先用上述默认设置，再将 client.vbibMappedShadow=False 重启比较。这一关闭开关恢复原 VB/IB allocator，IPC v2 不变。还可以单独测试缓存 0，观察极限 VA 回收及冷映射代价。回退时成套恢复三个备份，不混用版本。
+保持同一个 IPC 档位与 Host 位数：先用上述默认关闭设置；仅在评估 AV 效果时将 client.vbibMappedShadow=True 重启比较。这一关闭开关恢复原 VB/IB allocator，IPC v2 不变。还可以单独测试缓存 0，观察极限 VA 回收及冷映射代价。回退时成套恢复三个备份，不混用版本。
 
-实机记录 Avg FPS、1% Low、0.1% Low、帧时间、Client AV、最大连续空闲区及加载时间；覆盖重度 4K Mod、枪店↔训练图、烟花/粒子、长时间游玩与 Reset。原生回归和构建通过不等于游戏性能及稳定性已验收。本分支保持实验/Draft，不修改 main、正式 VERSION、Tag 或 Release。
+实机记录 Avg FPS、1% Low、0.1% Low、帧时间、Client AV、最大连续空闲区及加载时间；覆盖重度 4K Mod、枪店↔训练图、烟花/粒子、长时间游玩与 Reset。原生回归和构建通过不等于游戏性能及稳定性已验收。本分支保持 Draft，main 不变；v1.3.0-pre.1 以 GitHub prerelease 发布配套三件套，不能视为正式版或已通过全部实机验收。早期默认开启的成本证据仍记录在验证报告中。

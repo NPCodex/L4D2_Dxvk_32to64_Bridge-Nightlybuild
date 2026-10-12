@@ -8,7 +8,7 @@ index 6175148..047d4b2 100644
  namespace ClientOptions {
 +  // NV-DXVK start: Experimental static buffer view residency; contents stay intact.
 +  inline bool getMappedBufferShadow() {
-+    static const bool enabled = bridge_util::Config::getOption<bool>("client.vbibMappedShadow", true);
++    static const bool enabled = bridge_util::Config::getOption<bool>("client.vbibMappedShadow", false);
 +    return enabled;
 +  }
 +  inline size_t getMappedBufferMinimum() {
@@ -208,3 +208,15 @@ index f8de63c..e556c84 100644
    if (length > 0 && static_cast<size_t>(length) < sizeof(line)) {
      const int extra = l4d2_queue::format(line + length, sizeof(line) - length);
      if (extra <= 0 || static_cast<size_t>(extra) >= sizeof(line) - length) { return; }
+diff --git a/bridge/src/util/config/global_options.h b/bridge/src/util/config/global_options.h
+--- a/bridge/src/util/config/global_options.h
++++ b/bridge/src/util/config/global_options.h
+@@ -50,7 +50,7 @@
+ public:
+   // Read once at Client channel initialization; unsupported values select C1.
+   static uint32_t getIpcBatchSize() {
+-    return bridge_util::Config::getOption<uint32_t>("client.ipcBatchSize", 1);
++    return bridge_util::Config::getOption<uint32_t>("client.ipcBatchSize", 8);
+   }
+ 
+   static void init() {
