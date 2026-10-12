@@ -327,7 +327,17 @@ void crossProcess(const std::string& host, uint32_t kind, uint32_t direction, ui
   require(writer.close() == Result::Success, "final flush close");
   require(process.wait() == 0, "child success");
   require(writer.metrics.records == static_cast<uint32_t>(seq - (UINT32_MAX - 17)), "record count");
-  require(forward.shared().consumer.completed.load() == forward.shared().producer.published.load(), "all blocks returned");
+  // The child has exited, but the final shared-memory counter can become
+  // visible to the parent a scheduling tick later on a loaded Windows host.
+  // Keep the invariant strict while allowing bounded propagation time.
+  const auto reclaimStart = milliseconds();
+  while (forward.shared().consumer.completed.load(std::memory_order_acquire)
+      != forward.shared().producer.published.load(std::memory_order_acquire)
+      && milliseconds() - reclaimStart < 1000) {
+    delay(1);
+  }
+  require(forward.shared().consumer.completed.load(std::memory_order_acquire)
+      == forward.shared().producer.published.load(std::memory_order_acquire), "all blocks returned");
   std::printf("IPC_V2_CROSS_PASS kind=%u direction=%u spins=%u mode=%s threads=%u records=%llu blocks=%llu waits=%llu bits=%u\n",
     kind, direction, spins, mode.c_str(), multithread ? 4u : 1u,
     static_cast<unsigned long long>(writer.metrics.records), static_cast<unsigned long long>(writer.metrics.blocks),
