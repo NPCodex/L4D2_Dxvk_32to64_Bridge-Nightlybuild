@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.4.2 加固上传、参数与并发回复，减少上传池扫描和学习数据库解析开销，并加入 IPC/静态映射设置与中英文菜单。** 默认 C8，静态映射默认关闭；这两项设置保存后重启生效。45 项的采用、等价替代与关闭依据见[完整台账](docs/OPTIMIZATION-45.md)，实机数据和适用范围以对应 Release 为准。**如出现 1% low 下降或帧数不稳定，请回退 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+**v1.4.4 加固上传、参数与并发回复，减少上传池扫描和学习数据库解析开销，并加入 IPC/静态映射设置与中英文菜单。** 默认 C8，静态映射默认关闭；这两项设置保存后重启生效。45 项的采用、等价替代与关闭依据见[完整台账](docs/OPTIMIZATION-45.md)，实机数据和适用范围以对应 Release 为准。**如出现 1% low 下降或帧数不稳定，请回退 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
