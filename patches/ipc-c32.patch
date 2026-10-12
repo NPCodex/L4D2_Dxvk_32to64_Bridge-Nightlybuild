@@ -1941,7 +1941,7 @@ diff --git a/bridge/src/client/d3d9_lss.cpp b/bridge/src/client/d3d9_lss.cpp
    initServerMessageChannel(ackResponse.pHandle);
 +  if(Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false)) {
 +    const auto name=gUniqueIdentifier.toString("L4D2BridgeWorkshopV1");
-+    Logger::info(l4d2_workshop::reader.reader(name.c_str(),gpServer->GetCurrentProcessHandle())
++    Logger::info(l4d2_workshop::reader.reader(name.c_str(),gpServer->GetChildProcessHandle())
 +      ? "L4D2_STEAM_WORKSHOP event=client-channel ready=1" : "L4D2_STEAM_WORKSHOP event=client-channel ready=0");
 +  }
  
@@ -5930,3 +5930,16 @@ diff --git a/bridge/src/util/util_ipcchannel.h b/bridge/src/util/util_ipcchannel
  };
  using WriterChannel = IpcChannel<bridge_util::Accessor::Writer>;
  using ReaderChannel = IpcChannel<bridge_util::Accessor::Reader>;
+diff --git a/bridge/src/util/util_process.h b/bridge/src/util/util_process.h
+--- a/bridge/src/util/util_process.h
++++ b/bridge/src/util/util_process.h
+@@ -64,6 +64,9 @@
+     void UnregisterExitCallback();
+     HANDLE GetCurrentProcessHandle();
+     DWORD GetProcessId() const { return ::GetProcessId(hProcess); }
++    // Borrowed local handle for actual launched child, not the Client handle
++    // duplicated into the child by GetCurrentProcessHandle() for SYN.
++    HANDLE GetChildProcessHandle() const { return hProcess; }
+ 
+   private:
+     static void CALLBACK OnExited(void* context, BOOLEAN isTimeout) {
