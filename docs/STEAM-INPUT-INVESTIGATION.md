@@ -284,3 +284,33 @@ Keep the ineffective combined C8 control settings, add only
 Overlay activation. Actual renderer selection/hook binding remains unconfirmed.
 Status: **BLOCKED — awaiting real Steam window/hook evidence**. This delivers
 observation capability, not a claimed input repair.
+
+### Presenter-enabled diagnostic confirms selector mismatch; adapter candidate
+
+The latest paired logs use 15dd529becdee47f/C8 with Presenter/input/native and
+all three existing Client experiment flags True. Host PID23664 creates child
+0x440A08 on thread8508 and supplies it as actual backend focus/presentation.
+Steam selector thread10664 nevertheless returns NULL active then game-owned
+foreground HWND0x1715C0, Client PID23640, in all six sampled pairs. Additional
+foreground checks also see other-process windows. Attached mask7, zero dropped
+observations and after-attach hook_calls0 are recorded. Client callback331
+registers but no active=1 notification is logged; UI actions/results are not
+independently specified by the upload. Clean shutdown follows about20 seconds.
+The static ownership predicate therefore rejects those observed candidates even
+with the real Host child present. This is a verified failure condition, not a
+claim to have traced the predicate branch or excluded every other failure.
+
+The [opt-in window adapter](STEAM-WINDOW-ADAPTER.md) maps only eligible game-tree
+window results from the loaded renderer's named window-query imports to the
+actual Host child while the game tree is foreground. It preserves NULL fallback,
+other-window results, original targets and LastError, and observes hook installs
+without changing them. No PID spoofing, private Steam ABI, new thread, on-disk DLL
+change or new focus/key/capture behavior.
+
+Matched 294eafb0349ce3aa passed genuine opposite-architecture window/policy and
+prior-IAT-chain tests, ten native suites, 252 IPC pairs, 30 faults and 39 Python
+contracts, then was uploaded as a new fork ZIP with verified hashes. Keep the
+latest C8 control settings; change only server.steamWindowAdapter False -> True
+and retain diagnostics for this comparison, restarting game/Host between runs.
+Expect real-versus-returned HWND/PID and subsequent authentic hook targets.
+Status: **AWAITING GAME VALIDATION**; Steam support remains unproven.

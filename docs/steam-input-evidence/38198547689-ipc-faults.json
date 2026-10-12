@@ -1,0 +1,212 @@
+[
+  {
+    "batch": "1",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "1",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "1",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "1",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "1",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "2",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "2",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "2",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "2",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "2",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "4",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "4",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "4",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "4",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "4",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "8",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "8",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "8",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "8",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "8",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "16",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "16",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "16",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "16",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "16",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "32",
+    "mode": "abort",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "32",
+    "mode": "timeout",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "32",
+    "mode": "surface-oversize",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "32",
+    "mode": "surface-underfill",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  },
+  {
+    "batch": "32",
+    "mode": "surface-overrun",
+    "rc": 0,
+    "stdout": "C32_PRODUCTION_FAIL_CLOSED_PASS\n",
+    "stderr": ""
+  }
+]

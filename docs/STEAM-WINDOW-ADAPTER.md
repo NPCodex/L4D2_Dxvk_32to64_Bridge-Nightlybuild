@@ -100,3 +100,26 @@ count, LastError, mapped logging, NULL/background/other-window policy, Host-owne
 results, wrong parent/owner, missing/destroyed Presenter and cleanup restoration.
 These controlled inputs are not evidence of actual Steam or gameplay behavior.
 All existing IPC/native regressions must also pass before a ZIP is offered.
+
+## Verified candidate delivery
+
+- Source: `e987a8c1832c3328e0326a99e901f4c2041d4a51`.
+- Build: `ldb-ipc-c32-dev+294eafb0349ce3aa`; all three bridge binaries rebuilt and matched.
+- [ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/196399e039ac139514db50a28d403be9df58b940/l4d2-bridge-steam-window-adapter-dev-294eafb0349ce3aa-r38198547689.zip), 1,386,399 bytes.
+- SHA-256: `aed19c7249fda6ca9df19747ded086ddf622be81622f94d57c98194d4ba49ffa`.
+- [Windows run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38198547689):
+  252 cross-process IPC pairs, 30 fail-closed cases, both policy fixtures, ten
+  native suites and 39 Python contracts passed. New adapter checks passed
+  x86 Host/x64 game helper and x64 Host/x86 game helper; diagnostic real USER32
+  and prior-IAT-chain modes also passed both architectures.
+- Independently inspected Release receipts, x86 Client/x86+x64 Hosts, shared
+  identity, binary hashes, Host adapter code, x86 Host LAA, disabled defaults
+  and C1/C2/C4/C8/C16/C32 configuration. Public ZIP SHA-256 verified after upload.
+- [Native evidence](steam-input-evidence/38198547689-native-pass.log),
+  [IPC results](steam-input-evidence/38198547689-ipc-raw.json),
+  [fault results](steam-input-evidence/38198547689-ipc-faults.json),
+  [inspection](steam-input-evidence/38198547689-artifact-inspection.json),
+  [upload](steam-input-evidence/window-adapter-upload-receipt.json).
+
+No actual Steam/game acceptance yet; no input/FPS improvement is claimed. main
+and tested IPC development remain unchanged; candidate stays unmerged.
