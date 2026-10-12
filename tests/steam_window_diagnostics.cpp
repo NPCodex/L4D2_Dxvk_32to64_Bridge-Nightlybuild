@@ -14,9 +14,9 @@ static void require(bool condition) { if (!condition) { std::fprintf(stderr, "FA
 static void logLine(const char* line) { logs.emplace_back(line); std::puts(line); SetLastError(0xBADA); }
 static unsigned count(const char* needle) { unsigned n = 0; for (const auto& line : logs) if (line.find(needle) != std::string::npos) ++n; return n; }
 static unsigned activeCalls = 0, foregroundCalls = 0, hookCalls = 0;
-static HWND ownWindow = nullptr;
+static HWND ownWindow = nullptr, desktopWindow = nullptr;
 static HWND WINAPI activeOriginal() { ++activeCalls; SetLastError(0x1234); return ownWindow; }
-static HWND WINAPI foregroundOriginal() { ++foregroundCalls; const HWND window = GetDesktopWindow(); SetLastError(0x2345); return window; }
+static HWND WINAPI foregroundOriginal() { ++foregroundCalls; SetLastError(0x2345); return desktopWindow; }
 static HHOOK WINAPI hookOriginal(int kind, HOOKPROC procedure, HINSTANCE module, DWORD target) {
   ++hookCalls; require(kind == WH_GETMESSAGE && !procedure && !module && target == 12345);
   SetLastError(0x3456); return reinterpret_cast<HHOOK>(uintptr_t(0x1234));
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
   const auto hook = reinterpret_cast<HookFn>(GetProcAddress(module, "ProbeHook"));
   require(active && foreground && hook);
   ownWindow = CreateWindowExW(0, L"STATIC", L"diagnostic fixture", WS_OVERLAPPED, 0, 0, 10, 10, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
-  require(ownWindow != nullptr);
+  require(ownWindow != nullptr); desktopWindow = GetDesktopWindow();
   const wchar_t* name = sizeof(void*) == 8 ? L"window-fixture-x64.dll" : L"window-fixture-x86.dll";
   Diagnostic::poll(false, ownWindow, ownWindow, logLine, name); require(logs.empty());
   Diagnostic::poll(true, ownWindow, ownWindow, logLine, L"absent-renderer.dll"); require(count("event=waiting") == 1);
@@ -70,9 +70,17 @@ int main(int argc, char** argv) {
   if (chain) {
     for (unsigned i = 0; i < 1000; ++i) {
       require(active() == ownWindow && GetLastError() == 0x1234);
-      require(foreground() == GetDesktopWindow() && GetLastError() == 0x2345);
+      require(foreground() == desktopWindow && GetLastError() == 0x2345);
     }
     require(activeCalls == 1000 && foregroundCalls == 1000);
+    const auto base = reinterpret_cast<BYTE*>(module);
+    const auto dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
+    const auto nt = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
+    for (const auto& line : logs) {
+      const auto position = line.find("caller_rva=0x");
+      if (position != std::string::npos) require(std::strtoull(line.c_str() + position + 13, nullptr, 16) < nt->OptionalHeader.SizeOfImage);
+    }
+    require(count("presenter_thread=") > 0);
     require(hook(WH_GETMESSAGE, nullptr, nullptr, 12345) == reinterpret_cast<HHOOK>(uintptr_t(0x1234)) && GetLastError() == 0x3456);
     require(hookCalls == 1 && count("event=window-query") <= 4);
     require(count("same_process=1") > 0 && count("same_process=0") > 0);

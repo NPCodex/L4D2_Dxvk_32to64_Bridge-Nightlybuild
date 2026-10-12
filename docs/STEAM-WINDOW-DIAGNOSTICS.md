@@ -37,7 +37,7 @@ previous binaries and removes/disables the new option.
   is reported explicitly; it cannot establish absence of Steam activity.
 - `event=window-query`: authentic API result, immediate caller **return-site** RVA,
   calling thread, HWND owner PID/thread, Host PID, game/presenter handles and
-  owners, `same_process`, last error, tick, `result=unchanged`.
+  owners/threads, `same_process`, last error, tick, `result=unchanged`.
 - `event=hook-install`: authentic installation result, type, requested thread,
   hook module/procedure, actual caller/thread and last error. A NULL result is
   a failure. LastError after successful calls may be stale; do not infer failure

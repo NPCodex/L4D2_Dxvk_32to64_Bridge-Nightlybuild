@@ -3078,7 +3078,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    if (!Config::getOption<bool>("server.presenterWindow", false)
      || !Config::getOption<bool>("server.useVanillaDxvk", false)
      || GlobalOptions::getExposeRemixApi() || !pp.Windowed) { return focus; }
-@@ -150,11 +153,23 @@
+@@ -150,11 +153,24 @@
      DWORD pid = 0; GetWindowThreadProcessId(child, &pid);
      Logger::info(format_string("L4D2_OVERLAY event=presenter parent=%p child=%p owner_pid=%lu host_pid=%lu", parent, child, pid, GetCurrentProcessId()));
    }
@@ -3095,14 +3095,15 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
 +    const ULONGLONG now = GetTickCount64();
 +    if (now >= nextWindowCheck) {
 +      nextWindowCheck = now + 1000;
++      const HWND routed = gOverlayPresenter ? gOverlayPresenter->route(gOverlayGameWindow) : nullptr;
 +      l4d2_steam_window::Diagnostics::poll(true, gOverlayGameWindow,
-+        gOverlayPresenter ? gOverlayPresenter->route(gOverlayGameWindow) : nullptr, [](const char* line) { Logger::info(line); });
++        routed != gOverlayGameWindow ? routed : nullptr, [](const char* line) { Logger::info(line); });
 +    }
 +  }
    if (!gOverlayPresenter) {
      if (!diagnosticsEnabled) { return original; }
      static l4d2_overlay::InputDiagnostics diagnostics(
-@@ -258,7 +273,7 @@
+@@ -258,7 +274,7 @@
  }
  
  // Global state
@@ -3111,7 +3112,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
  HANDLE hWait;
  
  namespace {
-@@ -384,7 +399,7 @@
+@@ -384,7 +400,7 @@
      if (ati) {
        const bool copied = l4d2_ati::copyRows(blobPacketPtr, totalSize, atiTransfer.rowBytes,
          lockedRect.pBits, atiLayout.bytes, atiLayout.storagePitch, atiTransfer);
@@ -3120,7 +3121,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
      } else {
        FOR_EACH_RECT_ROW(lockedRect, height, format, {
          memcpy(blobPacketPtr, ptr, rowSize);
-@@ -396,6 +411,7 @@
+@@ -396,6 +412,7 @@
    }
  
    hresult = l4d2_api_wait::backend([&]() { return pReturnSurfaceData->UnlockRect(); });
@@ -3128,7 +3129,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    return hresult;
  }
  
-@@ -525,8 +541,8 @@
+@@ -525,8 +542,8 @@
  
          IDirect3DDevice9* pD3DDevice = nullptr;
          Logger::info(format_string(
@@ -3139,7 +3140,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
            Adapter, PresentationParameters.Windowed, PresentationParameters.BackBufferWidth,
            PresentationParameters.BackBufferHeight, BehaviorFlags));
          const auto hresult = gpD3D->CreateDevice(IN Adapter, IN DeviceType, IN overlayFocus, IN BehaviorFlags, IN OUT & PresentationParameters, OUT & pD3DDevice);
-@@ -1779,10 +1795,11 @@
+@@ -1779,10 +1796,11 @@
        case IDirect3DDevice9Ex_SetStreamSource:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -3155,7 +3156,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          IDirect3DVertexBuffer9* pStreamData = nullptr;
          if (pHandle != NULL) {
            pStreamData = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
-@@ -1809,7 +1826,8 @@
+@@ -1809,7 +1827,8 @@
        case IDirect3DDevice9Ex_SetIndices:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -3165,7 +3166,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          IDirect3DIndexBuffer9* pIndexData = NULL;
          if (pHandle != NULL) {
            pIndexData = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
-@@ -2685,6 +2703,7 @@
+@@ -2685,6 +2704,7 @@
        case IDirect3DVertexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -3173,7 +3174,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
          safeDestroy(pVertexBuffer, pHandle);
          gpD3DResources.erase(pHandle);
-@@ -2713,6 +2732,7 @@
+@@ -2713,6 +2733,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -3181,7 +3182,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2720,9 +2740,18 @@
+@@ -2720,9 +2741,18 @@
        case IDirect3DVertexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -3203,7 +3204,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
  
          // Now lock the buffer so we can copy the data into it
-@@ -2734,19 +2763,14 @@
+@@ -2734,19 +2764,14 @@
          assert(S_OK == hresult);
  
          // Copy the data over
@@ -3226,7 +3227,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          // NV-DXVK start: Optional data/resource tracing.
          l4d2_data::backend(static_cast<uint16_t>(rpcHeader.command), true, 0, hresult);
          // NV-DXVK end
-@@ -2780,6 +2804,7 @@
+@@ -2780,6 +2805,7 @@
        case IDirect3DIndexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -3234,7 +3235,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
          safeDestroy(pIndexBuffer, pHandle);
          gpD3DResources.erase(pHandle);
-@@ -2808,6 +2833,7 @@
+@@ -2808,6 +2834,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -3242,7 +3243,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2815,9 +2841,18 @@
+@@ -2815,9 +2842,18 @@
        case IDirect3DIndexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -3264,7 +3265,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
  
          // Now lock the buffer so we can copy the data into it
-@@ -2829,19 +2864,14 @@
+@@ -2829,19 +2865,14 @@
          assert(S_OK == hresult);
  
          // Copy the data over
@@ -3287,7 +3288,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          // NV-DXVK start: Optional data/resource tracing.
          l4d2_data::backend(static_cast<uint16_t>(rpcHeader.command), true, 0, hresult);
          // NV-DXVK end
-@@ -3250,7 +3280,7 @@
+@@ -3250,7 +3281,7 @@
          PULL_U(i);
          const int length = DeviceBridge::getReaderChannel().data->peek();
          void* text = nullptr;
@@ -3296,7 +3297,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          std::stringstream ss;
          ss << "DebugMessage. i = " << i << ", length = " << length << " = " << size << ", text = '" << (char*) text << "'";
          Logger::info(ss.str().c_str());
-@@ -3641,11 +3671,11 @@
+@@ -3641,11 +3672,11 @@
        case RemixApi_SetConfigVariable:
        {
          void* var_ptr = nullptr;
@@ -3310,7 +3311,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          std::string value_str((const char*) value_ptr, value_size);
  
          remixapi::g_remix.SetConfigVariable(var_str.c_str(), value_str.c_str());
-@@ -3676,22 +3706,6 @@
+@@ -3676,22 +3707,6 @@
        Logger::warn("Data not in sync");
      }
      assert(CHECK_DATA_OFFSET);
@@ -3333,7 +3334,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
      const auto count = DeviceBridge::end_read_data();
  
      if (l4d2_observation::memoryMonitoring) { ++gProcessedHostCommands; }
-@@ -4036,6 +4050,7 @@
+@@ -4036,6 +4051,7 @@
    Logger::info("==================\nL4D2 D3D9 Bridge Server\n==================");
    Logger::info("All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.");
    Logger::info(std::string("Project build: ") + std::string(BRIDGE_VERSION));
@@ -3341,7 +3342,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    Logger::info("Based on NVIDIA RTX Remix Bridge (MIT); original code belongs to its original authors.");
  #ifdef _WIN64
    Logger::info("Running in x64 mode!");
-@@ -4089,6 +4104,7 @@
+@@ -4089,6 +4105,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -3349,7 +3350,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -4126,6 +4142,7 @@
+@@ -4126,6 +4143,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -3357,7 +3358,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -4147,6 +4164,7 @@
+@@ -4147,6 +4165,7 @@
  
    // Command processing finished, clean up and exit
    Logger::info("Command processing loop finished, cleaning up and exiting...");
@@ -3456,7 +3457,7 @@ new file mode 100644
 +    if (!imports.VirtualAddress || !range(imports.VirtualAddress, imports.Size, size)) return 0;
 +    unsigned found = 0;
 +    for (size_t offset = imports.VirtualAddress; range(offset, sizeof(IMAGE_IMPORT_DESCRIPTOR), size)
-+      && offset - imports.VirtualAddress < imports.Size; offset += sizeof(IMAGE_IMPORT_DESCRIPTOR)) {
++      && range(offset - imports.VirtualAddress, sizeof(IMAGE_IMPORT_DESCRIPTOR), imports.Size); offset += sizeof(IMAGE_IMPORT_DESCRIPTOR)) {
 +      const auto descriptor = reinterpret_cast<const IMAGE_IMPORT_DESCRIPTOR*>(base + offset);
 +      if (!descriptor->Name) break;
 +      // Names can belong to API-set DLLs; identify the three exact functions.
@@ -3507,11 +3508,11 @@ new file mode 100644
 +      char line[1100] {};
 +      const HWND gameWindow = game.load(), presenterWindow = presenter.load();
 +      if (api == 2) {
-+        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=hook-install api=SetWindowsHookExW caller_rva=0x%zx thread=%lu host_pid=%lu hook_id=%d target_thread=%lu hook_module=%p procedure=%p result=%p last_error=%lu game=%p game_pid=%lu presenter=%p presenter_pid=%lu tick=%llu",
-+          static_cast<size_t>(rva), thread, GetCurrentProcessId(), kind, target, hookModule, reinterpret_cast<void*>(procedure), result, error.error, gameWindow, owner(gameWindow), presenterWindow, owner(presenterWindow), now);
++        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=hook-install api=SetWindowsHookExW caller_rva=0x%zx thread=%lu host_pid=%lu hook_id=%d target_thread=%lu hook_module=%p procedure=%p result=%p last_error=%lu game=%p game_pid=%lu game_thread=%lu presenter=%p presenter_pid=%lu presenter_thread=%lu tick=%llu",
++          static_cast<size_t>(rva), thread, GetCurrentProcessId(), kind, target, hookModule, reinterpret_cast<void*>(procedure), result, error.error, gameWindow, owner(gameWindow), gameWindow ? GetWindowThreadProcessId(gameWindow, nullptr) : 0, presenterWindow, owner(presenterWindow), presenterWindow ? GetWindowThreadProcessId(presenterWindow, nullptr) : 0, now);
 +      } else {
-+        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=window-query api=%s caller_rva=0x%zx thread=%lu host_pid=%lu hwnd=%p owner_pid=%lu owner_thread=%lu same_process=%u game=%p game_pid=%lu presenter=%p presenter_pid=%lu last_error=%lu tick=%llu result=unchanged",
-+          entries[api].name, static_cast<size_t>(rva), thread, GetCurrentProcessId(), window, pid, window ? GetWindowThreadProcessId(window, nullptr) : 0, window && pid == GetCurrentProcessId(), gameWindow, owner(gameWindow), presenterWindow, owner(presenterWindow), error.error, now);
++        std::snprintf(line, sizeof(line), "L4D2_STEAM_WINDOW event=window-query api=%s caller_rva=0x%zx thread=%lu host_pid=%lu hwnd=%p owner_pid=%lu owner_thread=%lu same_process=%u game=%p game_pid=%lu game_thread=%lu presenter=%p presenter_pid=%lu presenter_thread=%lu last_error=%lu tick=%llu result=unchanged",
++          entries[api].name, static_cast<size_t>(rva), thread, GetCurrentProcessId(), window, pid, window ? GetWindowThreadProcessId(window, nullptr) : 0, window && pid == GetCurrentProcessId(), gameWindow, owner(gameWindow), gameWindow ? GetWindowThreadProcessId(gameWindow, nullptr) : 0, presenterWindow, owner(presenterWindow), presenterWindow ? GetWindowThreadProcessId(presenterWindow, nullptr) : 0, error.error, now);
 +      }
 +      ++lines; emit(line);
 +      if (lines == 4096) emit("L4D2_STEAM_WINDOW event=trace-limit lines=4096");

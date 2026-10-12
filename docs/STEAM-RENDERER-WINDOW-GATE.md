@@ -4,7 +4,7 @@ Status: **STATIC EVIDENCE / RUNTIME BRANCH NOT YET CONFIRMED**. Steam remains un
 
 ## Exact sample
 
-User-supplied GameOverlayRenderer64.dll, 1,576,600 bytes, x64 PE32+. SHA-256: `59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee`. Resource strings include version 10.96.30.42 / source-control ID 10963042 and an additional 1.0.0.1 block. Resource text is not signature verification or proof that the same file was loaded during the previous game runs. Addresses below are **RVAs for this sample only**; ASLR changes loaded VAs and future Steam versions can change all offsets.
+User-supplied GameOverlayRenderer64.dll, 1,576,600 bytes, x64 PE32+. SHA-256: `59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee`. Resource strings include version 10.96.30.42 / source-control ID 10963042 and an additional 1.0.0.1 block. Resource text is not signature verification. The user subsequently confirmed this is the DLL used by LDB64; actual call-site/branch execution still requires the runtime diagnostic. Addresses below are **RVAs for this sample only**; ASLR changes loaded VAs and future Steam versions can change all offsets.
 
 ## Verified static finding
 
