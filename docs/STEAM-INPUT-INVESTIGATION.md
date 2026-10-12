@@ -351,3 +351,13 @@ interface/request before introducing forwarding. The installed x86 module and
 its interface version/signature are absent from the supplied evidence; hardcoded
 vtable indices or a guessed old/new method ABI would risk corrupting the game.
 The existing callback331 carries only active state, not URL or request target.
+
+### Supplied x86 steam_api.dll: verified modern web ABI, caller still required
+
+The [static API audit](STEAM-WEB-REQUEST-DIAGNOSTICS.md) verifies this sample's
+SteamFriends017 flat web thunk and its virtual method's URL+mode ABI at slot30.
+The API file has not been executed or redistributed. Presence of this modern
+export does not establish the menu's actual interface, cached C++ path or
+availability guard. Inspect the actual Add-ons menu caller (normally GameUI)
+before a runtime observer, covering both availability and web invocation, and
+report partial coverage explicitly. No new binary or working-input change.
