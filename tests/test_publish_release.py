@@ -186,7 +186,7 @@ class Publishing(unittest.TestCase):
                     if "/releases?" in path:
                         return [{"draft": False, "tag_name": "previous", "body": notes}]
                     raise AssertionError(path)
-                with patch.dict(os.environ, {"UPSTREAM_COMMIT": "", "FORCE_REBUILD": "false"}), \
+                with patch.dict(os.environ, {"UPSTREAM_COMMIT": "a" * 40, "FORCE_REBUILD": "false"}), \
                         patch.object(detect_release, "api", side_effect=detected_api), \
                         patch.object(detect_release, "recipe_digest", return_value="c" * 64):
                     self.assertEqual(detect_release.pending(), [])

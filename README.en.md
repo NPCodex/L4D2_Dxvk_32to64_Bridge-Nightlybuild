@@ -8,7 +8,7 @@
 
 ## Download and installation — start here
 
-**v1.5.0 combines upstream v1.3.0 with the implemented changes from the 45-item ledger, including Steam window/input/workshop adaptation, upload and IPC fixes, and updated settings menus.** Defaults remain x64, C8 and mapped shadow off; the complete Steam/Presenter configuration is enabled. The maintainer explicitly accepted the earlier candidate's measured average-FPS regression; see this Release and the [ledger](docs/OPTIMIZATION-45.md) for scope and evidence. **If 1% low drops, frames drop or frame rates become unstable, return to [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1).** Restore the Client and both Hosts together.
+**v1.5.1 updates the NVIDIA build source to `0a8c8a3`, retaining the v1.5.0 integration and implemented changes from the 45-item ledger.** The new NVIDIA changes affect RTX/Remix components excluded from this package; no new FPS or image-quality gain is claimed. Defaults remain x64, C8 and mapped shadow off; the complete Steam/Presenter configuration is enabled. The maintainer explicitly accepted the earlier candidate's measured average-FPS regression; see this Release and the [ledger](docs/OPTIMIZATION-45.md) for scope and evidence. **If 1% low drops, frames drop or frame rates become unstable, return to [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1).** Restore the Client and both Hosts together.
 
 **[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. It includes **L4N 2.51.0, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. No patch tool or Python installation is needed. The layout follows the maintainer's supplied bundle; `config_template.vdf` is omitted. See [bundle provenance](docs/L4N-BUNDLE.md). The player ZIP contains runtime components, active configuration, L4N's original VDF templates and QC/VMT examples, a short `README.txt`, and one combined `THIRD-PARTY-NOTICES.txt`. Developer documentation, JSON manifests, diagnostic scripts, the SDK and offline Mod authoring tools remain in the repository.
 
@@ -34,7 +34,7 @@ Fresh installs use upstream's learned-aggressive retention policy and disable ro
 
 Roll back the Bridge client and Host together. Restore your original `studiorender.dll` backup to undo ThinFlex. To uninstall, remove the installed files and restore your backups.
 
-See the [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
+See the [NVIDIA source update](docs/NVIDIA-UPSTREAM-UPDATES.md) and the earlier [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
 
 Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix), this repository retains the patches from the [original L4D2 project](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) and automatically builds an x86 client and both x86/x64 Hosts for 32-bit Left 4 Dead 2.
 
@@ -53,11 +53,11 @@ Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remi
 
 ## Automatic and manual builds
 
-The workflow checks the NVIDIA build source default branch (currently `main`) every hour at minute 23. It builds unpublished commits and skips commits that already have a published release. GitHub scheduling may be delayed.
+The workflow checks the NVIDIA build source default branch (currently `main`) every hour at minute 23. Codex reviews new commits hourly and adopts them after validation. Actions builds only the approved commit in `config/nvidia-upstream.json`, skipping an already published source/recipe pair. GitHub scheduling may be delayed.
 
 Under **Actions → Build latest upstream Bridge → Run workflow**:
 
-- Leave `upstream_commit` empty to follow the latest source, or enter a full 40-character SHA to select a commit.
+- Leave `upstream_commit` empty to observe HEAD and build the approved commit, or enter a full 40-character SHA for an explicitly authorized override.
 - Enable `force_rebuild` to create a new independent build without replacing existing assets. This option is disabled by default.
 - Enable `validation_only` to build, test and run A/B benchmarks, saving artifacts and skipping publication.
 - Enable `thinflex_test` to label a full upstream integration + ThinFlex test release (Pre-release, not Latest). Every build includes the fixed ThinFlex engine DLL in one full package; check the installed game version before copying it.

@@ -1,5 +1,7 @@
 # L4D2 原项目完整同步
 
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.1 仅更新 NVIDIA 基准和审查流程；本页的 L4D2 原项目完整采用基准仍为 f6a059b。
+
 ## 2026-10-12：维护者授权合并上游 main 与 45 项改进
 
 本次整合功能与 main 基准为 [`f6a059b758f9fcbf9c66ace73625aae9db34ad6a`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/tree/f6a059b758f9fcbf9c66ace73625aae9db34ad6a)，即上游 v1.3.0；Nightly 新版本为 v1.5.0。维护者在查看 45 项候选 v1.4.4 的平均帧率下降后明确要求与上游一起采用发布，并要求提供 v1.1.10 回退超链接。此明确采用覆盖下方历史暂缓决定，不能改写其测量结果，也不扩展到其他未来更新。

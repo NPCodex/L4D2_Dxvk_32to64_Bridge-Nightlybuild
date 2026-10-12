@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.0 合并上游 v1.3.0 与 45 项台账中的已实现改进，加入 Steam 窗口/输入/工坊适配、上传与 IPC 修复及新版设置菜单。** 默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。已知候选存在平均帧率下降，维护者明确采用；验证范围与取舍见本次 Release 和[45 项台账](docs/OPTIMIZATION-45.md)。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+**v1.5.1 更新 NVIDIA 构建源码基准至 `0a8c8a3`，保留 v1.5.0 的上游整合与 45 项台账已实现改进。** 本次 NVIDIA 改动位于未打包的 RTX/Remix 组件，不宣称本包有新的帧率或画质收益。 默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。已知候选存在平均帧率下降，维护者明确采用；验证范围与取舍见本次 Release 和[45 项台账](docs/OPTIMIZATION-45.md)。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -34,7 +34,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-本次范围见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)；此前整合见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
@@ -55,11 +55,11 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 项目版本从 **v1.0** 起，重大更新递增次版本号，小改动递增补丁号；当前版本见 [VERSION](VERSION)，维护者设置见 [版本规则](docs/VERSIONING.md)。
 
-每小时第 23 分钟检查 NVIDIA 构建源的默认分支（当前为 `main`）。L4D2 原项目功能同步另记于 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。发现未发布的提交后构建；相同提交已发布时跳过。GitHub 调度可能延迟。
+每小时第 23 分钟检查 NVIDIA 构建源的默认分支（当前为 `main`）。L4D2 原项目功能同步另记于 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。Codex 每小时审查新提交并在验证通过后更新；Actions 默认只构建 `config/nvidia-upstream.json` 中已批准的提交，相同源码与配方已发布时跳过。详见 [NVIDIA 更新记录](docs/NVIDIA-UPSTREAM-UPDATES.md)。GitHub 调度可能延迟。
 
 在 **Actions → Build latest upstream Bridge → Run workflow** 中：
 
-- `upstream_commit` 留空跟随最新代码；填写完整 40 位 SHA 可指定提交。
+- `upstream_commit` 留空时观察最新 HEAD、构建已批准提交；填写完整 40 位 SHA 可显式指定已授权的提交。
 - 勾选 `force_rebuild` 可强制编译并创建新的独立版本；已有版本和附件保留，默认关闭。
 - 勾选 `validation_only` 仅构建、测试和运行 A/B 基准，保存结果供检查，跳过发布。
 - 手动勾选 `thinflex_test` 标记为完整上游同步与 ThinFlex 修复测试版（Pre-release，不设为 Latest）。所有构建均提供包含固定 ThinFlex 修复 DLL 的单一完整包；安装时先核对游戏版本。

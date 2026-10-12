@@ -1,4 +1,4 @@
-"""Follow the latest Remix default-branch commit, or a manually selected SHA."""
+"""Observe Remix HEAD while building only an approved or manually selected SHA."""
 import json
 import os
 import re
@@ -12,6 +12,20 @@ from pathlib import Path
 from build_identity import recipe_digest
 
 UPSTREAM = "repos/NVIDIAGameWorks/dxvk-remix"
+ROOT = Path(__file__).resolve().parents[1]
+APPROVAL_PATH = ROOT / "config/nvidia-upstream.json"
+
+
+def read_approval():
+    approval = json.loads(APPROVAL_PATH.read_text(encoding="utf-8"))
+    if (not isinstance(approval, dict)
+            or approval.get("repository") != "https://github.com/NVIDIAGameWorks/dxvk-remix"
+            or not isinstance(approval.get("branch"), str)
+            or not approval["branch"].strip()
+            or not isinstance(approval.get("approved_commit"), str)
+            or not re.fullmatch(r"[0-9a-fA-F]{40}", approval["approved_commit"])):
+        raise ValueError("NVIDIA approval must identify the repository, branch and full approved commit SHA")
+    return approval["branch"], approval["approved_commit"].lower()
 
 
 def api(path):
@@ -39,14 +53,20 @@ def pending():
     if manual:
         if not re.fullmatch(r"[0-9a-fA-F]{40}", manual):
             raise ValueError("Manual builds require a full 40-character commit SHA")
-        ref, branch = manual, "manual"
+        ref, branch = manual.lower(), "manual"
     else:
-        branch = api(UPSTREAM)["default_branch"]
-        ref = branch
+        branch, ref = read_approval()
+        observed_branch = api(UPSTREAM)["default_branch"]
+        observed = api(f"{UPSTREAM}/commits/{urllib.parse.quote(observed_branch, safe='')}")["sha"]
+        if not isinstance(observed, str) or not re.fullmatch(r"[0-9a-f]{40}", observed):
+            raise ValueError("Invalid observed upstream SHA")
+        print(f"Observed NVIDIA {observed_branch}: {observed}; approved source: {ref}")
+        if observed != ref:
+            print("NVIDIA HEAD awaits review; retaining the approved build source")
     info = api(f"{UPSTREAM}/commits/{urllib.parse.quote(ref, safe='')}")
     commit = info["sha"]
-    if not re.fullmatch(r"[0-9a-f]{40}", commit):
-        raise ValueError("Invalid resolved upstream SHA")
+    if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit) or commit != ref:
+        raise ValueError("Resolved upstream SHA differs from the approved or manual commit")
     recipe = recipe_digest()
     if not force:
         page = 1
@@ -68,11 +88,11 @@ def pending():
         print(f"Force rebuild enabled for upstream {branch}: {commit}")
     names = classify(commit, info["commit"]["committer"]["date"], recipe,
                      os.environ["GITHUB_RUN_ID"], os.environ["GITHUB_RUN_ATTEMPT"])
-    version = (Path(__file__).resolve().parents[1] / "VERSION").read_text().strip()
+    version = (ROOT / "VERSION").read_text().strip()
     if not re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version):
         raise ValueError("Invalid project version")
     identifier = "v" + version + ("-thinflex-test-" if thinflex else "-") + names["release_tag"]
-    original = json.loads((Path(__file__).resolve().parents[1] / "config/original-project.json").read_text(encoding="utf-8"))
+    original = json.loads((ROOT / "config/original-project.json").read_text(encoding="utf-8"))
     title = "v" + version + " L4N 整合包 · 完整同步上游 " + original["version"] + (" + ThinFlex 测试版" if thinflex else "")
     names.update(release_tag=identifier, title=title,
                  archive="l4d2-bridge-" + identifier + ".zip")
