@@ -10,6 +10,7 @@ on:
       - codex/development-1.1.2-dev.1
       - main
       - codex/release-1.3.0
+      - codex/ipc-upload-safety
       - codex/ipc-data-queue-correctness
   workflow_dispatch:
     inputs:
@@ -47,6 +48,11 @@ jobs:
           repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
           ref: 00007e8762385704afdacabea6e48444d798d27a
           path: .deps/c32-frozen
+      - uses: actions/checkout@v4
+        with:
+          repository: yeyunyyds/L4D2_Dxvk_32to64_Bridge
+          ref: f6a059b758f9fcbf9c66ace73625aae9db34ad6a
+          path: .deps/v130-frozen
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -78,6 +84,9 @@ jobs:
             & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
             if ($LASTEXITCODE -ne 0) { throw "$test failed" }
           }
+      - name: Upload safety, close tails and default reply budgets against frozen v1.3.0
+        shell: powershell
+        run: ./scripts/test_ipc_upload_safety.ps1
       - name: Test Client input hooks, legacy DirectInput results and Query logging
         shell: powershell
         run: ./scripts/test_input_hooks.ps1
@@ -204,6 +213,9 @@ jobs:
           name: l4d2-native-v${{ env.L4D2_PROJECT_VERSION }}-${{ github.run_id }}
           path: |
             work/ipc-full-native/
+            work/ipc-safety-baseline/
+            work/upload-safety-*/
+            work/ipc-safety-replies.json
             work/release-build.json
             .deps/observation-test-*/
             .deps/steam-*/

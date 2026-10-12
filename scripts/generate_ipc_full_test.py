@@ -1,10 +1,15 @@
 """Reuse frozen production fixture adapters, compile the complete full transport."""
 from pathlib import Path
+import argparse
 import hashlib,json,shutil,sys
 ROOT=Path(__file__).resolve().parents[1]
 pr6=ROOT/'.deps/ipc-v2-pr6';sys.path.insert(0,str(pr6/'scripts'))
 from generate_ipc_transport_test import generate
-source=ROOT/'.deps/dxvk-remix';out=ROOT/'work/ipc-full-native'
+parser=argparse.ArgumentParser()
+parser.add_argument('--source',type=Path,default=ROOT/'.deps/dxvk-remix')
+parser.add_argument('--output',type=Path,default=ROOT/'work/ipc-full-native')
+args=parser.parse_args()
+source=args.source;out=args.output
 baseline=ROOT/'work/c32-source'
 if not baseline.exists():baseline=ROOT/'.deps/c32-baseline'
 generate(baseline,out)
@@ -22,6 +27,7 @@ support=(pr6/'tests/ipc_transport_support.h').read_text()
 cpp=(util/'util_bridgecommand.cpp').read_text();cpp='\n'.join(line for line in cpp.splitlines() if not line.startswith('#include'))
 (out/'ipc_transport.cpp').write_text(support+'\n'+bridge+'\n'+cpp+'\n#include "full_bridge_cases.cpp"\n')
 shutil.copy2(ROOT/'tests/ipc-v2/full_bridge_cases.cpp',out/'full_bridge_cases.cpp')
+shutil.copy2(ROOT/'tests/ipc_reply_budget_cases.h',out/'ipc_reply_budget_cases.h')
 shutil.copy2(pr6/'tests/ipc_wait_injection.h',out/'ipc_wait_injection.h')
 manifest={p.relative_to(util).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in [util/'util_bridgecommand.h',util/'util_bridgecommand.cpp',util/'util_ipcchannel.h',*sorted((util/'ipc_full').glob('*.h')),*sorted((util/'ipc_v2').glob('*.h'))]}
 (out/'full-source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

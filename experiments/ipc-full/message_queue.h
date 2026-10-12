@@ -152,6 +152,10 @@ class MessageQueue {
   bool notifyRelease(const Descriptor &d) { return !m_pool.release(d) || m_channel.notifyCredits(); }
 
 public:
+#ifdef LDB_IPC_V2_TEST
+  // Deterministic close/publication interleaving; absent from production builds.
+  inline static void (*afterPublishedSnapshot)() = nullptr;
+#endif
   static size_t getExtraMemoryRequirements() { return 0; }
   MessageQueue(const std::string &name, size_t bytes, bool writer)
       : m_name(name), m_writerSide(writer), m_channel(name + "-full", config(name), false, true),
@@ -358,6 +362,9 @@ public:
               false,
               [&]() {
                 published = shared.producer.published.load(std::memory_order_seq_cst);
+#ifdef LDB_IPC_V2_TEST
+                if (afterPublishedSnapshot) { afterPublishedSnapshot(); }
+#endif
                 return published != m_sequence || !healthy() || (early && early->load()) ||
                        (interrupted = !gbBridgeRunning.load(std::memory_order_acquire)) ||
                        shared.cold.producerClosed.load(std::memory_order_seq_cst);
@@ -370,6 +377,9 @@ public:
           if (r != ldb_ipc_v2::Result::Success || interrupted) {
             throw std::runtime_error("message wait failed");
           }
+          // The predicate can see close after taking an older publication snapshot.
+          // Re-read the frontier before rejecting an otherwise healthy final block.
+          published = shared.producer.published.load(std::memory_order_acquire);
         }
         if (!healthy() || published == m_sequence) {
           throw std::runtime_error("closed message channel");

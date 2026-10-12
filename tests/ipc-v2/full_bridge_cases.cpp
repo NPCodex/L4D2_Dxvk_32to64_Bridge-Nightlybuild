@@ -237,6 +237,7 @@ int faultCase(const std::wstring& mode) {
   std::puts("IPC_FULL_FAIL_CLOSED_PASS");return 0;
 }
 #endif
+#include "ipc_reply_budget_cases.h"
 int wmain(int argc,wchar_t** argv) {
   try {
 #ifdef REMIX_BRIDGE_CLIENT
@@ -263,6 +264,7 @@ int wmain(int argc,wchar_t** argv) {
     else if(std::wstring(argv[2])==L"surface-small-declared"){surfaceSmall<Device>(true);surfaceSmall<Module>(true);}
     else if(std::wstring(argv[2])==L"concurrent-replies"){concurrentReplies<Device>();concurrentReplies<Module>();}
     else if(std::wstring(argv[2])==L"handshake"){handshake<Device>();handshake<Module>();}
+    else if(std::wstring(argv[2]).find(L"reply-")==0){replyBudgetCase<Device>(argv[2]);}
     else {transfer<Device>();transfer<Module>();}
     std::puts("IPC_FULL_BRIDGE_PASS");return 0;
   }catch(const std::exception& e){std::fprintf(stderr,"IPC_FULL_BRIDGE_EXCEPTION %s\n",e.what());return 3;}catch(...){std::puts("IPC_FULL_BRIDGE_EXCEPTION non-std");return 3;}
