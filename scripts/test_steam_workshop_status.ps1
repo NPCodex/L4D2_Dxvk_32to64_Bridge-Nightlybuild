@@ -9,9 +9,9 @@ if (!$Platform) {
     if ($LASTEXITCODE -ne 0) { throw "Workshop channel compilation failed for $arch" }
   }
   $repoRoot=Split-Path $PSScriptRoot -Parent
-  foreach ($client in @('x86','x64')) { foreach ($host in @('x86','x64')) {
-    & "$repoRoot/.deps/steam-workshop-$client/status-test.exe" "$repoRoot/.deps/steam-workshop-$host/status-test.exe"
-    if ($LASTEXITCODE -ne 0) { throw "Cross-process Workshop channel failed: $client -> $host" }
+  foreach ($clientArch in @('x86','x64')) { foreach ($hostArch in @('x86','x64')) {
+    & "$repoRoot/.deps/steam-workshop-$clientArch/status-test.exe" "$repoRoot/.deps/steam-workshop-$hostArch/status-test.exe"
+    if ($LASTEXITCODE -ne 0) { throw "Cross-process Workshop channel failed: $clientArch -> $hostArch" }
   } }
   exit 0
 }
@@ -25,7 +25,7 @@ New-Item -ItemType Directory -Force $testDir | Out-Null
 Push-Location $testDir
 try {
   & cl.exe /nologo /std:c++17 /EHsc /O2 /W4 /WX "/I$source/bridge/src/server" "/I$source/bridge/src/util" "$repoRoot/tests/steam_workshop_status.cpp" /Fe:status-test.exe
-  if ($LASTEXITCODE -ne 0) { throw 'Availability diagnostic compilation failed' }
+  if ($LASTEXITCODE -ne 0) { throw 'Workshop channel compilation failed' }
   Assert-NativeArchitecture -Path (Join-Path $testDir 'status-test.exe') -Architecture $Platform
 
 } finally { Pop-Location }
