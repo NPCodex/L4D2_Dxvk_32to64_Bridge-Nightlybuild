@@ -1,0 +1,15 @@
+{
+  "build": "ldb-ipc-c32-dev+06abe08be638118c",
+  "client_log_sha256": "3d90768e6818a8122341321f0c07087eea0f5eff14b0176dd891f0847ef59bb0",
+  "host_log_sha256": "2316e3e170e8332f9920758c7acf660bdf1c85f485092df2a6e9086cefcd1d8c",
+  "guard_calls": 7,
+  "guard_return_site": "0x199ea",
+  "all_guard_results": false,
+  "web_calls": 0,
+  "overlay_on_off_pairs": 3,
+  "host_hook_installs": 6,
+  "host_installs_nonnull": true,
+  "host_renderer_getter_value_observed": false,
+  "actual_target_failure": "verified menu availability guard returns false before web method",
+  "request_routing_observed": false
+}

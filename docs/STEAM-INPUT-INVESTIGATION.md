@@ -377,3 +377,21 @@ was uploaded as a verified immutable fork ZIP. Preserve working C8/input/backend
 settings; add only client.steamWebDiagnostics=True. Actual runtime guard values
 and click routing are still pending. This is diagnostic delivery, not a claim
 to have fixed Workshop. main and previous accepted bridge remain unchanged.
+
+### Runtime confirms menu False guard before any web request
+
+Matched 06abe08be638118c with diagnostic enabled and supported menu/interface
+attachment records seven VisitWorkshop guard calls at GameUI return0x199EA. All
+return False; web_calls=0. The same session records three Overlay activation/
+deactivation pairs and six successful Host hooks, so input still operates.
+This verifies the actual menu gate blocks web invocation, not a request already
+sent and lost in navigation. The underlying reason for Client availability false
+and the corresponding Host renderer signal are not yet measured.
+
+A version-checked read-only Host getter observer is being built with the same
+diagnostic flag. It reads the exact supplied x64 renderer export's byte after
+SHA/code validation without calling the export. Comparing the two signals is
+required before proposing an availability substitution; no blanket True result
+or web forwarding is introduced. Raw user logs remain local;
+[derived evidence](steam-input-evidence/workshop-client-guard-hardware-result.json)
+contains only counts, code-site labels and log hashes.

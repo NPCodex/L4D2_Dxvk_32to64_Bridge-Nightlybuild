@@ -172,3 +172,30 @@ web/guard/LastError/hash tests are retained after sharing the hash helper.
 Use this next matched ZIP with the SAME working configuration/diagnostic flag,
 click View Workshop, then open/close Shift+Tab and click View Workshop again.
 Supply paired logs. The diagnostic does not fix the confirmed false guard.
+
+## Verified paired Host/Client diagnostic delivery
+
+- Build `ldb-ipc-c32-dev+4833cce93dfc4dc0`, compiled source03164796c1d9e9d235b61319522f35991340bec1.
+- [New matched ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/cb92977856f73c5ca6534bf206ebfa36eff31460/l4d2-bridge-steam-workshop-host-dev-4833cce93dfc4dc0-r38205119024.zip), 1,402,044 bytes.
+- SHA256 `63c27c56287c2cf603b1b69a0285b17a1114e16e607853238f501498aefe5093`; public download independently verified.
+- [Native Windows run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38205119024)
+  passed twelve regression suites including x86/x64 getter decoding and retained
+  actual web/guard ABI tests, 39 Python contracts, 252 IPC pairs, 30 faults and
+  both batching policies. All three Release files and matched embedded IDs,
+  hashes/architectures, retained adapter, new x64 Host observer and x86 Host LAA
+  were independently checked. The first candidate run38204701237 stopped on an
+  x86 constant-expression warning under /WX before packaging; explicit platform
+  isolation fixed it and no binary from that failed run was published.
+- [Native evidence](steam-input-evidence/38205119024-native-pass.log),
+  [IPC data](steam-input-evidence/38205119024-ipc-raw.json),
+  [fault data](steam-input-evidence/38205119024-ipc-faults.json),
+  [inspection](steam-input-evidence/38205119024-artifact-inspection.json),
+  [upload](steam-input-evidence/workshop-host-upload-receipt.json).
+
+Replace all three files and verify4833cce93dfc4dc0. Keep current C8, input flags
+and client.steamWebDiagnostics=True; no new setting is needed. This version still
+preserves the false menu check. It supplies the missing Host getter measurement
+for the next compatibility decision, not a Workshop fix. The earlier installer
+targets the earlier06abe08be638118c package and must not be used to install this
+new paired-observer package. main, tested IPC branch, VERSION/tags/releases and
+all previous ZIPs remain unchanged.

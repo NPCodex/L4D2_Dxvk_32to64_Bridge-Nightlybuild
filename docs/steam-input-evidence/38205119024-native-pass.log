@@ -1,0 +1,67 @@
+2026-10-12T04:48:05.2343309Z PASS: 59 Volume layout/transfer cases, game writes through API pitches, unchanged wire, padded backend and partial-box guards; padded source and invalid stride rejection.
+2026-10-12T04:48:07.6733209Z PASS: 59 Volume layout/transfer cases, game writes through API pitches, unchanged wire, padded backend and partial-box guards; padded source and invalid stride rejection.
+2026-10-12T04:48:10.4244351Z PASS: failed reset, repeated failure, success retry, preserved cache, timeout without read/pop, late success rejected
+2026-10-12T04:48:10.4245382Z PASS: backbuffers 1->2->1, aliased RT0, depth, ordered teardown, repeated unlink, retained external reference
+2026-10-12T04:48:10.4246536Z PASS: first-candidate query leak negative control, 150000 query references balanced, RT/depth/explicit targets, COM identity aliases, null/mismatch/failure results
+2026-10-12T04:48:12.9603087Z PASS: failed reset, repeated failure, success retry, preserved cache, timeout without read/pop, late success rejected
+2026-10-12T04:48:12.9604140Z PASS: backbuffers 1->2->1, aliased RT0, depth, ordered teardown, repeated unlink, retained external reference
+2026-10-12T04:48:12.9605319Z PASS: first-candidate query leak negative control, 150000 query references balanced, RT/depth/explicit targets, COM identity aliases, null/mismatch/failure results
+2026-10-12T04:48:18.4206293Z PASS: compressed block layout, logical rows without padding, mismatch offsets and deterministic selection
+2026-10-12T04:48:23.0851727Z PASS: 18 separate-process Q8W8V8U8/ATI1/ATI2 unload/reconstruction cases and explicit read/pitch/unlock failures; child has no original Client backing
+2026-10-12T04:48:23.0852789Z PASS: 25 independent child-process mock readbacks, reference-only corruption detection, failure stages and original backing retained
+2026-10-12T04:48:23.0854097Z PASS: real backing deletion, hash-only child-process recovery, complete mip restoration, permanent KEEP, cross-run Strong/Content DB hits, overwrite without promotion, hash/readback failures and session fallback (independent mock backend)
+2026-10-12T04:48:26.4128219Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\input-hooks-test-x86\input-hooks-test.exe
+2026-10-12T04:48:26.4220598Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:26.4290409Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:26.4351661Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:26.4411714Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:26.4470709Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:26.4531435Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5445194Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\input-hooks-test-x64\input-hooks-test.exe
+2026-10-12T04:48:29.5512576Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5558528Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5602118Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5646189Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5689460Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:29.5733513Z PASS: Steam polling chain gating/exact original calls/scratch buffers/errors/failures; gameplay remains neutralized; Steam mouse ownership/foreground/failure/recapture; hook chain arguments/results; hooks OFF/ON/failure; original DirectInput A/W; lazy logs; Query delegation
+2026-10-12T04:48:33.4714534Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\fake-x86.dll
+2026-10-12T04:48:33.4727668Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\overlay-x86.exe
+2026-10-12T04:48:36.8837083Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\fake-x64.dll
+2026-10-12T04:48:36.8850240Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\overlay-presenter-test\overlay-x64.exe
+2026-10-12T04:48:37.6676427Z PASS: host-owned cross-process child, capture, reset routing, resizing and teardown (64-bit)
+2026-10-12T04:48:38.0745870Z PASS: host-owned cross-process child, capture, reset routing, resizing and teardown (32-bit)
+2026-10-12T04:48:42.1308228Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\adapter-test-x86.exe
+2026-10-12T04:48:42.1320345Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\window-fixture-x86.dll
+2026-10-12T04:48:42.1332609Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\window-test-x86.exe
+2026-10-12T04:48:45.7663552Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\adapter-test-x64.exe
+2026-10-12T04:48:45.7676023Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\window-fixture-x64.dll
+2026-10-12T04:48:45.7688808Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-window-test\window-test-x64.exe
+2026-10-12T04:48:45.8177639Z PASS steam-window-adapter host_bits=32 foreign_game_bits=opposite queries=7
+2026-10-12T04:48:45.8365503Z PASS steam-window-diagnostics bits=32 mode=real
+2026-10-12T04:48:45.8500683Z PASS steam-window-diagnostics bits=32 mode=chain
+2026-10-12T04:48:45.8737966Z PASS steam-window-adapter host_bits=64 foreign_game_bits=opposite queries=7
+2026-10-12T04:48:45.8877689Z PASS steam-window-diagnostics bits=64 mode=real
+2026-10-12T04:48:45.8987040Z PASS steam-window-diagnostics bits=64 mode=chain
+2026-10-12T04:48:48.5683036Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe
+2026-10-12T04:48:48.5781207Z L4D2_STEAM_WEB event=attached utils010=1 friends017=1 scope=verified-menu-interfaces mode=observe-only
+2026-10-12T04:48:48.5784512Z L4D2_STEAM_WEB event=request api=IsOverlayEnabled pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x2618 overlay_enabled=0 mode=0 url_class=not-applicable last_error=4660 tick=395250 action=observe-only
+2026-10-12T04:48:48.5787141Z L4D2_STEAM_WEB event=request api=IsOverlayEnabled pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x2643 overlay_enabled=0 mode=0 url_class=not-applicable last_error=4660 tick=395250 action=observe-only
+2026-10-12T04:48:48.5789296Z L4D2_STEAM_WEB event=request api=IsOverlayEnabled pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x2683 overlay_enabled=1 mode=0 url_class=not-applicable last_error=4660 tick=395250 action=observe-only
+2026-10-12T04:48:48.5791856Z L4D2_STEAM_WEB event=request api=ActivateGameOverlayToWebPage pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x26a6 overlay_enabled=-1 mode=0 url_class=steam-workshop last_error=4660 tick=395250 action=observe-only
+2026-10-12T04:48:48.5793626Z L4D2_STEAM_WEB event=web-return pid=5784 thread=7984 last_error=9029 tick=395250
+2026-10-12T04:48:48.5794903Z L4D2_STEAM_WEB event=request api=ActivateGameOverlayToWebPage pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x26e0 overlay_enabled=-1 mode=7 url_class=null last_error=9029 tick=395250 action=observe-only
+2026-10-12T04:48:48.5796157Z L4D2_STEAM_WEB event=web-return pid=5784 thread=7984 last_error=9029 tick=395250
+2026-10-12T04:48:48.5797786Z L4D2_STEAM_WEB event=request api=ActivateGameOverlayToWebPage pid=5784 thread=7984 caller_path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-web-test\web-test.exe caller_rva=0x2724 overlay_enabled=-1 mode=2 url_class=steam-workshop last_error=9029 tick=395250 action=observe-only
+2026-10-12T04:48:48.5799327Z L4D2_STEAM_WEB event=web-return pid=5784 thread=7984 last_error=9029 tick=395250
+2026-10-12T04:48:48.5799850Z L4D2_STEAM_WEB event=summary availability_calls=3 web_calls=3 emitted_attempts=10
+2026-10-12T04:48:48.5800590Z PASS steam-web-observer x86 actual-thiscall-ABI, guard, borrowed-arguments, LastError, logger-exception, hash-gate, conditional-restore
+2026-10-12T04:48:51.0591251Z NATIVE_ARCH_PASS architecture=x86 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-availability-x86\availability-test.exe
+2026-10-12T04:48:51.0679543Z PASS host-renderer-availability: actual getter layout, ASLR, signed displacement, bounds, refusal, disabled observer; no supplied code executed
+2026-10-12T04:48:53.3889773Z NATIVE_ARCH_PASS architecture=x64 path=D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\steam-availability-x64\availability-test.exe
+2026-10-12T04:48:53.3951035Z PASS host-renderer-availability: actual getter layout, ASLR, signed displacement, bounds, refusal, disabled observer; no supplied code executed
+2026-10-12T04:48:58.7625690Z PASS: native 32-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x86 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-12T04:48:58.7693769Z PASS: native 32-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x64 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-12T04:48:58.7743129Z PASS: native 64-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x86 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-12T04:48:58.7789063Z PASS: native 64-bit reader decoded D:\a\L4D2_Dxvk_32to64_Bridge\L4D2_Dxvk_32to64_Bridge\.deps\adapter-test\x64 identifier and full caps; malformed packets rejected; Shader versions preserved.
+2026-10-12T04:49:01.5260371Z PASS: ATI1/ATI2 native API pitch, full mip chains, partial copies, shared storage and guarded upload/readback bounds
+2026-10-12T04:49:03.9596779Z PASS: ATI1/ATI2 native API pitch, full mip chains, partial copies, shared storage and guarded upload/readback bounds
