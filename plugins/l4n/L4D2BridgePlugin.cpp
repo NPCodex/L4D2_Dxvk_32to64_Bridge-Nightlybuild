@@ -13,6 +13,8 @@ namespace general = l4d2_bridge_control;
 class BridgePlugin final : public IL4NPlugin {
   std::string m_menu, m_status;
   general::Host m_selectedHost = general::Host::Unknown;
+  uint32_t m_selectedBatch = 0, m_selectedShadow = 2;
+  bool m_chinese = false;
   struct Controls { general::Invoke settings = nullptr; l4d2_control::Invoke pageBlocks = nullptr; };
   static const char* callback(void* userData);
   static const char* policyName(l4d2_control::Policy policy) {
@@ -57,13 +59,101 @@ class BridgePlugin final : public IL4NPlugin {
     }
     return result;
   }
-  static std::string item(const std::string& title, uintptr_t action) {
+  std::string translated(std::string text) const {
+    if (!m_chinese) { return text; }
+    struct Translation { const char* english; const char* chinese; };
+    const Translation translations[] = {
+      { "Config saved successfully; restart L4D2 and Host to apply", u8"配置保存成功；重启游戏和 Host 后生效" },
+      { "Save configuration; restart L4D2 and Host to apply", u8"保存配置后，重启游戏和 Host 生效" },
+      { "Enable only if Client AV is very tight", u8"仅在 Client AV 非常紧张时建议启用" },
+      { "Language applies immediately; reopen menus to refresh", u8"语言立即生效；请重新进入菜单刷新文字" },
+      { "Configuration unchanged", u8"配置尚未修改" },
+      { "Config saved successfully", u8"配置保存成功" },
+      { "Current configuration unavailable: ", u8"无法读取当前配置：" },
+      { "Settings unavailable: update Bridge to use this menu", u8"设置不可用：请更新 Bridge 后使用此菜单" },
+      { "Failed to persist configuration: ", u8"配置保存失败：" },
+      { "Settings request failed: ", u8"设置请求失败：" },
+      { "Select a value before saving", u8"请先选择一个有效值再保存" },
+      { "Configuration status unavailable", u8"配置状态不可用" },
+      { "Configuration unavailable: ", u8"配置不可用：" },
+      { "Configured Host unavailable: ", u8"无法读取 Host 配置：" },
+      { "Configured Host: ", u8"配置中的 Host：" },
+      { "Current (conf): ", u8"当前选项（conf）：" },
+      { "Current policy: ", u8"当前策略：" }, { " (configure)", u8"（配置）" }, { " (runtime)", u8"（运行时）" },
+      { "drop [experimental]", u8"drop［实验］" },
+      { "Selected: ", u8"已选择：" },
+      { "Selected Host: ", u8"已选择 Host：" },
+      { "Last action result: ", u8"上次操作结果：" },
+      { "configuration unchanged", u8"配置尚未修改" },
+      { "Restart L4D2 to apply.", u8"重启游戏后生效。" },
+      { "Save configuration; restart L4D2 to apply", u8"保存配置后，重启游戏生效" },
+      { "Unavailable: this Bridge has no persistent settings API", u8"不可用：此 Bridge 无配置保存接口" },
+      { "Older Bridge: configuration save unavailable", u8"旧版 Bridge：配置保存不可用" },
+      { "save to configure [unavailable]", u8"保存到配置［不可用］" },
+      { "save to configure", u8"保存到配置" },
+      { "Controls Bridge Presenter/input support; does not install ReShade", u8"控制桥的呈现与输入支持；不会安装 ReShade" },
+      { "Note: validated ReShade combination is x64 Host + Vulkan ReShade 6.0.1.", u8"提示：已验证组合为 x64 Host + Vulkan ReShade 6.0.1。" },
+      { "PageBlock status failed: ", u8"PageBlock 状态查询失败：" },
+      { "Bridge request failed: ", u8"Bridge 请求失败：" },
+      { "Runtime policy failed: ", u8"运行策略修改失败：" },
+      { "Current policy unavailable: ", u8"当前策略不可用：" },
+      { "Runtime policy changed to ", u8"运行策略已改为 " },
+      { "Runtime policy: ", u8"运行策略：" },
+      { "Configuration save unavailable on this Bridge", u8"此 Bridge 不支持配置保存" },
+      { "Cannot save current runtime policy: ", u8"无法保存当前运行策略：" },
+      { "Memory policy request failed: ", u8"内存策略请求失败：" },
+      { "Runtime policy confirmation failed: ", u8"运行策略确认失败：" },
+      { "Warning: failed to persist configuration: ", u8"警告：配置保存失败：" },
+      { "Host configuration unavailable on this Bridge", u8"此 Bridge 不支持 Host 配置" },
+      { "Select a Host before saving", u8"请先选择 Host 再保存" },
+      { "Persistent Host / ReShade settings unavailable on this Bridge", u8"此 Bridge 不支持 Host / ReShade 配置保存" },
+      { "Saved; status read failed: ", u8"已保存；状态读取失败：" },
+      { "Host set to ", u8"Host 已设为 " },
+      { "ReShade Presenter enabled.", u8"ReShade 呈现支持已启用。" },
+      { "ReShade Presenter disabled.", u8"ReShade 呈现支持已关闭。" },
+      { "Configured: Enabled", u8"配置：已启用" }, { "Configured: Disabled", u8"配置：已关闭" },
+      { "Unsupported backing/backend: GC unavailable", u8"存储或后端不支持：GC 不可用" },
+      { "Memory Policy: ", u8"内存策略：" }, { "Blocks: ", u8"块数：" },
+      { "; locked: ", u8"；已锁定：" }, { "; transferring: ", u8"；传输中：" },
+      { "Client mapped VA: ", u8"Client 映射 VA：" }, { "; backing: ", u8"；后备存储：" },
+      { "Drop evictions: ", u8"Drop 回收数：" }, { "; cumulative released: ", u8"；累计释放：" },
+      { "Remaps after drop: ", u8"Drop 后重新映射：" }, { "; reconstruction failures: ", u8"；重建失败：" },
+      { "Tracked: ", u8"已追踪：" }, { "; capable: ", u8"；具备能力：" },
+      { "; non-reclaimable: ", u8"；不可回收：" }, { "Safe now: ", u8"当前安全：" },
+      { "; evictable: ", u8"；可回收：" }, { "Unsupported: ", u8"不支持：" },
+      { "; recovery gap: ", u8"；恢复缺口：" }, { "; unclassified: ", u8"；未分类：" },
+      { "GC evicted ", u8"GC 已回收 " }, { "; VA freed ", u8"；释放 VA " },
+      { "; backing freed ", u8"；释放后备存储 " }, { "Skipped locked: ", u8"跳过已锁定：" },
+      { "; transfers: ", u8"；传输：" }, { "; policy: ", u8"；策略：" },
+      { "Unsynchronized: ", u8"未同步：" }, { "; failures: ", u8"；失败：" },
+      { "No backing: ", u8"无后备存储：" }, { "Host ACK waits: ", u8"Host 确认等待：" },
+      { "; time: ", u8"；时间：" }, { "Drained: ", u8"已排空：" },
+      { "; waits: ", u8"；等待次数：" }, { "; wait time: ", u8"；等待时间：" },
+      { "Memory Policy Save Result", u8"内存策略保存结果" }, { "Memory Policy Result", u8"内存策略结果" },
+      { "Bridge Request Failed", u8"Bridge 请求失败" }, { "PageBlock GC Result", u8"PageBlock GC 结果" },
+      { "ReShade Presenter Result", u8"ReShade 呈现支持结果" }, { "Host Selection", u8"Host 选择" },
+      { "Host Result", u8"Host 设置结果" }, { "Memory Policy", u8"内存策略" },
+      { "ReShade Presenter", u8"ReShade 呈现支持" }, { "Status", u8"状态" },
+      { "Language", u8"语言" }, { "Save", u8"保存" },
+      { "Learned", u8"学习式" }, { "Aggressive", u8"积极式" }, { "Force", u8"强制" },
+      { "Enable", u8"启用" }, { "Disable", u8"关闭" },
+      { "Invalid control action", u8"无效的控制操作" }
+    };
+    for (const auto& translation : translations) {
+      const std::string from = translation.english, to = translation.chinese;
+      for (size_t at = 0; (at = text.find(from, at)) != std::string::npos; at += to.size()) {
+        text.replace(at, from.size(), to);
+      }
+    }
+    return text;
+  }
+  std::string item(const std::string& title, uintptr_t action) {
     char text[160] {};
     sprintf_s(text, " { \"callback\" \"0x%llx\" \"user_data\" \"0x%llx\" }\n",
       static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(&callback)), static_cast<unsigned long long>(action));
-    return "\"" + escape(title) + "\"" + text;
+    return "\"" + escape(translated(title)) + "\"" + text;
   }
-  static std::string info(const std::string& title) { return item(title, 0); }
+  std::string info(const std::string& title) { return item(title, 0); }
   static std::string error(HRESULT hr) {
     char code[40] {}, description[256] {};
     sprintf_s(code, "0x%08lx", static_cast<unsigned long>(hr));
@@ -73,7 +163,7 @@ class BridgePlugin final : public IL4NPlugin {
     return std::string(code) + (description[0] ? std::string(" ") + description : "");
   }
   const char* page(const char* title, const std::string& rows) {
-    m_menu = std::string("\"") + title + "\" {\n" + rows + "}\n";
+    m_menu = std::string("\"") + translated(title) + "\" {\n" + rows + "}\n";
     return m_menu.c_str();
   }
   const char* failed(const std::string& message) {
@@ -145,19 +235,19 @@ class BridgePlugin final : public IL4NPlugin {
       const auto hr = query(controls.settings, general::Operation::GetMemoryPolicy, 0, settings);
       if (SUCCEEDED(hr) && SUCCEEDED(settings.runtimeResult)) {
         const bool configured = SUCCEEDED(settings.queryResult) && settings.runtimePolicy == settings.configuredPolicy;
-        auto rows = info(std::string(u8"当前策略: ") + policyLabel(settings.runtimePolicy) + (configured ? " (configure)" : " (runtime)"));
+        auto rows = info(std::string("Current policy: ") + policyLabel(settings.runtimePolicy) + (configured ? " (configure)" : " (runtime)"));
         if (FAILED(settings.queryResult)) { rows += info("Configuration unavailable: " + error(settings.queryResult)); }
         return rows;
       }
     }
     l4d2_control::DetailedResponse response; bool detailed = false;
     const auto hr = pageBlocks(controls.pageBlocks, l4d2_control::Operation::Stats, 0, response, detailed);
-    auto rows = SUCCEEDED(hr) ? info(std::string(u8"当前策略: ") + policyLabel(response.base.policy) + " (runtime)")
+    auto rows = SUCCEEDED(hr) ? info(std::string("Current policy: ") + policyLabel(response.base.policy) + " (runtime)")
       : info("Current policy unavailable: " + error(hr));
     rows += info(controls.settings ? "Configuration status unavailable" : "Older Bridge: configuration save unavailable");
     return rows;
   }
-  static std::string policySave(const Controls& controls) {
+  std::string policySave(const Controls& controls) {
     return controls.settings ? item("save to configure", 13) : info("save to configure [unavailable]");
   }
   const char* setPolicy(const Controls& controls, uint32_t value) {
@@ -220,13 +310,67 @@ class BridgePlugin final : public IL4NPlugin {
     if (FAILED(response.queryResult)) { rows += info("Saved; status read failed: " + error(response.queryResult)); }
     return page(title, rows);
   }
+  static std::string settingValue(bool shadow, uint32_t value) {
+    return shadow ? (value ? "True" : "False") : std::to_string(value);
+  }
+  std::string configurationRows(const Controls& controls, bool shadow, bool reset = false, bool* available = nullptr) {
+    general::Response response;
+    const auto hr = query(controls.settings, shadow ? general::Operation::GetVbibMappedShadow
+      : general::Operation::GetIpcBatchSize, 0, response);
+    const bool supported = SUCCEEDED(hr) && (response.flags & general::ConfigMenuSupported);
+    if (available) { *available = supported; }
+    auto& selected = shadow ? m_selectedShadow : m_selectedBatch;
+    if (reset) { selected = shadow ? 2u : 0u; }
+    if (!supported) { return info("Settings unavailable: update Bridge to use this menu"); }
+    std::string rows;
+    if (FAILED(response.queryResult)) { rows += info("Current configuration unavailable: " + error(response.queryResult)); }
+    else {
+      const auto value = response.reserved[shadow ? 1 : 0];
+      if (reset) { selected = value; }
+      rows += info("Current (conf): " + settingValue(shadow, value));
+    }
+    rows += info("Save configuration; restart L4D2 and Host to apply");
+    if (shadow) { rows += info("Enable only if Client AV is very tight"); }
+    return rows;
+  }
+  const char* configurationMenu(const Controls& controls, bool shadow) {
+    bool supported = false;
+    auto rows = configurationRows(controls, shadow, true, &supported);
+    if (!supported) { return page(shadow ? "vbibMappedShadow" : "ipcBatchSize", rows); }
+    if (shadow) { rows += item("True", 70) + item("False", 71) + item("Save", 72); }
+    else {
+      const uint32_t values[] = { 1, 2, 4, 8, 16, 32 };
+      for (uint32_t i = 0; i < 6; ++i) { rows += item(std::to_string(values[i]), 60 + i); }
+      rows += item("Save", 66);
+    }
+    return page(shadow ? "vbibMappedShadow" : "ipcBatchSize", rows);
+  }
+  const char* selectConfiguration(const Controls& controls, bool shadow, uint32_t value) {
+    (shadow ? m_selectedShadow : m_selectedBatch) = value;
+    return page(shadow ? "vbibMappedShadow" : "ipcBatchSize", configurationRows(controls, shadow)
+      + info("Selected: " + settingValue(shadow, value) + "; Configuration unchanged")
+      + item("Save", shadow ? 72 : 66));
+  }
+  const char* saveConfiguration(const Controls& controls, bool shadow) {
+    const auto value = shadow ? m_selectedShadow : m_selectedBatch;
+    if ((shadow && value > 1) || (!shadow && value != 1 && value != 2 && value != 4
+      && value != 8 && value != 16 && value != 32)) { return failed("Select a value before saving"); }
+    general::Response response;
+    const auto hr = query(controls.settings, shadow ? general::Operation::SetVbibMappedShadow
+      : general::Operation::SetIpcBatchSize, value, response);
+    if (FAILED(hr) || !(response.flags & general::ConfigMenuSupported)) { return failed("Settings request failed: " + error(FAILED(hr) ? hr : E_NOINTERFACE)); }
+    if (!response.configWriteSucceeded) { return failed("Failed to persist configuration: " + error(response.configResult)); }
+    m_status = "Config saved successfully; restart L4D2 and Host to apply";
+    return page(shadow ? "vbibMappedShadow" : "ipcBatchSize", configurationRows(controls, shadow) + info(m_status));
+  }
 public:
   unsigned int GetInterfaceVersion() override { return 2; }
   const char* GetName() override { return "L4D2 Bridge Controls"; }
-  const char* GetVersion() override { return "common-settings-2"; }
+  const char* GetVersion() override { return "common-settings-3"; }
   const char* RequestHudMenu(bool requestTitle) override {
     if (requestTitle) { return "L4D2 Bridge"; }
-    auto rows = item("Status", 1) + item("GC", 2) + item("Memory Policy", 3) + item("ReShade Presenter", 4) + item("Host", 5);
+    auto rows = item("Status", 1) + item("GC", 2) + item("Memory Policy", 3) + item("ReShade Presenter", 4) + item("Host", 5)
+      + item("ipcBatchSize", 6) + item("vbibMappedShadow", 7) + item("Language", 8);
     if (!m_status.empty()) { rows += info("Last action result: " + m_status); }
     return page("L4D2 Bridge", rows);
   }
@@ -234,6 +378,19 @@ public:
     // SDK non-null callback results open children; navigation belongs to L4N.
     if (!action) { return nullptr; }
     const auto controls = findControls();
+    if (action == 6 || action == 7) { return configurationMenu(controls, action == 7); }
+    if (action == 8) { return page("Language", item("English", 80) + item(u8"中文", 81)); }
+    if (action == 80 || action == 81) {
+      m_chinese = action == 81;
+      return page("Language", info("Language applies immediately; reopen menus to refresh"));
+    }
+    if (action >= 60 && action <= 65) {
+      const uint32_t values[] = { 1, 2, 4, 8, 16, 32 };
+      return selectConfiguration(controls, false, values[action - 60]);
+    }
+    if (action == 66) { return saveConfiguration(controls, false); }
+    if (action == 70 || action == 71) { return selectConfiguration(controls, true, action == 70 ? 1u : 0u); }
+    if (action == 72) { return saveConfiguration(controls, true); }
     if (action == 1) { return status(controls); }
     if (action == 2) { return page("GC", item("Learned", 20) + item("Aggressive", 21) + item("Force", 22)); }
     if (action == 3) {

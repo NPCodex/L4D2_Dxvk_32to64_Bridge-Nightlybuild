@@ -140,12 +140,16 @@ jobs:
         if: ${{ inputs.validation_only }}
         shell: powershell
         run: ./scripts/test_volume_texture.ps1 -Benchmark
+      - name: Verify prepared source has not drifted during native validation
+        shell: powershell
+        run: python scripts/record_build_validation.py
       - name: Save native validation results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: validation-${{ matrix.release_tag }}
           path: |
+            .deps/build-validation.json
             .deps/queue-test/*.json
             .deps/queue-test/*.csv
             .deps/queue-test/*.exe
@@ -161,6 +165,10 @@ jobs:
             .deps/hot-command-packets/*.exe
             work/ipc-full-native/**
             work/vbib-mapped-native/**
+            .deps/client-parameter-contract/**
+            .deps/host-upload-contract-*/**
+            .deps/retention-journal-test/**
+            .deps/optimization45-ipc-test/**
           include-hidden-files: true
           if-no-files-found: warn
       - name: Build and verify the native ThinFlex repair tool
@@ -185,7 +193,7 @@ jobs:
           COMMITS_AFTER_TAG: ${{ matrix.distance }}
           THINFLEX_TEST: ${{ inputs.thinflex_test }}
         run: |
-          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Upstream d063395 candidate compared with formal v1.2.3 in three paired fixed replays: flashlight ON median average FPS +1.97%, 1% low -6.78%; OFF average +0.51%, 1% low -7.43%. User explicitly accepted integration and publication after reviewing this tradeoff. Both variants passed four map changes, two Reset operations and clean exits. This final integrated rebuilt package has not been game-tested; no stable low-FPS or long-term stability benefit is claimed. See docs/RELEASE-NOTES.md'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
+          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Native validation and exact source receipt are attached to this Actions run. Game measurements and limitations for this version are recorded in its Release and docs/OPTIMIZATION-45.md; component benchmarks alone are not evidence of FPS or long-term stability.'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
           if ($env:THINFLEX_TEST -eq 'true') { $metadata.release_channel = 'thinflex-test' }
           $original = Get-Content config/original-project.json -Raw | ConvertFrom-Json
           $metadata.original_project = $original.repository

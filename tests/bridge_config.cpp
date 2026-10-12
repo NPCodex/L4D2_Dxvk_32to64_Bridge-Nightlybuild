@@ -30,7 +30,7 @@ int wmain(int argc, wchar_t** argv) {
   const bool server = argc == 2 && std::wstring(argv[1]) == L"--server";
   const auto configPath = (server ? directory : directory / L".l4d2bridge") / L"bridge.conf";
   std::filesystem::create_directories(configPath.parent_path());
-  const std::string original = std::string("\xef\xbb\xbf") + u8"forceX64Server = True\r\nclient.testX86Server = True\r\nclient.pageBlockRetentionPolicy = keep\r\n# \u4e2d\u6587\r\ncustom.key = \"\u4fdd\u7559\"\r\n";
+  const std::string original = std::string("\xef\xbb\xbf") + u8"forceX64Server = True\r\nclient.testX86Server = True\r\nclient.pageBlockRetentionPolicy = keep\r\nclient.ipcBatchSize = 32\r\nclient.vbibMappedShadow = False\r\nclient.vbibMappedShadowMinKB = 512\r\nclient.vbibShadowCacheMB = 64\r\n# \u4e2d\u6587\r\ncustom.key = \"\u4fdd\u7559\"\r\n";
   { std::ofstream output(configPath,std::ios::binary); output << original; assert(output.good()); }
   wchar_t temporary[MAX_PATH] {}; assert(GetTempPathW(MAX_PATH, temporary));
   assert(SetCurrentDirectoryW(temporary));
@@ -39,6 +39,7 @@ int wmain(int argc, wchar_t** argv) {
   assert(Config::userConfigPath() == configPath);
   assert(Config::getOption<bool>("forceX64Server",false) && Config::getOption<bool>("client.testX86Server",false));
   assert(Config::getOption<std::string>("custom.key", "") == u8"\u4fdd\u7559");
+  assert(Config::getOption<uint32_t>("client.ipcBatchSize",8) == 32 && !Config::getOption<bool>("client.vbibMappedShadow",true));
   if (server) {
     assert(Config::updatePersistentOptions({{"forceX64Server","False"}}) == E_UNEXPECTED);
     std::string actual; assert(bridge_util::config_document::read(configPath,actual) == S_OK && actual == original);
@@ -50,6 +51,13 @@ int wmain(int argc, wchar_t** argv) {
   assert(!Config::optionFrom(snapshot,"client.testX86Server",true) && Config::optionFrom(snapshot,"forceX64Server",false));
   assert(Config::optionFrom(snapshot,"client.pageBlockRetentionPolicy",std::string()) == "drop");
   assert(Config::optionFrom(snapshot,"custom.key",std::string()) == u8"\u4fdd\u7559");
+  assert(Config::updatePersistentOptions({{"client.ipcBatchSize","8"},{"client.vbibMappedShadow","True"}}) == S_OK);
+  assert(Config::readPersistentOptions(snapshot) == S_OK);
+  assert(Config::optionFrom(snapshot,"client.ipcBatchSize",uint32_t { 1 }) == 8);
+  assert(Config::optionFrom(snapshot,"client.vbibMappedShadow",false));
+  assert(Config::optionFrom(snapshot,"client.vbibMappedShadowMinKB",uint32_t { 0 }) == 512);
+  assert(Config::optionFrom(snapshot,"client.vbibShadowCacheMB",uint32_t { 0 }) == 64);
+  assert(Config::getOption<uint32_t>("client.ipcBatchSize",8) == 32 && !Config::getOption<bool>("client.vbibMappedShadow",true));
   // Persisted targets must never change the startup options used to launch the current Host or attach input.
   assert(Config::getOption<bool>("client.testX86Server",false) && Config::getOption<std::string>("client.pageBlockRetentionPolicy","") == "keep");
   assert(!std::filesystem::exists(configPath.wstring()+L".tmp"));

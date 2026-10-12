@@ -100,7 +100,7 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本版整合完整 IPC v2，默认 C8；静态 VB/IB 按需映射默认关闭。上游候选相对 v1.2.3 的三组实机对照：开灯平均 FPS +1.97%、1% low -6.78%；关灯平均 FPS +0.51%、1% low -7.43%。本次正式整合重建包未重复游戏测试，未证明长期稳定性；详情见仓库 docs/UPSTREAM-1.3.0-INTEGRATION.md。\n"
+        "本版加固上传、参数和并发回复边界，减少上传池扫描与学习数据库解析开销，并增加 IPC/静态映射设置及中英文菜单。默认 C8，静态映射默认关闭；修改这两项设置后须重启游戏。组件优化不代表保证提升游戏 FPS；本轮完整处理台账见仓库 docs/OPTIMIZATION-45.md，具体实机结果和适用范围见对应 Release。\n"
         "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"

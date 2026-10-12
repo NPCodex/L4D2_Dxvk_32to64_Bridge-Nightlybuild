@@ -1,8 +1,8 @@
 # L4D2 原项目完整同步
 
-当前完整功能基准为 [`d063395146bfcad8688efe52904541d342f237f0`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/tree/d063395146bfcad8688efe52904541d342f237f0)，对应上游 **v1.3.0-pre.1**；Nightly 版本为 **v1.3.0**。维护者于 2026-10-12 查看三组实测中 1% low 下降的取舍后，明确批准采用，并要求在发布说明中提供 v1.1.10 回退链接。范围、保留修复、测试结果及最终整合包未复测的边界见 [本次集成说明](UPSTREAM-1.3.0-INTEGRATION.md)。
+当前完整功能基准为 [`d063395146bfcad8688efe52904541d342f237f0`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/tree/d063395146bfcad8688efe52904541d342f237f0)，对应上游 **v1.3.0-pre.1**；该次采用的 Nightly 版本为 **v1.3.0**。维护者于 2026-10-12 查看三组实测中 1% low 下降的取舍后，明确批准采用，并要求在发布说明中提供 v1.1.10 回退链接。范围、保留修复、测试结果及最终整合包未复测的边界见 [本次集成说明](UPSTREAM-1.3.0-INTEGRATION.md)。
 
-已检查的 upstream/main 基准仍为 `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`；d063395 是本次单独授权采用的预发布分支提交，不表示上游 main 前进。随后 a10df351 菜单提交未纳入。Git 合并保留历史；普通后续更新仍按既定性能、稳定性及兼容性要求筛选。
+已检查的 upstream/main 基准仍为 `de74cd7d5dd546bfd4f03ab451d0565f1fff0107`；d063395 是本次单独授权采用的预发布分支提交，不表示上游 main 前进。v1.4.0 按维护者全部 45 项处理授权，选择性导入 a10df351 的 IPC/映射设置与语言菜单及其测试；没有导入其他发布流程，也没有推进完整上游基准。当前改动和关闭项见 [45 项台账](OPTIMIZATION-45.md)。Git 合并保留历史；普通后续更新仍按既定性能、稳定性及兼容性要求筛选。
 
 ## 历史：上游 1.2.2 集成
 
@@ -10,7 +10,7 @@
 
 用户于 2026-10-10 明确授权完整合并上游，包括上游新增功能；2026-10-11 在查看本机测试取舍后再次明确批准同步上游 1.2.2。“不自行增加功能”不再作为筛除上游能力的理由。Git 合并保留两侧提交历史；以完整上游 Bridge 源码为基础融合 Nightly 修复，后续在此基准上增量同步。
 
-## 本次功能范围
+## 历史：v1.2.2 功能范围
 
 2026-10-11 完整同步双向数据环完整预留、消费进度原子发布与等待重查、失败批次中止、Header 有界提交、请求/回复所有权清理、optimized Lock 指针保留、已知包完整规划及环尾 padding 消费。IPC 协议为 3，Client 与两个 Host 必须配套。保留原有 FULL_SHADOW、画质、后端和配置选择；不恢复已撤回的 Nightly 绑定引用优化。上游正常路径/实机性能报告原文保留，但不能作为本分支性能提升证明。
 
@@ -25,7 +25,7 @@
 - 只发布一个完整 ZIP 及 SHA256，包含配套 Client、两种 Host/GPLALL、固定 ThinFlex `studiorender.dll`、Starfelll 的 L4N 2.51.0、用户提供的 `dxvk.conf`/`config.vdf` 及直接安装的 `bin/neko/plugins/L4D2BridgePlugin.dll`；不附 `config_template.vdf`，不恢复 update 包或独立插件/ThinFlex 工具包。L4N 来源与归属见 [整合说明](L4N-BUNDLE.md)。玩家 ZIP 保留运行组件、实际配置、L4N 配套 VDF 模板与 QC/VMT 范例、安装说明与合并归属文本；文档、JSON、SDK、诊断脚本及离线 Mod 制作工具留在仓库。加载设置插件本身不改配置或执行 GC，需玩家主动操作；不需要菜单时可退出游戏后移走该 DLL。
 - 保留精确源码/暂存区校验、构建指纹、发布草稿重试及附件不可覆盖保护；增加三程序共同 build ID、PE 架构和 x86 Host LARGEADDRESSAWARE 验证。
 
-## 本次验证与采用决定
+## 历史：v1.2.2 验证与采用决定
 
 生产补丁 SHA-256 为 `22a7bd685a2e6ed701215e3a5cadad079d1d70053bd9bfc589e3919869324367`，分别对 NVIDIA 原始基准 `9aa74f8dfad2188efbd0f717c64d9f8fa909787e`、`5fd30eae2d397f369bdf5660f3ddd0bc0bd1fa58` 和构建源 `3a75b814600bdf7ef7b0d3a0bae55b9a8c81f34b` 通过应用校验，所得 Bridge 源码树一致。
 

@@ -1,5 +1,7 @@
 # VA allocator + 完整 IPC v2 主传输实验
 
+> 历史设计/实验记录：以下数值、Draft 状态与默认值描述原始基准。当前完整 IPC v2 默认 C8，静态映射默认关闭；当前采用及关闭决定以 [45 项台账](OPTIMIZATION-45.md) 为准。未实现的备选架构不因本页保留而成为后续待办。
+
 分支：`codex/ipc-v2-full-integration`。基于 PR7 的生产实验分支 `codex/ipc-c32-development`（中间档位源码 `d59493c`），保留已验证的 VB/IB VA allocator。构建、原生测试和对照由 `.github/workflows/ipc-full-development.yml` 执行；游戏验收仍待完成。准确源码提交、构建 ID 和三端 SHA-256 以测试包 `BUILD-INFO.json` 为准。本分支不修改正式 VERSION、main、Tag 或 Release。
 
 ## 移植范围
