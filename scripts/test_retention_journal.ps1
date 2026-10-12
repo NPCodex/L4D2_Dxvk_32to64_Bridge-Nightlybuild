@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: MIT
 param([ValidateSet('', 'x86', 'x64')][string]$Platform = '', [string]$Source)
 $ErrorActionPreference = 'Stop'
+$root = Split-Path $PSScriptRoot -Parent
+if (!$Source) { $Source = Join-Path $root '.deps/dxvk-remix' }
 if (!$Platform) {
   foreach ($arch in @('x86','x64')) {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Platform $arch -Source $Source
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Platform $arch -Source "$Source"
     if ($LASTEXITCODE -ne 0) { throw "Journal $arch regression failed" }
   }
   exit 0
 }
-$root = Split-Path $PSScriptRoot -Parent
-if (!$Source) { $Source = Join-Path $root '.deps/dxvk-remix' }
 $Source = [IO.Path]::GetFullPath($Source)
 $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
 $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
