@@ -55,7 +55,7 @@ for filename in ('LICENSE','THIRD_PARTY.md'):
 (out/'licenses').mkdir()
 for filename in ('LICENSE-MIT','ThirdPartyLicenses.txt'):
     shutil.copy2(source/filename,out/'licenses'/filename)
-zip_path=out.parent/(f'l4d2-bridge-patch-v{receipt["release_version"]}.zip' if receipt.get('release_version') else f'l4d2-bridge-{variant}-dev-{build.split("+")[1]}.zip')
+zip_path=out.parent/(f'l4d2-bridge-patch-v{receipt["release_version"]}{receipt.get("package_suffix", "")}.zip' if receipt.get('release_version') else f'l4d2-bridge-{variant}-dev-{build.split("+")[1]}.zip')
 with zipfile.ZipFile(zip_path,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
     for path in sorted(out.rglob('*')):
         if path.is_file():archive.write(path,path.relative_to(out))

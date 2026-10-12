@@ -26,6 +26,9 @@ def prepare(source):
     subprocess.run(['git', 'apply', str(patch)], cwd=source, check=True)
     helper = ROOT / 'experiments/vbib-mapped/buffer_mapped_shadow.h'
     shutil.copy2(helper, source / 'bridge/src/client/buffer_mapped_shadow.h')
+    menu_patch = ROOT / 'patches/l4n-config-menu.patch'
+    subprocess.run(['git', 'apply', '--check', str(menu_patch)], cwd=source, check=True)
+    subprocess.run(['git', 'apply', str(menu_patch)], cwd=source, check=True)
     receipt['ipc_foundation_build'] = receipt['build_id']
     version = (ROOT / 'VERSION').read_text().strip()
     if not re.fullmatch(r'\d+\.\d+\.\d+-pre\.\d+', version):
@@ -38,7 +41,7 @@ def prepare(source):
         raise RuntimeError('Expected opt-in mapped shadow source default')
     digest = hashlib.sha256(receipt['protocol_source_sha256'].encode())
     digest.update(b'prerelease-version\0' + version.encode() + b'\0')
-    for path in (patch, helper):
+    for path in (patch, helper, menu_patch):
         digest.update(path.relative_to(ROOT).as_posix().encode() + b'\0'
                       + path.read_bytes().replace(b'\r\n', b'\n') + b'\0')
     sha = digest.hexdigest()
@@ -49,6 +52,7 @@ def prepare(source):
                    variant='vbib-map', install_document='docs/RELEASE-V1.3.0-pre.1.md',
                    mapped_static_vbib=True, mapped_minimum_bytes=262144,
                    mapped_idle_cache_bytes=33554432, mapped_default_enabled=False)
+    receipt['package_suffix'] = '-l4n-menu-' + sha[:16]
     receipt_path.write_text(json.dumps(receipt, indent=2) + '\n')
     print(receipt['build_id'])
 

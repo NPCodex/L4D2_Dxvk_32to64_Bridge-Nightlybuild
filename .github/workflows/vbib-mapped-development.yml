@@ -1,9 +1,14 @@
 name: LDB v1.3.0 prerelease validation and build
 on:
   workflow_dispatch:
+    inputs:
+      publish_prerelease:
+        description: 'Publish a new prerelease only after explicit authorization; existing releases are never overwritten'
+        type: boolean
+        default: false
   push:
     branches: ['codex/vbib-mapped-shadow']
-    paths: ['VERSION', 'config/bridge.conf', 'patches/vbib-mapped.patch', 'experiments/vbib-mapped/**', 'scripts/*vbib_mapped*', 'tests/vbib*', 'patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'scripts/verify_v130_prerelease.py', 'docs/RELEASE-V1.3.0-pre.1.md', 'tests/**', 'scripts/test_*.ps1', 'scripts/generate_*_test.py', '.github/workflows/vbib-mapped-development.yml', '.github/workflows/ipc-full-development.yml']
+    paths: ['VERSION', 'config/bridge.conf', 'patches/vbib-mapped.patch', 'patches/l4n-config-menu.patch', 'plugins/l4n/**', 'scripts/*l4n*', 'experiments/vbib-mapped/**', 'scripts/*vbib_mapped*', 'tests/vbib*', 'patches/ipc-full.patch', 'experiments/ipc-full/**', 'experiments/ipc-v2/**', 'scripts/*ipc_full*', 'scripts/verify_v130_prerelease.py', 'docs/RELEASE-V1.3.0-pre.1.md', 'tests/**', 'scripts/test_*.ps1', 'scripts/generate_*_test.py', '.github/workflows/vbib-mapped-development.yml', '.github/workflows/ipc-full-development.yml']
 permissions:
   contents: read
 jobs:
@@ -41,6 +46,9 @@ jobs:
           python scripts/prepare_ipc_c32.py
           python scripts/prepare_ipc_full.py
           python scripts/prepare_vbib_mapped.py
+      - name: Build updated L4N configuration menus
+        shell: powershell
+        run: ./scripts/build_l4n_plugin.ps1
       - name: Native storage contracts and repeated old/off/zero/cache costs
         shell: powershell
         run: ./scripts/test_vbib_mapped.ps1
@@ -54,7 +62,7 @@ jobs:
             & powershell.exe -NoProfile -File "./scripts/test_$test.ps1"
             if ($LASTEXITCODE -ne 0) { throw "$test failed" }
           }
-          & powershell.exe -NoProfile -File ./scripts/test_pageblock_gc.ps1 -SkipPluginTests
+          & powershell.exe -NoProfile -File ./scripts/test_pageblock_gc.ps1
           if ($LASTEXITCODE -ne 0) { throw 'PageBlock GC failed' }
           & powershell.exe -NoProfile -File ./scripts/test_host_diagnostics.ps1 -Platform x86
           if ($LASTEXITCODE -ne 0) { throw 'Host32 diagnostics failed' }
@@ -64,7 +72,11 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Build and verify matched experimental Release bridge
         shell: powershell
-        run: ./scripts/build_ipc_full.ps1
+        run: |
+          ./scripts/build_ipc_full.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Matched Bridge compilation failed' }
+          python scripts/package_l4n_config_menu.py
+          if ($LASTEXITCODE -ne 0) { throw 'L4N configuration menu packaging failed' }
       - name: Preserve binaries, tests, raw data and checksums
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,7 +84,9 @@ jobs:
           name: vbib-mapped-development-${{ github.run_id }}
           path: |
             dist/*.zip
-            dist/SHA256SUMS.txt
+            dist/*SHA256SUMS.txt
+            .deps/l4n-plugin/L4D2BridgePlugin.dll
+            .deps/pageblock-gc-test/
             work/ipc-full-build.json
             work/ipc-full-native/
             work/vbib-mapped-native/
@@ -83,7 +97,7 @@ jobs:
           retention-days: 30
   publish-prerelease:
     needs: windows
-    if: github.ref == 'refs/heads/codex/vbib-mapped-shadow'
+    if: github.ref == 'refs/heads/codex/vbib-mapped-shadow' && github.event_name == 'workflow_dispatch' && inputs.publish_prerelease
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

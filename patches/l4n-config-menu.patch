@@ -1,0 +1,120 @@
+diff --git a/bridge/src/client/bridge_control.cpp b/bridge/src/client/bridge_control.cpp
+index f1566a2..5eee372 100644
+--- a/bridge/src/client/bridge_control.cpp
++++ b/bridge/src/client/bridge_control.cpp
+@@ -11,6 +11,8 @@ namespace l4d2_settings {
+ static Controls& controls() { static auto* instance = new Controls(); return *instance; }
+ template<typename Getter> static Target target(Getter get) {
+   Target result;
++  result.ipcBatchSize = get("client.ipcBatchSize", uint32_t { 8 });
++  result.vbibMappedShadow = get("client.vbibMappedShadow", false) ? 1u : 0u;
+   result.host = get("client.testX86Server", false) ? Host::X86 : Host::X64;
+   const auto name = get("client.pageBlockRetentionPolicy", std::string("keep"));
+   result.policy = name == "learned-aggressive" ? l4d2_control::Policy::LearnedAggressive
+diff --git a/bridge/src/client/bridge_settings.h b/bridge/src/client/bridge_settings.h
+index ba680c7..0b28230 100644
+--- a/bridge/src/client/bridge_settings.h
++++ b/bridge/src/client/bridge_settings.h
+@@ -19,6 +19,7 @@ constexpr const char* kPresenterKeys[] = {
+   "client.DirectInput.forward.mousePolicy", "client.DirectInput.forward.keyboardPolicy"
+ };
+ struct Target {
++  uint32_t ipcBatchSize = 8, vbibMappedShadow = 0;
+   Host host = Host::X64;
+   l4d2_control::Policy policy = l4d2_control::Policy::Keep;
+   std::array<uint32_t, 9> presenter { 0, 1, 36, 0, 0, 0, 0, 2, 2 };
+@@ -27,6 +28,9 @@ inline const char* policyName(l4d2_control::Policy policy) {
+   const char* names[] = { "keep", "learned-aggressive", "drop" };
+   return names[static_cast<uint32_t>(policy)];
+ }
++inline bool validBatch(uint32_t value) {
++  return value == 1 || value == 2 || value == 4 || value == 8 || value == 16 || value == 32;
++}
+ class Controls {
+   std::mutex m_mutex;
+   bool m_initialized = false;
+@@ -47,13 +51,16 @@ public:
+   HRESULT invoke(const Request* request, Response* response) {
+     if (!request || !response || !compatible(*request, *response)) { return E_INVALIDARG; }
+     const auto operation = request->operation;
+-    if (operation > Operation::GetReShadePresenter
++    if (operation > Operation::SetVbibMappedShadow
+       || (operation == Operation::SetMemoryPolicy && request->value > 2)
+       || (operation == Operation::SetHostMode && request->value != static_cast<uint32_t>(Host::X86) && request->value != static_cast<uint32_t>(Host::X64))
+-      || (operation == Operation::SetReShadePresenter && request->value > 1)) { return E_INVALIDARG; }
++      || (operation == Operation::SetReShadePresenter && request->value > 1)
++      || (operation == Operation::SetIpcBatchSize && !validBatch(request->value))
++      || (operation == Operation::SetVbibMappedShadow && request->value > 1)) { return E_INVALIDARG; }
+     std::lock_guard<std::mutex> guard(m_mutex);
+     if (!m_initialized) { return E_PENDING; }
+     Response result;
++    result.flags |= ConfigMenuSupported;
+     Updates updates;
+     if (operation == Operation::SetMemoryPolicy) {
+       updates.emplace_back("client.pageBlockRetentionPolicy", policyName(static_cast<l4d2_control::Policy>(request->value)));
+@@ -75,6 +82,10 @@ public:
+       } else {
+         updates = { { kPresenterKeys[0], "False" }, { kPresenterKeys[5], "False" }, { kPresenterKeys[6], "False" } };
+       }
++    } else if (operation == Operation::SetIpcBatchSize) {
++      updates.emplace_back("client.ipcBatchSize", std::to_string(request->value));
++    } else if (operation == Operation::SetVbibMappedShadow) {
++      updates.emplace_back("client.vbibMappedShadow", request->value ? "True" : "False");
+     }
+     if (!updates.empty()) {
+       result.flags |= ConfigWriteAttempted;
+@@ -86,9 +97,12 @@ public:
+     result.presenterAtStartup = m_startup.presenter[0];
+     l4d2_control::Request stats;
+     l4d2_control::Response runtimeResponse;
+-    HRESULT statsResult = E_FAIL;
+-    try { statsResult = runtime(stats, runtimeResponse); }
+-    catch (...) {}
++    HRESULT statsResult = S_OK;
++    if (operation < Operation::GetIpcBatchSize) {
++      statsResult = E_FAIL;
++      try { statsResult = runtime(stats, runtimeResponse); }
++      catch (...) {}
++    }
+     if (SUCCEEDED(statsResult)) { result.runtimePolicy = runtimeResponse.policy; }
+     else if (!(result.flags & RuntimeAttempted)) { result.runtimeResult = statsResult; }
+     Target configured;
+@@ -98,8 +112,12 @@ public:
+       result.configuredHost = configured.host;
+       result.configuredPolicy = configured.policy;
+       result.presenterConfigured = configured.presenter[0];
++      result.reserved[0] = configured.ipcBatchSize;
++      result.reserved[1] = configured.vbibMappedShadow;
+       result.restartRequired = (m_runtimeHost != Host::Unknown && configured.host != m_runtimeHost)
+-        || configured.presenter != m_startup.presenter;
++        || configured.presenter != m_startup.presenter
++        || configured.ipcBatchSize != m_startup.ipcBatchSize
++        || configured.vbibMappedShadow != m_startup.vbibMappedShadow;
+     }
+     *response = result;
+     return FAILED(result.runtimeResult) || FAILED(result.configResult) || FAILED(result.queryResult) || FAILED(statsResult) ? S_FALSE : S_OK;
+diff --git a/bridge/src/util/bridge_control.h b/bridge/src/util/bridge_control.h
+index 202ed0b..5f3d726 100644
+--- a/bridge/src/util/bridge_control.h
++++ b/bridge/src/util/bridge_control.h
+@@ -7,9 +7,10 @@
+ namespace l4d2_bridge_control {
+ constexpr uint32_t kVersion = 1;
+ constexpr const char* kExport = "L4D2BridgeControl";
+-enum class Operation : uint32_t { GetStatus, SetMemoryPolicy, GetMemoryPolicy, SetHostMode, GetHostMode, SetReShadePresenter, GetReShadePresenter };
++enum class Operation : uint32_t { GetStatus, SetMemoryPolicy, GetMemoryPolicy, SetHostMode, GetHostMode, SetReShadePresenter, GetReShadePresenter,
++  GetIpcBatchSize, SetIpcBatchSize, GetVbibMappedShadow, SetVbibMappedShadow };
+ enum class Host : uint32_t { Unknown, X86, X64 };
+-enum Flags : uint32_t { RuntimeAttempted = 1, ConfigWriteAttempted = 2 };
++enum Flags : uint32_t { RuntimeAttempted = 1, ConfigWriteAttempted = 2, ConfigMenuSupported = 4 };
+ #pragma pack(push, 8)
+ struct Request {
+   uint32_t bytes = 16, version = kVersion;
+@@ -22,6 +23,7 @@ struct Response {
+   l4d2_control::Policy runtimePolicy = l4d2_control::Policy::Keep, configuredPolicy = l4d2_control::Policy::Keep;
+   uint32_t presenterConfigured = 0, presenterAtStartup = 0, restartRequired = 0, flags = 0;
+   HRESULT runtimeResult = S_OK, configResult = S_OK, queryResult = S_OK;
++  // With ConfigMenuSupported: reserved[0] is configured batch, reserved[1] is mapped shadow.
+   uint32_t configWriteSucceeded = 0, reserved[2] {};
+ };
+ #pragma pack(pop)
