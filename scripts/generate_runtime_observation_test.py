@@ -41,6 +41,7 @@ def generate(source, output):
         start, end = method(di, marker)
         generated.append(di[start:end] + '\n')
     for marker in ['static l4d2_host_memory::Recorder& hostMemoryRecorder()', 'static void sampleHostMemory(',
+                   'static void updateSteamWindows(',
                    'static HWND configureOverlayPresenter(', 'static HWND overlayPresentWindow(']:
         start, end = method(host, marker)
         generated.append(host[start:end] + '\n')

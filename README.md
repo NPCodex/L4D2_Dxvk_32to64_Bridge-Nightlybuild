@@ -4,15 +4,13 @@
 
 [更新说明](docs/RELEASE-V1.3.0-NOTES.md) · [安装、默认值与回退](docs/RELEASE-V1.3.0.md)
 
-以下旧版说明保留历史上下文；本版安装以 v1.3.0 说明为准。
-
 # L4D2 DXVK Bridge
 
-[中文](#chinese) | [English](#english) · [v1.2.2 可选更新说明](docs/RELEASE-V1.2.2.md) · [简明版本记录](LDBREADME.md) · [详细更新历史](CHANGELOG.md)
+[中文](#chinese) | [English](#english) · [v1.3.0 更新说明](docs/RELEASE-V1.3.0-NOTES.md) · [简明版本记录](LDBREADME.md) · [详细更新历史](CHANGELOG.md)
 
-**当前正式版：v1.2.2（Optional / 可选更新）。** 重点修复地图加载和切换期间的 IPC 正确性问题，已验证本次枪店图与训练图来回切换。如果 v1.2.1 没有进图/切图闪退，可以继续使用原版。部分场景可能损失约 **10% FPS**，个别场景更高；加载时间也可能增加，详见发布说明。
+**当前正式版：v1.3.0。** 整合完整 IPC v2、VB/IB VA 分配器、可选 Shadow 按需映射、Steam Overlay 修复与新版 L4N 菜单。默认 C8、Shadow 映射关闭，详细诊断关闭。
 
-[下载 v1.2.2](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/releases/tag/v1.2.2)：已有安装优先选三件套补丁，保留配置、DXVK、ReShade 和 retention DB。完整包用于首次安装；L4N 插件未修改，继续使用原插件。历史附件保持原样。
+[下载 v1.3.0](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/releases/tag/v1.3.0)：已有安装优先选三件套补丁，保留配置、DXVK、ReShade 和 retention DB。完整包用于首次安装；新版 L4N 插件单独下载。历史附件保持原样。
 
 开发者参考：[当前技术架构](docs/ARCHITECTURE.md) · [API 与 ABI](docs/API.md) · [配置说明](docs/CONFIGURATION.md)。
 
@@ -24,7 +22,14 @@
 
 桥负责 D3D9 接口、桥接资源、跨进程传输与呈现，以及这些实现引起的问题。它不修改 Source 游戏逻辑、私有对象或任务队列。项目没有显卡厂商白名单，不要求 NVIDIA/RTX，实际支持取决于所选 DXVK、GPU 和驱动。
 
-## v1.2.2 的变化
+## v1.3.0 的变化
+
+- 完整 IPC v2，双向传输和独立上传/长 Lock lease；默认 C8，六档保留。
+- VB/IB VA 分配器归还空分配区域；符合条件的静态 VB/IB 可开启 Shadow 按需映射，默认关闭。
+- 修复 Steam Overlay 开关、鼠标、Join Server 与创意工坊入口，提供输入、窗口及限定可用性适配。
+- L4N 新增 IPC/Shadow 配置保存菜单与中英文切换，默认英文；配置保存后完整重启生效。
+
+## 历史 v1.2.2 的变化
 
 - 修复数据队列覆盖、遗漏唤醒与等待失败后继续提交的风险，保留必要的边界、所有权和失败检查。
 - 修复完整上传包在特定回绕位置被拒绝的问题，通用布局处理不针对 64 MiB 特判。
@@ -48,9 +53,9 @@
 
 | Release 文件 | 选择方式 |
 |---|---|
-| `l4d2-bridge-v1.2.2.zip` | 首次安装；包含 Client、x86/x64 Host、官方 DXVK 2.6.1 和默认配置 |
-| `l4d2-bridge-patch-v1.2.2.zip` | 已有安装；只更新三个桥二进制，保留运行配置、后端、ReShade 和 retention DB |
-| `l4d2-bridge-l4n-v1.2.0.zip` | 可选 L4N SDK v2 菜单插件，独立于本体和补丁 |
+| `l4d2-bridge-v1.3.0.zip` | 首次安装；包含 Client、x86/x64 Host、官方 DXVK 2.6.1 和默认配置 |
+| `l4d2-bridge-patch-v1.3.0.zip` | 已有安装；只更新三个桥二进制，保留运行配置、后端、ReShade 和 retention DB |
+| `l4d2-bridge-l4n-v1.3.0.zip` | 可选 L4N SDK v2 菜单插件，独立于本体和补丁 |
 | `SHA256SUMS.txt` | 下载文件校验；包内另有二进制 SHA256 和构建记录 |
 
 1. 完全退出游戏与所有 Host，备份 `bin/dxvk_d3d9.dll` 和 `bin/.l4d2bridge/`。已有用户优先使用补丁包，完整包会覆盖同路径默认配置与 DXVK。
@@ -71,9 +76,9 @@ Left 4 Dead 2/
    ├─ dxvk_d3d9.dll                  # x86 Bridge Client
    └─ .l4d2bridge/
       ├─ bridge.conf
-      ├─ L4D2Bridge32.exe            # x86 Host，随包默认
+      ├─ L4D2Bridge32.exe            # 可选 x86 Host
       ├─ d3d9vk_x86.dll              # x86 DXVK
-      ├─ L4D2Bridge64.exe            # x64 Host
+      ├─ L4D2Bridge64.exe            # x64 Host，随包默认
       └─ d3d9vk_x64.dll              # x64 DXVK
 ```
 
@@ -87,7 +92,7 @@ Left 4 Dead 2/
 server.useVanillaDxvk = True
 exposeRemixApi = False
 forceX64Server = True
-client.testX86Server = True
+client.testX86Server = False
 client.forceWindowed = True
 useSharedHeap = False
 useShadowMemoryForDynamicBuffers = True
@@ -99,7 +104,10 @@ client.testReadbackRecovery = False
 client.pageBlockDiagnostics = False
 client.dataDiagnostics = False
 server.dataDiagnostics = False
-server.presenterWindow = False
+server.presenterWindow = True
+server.presenterInput = True
+client.ipcBatchSize = 8
+client.vbibMappedShadow = False
 logApiCalls = False
 logServerCommands = False
 logLevel = Info
@@ -109,8 +117,8 @@ learned-aggressive 按能力、完整上传和 KEEP 历史选择性释放 Client
 
 | Host | 设置 | 使用条件 |
 |---|---|---|
-| x86，默认 | `client.testX86Server=True` | 优先节省 Host 内存，负载能容纳于 32 位地址空间 |
-| x64，可选 | `client.testX86Server=False` | 需要更多渲染端地址空间余量，RAM 充足 |
+| x86，可选 | `client.testX86Server=True` | 优先节省 Host 内存，负载能容纳于 32 位地址空间 |
+| x64，默认 | `client.testX86Server=False` | 需要更多渲染端地址空间余量，RAM 充足 |
 
 **两种模式都保持 `forceX64Server=True`**，它选择运行目录，实际位数由 `client.testX86Server` 决定。完全退出再切换；省略该键仍有旧的 x64 兼容回退，因此保留显式选择。x86 Host 是 LAA，在 64 位 Windows 上最多约 4 GiB 用户地址空间，连续空闲块可能更小。
 
@@ -124,12 +132,15 @@ L4D2 Bridge
 ├─ GC
 ├─ Memory Policy
 ├─ ReShade Presenter
-└─ Host
+├─ Host
+├─ IPC / Shadow
+└─ Language
 ```
 
 - Status 仅显示实时查询的 PageBlock 信息；GC 子菜单提供 Learned、Aggressive、Force。
 - Memory Policy 的 keep、lg、drop 立即改变当前会话，点击 `save to configure` 才保存。`drop` 继续标记实验性质。
 - Host 只显示配置值；选择 x86/x64 后点击 Save，完整退出并重启才应用。
+- IPC / Shadow 显示 conf 当前值，Save 后完整重启生效；Language 提供 English/中文会话切换。
 - ReShade Presenter 保存配套呈现/输入配置，下次启动应用；不负责安装或卸载 ReShade。
 
 菜单不包含测试/诊断开关。旧 Bridge 下按兼容接口保留原有 Stats/GC/运行策略，新增保存功能不可用。详见 [L4N 控制说明](docs/L4N-BRIDGE-CONTROLS.md)。
@@ -146,7 +157,7 @@ L4D2 Bridge
 
 ## 已知问题与使用限制
 
-- **Steam Overlay / Shift+Tab 的完整叠加层和输入支持仍未解决。** 相关实验默认关闭。
+- Steam 修复需要配套配置，旧 conf 不会自动启用新键；见 [Steam 修复配置](config/STEAM-OVERLAY-FIX.conf)。工坊可用性代理使用 x64 Host，对未知 GameUI/Renderer 版本保持原行为。
 - IPC 超时或会话断开不能自动重连，需要完整退出并重新启动。
 - x86 Host 受地址空间限制；x64 DXVK 可能使用更多 Host 内存。
 - PageBlock 回收是选择性的，恢复可能等待后端；`drop` 反复恢复可能带来停顿，日常推荐 learned-aggressive。
@@ -160,25 +171,25 @@ L4D2 Bridge
 
 Client 日志为 `bridge32.log`，x86/x64 Host 分别为 `bridge-host32.log` / `bridge64.log`。报告桥相关问题时保留同次运行的两端日志，并说明 GPU、后端、Host 位数和操作步骤。可选详细诊断见 [配置文档](docs/CONFIGURATION.md)，日常无需启用。
 
-源码使用固定上游 Bridge 提交和 [项目补丁](patches/l4d2-bridge.patch)。Windows 构建采用 MSVC 14.29、Python 3.11、Meson 1.3.2、Ninja 1.11.1.1；[CI](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/workflows/build.yml) 构建 x86 Client、x86/x64 Host，执行原生协议、布局、回收和诊断回归。L4N 未修改时复用已验证构件。构建方法见 [TESTING](docs/TESTING.md)。
+源码使用固定上游 Bridge 提交和 [项目补丁](patches/l4d2-bridge.patch)。Windows 构建采用 MSVC 14.29、Python 3.11、Meson 1.3.2、Ninja 1.11.1.1；[CI](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/workflows/build.yml) 构建 x86 Client、x86/x64 Host，执行原生协议、布局、回收和诊断回归。本版 L4N 插件单独编译和分发。构建方法见 [TESTING](docs/TESTING.md)。
 
 <a id="english"></a>
 
 ## English
 
-**v1.2.2 is an optional stable update focused on map-loading stability. Keep v1.2.1 if map entry/switching works for you. Some scenes may lose roughly 10% FPS, with larger losses possible, and loading may take longer.** This Windows bridge forwards D3D9 calls from the 32-bit L4D2 process to an independent x86/x64 Host running DXVK. The game engine and Client remain 32-bit. There is no NVIDIA/RTX requirement; use a compatible Vulkan GPU, driver and DXVK backend.
+**v1.3.0 is the current stable release.** It integrates full IPC v2, the VB/IB VA allocator, optional mapped Shadow, Steam Overlay fixes, and new L4N configuration/language menus. This Windows bridge forwards D3D9 calls from the 32-bit L4D2 process to an independent x86/x64 Host running DXVK. The game engine and Client remain 32-bit. There is no NVIDIA/RTX requirement; use a compatible Vulkan GPU, driver and DXVK backend.
 
-The release fixes confirmed fullscreen/windowed Reset failures and Volume byte-pitch corruption behind the reported network colour tint. It expands selective PageBlock management/recovery, adds optional L4N common settings and Client-owned configuration persistence, and retains the ReShade reactivation fix. Detailed diagnostics default off. See [release notes](docs/RELEASE-V1.2.0.md) and the [version ledger](LDBREADME.md).
+The release fixes confirmed fullscreen/windowed Reset failures and Volume byte-pitch corruption behind the reported network colour tint. It expands selective PageBlock management/recovery, adds optional L4N common settings and Client-owned configuration persistence, and retains the ReShade reactivation fix. Detailed diagnostics default off. See [release notes](docs/RELEASE-V1.3.0-NOTES.md) and the [version ledger](LDBREADME.md).
 
 Download the full ZIP for a fresh installation, the matched three-binary patch for an existing installation, and the **separate optional L4N ZIP** only if needed. Exit L4D2 and all Hosts before updating. Merge `bin` into the game directory and preserve custom backends, configuration, ReShade and retention DB files. The full package includes official DXVK 2.6.1 and default configuration; the patch preserves installed runtime configuration and backends. Start through Steam with `-vulkan -insecure -windowed`; do not launch Host EXEs directly.
 
-Fresh installations default to **x86 Host + learned-aggressive**. Keep `forceX64Server=True` for both modes; set `client.testX86Server=True/False` for x86/x64 and fully restart. Both modes use the same x86 Client. The x86 Host has at most approximately 4 GiB user address space with LAA; x64 provides more renderer headroom with workload-dependent memory costs.
+Fresh installations default to **x64 Host + learned-aggressive**. Keep `forceX64Server=True` for both modes; set `client.testX86Server=True/False` for x86/x64 and fully restart. Both modes use the same x86 Client. The x86 Host has at most approximately 4 GiB user address space with LAA; x64 provides more renderer headroom with workload-dependent memory costs.
 
-Optional L4N SDK v2 controls install to `bin/neko/plugins/`. Menu order is Status, GC, Memory Policy, ReShade Presenter, Host. Policy selection changes runtime only until explicitly saved; Host selection also requires Save and a full restart. Presenter settings apply after a full restart and do not install ReShade. Bridge works without the plugin.
+Optional L4N SDK v2 controls install to `bin/neko/plugins/`. Menus include Status, GC, Memory Policy, ReShade Presenter, Host, IPC/Shadow configuration and English/Chinese language selection. Policy selection changes runtime only until explicitly saved; Host selection also requires Save and a full restart. Presenter settings apply after a full restart and do not install ReShade. Bridge works without the plugin.
 
 The validated ReShade combination remains **x64 Host + Vulkan ReShade 6.0.1**. Select the x64 Host EXE and Vulkan in its installer, use windowed mode and the presenter configuration described above. Replace only matching DXVK backend DLLs, never the Bridge Client.
 
-**Steam Overlay/Shift+Tab remains unsupported/unfixed.** IPC failures require a full restart; there is no automatic reconnection. Recovery is selective, experimental drop may cause repeated recovery stalls, and performance/compatibility depend on hardware, drivers, maps, MODs and overlays. Native CI and recorded gameplay checks have separate scopes.
+Steam Overlay fixes require matching configuration. The scoped Workshop proxy uses x64 Host and preserves original behavior for unknown GameUI/Renderer versions. IPC failures require a full restart; there is no automatic reconnection. Recovery is selective, experimental drop may cause repeated recovery stalls, and performance/compatibility depend on hardware, drivers, maps, MODs and overlays. Native CI and recorded gameplay checks have separate scopes.
 
 Client/Host logs are `bridge32.log` and `bridge-host32.log`/`bridge64.log`. Keep paired logs from the same run when reporting a Bridge issue. See [configuration](docs/CONFIGURATION.md), [architecture](docs/ARCHITECTURE.md) and [API/ABI reference](docs/API.md) for technical details.
 
