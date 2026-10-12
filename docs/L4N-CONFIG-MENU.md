@@ -2,7 +2,7 @@
 
 插件版本 `common-settings-3`，需要 L4N SDK v2 HUD 与本次更新的 Bridge 配置接口。安装前退出游戏和所有 Host，备份 `bin/neko/plugins/L4D2BridgePlugin.dll`，再替换为本包的同名文件。
 
-IPC/Shadow 菜单需要本次配套 Bridge，不能只安装插件后继续使用旧的 v1.3.0-pre.1 Release 二进制。请成套更新测试包中的 x86 Client、x86 Host、x64 Host，三端标识以 `BUILD-INFO.json` 为准；保留 DXVK、ReShade、配置、retention DB。原 v1.3.0-pre.1 Release 与 Tag 不覆盖，本次更新通过 CI 测试构件交付。
+IPC/Shadow 菜单需要 v1.3.0 配套 Bridge，不能只安装插件后继续使用旧的 v1.3.0-pre.1 Release 二进制。请成套更新升级包中的 x86 Client、x86 Host、x64 Host，三端标识以 `BUILD-INFO.json` 为准；保留 DXVK、ReShade、配置、retention DB。原 v1.3.0-pre.1 Release 与 Tag 保持原样。
 
 主菜单新增 `ipcBatchSize`、`vbibMappedShadow`、`Language`。
 

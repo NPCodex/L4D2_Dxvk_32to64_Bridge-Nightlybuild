@@ -4,7 +4,9 @@
 
 # 当前 Bridge 技术架构
 
-本页描述 main 的 v1.2.0 正式版，Bridge 构建标识为 `l4d2-1.2.0+b5a6e83f77e1549f`。版本整合 Volume pitch、Reset、通用控制与默认关闭的 [数据/资源追踪](DATA-TRACKING.md) 和缓冲契约诊断。正式发布未另改渲染、回收或控制 ABI 语义。旧 `v1.2.0-dev.1` 附件不含全部后续更新，原实机记录保留各自 build 标识。
+本页描述 main 的 **v1.3.0**。正式入口使用单一累计补丁，整合完整 IPC v2、VB/IB VA allocator、默认关闭的按需 Shadow 映射、Steam 窗口/输入/限定工坊可用性适配和 L4N 配置菜单。Volume、Reset、PageBlock 与控制的原有语义保留。准确构建标识以配套包 BUILD-INFO.json 为准；历史记录保留各自版本。
+
+本版传输细节见 [完整 IPC v2](IPC-FULL-DEVELOPMENT.md)，section 存储见 [VB/IB 按需映射](VBIB-MAPPED-DEVELOPMENT.md)，控制扩展见 [L4N 新菜单](L4N-CONFIG-MENU.md)。这些开发报告中的旧构建/分支说明保留原证据；正式安装与默认值以 [v1.3.0](RELEASE-V1.3.0.md) 为准。
 
 接口字段、调用示例和错误处理见 [API 参考](API.md)；安装与用户配置见 [README](../README.md) 和 [配置参考](CONFIGURATION.md)。本页的“服务器 / Server / Host”均指本机渲染进程，和 L4D2 联机服务器没有关系。
 
@@ -92,7 +94,7 @@ Client、x86 Host、x64 Host 使用同一补丁生成相同的 Bridge build ID�
 
 游戏通过 `-vulkan` 加载其 `bin/dxvk_d3d9.dll` 路径，该 DLL 实际提供 D3D9 Client 接口。桥不需要对游戏私有渲染代码做补丁。完整包参考后端为官方 DXVK 2.6.1；用户替换同位数后端不等于修改 Client DLL。
 
-当前随包默认是 x86 Host。两个模式均设置 `forceX64Server=True`，它在现有实现中还决定使用标准 runtime 目录；实际 EXE 选择由 `client.testX86Server` 决定：True 为 x86，False 为 x64。缺少该键时源码 fallback 是 x64，不能把随包值和源码缺省值混为一谈。
+当前随包默认是 x64 Host。两个模式均设置 `forceX64Server=True`，它在现有实现中还决定使用标准 runtime 目录；实际 EXE 选择由 `client.testX86Server` 决定：True 为 x86，False 为 x64。缺少该键时源码 fallback 是 x64，不能把随包值和源码缺省值混为一谈。
 
 游戏地址空间始终属于 x86。x64 Host 只扩大渲染进程的地址空间；x86 LAA Host 在 64 位 Windows 上仍受约 4 GiB 用户 VA 上限及碎片影响。Host 与 Client 都有独立工作集和 committed memory，不能相加后称为“游戏引擎内存”。
 
@@ -153,19 +155,17 @@ Client 缓存部分 descriptor、绑定与设备状态，减少跨进程 getter�
 
 ### 6.1 通道
 
-使用 Windows 命名共享内存和同步对象，不使用 TCP、JSON 或跨机器 RPC。`ModuleBridge` 与 `DeviceBridge` 各有 Client→Host、Host→Client 两个方向，共四个 `IpcChannel`。每个 channel 包含命令 ring、数据 ring 和共享位置/回绕控制信息。
+使用 Windows 命名共享内存和同步对象，不使用 TCP、JSON 或跨机器 RPC。Module 与 Device 各有两个方向，共四条完整 v2 消息流。每条消息流使用 64 × 4 KiB 块；上传和長 Lock 数据通过独立有界上传 lease 管理，不再使用 PR6 Header/Data Ring。协议 ABI 为 0x00020004，同批三端还校验源码标识。
 
-当前配置 Device Client→Host 通道为 96 MiB；Host→Client 缺省 32 MiB；Module 每方向缺省 4 MiB。通道内部还要容纳命令与控制结构，因此配置容量不能全部视为单个 payload 空间。该值不是 VRAM 或 PageBlock cache 上限。
-
-窗口/输入另有低频 `MessageChannel`，用 Windows GetMessage/PostThreadMessage 和注册消息连接 Client 窗口侧与 Host 工作线程；该 channel 不传纹理 payload。恢复临时 section/event 又是另一条响应路径，见第 12 节。控制 API 本身是游戏进程内普通函数调用，不经过 HUD 专属跨进程通道。
+上传池沿用原通道内存预算，4 KiB 页、1024 个 lease slot，65,600 字节元数据；容量扣除元数据后按页向下取整。容量与连续可用跨度、未释放 slot 均是限制，不能将总空闲量当成最大单包。窗口/输入使用独立低频 MessageChannel；Steam 工坊可用性使用 session GUID 作用域的 16 字节状态 mapping；恢复临时 section/event 仍独立存在。
 
 ### 6.2 发出一条命令
 
-Client 创建 RAII command 对象，锁定发送 channel 并开始数据批次；首先写入一个 UINT32 UID，随后按双方约定顺序写入参数。标量、数组和带长度的 blob 写入 DWORD 数据队列，blob 做相应对齐。析构结束批次后才发布命令头并解锁，确保消费者先看到完整 payload。
+Client RAII command 保留既有发送序列化锁、UINT32 UID、资源 ID 与参数顺序。参数放入 v2 记录；上传可用外部 lease 描述符，避免大 payload 再经消息块搬运。已知布局先验证完整长度；失败使会话停止并唤醒等待者，不允许继续发布不完整包。所有旧命令与 D3D9 dispatch 接口保持原意。
 
-协议头共 12 字节：`command:uint16`、`flags:uint16`、`dataOffset:uint32`、`pHandle:uint32`。`dataOffset` 是本次 payload 写完后的数据队列位置，用于校验/同步读写位置；不是资源内容偏移或进程指针。`pHandle` 通常是资源 ID，但 handshake、response 等命令有各自含义。
+Host 消费完整记录后按 UID 和命令调用真实 D3D9；反向回复使用 v2 流，Client 仍按请求 UID 匹配。消息信用在正文使用结束后归还，外部 lease 在消息引用和资源 pin 都释放后复用。优化动态 Lock 的借出区域在后续 Unlock 的有序发布前保持有效，Host 不提前读取未完成写入。
 
-Host 消费命令头、先读取 UID，再进入相应 switch 分支读取参数、查找对象并调用真实 D3D9。需要响应时以 `Bridge_Response` 返回，头中的 `pHandle` 标记原请求 UID。Client 按命令及 UID 等待响应，不能随意丢弃不匹配的响应来“疏通队列”。
+提交档位支持 C1/C2/C4/C8/C16/C32，默认 C8；白名单 setter/draw 可合批，其余同步等待、外部 lease、Present、Reset、创建/销毁及 Lock/Unlock 强制提交。保留 API 入口的 1 ms 延迟检查，没有后台硬性定时提交线程；游戏不调用 API 时不保证 1 ms 内发布。
 
 ### 6.3 跨位数与同步边界
 
@@ -179,7 +179,7 @@ Host 消费命令头、先读取 UID，再进入相应 switch 分支读取参数
 
 普通 Host ACK 不意味着整张 GPU 空闲；Force GC 也不等于强制结束游戏仍持有的 Lock。
 
-命令队列已有事件唤醒与 timeout/retry。当前连续过图无响应调查指出的 overwrite 等待竞态及 `syncDataQueue` 超时后继续执行风险尚未按 [计划](MAP-TRANSITION-QUEUE-FIX-PLAN.md) 修复；不能把现有 timeout 描述成所有失败都能安全终止和重连。
+当前完整 v2 使用消息块信用和上传 lease 的有序发布/确认、停止与 peer 退出观察，并保留边界和失败关闭规则；早期 PR6 覆盖/遗漏唤醒/失败继续提交问题属于已替代路径。故障仍需完整重启，不提供自动重连。
 
 ## 7. 资源上传与 Volume 字节布局
 

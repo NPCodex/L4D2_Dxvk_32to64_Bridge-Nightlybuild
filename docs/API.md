@@ -4,7 +4,7 @@
 
 # Bridge API 参考
 
-本页对应 main 的 v1.2.0 正式版，Bridge 构建标识为 `l4d2-1.2.0+b5a6e83f77e1549f`。它整合最新缓冲契约/数据诊断和此前通用设置 API、Volume 修复；旧 `v1.2.0-dev.1` 附件不包含全部这些更新。架构、生命周期与覆盖边界见 [ARCHITECTURE.md](ARCHITECTURE.md)，最终 HUD 行为见 [L4N 菜单说明](L4N-BRIDGE-CONTROLS.md)。
+下文记录 v1.2.0 基础控制 ABI，v1.3.0 保留这些尺寸、版本与旧调用兼容；利用原 reserved 字段增加的 IPC/Shadow 配置扩展见 [L4N 配置接口](L4N-CONFIG-MENU.md)。内部 IPC 已更新为完整 v2，不作为外部控制 ABI 使用。架构与生命周期见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
 本文是**现有接口文档**，不增加 API、不改变 ABI。接口分层如下：
 
