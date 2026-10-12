@@ -136,3 +136,39 @@ installed identities/hashes without writes. -GameRoot selects another library.
 passed immutable download, actual copy/verification of all three new files,
 backup and config/backend preservation in a disposable fixture. No supplied
 Steam/GameUI DLL or bridge binary was executed in this installer test.
+
+## Hardware guard confirmed; Host getter evidence next
+
+The subsequent matched 06abe08be638118c session attaches both interface observers.
+All seven recorded VisitWorkshop guard calls at GameUI return0x199EA return
+False. Summary web_calls=0; three actual Overlay on/off pairs and six successful
+Host input-hook installs show the working input path persists. This confirms the
+observed button path is stopped before web activation. It does not establish how
+Steam classifies availability in the separate Host renderer.
+
+The next observation adds Host sampling using the same client.steamWebDiagnostics
+flag. In the supplied SHA59057f... renderer, the exported IsOverlayEnabled at
+RVA0xB08A0 consists precisely of MOVZX EAX, byte[RIP+disp32], RET and reads
+RVA0x17D2C2. After whole-file SHA and exact loaded instruction validation, the
+Host diagnostic reproduces this one-byte read with ReadProcessMemory. It NEVER
+invokes this undocumented export, creates an SDK context, modifies state or
+changes the menu result. It samples at most once per second and logs the first
+raw value and changes. Unknown files, getter layouts or targets outside the
+module are explicitly rejected. A raw getter value is not a GPU fence, an
+activation result, or proof of browser navigation.
+
+Look for L4D2_STEAM_WEB_HOST event=verified and event=availability with
+renderer_getter_value. Compare it with the Client's actual menu guard calls:
+Host value1 versus Client false supports testing a narrowly scoped availability
+proxy next; Host false means a blanket True replacement lacks that evidence.
+The supplied renderer is x64 only; x86 Host reports this observer unsupported
+and otherwise retains existing behavior. No x86 renderer offsets are guessed.
+
+Native x86/x64 tests verify actual leaf decoding, ASLR changes, signed RIP
+displacement, bounds, unknown-layout refusal and disabled behavior. Uploaded
+proprietary DLLs are still never executed in CI or redistributed. Existing
+web/guard/LastError/hash tests are retained after sharing the hash helper.
+
+Use this next matched ZIP with the SAME working configuration/diagnostic flag,
+click View Workshop, then open/close Shift+Tab and click View Workshop again.
+Supply paired logs. The diagnostic does not fix the confirmed false guard.

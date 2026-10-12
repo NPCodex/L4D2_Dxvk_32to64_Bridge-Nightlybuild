@@ -3086,15 +3086,16 @@ diff --git a/bridge/src/client/window.h b/bridge/src/client/window.h
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp
-@@ -33,6 +33,7 @@
+@@ -33,6 +33,8 @@
  #include "readback_backend.h"
  #include "ati_texture_layout.h"
  #include "overlay_presenter.h"
 +#include "steam_window_diagnostics.h"
++#include "steam_availability_diagnostics.h"
  #include "swapchain_references.h"
  #include "color_backend_diagnostics.h"
  
-@@ -125,8 +126,14 @@
+@@ -125,8 +127,14 @@
  static l4d2_reset::SwapchainReferences gSwapchainReferences;
  static l4d2_reset::SurfaceQueries gSurfaceQueries;
  static HWND gOverlayGameWindow = nullptr;
@@ -3109,7 +3110,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    if (!Config::getOption<bool>("server.presenterWindow", false)
      || !Config::getOption<bool>("server.useVanillaDxvk", false)
      || GlobalOptions::getExposeRemixApi() || !pp.Windowed) { return focus; }
-@@ -150,11 +157,23 @@
+@@ -150,11 +158,25 @@
      DWORD pid = 0; GetWindowThreadProcessId(child, &pid);
      Logger::info(format_string("L4D2_OVERLAY event=presenter parent=%p child=%p owner_pid=%lu host_pid=%lu", parent, child, pid, GetCurrentProcessId()));
    }
@@ -3118,6 +3119,8 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    return focus ? child : focus;
  }
  static HWND overlayPresentWindow(HWND original) {
++  static const bool webDiagnostics = Config::getOption<bool>("client.steamWebDiagnostics", false);
++  if(webDiagnostics) { l4d2_steam_availability::Diagnostics::poll(true, [](const char* line) { Logger::info(line); }); }
    static const bool diagnosticsEnabled = Config::getOption<bool>("server.steamInputDiagnostics", false);
 +  static const bool windowDiagnostics = Config::getOption<bool>("server.steamWindowDiagnostics", false);
 +  static const bool windowAdapter = Config::getOption<bool>("server.steamWindowAdapter", false);
@@ -3133,7 +3136,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    if (!gOverlayPresenter) {
      if (!diagnosticsEnabled) { return original; }
      static l4d2_overlay::InputDiagnostics diagnostics(
-@@ -258,7 +277,7 @@
+@@ -258,7 +280,7 @@
  }
  
  // Global state
@@ -3142,7 +3145,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
  HANDLE hWait;
  
  namespace {
-@@ -384,7 +403,7 @@
+@@ -384,7 +406,7 @@
      if (ati) {
        const bool copied = l4d2_ati::copyRows(blobPacketPtr, totalSize, atiTransfer.rowBytes,
          lockedRect.pBits, atiLayout.bytes, atiLayout.storagePitch, atiTransfer);
@@ -3151,7 +3154,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
      } else {
        FOR_EACH_RECT_ROW(lockedRect, height, format, {
          memcpy(blobPacketPtr, ptr, rowSize);
-@@ -396,6 +415,7 @@
+@@ -396,6 +418,7 @@
    }
  
    hresult = l4d2_api_wait::backend([&]() { return pReturnSurfaceData->UnlockRect(); });
@@ -3159,7 +3162,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    return hresult;
  }
  
-@@ -525,8 +545,8 @@
+@@ -525,8 +548,8 @@
  
          IDirect3DDevice9* pD3DDevice = nullptr;
          Logger::info(format_string(
@@ -3170,7 +3173,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
            Adapter, PresentationParameters.Windowed, PresentationParameters.BackBufferWidth,
            PresentationParameters.BackBufferHeight, BehaviorFlags));
          const auto hresult = gpD3D->CreateDevice(IN Adapter, IN DeviceType, IN overlayFocus, IN BehaviorFlags, IN OUT & PresentationParameters, OUT & pD3DDevice);
-@@ -1779,10 +1799,11 @@
+@@ -1779,10 +1802,11 @@
        case IDirect3DDevice9Ex_SetStreamSource:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -3186,7 +3189,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          IDirect3DVertexBuffer9* pStreamData = nullptr;
          if (pHandle != NULL) {
            pStreamData = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
-@@ -1809,7 +1830,8 @@
+@@ -1809,7 +1833,8 @@
        case IDirect3DDevice9Ex_SetIndices:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -3196,7 +3199,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          IDirect3DIndexBuffer9* pIndexData = NULL;
          if (pHandle != NULL) {
            pIndexData = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
-@@ -2685,6 +2707,7 @@
+@@ -2685,6 +2710,7 @@
        case IDirect3DVertexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -3204,7 +3207,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
          safeDestroy(pVertexBuffer, pHandle);
          gpD3DResources.erase(pHandle);
-@@ -2713,6 +2736,7 @@
+@@ -2713,6 +2739,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -3212,7 +3215,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2720,9 +2744,18 @@
+@@ -2720,9 +2747,18 @@
        case IDirect3DVertexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -3234,7 +3237,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
  
          // Now lock the buffer so we can copy the data into it
-@@ -2734,19 +2767,14 @@
+@@ -2734,19 +2770,14 @@
          assert(S_OK == hresult);
  
          // Copy the data over
@@ -3257,7 +3260,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          // NV-DXVK start: Optional data/resource tracing.
          l4d2_data::backend(static_cast<uint16_t>(rpcHeader.command), true, 0, hresult);
          // NV-DXVK end
-@@ -2780,6 +2808,7 @@
+@@ -2780,6 +2811,7 @@
        case IDirect3DIndexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -3265,7 +3268,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
          safeDestroy(pIndexBuffer, pHandle);
          gpD3DResources.erase(pHandle);
-@@ -2808,6 +2837,7 @@
+@@ -2808,6 +2840,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -3273,7 +3276,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2815,9 +2845,18 @@
+@@ -2815,9 +2848,18 @@
        case IDirect3DIndexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -3295,7 +3298,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
  
          // Now lock the buffer so we can copy the data into it
-@@ -2829,19 +2868,14 @@
+@@ -2829,19 +2871,14 @@
          assert(S_OK == hresult);
  
          // Copy the data over
@@ -3318,7 +3321,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          // NV-DXVK start: Optional data/resource tracing.
          l4d2_data::backend(static_cast<uint16_t>(rpcHeader.command), true, 0, hresult);
          // NV-DXVK end
-@@ -3250,7 +3284,7 @@
+@@ -3250,7 +3287,7 @@
          PULL_U(i);
          const int length = DeviceBridge::getReaderChannel().data->peek();
          void* text = nullptr;
@@ -3327,7 +3330,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          std::stringstream ss;
          ss << "DebugMessage. i = " << i << ", length = " << length << " = " << size << ", text = '" << (char*) text << "'";
          Logger::info(ss.str().c_str());
-@@ -3641,11 +3675,11 @@
+@@ -3641,11 +3678,11 @@
        case RemixApi_SetConfigVariable:
        {
          void* var_ptr = nullptr;
@@ -3341,7 +3344,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
          std::string value_str((const char*) value_ptr, value_size);
  
          remixapi::g_remix.SetConfigVariable(var_str.c_str(), value_str.c_str());
-@@ -3676,22 +3710,6 @@
+@@ -3676,22 +3713,6 @@
        Logger::warn("Data not in sync");
      }
      assert(CHECK_DATA_OFFSET);
@@ -3364,7 +3367,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
      const auto count = DeviceBridge::end_read_data();
  
      if (l4d2_observation::memoryMonitoring) { ++gProcessedHostCommands; }
-@@ -4036,6 +4054,7 @@
+@@ -4036,6 +4057,7 @@
    Logger::info("==================\nL4D2 D3D9 Bridge Server\n==================");
    Logger::info("All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.");
    Logger::info(std::string("Project build: ") + std::string(BRIDGE_VERSION));
@@ -3372,7 +3375,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    Logger::info("Based on NVIDIA RTX Remix Bridge (MIT); original code belongs to its original authors.");
  #ifdef _WIN64
    Logger::info("Running in x64 mode!");
-@@ -4089,6 +4108,7 @@
+@@ -4089,6 +4111,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -3380,7 +3383,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -4126,6 +4146,7 @@
+@@ -4126,6 +4149,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -3388,7 +3391,7 @@ diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -4147,6 +4168,7 @@
+@@ -4147,6 +4171,7 @@
  
    // Command processing finished, clean up and exit
    Logger::info("Command processing loop finished, cleaning up and exiting...");
@@ -3407,6 +3410,75 @@ diff --git a/bridge/src/server/module_processing.cpp b/bridge/src/server/module_
    }
    // Check if we exited the command processing loop unexpectedly while the bridge is still enabled
    if (!destroyReceived && gbBridgeRunning) {
+diff --git a/bridge/src/server/steam_availability_diagnostics.h b/bridge/src/server/steam_availability_diagnostics.h
+new file mode 100644
+--- /dev/null
++++ b/bridge/src/server/steam_availability_diagnostics.h
+@@ -0,0 +1,64 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <cstdint>
++#include <cstring>
++#include <cstdio>
++#include "diagnostic_file_hash.h"
++namespace l4d2_steam_availability {
++// Reproduce the exact supplied renderer getter's single byte read. Never call
++// its undocumented export, initialize another SDK context, or change a byte.
++inline uintptr_t decode(uintptr_t base,size_t size,uintptr_t getter,const BYTE code[8]) {
++  if(size<8 || getter<base || getter-base>size-8 || code[0]!=0x0f || code[1]!=0xb6 || code[2]!=0x05 || code[7]!=0xc3)return 0;
++  int32_t displacement=0;std::memcpy(&displacement,code+3,4);
++  const int64_t offset=static_cast<int64_t>(getter-base)+7+displacement;
++  return offset>=0 && static_cast<uint64_t>(offset)<size?base+static_cast<uintptr_t>(offset):0;
++}
++class Diagnostics {
++  inline static ULONGLONG next=0;
++  inline static HMODULE module=nullptr;
++  inline static bool attempted=false,waiting=false;
++  inline static uintptr_t field=0;
++  inline static unsigned previous=~0u;
++  static void emit(void(*logger)(const char*),const char* line) noexcept {try{logger(line);}catch(...) {}}
++  template<typename T> static bool read(const void* address,T& value) {
++    SIZE_T bytes=0;return address && ReadProcessMemory(GetCurrentProcess(),address,&value,sizeof(value),&bytes) && bytes==sizeof(value);
++  }
++public:
++  static void poll(bool requested,void(*logger)(const char*)) {
++    if(!requested || !logger)return;
++    l4d2_file_hash::ErrorGuard error;
++    const ULONGLONG now=GetTickCount64();if(now<next)return;next=now+1000;
++    if(sizeof(void*)!=8){if(!attempted){attempted=true;emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=only-supplied-x64-renderer-validated");}return;}
++    if(!attempted){
++      if(!GetModuleHandleExW(0,L"GameOverlayRenderer64.dll",&module)){
++        if(!waiting){waiting=true;emit(logger,"L4D2_STEAM_WEB_HOST event=waiting reason=renderer-not-loaded");}return;
++      }
++      attempted=true;wchar_t path[MAX_PATH]{};
++      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFile(path,"59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee")){
++        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-file-hash-mismatch");return;
++      }
++      const auto getter=GetProcAddress(module,"IsOverlayEnabled");
++      IMAGE_DOS_HEADER dos{};IMAGE_NT_HEADERS64 nt{};BYTE code[8]{};
++      if(!read(module,dos) || dos.e_magic!=IMAGE_DOS_SIGNATURE || dos.e_lfanew<0
++        || !read(reinterpret_cast<BYTE*>(module)+dos.e_lfanew,nt) || nt.Signature!=IMAGE_NT_SIGNATURE
++        || nt.OptionalHeader.Magic!=IMAGE_NT_OPTIONAL_HDR64_MAGIC || !getter
++        || !read(reinterpret_cast<const void*>(getter),code)){
++        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-getter-unreadable");return;
++      }
++      field=decode(reinterpret_cast<uintptr_t>(module),nt.OptionalHeader.SizeOfImage,reinterpret_cast<uintptr_t>(getter),code);
++      if(!field){emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-getter-code-mismatch");return;}
++      char line[350]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB_HOST event=verified getter_rva=0x%zx field_rva=0x%zx host_pid=%lu method=validated-getter-byte-read calls=0 writes=0",
++        reinterpret_cast<uintptr_t>(getter)-reinterpret_cast<uintptr_t>(module),field-reinterpret_cast<uintptr_t>(module),GetCurrentProcessId());emit(logger,line);
++    }
++    if(!field)return;
++    BYTE value=0;
++    if(!read(reinterpret_cast<const void*>(field),value)){emit(logger,"L4D2_STEAM_WEB_HOST event=unavailable reason=renderer-byte-unreadable");return;}
++    if(previous==value)return;previous=value;
++    char line[240]{};std::snprintf(line,sizeof(line),"L4D2_STEAM_WEB_HOST event=availability renderer_getter_value=%u host_pid=%lu tick=%llu method=byte-read action=observe-only",
++      static_cast<unsigned>(value),GetCurrentProcessId(),now);emit(logger,line);
++  }
++};
++}
 diff --git a/bridge/src/server/steam_window_diagnostics.h b/bridge/src/server/steam_window_diagnostics.h
 new file mode 100644
 --- /dev/null
@@ -3818,6 +3890,46 @@ new file mode 100644
 +  }
 +}
 +}
+diff --git a/bridge/src/util/diagnostic_file_hash.h b/bridge/src/util/diagnostic_file_hash.h
+new file mode 100644
+--- /dev/null
++++ b/bridge/src/util/diagnostic_file_hash.h
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <bcrypt.h>
++#include <array>
++#include <cstring>
++namespace l4d2_file_hash {
++struct ErrorGuard { DWORD saved=GetLastError(); ~ErrorGuard(){SetLastError(saved);} };
++inline bool hashFile(const wchar_t* path,const char* expected) {
++    ErrorGuard error;
++    HMODULE crypto=LoadLibraryExW(L"bcrypt.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);if(!crypto)return false;
++    const auto open=reinterpret_cast<decltype(&BCryptOpenAlgorithmProvider)>(GetProcAddress(crypto,"BCryptOpenAlgorithmProvider"));
++    const auto create=reinterpret_cast<decltype(&BCryptCreateHash)>(GetProcAddress(crypto,"BCryptCreateHash"));
++    const auto add=reinterpret_cast<decltype(&BCryptHashData)>(GetProcAddress(crypto,"BCryptHashData"));
++    const auto finish=reinterpret_cast<decltype(&BCryptFinishHash)>(GetProcAddress(crypto,"BCryptFinishHash"));
++    const auto destroy=reinterpret_cast<decltype(&BCryptDestroyHash)>(GetProcAddress(crypto,"BCryptDestroyHash"));
++    const auto close=reinterpret_cast<decltype(&BCryptCloseAlgorithmProvider)>(GetProcAddress(crypto,"BCryptCloseAlgorithmProvider"));
++    BCRYPT_ALG_HANDLE algorithm=nullptr;BCRYPT_HASH_HANDLE hash=nullptr;HANDLE file=INVALID_HANDLE_VALUE;bool match=false;
++    if(open && create && add && finish && destroy && close){
++      file=CreateFileW(path,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
++      LARGE_INTEGER size{};
++      if(file!=INVALID_HANDLE_VALUE && GetFileSizeEx(file,&size) && size.QuadPart>=0 && size.QuadPart<=64*1024*1024
++        && open(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,0)>=0 && create(algorithm,&hash,nullptr,0,nullptr,0,0)>=0){
++        std::array<BYTE,65536> buffer{};DWORD count=0;bool ok=true;
++        for(;;){if(!ReadFile(file,buffer.data(),static_cast<DWORD>(buffer.size()),&count,nullptr)){ok=false;break;}if(!count)break;if(add(hash,buffer.data(),count,0)<0){ok=false;break;}}
++        BYTE digest[32]{};
++        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=std::strcmp(hex,expected)==0;}
++      }
++      if(hash)destroy(hash);if(algorithm)close(algorithm,0);if(file!=INVALID_HANDLE_VALUE)CloseHandle(file);
++    }
++    FreeLibrary(crypto);return match;
++  }
++}
 diff --git a/bridge/src/util/meson.build b/bridge/src/util/meson.build
 --- a/bridge/src/util/meson.build
 +++ b/bridge/src/util/meson.build
@@ -3864,13 +3976,13 @@ diff --git a/bridge/src/util/steam_web_diagnostics.h b/bridge/src/util/steam_web
 new file mode 100644
 --- /dev/null
 +++ b/bridge/src/util/steam_web_diagnostics.h
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,144 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
 +#pragma once
 +#include <windows.h>
-+#include <bcrypt.h>
++#include "diagnostic_file_hash.h"
 +#include <intrin.h>
 +#include <atomic>
 +#include <cstdio>
@@ -3974,30 +4086,7 @@ new file mode 100644
 +public:
 +  // SDK method slots are used only after the exact caller file is identified.
 +  // This reads its existing verified context; never calls Steam init/accessors.
-+  static bool hashFile(const wchar_t* path,const char* expected) {
-+    ErrorGuard error;
-+    HMODULE crypto=LoadLibraryExW(L"bcrypt.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);if(!crypto)return false;
-+    const auto open=reinterpret_cast<decltype(&BCryptOpenAlgorithmProvider)>(GetProcAddress(crypto,"BCryptOpenAlgorithmProvider"));
-+    const auto create=reinterpret_cast<decltype(&BCryptCreateHash)>(GetProcAddress(crypto,"BCryptCreateHash"));
-+    const auto add=reinterpret_cast<decltype(&BCryptHashData)>(GetProcAddress(crypto,"BCryptHashData"));
-+    const auto finish=reinterpret_cast<decltype(&BCryptFinishHash)>(GetProcAddress(crypto,"BCryptFinishHash"));
-+    const auto destroy=reinterpret_cast<decltype(&BCryptDestroyHash)>(GetProcAddress(crypto,"BCryptDestroyHash"));
-+    const auto close=reinterpret_cast<decltype(&BCryptCloseAlgorithmProvider)>(GetProcAddress(crypto,"BCryptCloseAlgorithmProvider"));
-+    BCRYPT_ALG_HANDLE algorithm=nullptr;BCRYPT_HASH_HANDLE hash=nullptr;HANDLE file=INVALID_HANDLE_VALUE;bool match=false;
-+    if(open && create && add && finish && destroy && close){
-+      file=CreateFileW(path,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
-+      LARGE_INTEGER size{};
-+      if(file!=INVALID_HANDLE_VALUE && GetFileSizeEx(file,&size) && size.QuadPart>=0 && size.QuadPart<=64*1024*1024
-+        && open(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,0)>=0 && create(algorithm,&hash,nullptr,0,nullptr,0,0)>=0){
-+        std::array<BYTE,65536> buffer{};DWORD count=0;bool ok=true;
-+        for(;;){if(!ReadFile(file,buffer.data(),static_cast<DWORD>(buffer.size()),&count,nullptr)){ok=false;break;}if(!count)break;if(add(hash,buffer.data(),count,0)<0){ok=false;break;}}
-+        BYTE digest[32]{};
-+        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=std::strcmp(hex,expected)==0;}
-+      }
-+      if(hash)destroy(hash);if(algorithm)close(algorithm,0);if(file!=INVALID_HANDLE_VALUE)CloseHandle(file);
-+    }
-+    FreeLibrary(crypto);return match;
-+  }
++  static bool hashFile(const wchar_t* path,const char* expected) {return l4d2_file_hash::hashFile(path,expected);}
 +  static void poll(bool requested,Log log) {
 +    if(!requested || slots[0] || slots[1])return;
 +    ErrorGuard error;logger=log;
