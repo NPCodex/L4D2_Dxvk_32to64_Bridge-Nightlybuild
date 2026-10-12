@@ -1,6 +1,6 @@
 # Steam window selection diagnostic (experimental)
 
-This build observes Steam's own window queries and hook-install requests. It
+With server.steamWindowAdapter=False, this diagnostic observes Steam's own window queries and hook-install requests. The separate optional adapter is documented in STEAM-WINDOW-ADAPTER.md. It
 **does not repair Steam input** and does not replace any HWND, PID, focus,
 capture, keyboard state, API argument or return value. ReShade is outside this
 experiment. Ordinary `config/bridge.conf` leaves it disabled.

@@ -2,7 +2,7 @@ name: IPC C32 experimental bridge
 on:
   workflow_dispatch:
   push:
-    branches: ['codex/ipc-c32-development', 'codex/steam-overlay-hook-chain', 'codex/steam-overlay-mouse-capture', 'codex/steam-overlay-poll-chain', 'codex/steam-window-diagnostics']
+    branches: ['codex/ipc-c32-development', 'codex/steam-overlay-hook-chain', 'codex/steam-overlay-mouse-capture', 'codex/steam-overlay-poll-chain', 'codex/steam-window-diagnostics', 'codex/steam-window-adapter']
     paths: ['.github/workflows/ipc-c32-development.yml', 'patches/ipc-c32.patch', 'experiments/ipc-c32/**', 'scripts/*ipc_c32*', 'scripts/test_*.ps1', 'scripts/assert_native_architecture.ps1', 'tests/ipc-v2/c32*', 'tests/input_hooks_test.cpp', 'tests/overlay_presenter.cpp', 'tests/steam_window*']
 permissions:
   contents: read

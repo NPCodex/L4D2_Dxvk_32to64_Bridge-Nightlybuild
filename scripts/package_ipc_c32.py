@@ -62,6 +62,10 @@ if (ROOT/'config/STEAM-WINDOW-DIAGNOSTICS.conf').exists():
     shutil.copy2(ROOT/'docs/STEAM-WINDOW-DIAGNOSTICS.md',out/'STEAM-WINDOW-DIAGNOSTICS.md')
     shutil.copy2(ROOT/'docs/STEAM-RENDERER-WINDOW-GATE.md',out/'STEAM-RENDERER-WINDOW-GATE.md')
     receipt['steam_experiment']='window-query-diagnostics'
+if (ROOT/'config/STEAM-WINDOW-ADAPTER.conf').exists():
+    shutil.copy2(ROOT/'config/STEAM-WINDOW-ADAPTER.conf',out/'config/STEAM-WINDOW-ADAPTER.conf')
+    shutil.copy2(ROOT/'docs/STEAM-WINDOW-ADAPTER.md',out/'STEAM-WINDOW-ADAPTER.md')
+    receipt['steam_experiment']='renderer-window-adapter'
 (out/'BUILD-INFO.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
 (out/'SHA256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
 shutil.copy2(ROOT/'docs/IPC-C32-DEVELOPMENT.md',out/'INSTALL-AND-TEST.md')

@@ -17,6 +17,9 @@ if ($CompileArchitecture) {
     if ($LASTEXITCODE -ne 0) { throw 'Window fixture compilation failed' }
     & cl.exe /nologo /std:c++17 /EHsc /W4 /WX "/I$source/bridge/src/server" "$repoRoot/tests/steam_window_diagnostics.cpp" user32.lib "/Fe:window-test-$CompileArchitecture.exe"
     if ($LASTEXITCODE -ne 0) { throw 'Window diagnostic compilation failed' }
+    & cl.exe /nologo /std:c++17 /EHsc /W4 /WX "/I$source/bridge/src/server" "$repoRoot/tests/steam_window_adapter.cpp" user32.lib "/Fe:adapter-test-$CompileArchitecture.exe"
+    if ($LASTEXITCODE -ne 0) { throw 'Window adapter compilation failed' }
+    Assert-NativeArchitecture -Path (Join-Path $testDir "adapter-test-$CompileArchitecture.exe") -Architecture $CompileArchitecture
     Assert-NativeArchitecture -Path (Join-Path $testDir "window-fixture-$CompileArchitecture.dll") -Architecture $CompileArchitecture
     Assert-NativeArchitecture -Path (Join-Path $testDir "window-test-$CompileArchitecture.exe") -Architecture $CompileArchitecture
   } finally { Pop-Location }
@@ -24,6 +27,11 @@ if ($CompileArchitecture) {
   foreach ($arch in @('x86', 'x64')) {
     & powershell.exe -NoProfile -File $PSCommandPath -CompileArchitecture $arch
     if ($LASTEXITCODE -ne 0) { throw "Window diagnostic compilation failed for $arch" }
+  }
+  foreach ($arch in @('x86', 'x64')) {
+    $other = if ($arch -eq 'x86') { 'x64' } else { 'x86' }
+    & (Join-Path $testDir "adapter-test-$arch.exe") (Join-Path $testDir "window-fixture-$arch.dll") (Join-Path $testDir "adapter-test-$other.exe")
+    if ($LASTEXITCODE -ne 0) { throw "Cross-architecture window adapter failed for $arch" }
     foreach ($mode in @('real', 'chain')) {
       & (Join-Path $testDir "window-test-$arch.exe") (Join-Path $testDir "window-fixture-$arch.dll") $mode
       if ($LASTEXITCODE -ne 0) { throw "Window diagnostic failed for $arch / $mode" }
