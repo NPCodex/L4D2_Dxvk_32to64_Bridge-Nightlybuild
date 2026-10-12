@@ -123,3 +123,33 @@ All existing IPC/native regressions must also pass before a ZIP is offered.
 
 No actual Steam/game acceptance yet; no input/FPS improvement is claimed. main
 and tested IPC development remain unchanged; candidate stays unmerged.
+
+## Verified installer for repeated old-build logs
+
+Two later paired uploads still report 15dd529becdee47f and mode=observe-only,
+even though the config includes steamWindowAdapter=True. They cannot evaluate
+the adapter. No attribution to a specific download/copy mistake is established.
+The immutable public ZIP was verified again by a Windows installation fixture.
+
+[Download installer](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/a0423edfa0bac8d6d807a6bb531c55599715026a/scripts/install_steam_window_adapter.ps1).
+It defaults to the game directory shown in the supplied logs, refuses running
+game/Hosts, downloads the exact immutable ZIP, verifies ZIP and all three binary
+hashes/build IDs before writes, backs up all existing target bridge binaries
+before replacement, and verifies installed files. Config/backend are untouched.
+It does not alter script execution policy itself or kill any processes. Temp
+files and backups are retained. If a copy fails, restore the printed backup.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install_steam_window_adapter.ps1
+# Read-only installed identities if troubleshooting:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install_steam_window_adapter.ps1 -CheckOnly
+```
+
+A different game path can be specified with -GameRoot. Confirm new startup
+logs show 294eafb0349ce3aa and mode=window-adapter before evaluating input.
+[Windows installer verification](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38199532076)
+passed actual immutable download/install, all three file hashes and embedded
+identities, existing file backups and unchanged config/backend in a disposable
+fixture. It did not start any Bridge/Steam/game binary. The bridge ZIP and
+compiled source remain unchanged. Real-game installation/input still needs
+user confirmation.
