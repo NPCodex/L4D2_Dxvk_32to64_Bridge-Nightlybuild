@@ -1,5 +1,16 @@
 # Steam Overlay input investigation after v1.1
 
+Current status: **PASSED — USER-REPORTED GAME VALIDATION** for the previously
+reported Steam issues, build `83ec0fca6f5fb2f1` on
+`codex/steam-web-request-diagnostics`. Accepted scenarios: Shift+Tab opening and
+closing, Overlay mouse interaction, Join Server UI, Add-ons View Workshop.
+User confirmation: “测试通关。”; explicit pass marking requested2026-10-12.
+[Acceptance record](steam-input-evidence/steam-hardware-acceptance.json).
+The investigation below is chronological; earlier pending/failed candidates
+remain historical evidence. No new post-fix telemetry, FPS result, x86 proxy
+validation or ReShade coexistence validation accompanies this user acceptance.
+
+
 Status: **INPUT VALIDATED in the reported 294eafb0349ce3aa session: Shift+Tab opens/closes, mouse interaction and Join Server UI work. Add-on View Workshop web opening remains under investigation. Broader map/Reset/performance and reduced-flag validation are not complete. Earlier sections below preserve historical failures.**
 
 The new hardware report changes the scope: normal Shift+Tab does nothing, but L4D2's Join Server / Steam Group action can open a visible overlay. The visible UI accepts no mouse input and Shift+Tab cannot close it. This establishes that activation and rendering can work in this installation. Do not replace them or add a second Steam API activation path as an input workaround.
@@ -404,4 +415,6 @@ contains counts/hash metadata only. The scoped83ec0fca6f5fb2f1 experiment preser
 validated input handling and actual game web requests; fresh Host state can
 permit only the known Workshop guard call sites. [Implementation, tested matched
 ZIP, opt-in config and rollback](STEAM-WORKSHOP-DIAGNOSTICS.md#verified-scoped-compatibility-delivery).
-Native validation passed; actual navigation still needs gameplay testing.
+Native validation passed. The subsequent user-reported gameplay acceptance
+marks the reported Steam issues passed on83ec0fca6f5fb2f1; see the acceptance
+record above. This does not extend native fixtures into untested game coverage.

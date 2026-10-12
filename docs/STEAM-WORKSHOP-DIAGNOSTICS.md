@@ -1,11 +1,18 @@
 # Add-ons Workshop guard and request diagnostic
 
-Status: **AWAITING WORKSHOP COMPATIBILITY RUN**. The retained input adapter passed
-user shortcuts/mouse/Join Server testing on294eafb0349ce3aa. The latest experiment
-adds an optional, scoped availability proxy after hardware diagnosis confirmed
-the false Client guard and true Host getter. Actual Workshop navigation and
-broader game stability remain unvalidated. Earlier deliveries below are retained
-as historical diagnostic controls.
+Status: **PASSED — USER-REPORTED GAME VALIDATION** for the reported Steam
+issues on build `ldb-ipc-c32-dev+83ec0fca6f5fb2f1`, branch
+`codex/steam-web-request-diagnostics`. The user reported “测试通关。” after testing
+the scoped Workshop availability fix and explicitly requested marking it passed
+on2026-10-12. Accepted reported scenarios: Shift+Tab opening/closing, Overlay
+mouse interaction, Join Server UI and the Add-ons View Workshop entry.
+
+This records user acceptance, not new instrumented evidence: no post-fix logs or
+performance data were supplied with that confirmation. Coverage remains the
+reported x64 Host setup with required opt-in settings; other Steam versions,
+x86 getter-based proxy support and ReShade coexistence are not newly validated.
+Earlier diagnostic deliveries and their pending statuses below are historical.
+See [acceptance record](steam-input-evidence/steam-hardware-acceptance.json).
 
 ## Exact caller evidence
 
@@ -308,5 +315,6 @@ This validated getter experiment currently targets the verified x64 Host.
 Click View Workshop and Browse Workshop, then verify Shift+Tab/mouse/Join Server;
 supply paired logs and visible results. Keep the option disabled for rollback
 or restore all three4833cce93dfc4dc0 files. Production main, tested IPC branch,
-VERSION/tags/releases remain unchanged. **AWAITING GAME VALIDATION**; no claim
-of Workshop navigation, FPS improvement or broader stability.
+VERSION/tags/releases remain unchanged. At delivery this was awaiting game
+validation; subsequent user acceptance supersedes that pending status for the
+reported Steam scenarios. No FPS improvement or broader stability is claimed.

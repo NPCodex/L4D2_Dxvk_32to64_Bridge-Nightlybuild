@@ -1,0 +1,28 @@
+{
+  "status": "PASSED",
+  "validation_basis": "user-reported gameplay acceptance",
+  "marked_date": "2026-10-12",
+  "date_timezone": "America/Los_Angeles",
+  "branch": "codex/steam-web-request-diagnostics",
+  "build": "ldb-ipc-c32-dev+83ec0fca6f5fb2f1",
+  "compiled_source": "e3d6d9110e05ab97dd57466a64d664dfa777705c",
+  "user_confirmation": "测试通关。",
+  "user_marking_instruction": "标记为通过。",
+  "accepted_reported_scenarios": [
+    "Shift+Tab opens and closes Steam Overlay",
+    "Mouse interaction in Steam Overlay",
+    "Join Server UI interaction",
+    "Add-ons View Workshop entry"
+  ],
+  "scope": "Reported x64 Host setup with retained working input configuration and scoped Workshop proxy enabled",
+  "new_post_fix_logs_received": false,
+  "fps_improvement_claimed": false,
+  "not_newly_validated": [
+    "Other Steam renderer versions",
+    "x86 getter-based availability proxy",
+    "ReShade coexistence combinations",
+    "Complete map/reset/performance regression"
+  ],
+  "main_modified": false,
+  "binary_changes_for_status_update": false
+}
