@@ -395,3 +395,13 @@ required before proposing an availability substitution; no blanket True result
 or web forwarding is introduced. Raw user logs remain local;
 [derived evidence](steam-input-evidence/workshop-client-guard-hardware-result.json)
 contains only counts, code-site labels and log hashes.
+
+## Workshop availability experiment after paired hardware evidence
+
+Matched4833 logs show verified Host getter0-to1, ten exact GameUI guard calls
+all false, no web calls and clean shutdown. [Derived evidence](steam-input-evidence/workshop-paired-availability-hardware-result.json)
+contains counts/hash metadata only. The scoped83ec0fca6f5fb2f1 experiment preserves
+validated input handling and actual game web requests; fresh Host state can
+permit only the known Workshop guard call sites. [Implementation, tested matched
+ZIP, opt-in config and rollback](STEAM-WORKSHOP-DIAGNOSTICS.md#verified-scoped-compatibility-delivery).
+Native validation passed; actual navigation still needs gameplay testing.

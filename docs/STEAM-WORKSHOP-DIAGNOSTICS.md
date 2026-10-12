@@ -1,8 +1,11 @@
 # Add-ons Workshop guard and request diagnostic
 
-Status: **AWAITING WORKSHOP DIAGNOSTIC RUN**. The retained input adapter passed
-user shortcuts/mouse/Join Server testing on 294eafb0349ce3aa. This build adds only
-an optional observer and does not claim a Workshop fix or broader game stability.
+Status: **AWAITING WORKSHOP COMPATIBILITY RUN**. The retained input adapter passed
+user shortcuts/mouse/Join Server testing on294eafb0349ce3aa. The latest experiment
+adds an optional, scoped availability proxy after hardware diagnosis confirmed
+the false Client guard and true Host getter. Actual Workshop navigation and
+broader game stability remain unvalidated. Earlier deliveries below are retained
+as historical diagnostic controls.
 
 ## Exact caller evidence
 
@@ -118,7 +121,7 @@ Host adapter and disabled defaults were independently inspected.
 [artifact inspection](steam-input-evidence/38202917325-artifact-inspection.json),
 [upload receipt](steam-input-evidence/workshop-diagnostics-upload-receipt.json).
 
-No runtime Workshop guard/request observation yet. The uploaded Steam/GameUI
+At that delivery there was no runtime Workshop guard/request observation. The uploaded Steam/GameUI
 files are not executed or included. Current input fix is retained; no new
 Workshop compatibility behavior is claimed.
 
@@ -270,3 +273,40 @@ do not assume Host forwarding is required in advance.
 Rollback all three binaries to4833cce93dfc4dc0 or disable the new option and
 restart. Do not use either older installer for the new build. main, production
 VERSION/tags/releases and prior packages are preserved.
+
+## Verified scoped compatibility delivery
+
+- Build `ldb-ipc-c32-dev+83ec0fca6f5fb2f1`, compiled source
+  `e3d6d9110e05ab97dd57466a64d664dfa777705c`.
+- [Matched ZIP](https://raw.githubusercontent.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/50e3b8bd2b0e09204a92ef250e592473c024464f/l4d2-bridge-steam-workshop-proxy-dev-83ec0fca6f5fb2f1-r38211096419.zip), 1,407,086 bytes.
+- SHA256 `ee43849a978b2022675e73b25b0a0580742a823921ae62fc907d69ce78cbb1b7`; remote download independently checked after append-only upload.
+- [Windows run](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/actions/runs/38211096419)
+  passed all13 native suites, including the actual x86 caller ABI/proxy fixture
+  and all four x86/x64 process combinations, plus39 Python checks,252 IPC pairs
+  and30 faults. Actual /O2 NDEBUG Release receipts, all three matching binaries,
+  architecture/Host LAA, retained input adapter, proxy code, disabled default and
+  enabled opt-in snippet were independently inspected.
+- [Native evidence](steam-input-evidence/38211096419-native-pass.log),
+  [IPC data](steam-input-evidence/38211096419-ipc-raw.json),
+  [fault data](steam-input-evidence/38211096419-ipc-faults.json),
+  [inspection](steam-input-evidence/38211096419-artifact-inspection.json),
+  [upload](steam-input-evidence/workshop-proxy-upload-receipt.json).
+
+The earlier candidate38210786826 passed the real x86 proxy ABI and both native
+channel compilations, but the test harness stopped on PowerShell's reserved
+$Host variable before process-pair execution and packaging. Task-specific
+variable names fixed it; no binaries from that failed run were published.
+The earlier preliminary candidate38210690775 was cancelled after source review
+corrected the local child process handle binding; it produced no published ZIP.
+
+Installation: exit game and Hosts; replace all three binaries from this ZIP and
+verify83ec0fca6f5fb2f1 in both logs. Keep current C8 and working input/backend.
+Set client.steamWorkshopAvailabilityProxy=True and client.steamWebDiagnostics=True
+in the actual bin/.l4d2bridge/bridge.conf. Do not overwrite that actual config
+with the packaged generic defaults, and do not use either older installer.
+This validated getter experiment currently targets the verified x64 Host.
+Click View Workshop and Browse Workshop, then verify Shift+Tab/mouse/Join Server;
+supply paired logs and visible results. Keep the option disabled for rollback
+or restore all three4833cce93dfc4dc0 files. Production main, tested IPC branch,
+VERSION/tags/releases remain unchanged. **AWAITING GAME VALIDATION**; no claim
+of Workshop navigation, FPS improvement or broader stability.
