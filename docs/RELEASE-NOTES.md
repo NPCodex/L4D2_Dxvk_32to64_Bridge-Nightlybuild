@@ -1,3 +1,8 @@
+# v1.5.7
+
+- 修复 Windows runner 未提供 `glslangValidator` 导致 GPLALL 固定源码构建在 Meson 配置阶段失败的问题。正式 workflow 现在安装并验证 Vulkan SDK 1.4.363，再开始三端 MSVC 构建。
+- v1.5.6 的 O34、GPL-CLIP、GPL-WORKERS 和 GPL-SPEC 内容保持不变；本版本仍不宣称 FPS、全场景画质或长期稳定性提升。
+
 # v1.5.6
 
 - 合入四项经审阅的候选：Bridge retention 数据库的单次数字解析与延迟 CNG provider、GPLALL 裁剪平面 packed override 修复、低核数 shader worker 下溢保护，以及按实际可用 GPL 能力判断 specialization 状态。
