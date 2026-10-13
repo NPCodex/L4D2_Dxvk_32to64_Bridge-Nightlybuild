@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.1 更新 NVIDIA 构建源码基准至 `0a8c8a3`，保留 v1.5.0 的上游整合与 45 项台账已实现改进。** 本次 NVIDIA 改动位于未打包的 RTX/Remix 组件，不宣称本包有新的帧率或画质收益。 默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。已知候选存在平均帧率下降，维护者明确采用；验证范围与取舍见本次 Release 和[45 项台账](docs/OPTIMIZATION-45.md)。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+**v1.5.2 同步 L4D2 上游至 `c8d55b0`，修复零字节缓冲区上传兼容性，并更新 NVIDIA 源码基准至 `d2a5033`。** 保留 45 项台账已实现改进；NVIDIA 新增 RTX 改动不进入本包，不宣称新的帧率或画质收益。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。已知候选存在平均帧率下降，维护者明确采用；验证范围与取舍见本次 Release 和[45 项台账](docs/OPTIMIZATION-45.md)。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 

@@ -11,7 +11,7 @@ from native_source import function
 parser = argparse.ArgumentParser()
 parser.add_argument("source", type=Path)
 parser.add_argument("output", type=Path)
-parser.add_argument("--control", choices=["none", "pitch", "lock", "query", "row", "row-allocation"], default="none")
+parser.add_argument("--control", choices=["none", "pitch", "lock", "query", "row", "row-allocation", "empty-buffer"], default="none")
 args = parser.parse_args()
 server = args.source / "bridge/src/server"
 args.output.mkdir(parents=True, exist_ok=True)
@@ -30,6 +30,13 @@ elif args.control == "lock":
 elif args.control == "query":
     assert query.count("hresult == S_OK && dwSize > 0") == 1
     query = query.replace("hresult == S_OK && dwSize > 0", "SUCCEEDED(hresult) && dwSize > 0")
+elif args.control == "empty-buffer":
+    # Selectively restore the shipped pre-fix helper; all callers stay identical.
+    guard = "if (bytes && (!source || reinterpret_cast<uintptr_t>(source) > UINTPTR_MAX - bytes))"
+    empty = "  // Empty Client uploads still preserve backend Lock/Unlock without touching pointers.\n  if (!bytes) { result.copied = true; }\n  else if (destination"
+    assert upload.count(guard) == 1 and upload.count(empty) == 1
+    upload = upload.replace(guard, "if (!source || !bytes || reinterpret_cast<uintptr_t>(source) > UINTPTR_MAX - bytes)")
+    upload = upload.replace(empty, "  if (destination")
 (args.output / "host_upload_contract.h").write_text(upload, encoding="utf-8")
 (args.output / "host_query_extracted.h").write_text(
     "static void extractedHostQuery() { switch (1) {\n" + query + "} }\n", encoding="utf-8")
@@ -56,3 +63,19 @@ buffer_end = main.index("      case IDirect3DVertexBuffer9_GetDesc:", buffer_sta
     "static void extractedHostBuffer(Buffer* buffer, uint32_t OffsetToLock, uint32_t SizeToLock, uint32_t reference, void* data) {\n"
     "const uint32_t pHandle = rpcHeader.pHandle; const DWORD Flags = 0; switch (1) { case 1: {\n"
     + main[buffer_start:buffer_end] + "} }\n", encoding="utf-8")
+with (args.output / "host_buffer_extracted.h").open("a", encoding="utf-8") as output:
+    # Complete production dispatch bodies, including field decoding and both routes.
+    for kind in ("Vertex", "Index"):
+        marker = f"      case IDirect3D{kind}Buffer9_Unlock:"
+        start = main.index(marker)
+        end = main.index(f"      case IDirect3D{kind}Buffer9_GetDesc:", start)
+        dispatch = main[start:end].replace(marker, "      case 1:", 1)
+        output.write(f"static void extractedHost{kind}Packet() {{ switch (1) {{\n" + dispatch + "} }\n")
+
+# Exercise the entire unmodified Client template with the established COM/IPC adapters.
+client = (args.source / "bridge/src/client/lockable_buffer.h").read_text(encoding="utf-8")
+marker = "template <typename T>"
+assert client.count(marker) == 1
+(args.output / "host_empty_client.cpp").write_text(
+    '#include "buffer_contract_support.h"\n' + client[client.index(marker):]
+    + '\n#include "host_empty_client_cases.cpp"\n', encoding="utf-8")

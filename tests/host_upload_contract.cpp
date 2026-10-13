@@ -56,6 +56,14 @@ struct DeviceBridge {
   inline static unsigned unpins = 0;
   inline static size_t rowBytes = 0, blobCursor = 0;
   static DWORD get_data() { require(position < data.size(), "query consumed excess packet fields"); return data[position++]; }
+  template<size_t N> struct Packet { std::array<uint32_t, N> fields {}; void* data = nullptr; size_t bytes = 0; };
+  template<size_t N> static Packet<N> get_packet(bool hasBlob = true) {
+    Packet<N> packet;
+    for (auto& field : packet.fields) { field = get_data(); }
+    if (hasBlob) { packet.bytes = get_data(&packet.data); }
+    return packet;
+  }
+  static void faultChannel() { ++faults; }
   static size_t get_data(void** output) {
     ++blobReads;
     if (rowBytes) {
@@ -124,20 +132,76 @@ struct Surface {
 struct Buffer {
   std::array<uint8_t, 128> bytes {};
   HRESULT result = S_OK;
+  HRESULT unlockResult = S_OK;
+  D3DRESOURCETYPE type = D3DRTYPE_VERTEXBUFFER;
+  bool nullTarget = false;
+  uint32_t lastOffset = 0, lastSize = 0;
   unsigned locks = 0, unlocks = 0;
+  D3DRESOURCETYPE GetType() const { return type; }
   HRESULT Lock(uint32_t offset, uint32_t size, void** output, DWORD) {
     ++locks;
+    lastOffset = offset; lastSize = size;
     if (offset > bytes.size() || size > bytes.size() - offset) { return D3DERR_INVALIDCALL; }
-    *output = bytes.data() + offset; return result;
+    *output = nullTarget ? nullptr : bytes.data() + offset; return result;
   }
-  HRESULT Unlock() { ++unlocks; return S_OK; }
+  HRESULT Unlock() { ++unlocks; return unlockResult; }
 };
+std::unordered_map<uint32_t, Buffer*> gpD3DResources;
+struct BridgeReadFailure {};
 #ifndef HOST_ROW_PACKETS
 #define SEND_ALL_LOCK_DATA_AT_ONCE
 #endif
 #include "host_volume_extracted.h"
 #include "host_surface_extracted.h"
+#define GET_HND(name) const auto name = rpcHeader.pHandle
+#define IDirect3DVertexBuffer9 Buffer
+#define IDirect3DIndexBuffer9 Buffer
 #include "host_buffer_extracted.h"
+#undef IDirect3DIndexBuffer9
+#undef IDirect3DVertexBuffer9
+#undef GET_HND
+
+static void emptyPacketTests() {
+  unsigned cases = 0;
+  for (bool vertex : {true, false}) {
+    const auto dispatch = vertex ? extractedHostVertexPacket : extractedHostIndexPacket;
+    for (uint32_t transport : {0u, 1u, 2u}) {
+      // Success with ordinary/null destination, failed Lock, and failed Unlock.
+      for (unsigned failure = 0; failure < 4; ++failure) {
+        Buffer backend;
+        backend.type = vertex ? D3DRTYPE_VERTEXBUFFER : D3DRTYPE_INDEXBUFFER;
+        backend.bytes.fill(0xd7);
+        backend.nullTarget = failure == 1;
+        if (failure == 2) { backend.result = D3DERR_DEVICELOST; }
+        if (failure == 3) { backend.unlockResult = E_FAIL; }
+        gpD3DResources[1] = &backend;
+        rpcHeader = {1, 1, transport};
+        DeviceBridge::faults = DeviceBridge::unpins = DeviceBridge::blobReads = 0;
+        DeviceBridge::position = 0; DeviceBridge::rowBytes = 0;
+        DeviceBridge::data = {128, 0, D3DLOCK_NOOVERWRITE};
+        DeviceBridge::blob.clear();
+        SharedHeap::bytes.assign(128, 0x73);
+        if (transport) { DeviceBridge::data.push_back(transport == 1 ? 1u : 0u); }
+        if (transport == 2) { DeviceBridge::blob.assign(16, 0x35); }
+        dispatch();
+        require(backend.locks == 1 && backend.lastOffset == 128 && backend.lastSize == 0,
+          "empty VB/IB packet skipped or changed backend Lock");
+        require(backend.unlocks == (failure == 2 ? 0u : 1u), "empty VB/IB Lock failure or Unlock count changed");
+        require(DeviceBridge::faults == (failure >= 2 ? 1u : 0u), "empty VB/IB backend error was lost or success faulted");
+        require(DeviceBridge::unpins == (transport == 2 ? 1u : 0u), "empty reserved VB/IB upload leaked its pin");
+        require(DeviceBridge::position == DeviceBridge::data.size()
+          && DeviceBridge::blobReads == (transport ? 0u : 1u), "empty VB/IB packet was not completely consumed");
+        require(std::all_of(backend.bytes.begin(), backend.bytes.end(), [](uint8_t value) { return value == 0xd7; })
+          && std::all_of(SharedHeap::bytes.begin(), SharedHeap::bytes.end(), [](uint8_t value) { return value == 0x73; })
+          && std::all_of(DeviceBridge::blob.begin(), DeviceBridge::blob.end(), [](uint8_t value) { return value == 0x35; }),
+          "empty VB/IB upload touched resource or source bytes");
+        ++cases;
+      }
+    }
+  }
+  gpD3DResources.clear();
+  std::printf("empty VB/IB packets: normal/shared/reserved; success/null-target/Lock-failure/Unlock-failure; %u cases OK\n", cases);
+}
 
 static void packetTests() {
   Surface surface;
@@ -332,6 +396,29 @@ static void uploadTests() {
     [&](void*& target) { target = dst.data(); return S_OK; }, unlock);
   require(bufferCopied.status() == S_OK && dst[0] == 0x66 && dst[31] == 0x66 && dst[32] == 0,
     "buffer upload range changed");
+  unsigned emptyLocks = 0, emptyUnlocks = 0;
+  for (const void* source : std::array<const void*, 2>{nullptr, reinterpret_cast<const void*>(UINTPTR_MAX)}) {
+    const auto empty = buffer(source, 0,
+      [&](void*& target) { ++emptyLocks; target = nullptr; return S_OK; },
+      [&]() { ++emptyUnlocks; return S_OK; });
+    require(empty.status() == S_OK && empty.copied && emptyLocks == emptyUnlocks && emptyLocks != 0,
+      "empty buffer upload skipped backend lifecycle");
+  }
+  const unsigned priorUnlocks = emptyUnlocks;
+  const auto emptyLockFailed = buffer(nullptr, 0,
+    [&](void*& target) { target = nullptr; return D3DERR_DEVICELOST; },
+    [&]() { ++emptyUnlocks; return S_OK; });
+  require(emptyLockFailed.status() == D3DERR_DEVICELOST && !emptyLockFailed.copied
+    && emptyUnlocks == priorUnlocks, "empty failed buffer Lock unlocked or lost error");
+  const auto emptyUnlockFailed = buffer(nullptr, 0,
+    [&](void*& target) { target = nullptr; return S_OK; }, []() { return E_FAIL; });
+  require(emptyUnlockFailed.status() == E_FAIL && emptyUnlockFailed.copied, "empty buffer Unlock failure lost");
+  for (const void* source : std::array<const void*, 2>{nullptr, reinterpret_cast<const void*>(UINTPTR_MAX - 8)}) {
+    const unsigned before = emptyLocks;
+    const auto invalid = buffer(source, 32,
+      [&](void*& target) { ++emptyLocks; target = dst.data(); return S_OK; }, []() { return S_OK; });
+    require(invalid.status() == D3DERR_INVALIDCALL && emptyLocks == before, "invalid nonempty source reached backend Lock");
+  }
 }
 
 static void handleTests() {
@@ -345,7 +432,11 @@ static void handleTests() {
 
 int main() {
   try {
-    uploadTests(); queryTests(); handleTests(); packetTests();
+#ifdef HOST_ONLY_EMPTY_PACKETS
+    emptyPacketTests();
+#else
+    uploadTests(); queryTests(); handleTests(); packetTests(); emptyPacketTests();
+#endif
     std::printf("host-upload-contract assertions=%u layouts=360 query=ready/pending/failure/poll handles=valid/invalid/destroy OK\n", assertions);
     return 0;
   } catch (const std::exception& error) {

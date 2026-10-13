@@ -170,6 +170,7 @@ jobs:
             .deps/host-upload-contract-*/**
             .deps/retention-journal-test/**
             .deps/optimization45-ipc-test/**
+            .deps/ipc-reply-budget/**
           include-hidden-files: true
           if-no-files-found: warn
       - name: Build and verify the native ThinFlex repair tool

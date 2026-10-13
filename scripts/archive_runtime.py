@@ -100,7 +100,7 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本包保留上游 Steam 窗口/输入/工坊适配与 45 项台账中的已实现改进。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套启用。此前已采用候选的平均 FPS 有下降；本次 NVIDIA 源码更新不改变 Bridge 运行逻辑，不保证帧率收益。已知 Steam 模块版本适配和性能验证范围有限，详情见 Release。\n"
+        "本次修复零字节缓冲区上传兼容性，并同步已审查的 L4D2 与 NVIDIA 源码。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套启用，保留 45 项台账已实现改进。此前已采用候选的平均 FPS 有下降；本次不保证帧率收益。已知 Steam 模块版本适配和性能验证范围有限，详情见 Release。\n"
         "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"

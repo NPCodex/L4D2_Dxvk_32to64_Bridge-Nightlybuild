@@ -1,9 +1,10 @@
-# v1.5.1
+# v1.5.2
 
-- 更新 NVIDIA dxvk-remix 构建源码基准至 `0a8c8a3`，完成本项目三端编译、原生回归及全量包核验。
-- 每小时检查 NVIDIA 新提交，构建使用审查通过的明确提交，避免未经审查的新 HEAD 直接发布。
+- 同步 L4D2 上游至 `c8d55b0`，修复动态 VB/IB 缓冲区末尾的零字节上传被 Host 提前拒绝、导致会话终止的问题；保留后端错误处理与内存边界保护。
+- 补充 IPC 默认重试预算下的长延迟回复、取消与遗弃所有者回归验证，包含旧缺陷负对照。
+- NVIDIA 构建源码更新至 `d2a5033`。新增 RTX/Packman 改动不进入本包的 Bridge 构建，GPLALL 未升级。
 
-本次 NVIDIA 的透明表面采样及 Alt+Tab 覆盖层修复属于未打包的 RTX/Remix 组件；Bridge 实际源码未因这些提交改变，GPLALL 后端保持原版本。本次不宣称帧率或画质提升，未重复实机性能对照。此前已披露的性能与 Steam 兼容性限制仍然存在。
+验证：三端 MSVC 编译、双架构原生回归、源码及全量包核验。未重复游戏性能测试，不宣称帧率或画质提升；此前性能与 Steam 模块适配限制仍存在。
 
 **如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
 退出游戏和所有 Bridge Host 后，成套恢复 Client 与两个 Host。

@@ -7,7 +7,7 @@ foreach ($suite in @('runtime_observation', 'pageblock_gc', 'exception_diagnosti
     'readback_recovery', 'x86_backend', 'ipc_api_failure',
     'ipc_full', 'buffer_shadow_arena', 'hot_command_packets',
     'client_parameter_contract', 'host_upload_contract', 'retention_journal',
-    'optimization45_ipc', 'steam_window_diagnostics', 'steam_web_diagnostics',
+    'optimization45_ipc', 'ipc_reply_budget', 'steam_window_diagnostics', 'steam_web_diagnostics',
     'steam_workshop_status', 'steam_availability_diagnostics')) {
   & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "test_$suite.ps1")
   if ($LASTEXITCODE -ne 0) { throw "Upstream native regression failed: $suite" }

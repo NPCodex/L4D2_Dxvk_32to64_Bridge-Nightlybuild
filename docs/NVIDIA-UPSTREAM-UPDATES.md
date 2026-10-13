@@ -2,6 +2,14 @@
 
 NVIDIA dxvk-remix、L4D2 原项目和独立 GPLALL 后端是三个不同来源；本页仅记录 NVIDIA 源码采用。L4D2 原项目基准继续见 [原项目同步记录](ORIGINAL-PROJECT-UPDATES.md)。
 
+## v1.5.2
+
+2026-10-13 审阅并选择 [`d2a5033ec79303fffc33ca8e6595dd560162ff69`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/d2a5033ec79303fffc33ca8e6595dd560162ff69)，替代 v1.5.1 的 `0a8c8a3`。六个新提交（三项改动及三个合并）涉及 SHaRC 预设、RTXDI 邻域采样和 Packman 发布迁移。SHaRC 上游说明的收敛速度和照明响应取舍属于未编译的 RTX renderer；本包未引入该功能，也不能宣称获得 RTXDI 阴影修复。
+
+同版本、同补丁下逐文件核对 Bridge 和 Detours，确认 NVIDIA 基准推进未改变实际构建源码。生产脚本直接使用 Bridge/Meson 与 Detours，不调用此次修改的 Packman 下载链。GPLALL 仍独立固定。v1.5.2 的零字节上传修复来自 L4D2 上游同步，不能归因于 NVIDIA 新提交。
+
+选择源码、构建完成和正式发布分别以本轮 `results/nvidia-update-20261013/` 收据及自动化 memory 记录；本项目仍执行完整 MSVC/原生回归和源码、附件核验。上游 CI 状态只作为补充，不代替本项目验证。
+
 ## v1.5.1
 
 用户于 2026-10-12 明确要求采用已审阅的 NVIDIA 新提交，并纳入每小时检查及后续验证更新。

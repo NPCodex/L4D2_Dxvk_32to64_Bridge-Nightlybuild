@@ -27,14 +27,21 @@ $output = Join-Path $repoRoot ".deps/host-upload-contract-$Platform"
 New-Item -ItemType Directory -Force $output | Out-Null
 Push-Location $output
 try {
-  foreach ($control in @('none','pitch','lock','query','row','row-allocation')) {
+  foreach ($control in @('none','pitch','lock','query','row','row-allocation','empty-buffer')) {
     & python "$repoRoot/tests/host_upload_contract_generate.py" $Source $output --control $control
     if ($LASTEXITCODE -ne 0) { throw 'Host contract source extraction failed' }
+    if ($control -eq 'none') {
+      & cl.exe /nologo /std:c++17 /EHsc /W4 /WX /O2 /DNDEBUG /DNOMINMAX /DLDB_SHADOW_ARENA "/I$Source/bridge/src/util" "/I$Source/bridge/src/client" "/I$repoRoot/tests" "$output/host_empty_client.cpp" "$Source/bridge/src/util/data_diagnostics.cpp" '/Fe:host-empty-client.exe'
+      if ($LASTEXITCODE -ne 0) { throw 'Client empty-upload reachability compilation failed' }
+      & .\host-empty-client.exe
+      if ($LASTEXITCODE -ne 0) { throw 'Client empty-upload reachability failed' }
+    }
     # Deliberately broken controls can make later checks provably unreachable.
     $controlFlags = @()
     if ($control -ne 'none') { $controlFlags += '/wd4702' }
     if ($control -in @('row','row-allocation')) { $controlFlags += '/DHOST_ROW_PACKETS' }
     if ($control -eq 'row-allocation') { $controlFlags += '/DHOST_FAIL_VOLUME_ALLOCATION' }
+    if ($control -eq 'empty-buffer') { $controlFlags += '/DHOST_ONLY_EMPTY_PACKETS'; $controlFlags += '/wd4505' }
     & cl.exe /nologo /std:c++17 /EHsc /W4 /WX /O2 /DNDEBUG @controlFlags "/I$output" "/I$Source/bridge/src/util" "$repoRoot/tests/host_upload_contract.cpp" "/Fe:host-contract-$control.exe"
     if ($LASTEXITCODE -ne 0) { throw "Host contract compilation failed: $control" }
     & cmd.exe /d /c "host-contract-$control.exe > host-contract-$control.log 2>&1"
@@ -48,6 +55,7 @@ try {
         'pitch' { 'short destination pitch accepted' }
         'lock' { 'failed surface lock copied or unlocked' }
         'query' { 'pending query leaked' }
+        'empty-buffer' { 'empty VB/IB packet skipped or changed backend Lock' }
       }
       if ($exit -ne 1 -or $log -notmatch [regex]::Escape($expected)) {
         throw "Host negative control $control did not detect the intended regression"

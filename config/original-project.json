@@ -1,8 +1,8 @@
 {
   "repository": "yeyunyyds/L4D2_Dxvk_32to64_Bridge",
-  "commit": "f6a059b758f9fcbf9c66ace73625aae9db34ad6a",
+  "commit": "c8d55b0f5d913d71488266469b4dca236439a4e9",
   "version": "1.3.0",
   "integration": "full",
   "source_ref": "main",
-  "main_baseline": "f6a059b758f9fcbf9c66ace73625aae9db34ad6a"
+  "main_baseline": "c8d55b0f5d913d71488266469b4dca236439a4e9"
 }
