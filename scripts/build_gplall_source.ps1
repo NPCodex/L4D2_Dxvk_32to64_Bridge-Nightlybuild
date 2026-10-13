@@ -21,7 +21,21 @@ New-Item -ItemType Directory -Force $root | Out-Null
 
 function Invoke-Checked {
   param([string]$Program, [string[]]$Arguments, [string]$WorkingDirectory)
-  $output = @(& $Program @Arguments 2>&1)
+  # Git writes normal fetch progress to stderr. Do not let PowerShell's
+  # Stop preference turn that informational stream into a build failure.
+  $previousPreference = $ErrorActionPreference
+  $nativePreference = $null
+  if (Get-Variable PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+    $nativePreference = $PSNativeCommandUseErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
+  }
+  try {
+    $ErrorActionPreference = 'Continue'
+    $output = @(& $Program @Arguments 2>&1)
+  } finally {
+    $ErrorActionPreference = $previousPreference
+    if ($null -ne $nativePreference) { $PSNativeCommandUseErrorActionPreference = $nativePreference }
+  }
   if ($LASTEXITCODE -ne 0) {
     throw "$Program failed: $LASTEXITCODE`n$($output -join [Environment]::NewLine)"
   }
