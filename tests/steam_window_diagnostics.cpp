@@ -56,6 +56,7 @@ int main(int argc, char** argv) {
   ownWindow = CreateWindowExW(0, L"STATIC", L"diagnostic fixture", WS_OVERLAPPED, 0, 0, 10, 10, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
   require(ownWindow != nullptr); desktopWindow = GetDesktopWindow();
   const wchar_t* name = sizeof(void*) == 8 ? L"window-fixture-x64.dll" : L"window-fixture-x86.dll";
+  const char* role = sizeof(void*) == 4 ? "client" : "host";
   Diagnostic::poll(false, ownWindow, ownWindow, logLine, name); require(logs.empty());
   Diagnostic::poll(true, ownWindow, ownWindow, logLine, L"absent-renderer.dll"); require(count("event=waiting") == 1);
   if (chain) {
@@ -64,9 +65,10 @@ int main(int argc, char** argv) {
     replace(findSlot(module, "SetWindowsHookExW"), reinterpret_cast<void*>(&hookOriginal));
   }
   SetLastError(0x7777);
-  Diagnostic::poll(true, ownWindow, ownWindow, logLine, name); require(GetLastError() == 0x7777);
+  Diagnostic::poll(true, ownWindow, nullptr, logLine, name, false, role); require(GetLastError() == 0x7777);
   require(count("event=attached mask=7") == 1);
-  Diagnostic::poll(true, ownWindow, ownWindow, logLine, name); require(count("event=attached") == 1);
+  require(count(sizeof(void*) == 4 ? "role=client" : "role=host") >= 2);
+  Diagnostic::poll(true, ownWindow, nullptr, logLine, name, false, role); require(count("event=attached") == 1);
   if (chain) {
     for (unsigned i = 0; i < 1000; ++i) {
       require(active() == ownWindow && GetLastError() == 0x1234);

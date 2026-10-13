@@ -91,7 +91,9 @@ class BridgePlugin final : public IL4NPlugin {
       { "Older Bridge: configuration save unavailable", u8"旧版 Bridge：配置保存不可用" },
       { "save to configure [unavailable]", u8"保存到配置［不可用］" },
       { "save to configure", u8"保存到配置" },
-      { "Controls Bridge Presenter/input support; does not install ReShade", u8"控制桥的呈现与输入支持；不会安装 ReShade" },
+      { "Required for ReShade and Steam Overlay input", u8"ReShade 与 Steam Overlay 输入依赖此开关" },
+      { "Does not install ReShade", u8"不会安装 ReShade 本体" },
+      { "Disabling also disables Steam Overlay input", u8"关闭后 Steam Overlay 输入也会失效" },
       { "Note: validated ReShade combination is x64 Host + Vulkan ReShade 6.0.1.", u8"提示：已验证组合为 x64 Host + Vulkan ReShade 6.0.1。" },
       { "PageBlock status failed: ", u8"PageBlock 状态查询失败：" },
       { "Bridge request failed: ", u8"Bridge 请求失败：" },
@@ -106,11 +108,11 @@ class BridgePlugin final : public IL4NPlugin {
       { "Warning: failed to persist configuration: ", u8"警告：配置保存失败：" },
       { "Host configuration unavailable on this Bridge", u8"此 Bridge 不支持 Host 配置" },
       { "Select a Host before saving", u8"请先选择 Host 再保存" },
-      { "Persistent Host / ReShade settings unavailable on this Bridge", u8"此 Bridge 不支持 Host / ReShade 配置保存" },
+      { "Persistent Host / Presenter settings unavailable on this Bridge", u8"此 Bridge 不支持 Host / Presenter 配置保存" },
       { "Saved; status read failed: ", u8"已保存；状态读取失败：" },
       { "Host set to ", u8"Host 已设为 " },
-      { "ReShade Presenter enabled.", u8"ReShade 呈现支持已启用。" },
-      { "ReShade Presenter disabled.", u8"ReShade 呈现支持已关闭。" },
+      { "ReShade / Steam Overlay Presenter enabled.", u8"ReShade / Steam Overlay 呈现与输入支持已启用。" },
+      { "ReShade / Steam Overlay Presenter disabled.", u8"ReShade / Steam Overlay 呈现与输入支持已关闭。" },
       { "Configured: Enabled", u8"配置：已启用" }, { "Configured: Disabled", u8"配置：已关闭" },
       { "Unsupported backing/backend: GC unavailable", u8"存储或后端不支持：GC 不可用" },
       { "Memory Policy: ", u8"内存策略：" }, { "Blocks: ", u8"块数：" },
@@ -131,9 +133,9 @@ class BridgePlugin final : public IL4NPlugin {
       { "; waits: ", u8"；等待次数：" }, { "; wait time: ", u8"；等待时间：" },
       { "Memory Policy Save Result", u8"内存策略保存结果" }, { "Memory Policy Result", u8"内存策略结果" },
       { "Bridge Request Failed", u8"Bridge 请求失败" }, { "PageBlock GC Result", u8"PageBlock GC 结果" },
-      { "ReShade Presenter Result", u8"ReShade 呈现支持结果" }, { "Host Selection", u8"Host 选择" },
+      { "ReShade / Steam Overlay Result", u8"ReShade / Steam Overlay 设置结果" }, { "Host Selection", u8"Host 选择" },
       { "Host Result", u8"Host 设置结果" }, { "Memory Policy", u8"内存策略" },
-      { "ReShade Presenter", u8"ReShade 呈现支持" }, { "Status", u8"状态" },
+      { "ReShade / Steam Overlay", u8"ReShade / Steam Overlay" }, { "Status", u8"状态" },
       { "Language", u8"语言" }, { "Save", u8"保存" },
       { "Learned", u8"学习式" }, { "Aggressive", u8"积极式" }, { "Force", u8"强制" },
       { "Enable", u8"启用" }, { "Disable", u8"关闭" },
@@ -292,17 +294,20 @@ class BridgePlugin final : public IL4NPlugin {
     return setPersistent(controls, general::Operation::SetHostMode, static_cast<uint32_t>(m_selectedHost));
   }
   const char* setPersistent(const Controls& controls, general::Operation operation, uint32_t value) {
-    if (!controls.settings) { return failed("Persistent Host / ReShade settings unavailable on this Bridge"); }
+    if (!controls.settings) { return failed("Persistent Host / Presenter settings unavailable on this Bridge"); }
     general::Response response;
     const auto hr = query(controls.settings, operation, value, response);
     if (FAILED(hr)) { return failed("Settings request failed: " + error(hr)); }
     if (!response.configWriteSucceeded) { return failed("Failed to persist configuration: " + error(response.configResult)); }
-    const auto title = operation == general::Operation::SetHostMode ? "Host Result" : "ReShade Presenter Result";
+    const auto title = operation == general::Operation::SetHostMode ? "Host Result" : "ReShade / Steam Overlay Result";
     m_status = operation == general::Operation::SetHostMode
       ? std::string("Host set to ") + hostName(static_cast<general::Host>(value)) + "."
-      : std::string("ReShade Presenter ") + (value ? "enabled." : "disabled.");
+      : std::string("ReShade / Steam Overlay Presenter ") + (value ? "enabled." : "disabled.");
     m_status += " Restart L4D2 to apply.";
     std::string rows = info(m_status);
+    if (operation == general::Operation::SetReShadePresenter && !value) {
+      rows += info("Disabling also disables Steam Overlay input");
+    }
     if (operation == general::Operation::SetHostMode) { rows += hostRows(controls); }
     if (operation == general::Operation::SetReShadePresenter && value && response.configuredHost == general::Host::X86) {
       rows += info("Note: validated ReShade combination is x64 Host + Vulkan ReShade 6.0.1.");
@@ -369,7 +374,7 @@ public:
   const char* GetVersion() override { return "common-settings-3"; }
   const char* RequestHudMenu(bool requestTitle) override {
     if (requestTitle) { return "L4D2 Bridge"; }
-    auto rows = item("Status", 1) + item("GC", 2) + item("Memory Policy", 3) + item("ReShade Presenter", 4) + item("Host", 5)
+    auto rows = item("Status", 1) + item("GC", 2) + item("Memory Policy", 3) + item("ReShade / Steam Overlay", 4) + item("Host", 5)
       + item("ipcBatchSize", 6) + item("vbibMappedShadow", 7) + item("Language", 8);
     if (!m_status.empty()) { rows += info("Last action result: " + m_status); }
     return page("L4D2 Bridge", rows);
@@ -398,7 +403,7 @@ public:
         + item("drop [experimental]", 12) + policySave(controls));
     }
     if (action == 4 || action == 5) {
-      if (!controls.settings) { return page(action == 4 ? "ReShade Presenter" : "Host", info("Unavailable: this Bridge has no persistent settings API")); }
+      if (!controls.settings) { return page(action == 4 ? "ReShade / Steam Overlay" : "Host", info("Unavailable: this Bridge has no persistent settings API")); }
       if (action == 5) {
         return page("Host", hostRows(controls, true) + item("x86 Host", 40) + item("x64 Host", 41) + item("Save", 42));
       }
@@ -409,7 +414,8 @@ public:
       else {
         rows += info(std::string("Configured: ") + (response.presenterConfigured ? "Enabled" : "Disabled"));
       }
-      return page("ReShade Presenter", rows + info("Controls Bridge Presenter/input support; does not install ReShade") + item("Enable", 30) + item("Disable", 31));
+      return page("ReShade / Steam Overlay", rows + info("Required for ReShade and Steam Overlay input")
+        + info("Does not install ReShade") + item("Enable", 30) + item("Disable", 31));
     }
     if (action >= 10 && action <= 12) { return setPolicy(controls, static_cast<uint32_t>(action - 10)); }
     if (action == 13) { return savePolicy(controls); }

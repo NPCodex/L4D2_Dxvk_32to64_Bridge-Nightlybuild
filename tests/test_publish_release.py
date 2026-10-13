@@ -38,6 +38,7 @@ class Publishing(unittest.TestCase):
         Path("config").mkdir()
         Path("config/original-project.json").write_text(json.dumps({
             "repository": "upstream/project", "version": "1.2.2", "commit": "d" * 40,
+            "integration": "full", "main_baseline": "d" * 40,
         }), encoding="utf-8")
         self.existing = None
         self.other_releases = []
@@ -121,12 +122,41 @@ class Publishing(unittest.TestCase):
         self.assertIn(self.changes, notes)
         self.assertIn("Upstream commit: " + "a" * 40, notes.splitlines())
         self.assertIn("Build recipe: " + "b" * 40, notes.splitlines())
+        self.assertIn("L4D2 integration: full", notes.splitlines())
+        self.assertIn("L4D2 full main baseline: " + "d" * 40, notes.splitlines())
+        self.assertNotIn("L4D2 partial commit:", notes)
         self.assertIn("/README.md)", notes)
         self.assertIn("<summary>构建指纹</summary>", notes)
         for old_content in ("ThinFlex 缓存", "L4N 2.51.0", "FLASHLIGHT-PERFORMANCE", "v1.0.10"):
             self.assertNotIn(old_content, notes)
         self.assertNotIn("tools/thinflex/ThinFlexPatch.exe", notes)
         self.assertEqual({asset["name"] for asset in self.assets}, {"full.zip", "full.zip.sha256"})
+
+    def test_partial_provenance_keeps_full_and_selected_baselines_distinct(self):
+        original_path = Path("config/original-project.json")
+        original = json.loads(original_path.read_text(encoding="utf-8"))
+        original.update(integration="partial", reviewed_commit="e" * 40,
+                        partial_commit="f" * 40, partial_version="1.3.1")
+        original_path.write_text(json.dumps(original), encoding="utf-8")
+        publish_release.publish()
+        lines = Path("notes.md").read_text(encoding="utf-8").splitlines()
+        for line in ("L4D2 integration: partial", "L4D2 original commit: " + "d" * 40,
+                     "L4D2 full main baseline: " + "d" * 40,
+                     "L4D2 reviewed commit: " + "e" * 40,
+                     "L4D2 partial commit: " + "f" * 40,
+                     "L4D2 partial version: 1.3.1",
+                     "Upstream commit: " + "a" * 40, "Recipe digest: " + "c" * 64):
+            self.assertIn(line, lines)
+
+    def test_invalid_partial_provenance_is_refused_before_network_calls(self):
+        original_path = Path("config/original-project.json")
+        original = json.loads(original_path.read_text(encoding="utf-8"))
+        original["integration"] = "partial"
+        original_path.write_text(json.dumps(original), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Partial L4D2"):
+            publish_release.publish()
+        self.api.assert_not_called()
+        self.run.assert_not_called()
 
     def test_thinflex_publishes_one_full_package_with_current_notes(self):
         self.enable_thinflex()

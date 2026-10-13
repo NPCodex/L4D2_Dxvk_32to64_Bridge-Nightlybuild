@@ -18,11 +18,16 @@ detect = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(detect)
 SHA = "a" * 40
 RECIPE = "b" * 64
+ORIGINAL = {"repository": "upstream/project", "commit": "c" * 40,
+            "version": "1.3.0", "integration": "full", "main_baseline": "c" * 40}
+PARTIAL = {**ORIGINAL, "integration": "partial", "partial_version": "1.3.1",
+           "reviewed_commit": "d" * 40, "partial_commit": "d" * 40}
 
 
 class HeadDetection(unittest.TestCase):
     def run_case(self, existing=None, failure=None, manual="", branch="main", force=False,
-                 thinflex=False, head_sha=SHA, approved=SHA, approval=None, resolved_sha=None):
+                 thinflex=False, head_sha=SHA, approved=SHA, approval=None, resolved_sha=None,
+                 original=None):
         calls = []
         def api(path):
             calls.append(path)
@@ -39,12 +44,17 @@ class HeadDetection(unittest.TestCase):
                 return [] if existing is None else [dict(existing, tag_name="previous", body=existing.get("body", f"Upstream commit: {SHA}\nRecipe digest: {RECIPE}"))]
             raise HTTPError(path, 404, "missing", {}, None)
         with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "config").mkdir()
+            (root / "VERSION").write_text("1.5.3\n", encoding="utf-8")
+            (root / "config/original-project.json").write_text(
+                json.dumps(ORIGINAL if original is None else original), encoding="utf-8")
             approval_path = Path(directory) / "nvidia-upstream.json"
             approval_path.write_text(json.dumps(approval if approval is not None else {
                 "repository": "https://github.com/NVIDIAGameWorks/dxvk-remix",
                 "branch": "main", "approved_commit": approved}), encoding="utf-8")
             captured = io.StringIO()
-            with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/repo", "UPSTREAM_COMMIT": manual, "FORCE_REBUILD": str(force).lower(), "THINFLEX_TEST": str(thinflex).lower(), "GITHUB_RUN_ID":"123", "GITHUB_RUN_ATTEMPT":"1"}), patch.object(detect, "api", api), patch.object(detect, "recipe_digest", return_value=RECIPE), patch.object(detect, "APPROVAL_PATH", approval_path), contextlib.redirect_stdout(captured):
+            with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/repo", "UPSTREAM_COMMIT": manual, "FORCE_REBUILD": str(force).lower(), "THINFLEX_TEST": str(thinflex).lower(), "GITHUB_RUN_ID":"123", "GITHUB_RUN_ATTEMPT":"1"}), patch.object(detect, "api", api), patch.object(detect, "recipe_digest", return_value=RECIPE), patch.object(detect, "APPROVAL_PATH", approval_path), patch.object(detect, "ROOT", root), contextlib.redirect_stdout(captured):
                 rows = detect.pending()
             self.last_output = captured.getvalue()
         return rows, calls
@@ -56,6 +66,31 @@ class HeadDetection(unittest.TestCase):
         self.assertIn(detect.UPSTREAM + "/commits/main", calls)
         self.assertIn(detect.UPSTREAM + "/commits/" + SHA, calls)
         self.assertFalse(any(p.startswith(detect.UPSTREAM + "/releases?") for p in calls))
+
+    def test_full_integration_keeps_full_sync_title(self):
+        rows, _ = self.run_case(original=ORIGINAL)
+        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包 · 完整同步上游 1.3.0")
+
+    def test_partial_integration_identifies_selected_version_without_full_sync_claim(self):
+        rows, _ = self.run_case(original=PARTIAL)
+        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包 · 上游 1.3.1 选择性更新")
+        self.assertNotIn("完整同步", rows[0]["title"])
+        self.assertEqual(rows[0]["commit"], SHA)
+
+    def test_incomplete_partial_provenance_fails_closed(self):
+        for field in ("partial_version", "partial_commit", "reviewed_commit", "main_baseline"):
+            original = dict(PARTIAL)
+            del original[field]
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "L4D2"):
+                self.run_case(original=original)
+        for field in ("partial_commit", "reviewed_commit", "main_baseline"):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "full .* SHA"):
+                self.run_case(original={**PARTIAL, field: "main"})
+
+    def test_unknown_integration_does_not_default_to_full_sync(self):
+        for integration in (None, "", "partial-review", "complete"):
+            with self.subTest(integration=integration), self.assertRaisesRegex(ValueError, "explicitly"):
+                self.run_case(original={**ORIGINAL, "integration": integration})
 
     def test_default_branch_changes(self):
         rows, calls = self.run_case(branch="dev/bridge")

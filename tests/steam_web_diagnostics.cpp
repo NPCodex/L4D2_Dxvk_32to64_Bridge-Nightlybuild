@@ -10,14 +10,18 @@ namespace l4d2_web { struct NativeTest { static bool attach(void* u,void* f,void
 static void require(bool value){if(!value){std::fprintf(stderr,"FAIL web observer assertion error=%lu\n",GetLastError());std::exit(2);}}
 static void* utilsTable[18]{};static void* friendsTable[31]{};
 struct Object{void** table;};static Object utils{utilsTable},friends{friendsTable};
-static bool allowed=false,throwLog=false;static unsigned availableCalls=0,webCalls=0;static const char* received=nullptr;static int receivedMode=-1;
+static bool allowed=false,throwLog=false;static unsigned availableCalls=0,webCalls=0,overlayCalls=0;static const char* received=nullptr;static int receivedMode=-1;
+static const char* receivedDialog=nullptr;
 static std::vector<std::string> logs;
 static bool __fastcall availability(void* self,void*){require(self==&utils);++availableCalls;SetLastError(0x1234);return allowed;}
 static void __fastcall open(void* self,void*,const char* url,int mode){require(self==&friends);++webCalls;received=url;receivedMode=mode;SetLastError(0x2345);}
 static void __fastcall later(void*,void*,const char*,int){}
+static void __fastcall showOverlay(void* self,void*,const char* dialog){require(self==&friends);++overlayCalls;receivedDialog=dialog;SetLastError(0x3456);}
+static void __fastcall laterOverlay(void*,void*,const char*){}
 static void logger(const char* line){logs.emplace_back(line);std::puts(line);SetLastError(0xBADA);if(throwLog)throw std::runtime_error("logger test");}
 static bool enabled(){using Fn=bool(__thiscall*)(void*);return reinterpret_cast<Fn>(utils.table[17])(&utils);}
 static void request(const char* url,int mode){using Fn=void(__thiscall*)(void*,const char*,int);reinterpret_cast<Fn>(friends.table[30])(&friends,url,mode);}
+static void requestOverlay(const char* dialog){using Fn=void(__thiscall*)(void*,const char*);reinterpret_cast<Fn>(friends.table[28])(&friends,dialog);}
 int main(){
   using D=l4d2_web::Diagnostics;
   D::poll(false,logger);require(logs.empty());
@@ -25,7 +29,7 @@ int main(){
   require(D::hashFile(L"hash-fixture.bin","ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"));
   require(!D::hashFile(L"hash-fixture.bin","321ec9b5865582330af61e81eb347da31cc213cc6c95b80d6d98170b8a5fbb40"));
   require(!D::hashFile(L"absent-file",""));std::remove("hash-fixture.bin");
-  utilsTable[17]=reinterpret_cast<void*>(&availability);friendsTable[30]=reinterpret_cast<void*>(&open);
+  utilsTable[17]=reinterpret_cast<void*>(&availability);friendsTable[30]=reinterpret_cast<void*>(&open);friendsTable[28]=reinterpret_cast<void*>(&showOverlay);
   require(!l4d2_web::NativeTest::attach(nullptr,&friends,logger));
   require(l4d2_web::NativeTest::attach(&utils,&friends,logger));
   require(!enabled() && GetLastError()==0x1234 && availableCalls==1);
@@ -57,10 +61,53 @@ int main(){
   l4d2_workshop::publish(true,1,GetTickCount64()-3001);require(!guard(&utils));
   l4d2_workshop::publish(true,1,GetTickCount64());D::setProxy(false);require(!guard(&utils));
   D::setProxy(true);throwLog=true;require(guard(&utils) && GetLastError()==0x1234);throwLog=false;
-  l4d2_web::NativeTest::menu(nullptr);require(VirtualFree(fixture,0,MEM_RELEASE)!=FALSE);D::setProxy(false);allowed=true;
+  // The new invitation guard uses the same live/fresh Host status as Workshop.
+  const uintptr_t returnSites[]={0x199ea,0x19aca,0x6ea9a,0x11a03};
+  for(const auto rva:returnSites)std::memcpy(fixture+rva-7,thunk,sizeof(thunk));
+  // Authored thiscall overlay caller: exact one stack argument and RET 4. Its
+  // CALL returns at the statically verified GameUI ActivateGameOverlay site.
+  const BYTE overlayThunk[]={0x8b,0x44,0x24,0x04,0x50,0x8b,0x01,0xff,0x50,0x70,0xc2,0x04,0x00};
+  std::memcpy(fixture+0x11a10,overlayThunk,sizeof(overlayThunk));
+  require(FlushInstructionCache(GetCurrentProcess(),fixture,0x70000)!=FALSE);
+  D::setProxy(true);l4d2_workshop::publish(true,1,GetTickCount64());
+  for(const auto rva:returnSites){
+    const unsigned before=availableCalls;
+    require(reinterpret_cast<Guard>(fixture+rva-7)(&utils) && availableCalls==before+1 && GetLastError()==0x1234);
+  }
+  const auto inviteGuard=reinterpret_cast<Guard>(fixture+0x11a03-7);
+  using OverlayCaller=void(__thiscall*)(void*,const char*);
+  const auto overlayCaller=reinterpret_cast<OverlayCaller>(fixture+0x11a10);
+  const char* dialog="LobbyInvite";
+  if(inviteGuard(&utils))overlayCaller(&friends,dialog);
+  require(overlayCalls==1 && receivedDialog==dialog && GetLastError()==0x3456);
+  bool sawInvite=false;
+  for(const auto& line:logs)if(line.find("dialog_class=lobby-invite")!=std::string::npos && line.find("verified_helper=1")!=std::string::npos)sawInvite=true;
+  require(sawInvite);
+  throwLog=true;requestOverlay(dialog);require(overlayCalls==2 && receivedDialog==dialog && GetLastError()==0x3456);throwLog=false;
+  requestOverlay(nullptr);require(overlayCalls==3 && receivedDialog==nullptr && GetLastError()==0x3456);
+  const char* privateDialog="private-dialog-do-not-log";requestOverlay(privateDialog);
+  require(overlayCalls==4 && receivedDialog==privateDialog && GetLastError()==0x3456);
+  for(const auto& line:logs)require(line.find(privateDialog)==std::string::npos);
+  l4d2_workshop::publish(true,0,GetTickCount64());require(!inviteGuard(&utils));
+  l4d2_workshop::publish(false,1,GetTickCount64());require(!inviteGuard(&utils));
+  l4d2_workshop::publish(true,1,GetTickCount64()-3001);require(!inviteGuard(&utils));
+  l4d2_workshop::publish(true,1,GetTickCount64()+10000);require(!inviteGuard(&utils));
+  l4d2_workshop::publish(true,1,GetTickCount64());D::setProxy(false);require(!inviteGuard(&utils));
+  D::setProxy(true);l4d2_web::NativeTest::menu(nullptr);require(!inviteGuard(&utils));
+  require(VirtualFree(fixture,0,MEM_RELEASE)!=FALSE);D::setProxy(false);allowed=true;
   l4d2_workshop::reader.close();l4d2_workshop::publisher.close();
   friendsTable[30]=reinterpret_cast<void*>(&later); // Preserve a later third-party replacement.
+  const auto retainedOverlay=reinterpret_cast<OverlayCaller>(friendsTable[28]);
   D::stop();require(utilsTable[17]==reinterpret_cast<void*>(&availability));require(friendsTable[30]==reinterpret_cast<void*>(&later));
+  require(friendsTable[28]==reinterpret_cast<void*>(&showOverlay));
   require(enabled() && GetLastError()==0x1234);
-  std::puts("PASS steam-web-observer x86 actual-thiscall-ABI, guard, borrowed-arguments, LastError, logger-exception, hash-gate, conditional-restore");
+  // An in-flight/retained callback after stop still dispatches exactly once,
+  // but emits no request log and cannot substitute the availability result.
+  const unsigned stoppedCalls=overlayCalls;const size_t stoppedLogs=logs.size();
+  retainedOverlay(&friends,dialog);
+  require(overlayCalls==stoppedCalls+1 && receivedDialog==dialog && GetLastError()==0x3456 && logs.size()==stoppedLogs);
+  // A later third-party overlay replacement also survives conditional stop.
+  friendsTable[28]=reinterpret_cast<void*>(&laterOverlay);D::stop();
+  require(friendsTable[28]==reinterpret_cast<void*>(&laterOverlay));
+  std::puts("PASS steam-web-invite-observer x86 actual-thiscall-ABI, four scoped guards, LobbyInvite borrowed-argument, once-only request, LastError, logger-exception, stale/future/disabled refusal, hash-gate, conditional-restore");
 }

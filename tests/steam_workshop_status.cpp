@@ -23,7 +23,8 @@ int main(int argc,char** argv){
   require(fresh(encode(true,1,0xffffffffull),0x100000000ull)); // No 32-bit tick wrap.
   require(select(true,false,false,false));require(!select(false,false,true,true));
   require(!select(false,true,false,true));require(!select(false,true,true,false));require(select(false,true,true,true));
-  require(menuGuard(0x199ea)&&menuGuard(0x19aca)&&menuGuard(0x6ea9a)&&!menuGuard(0x199eb));
+  require(menuGuard(0x199ea)&&menuGuard(0x19aca)&&menuGuard(0x6ea9a)&&menuGuard(0x11a03));
+  require(!menuGuard(0x199eb)&&!menuGuard(0x11a02)&&!menuGuard(0x11a04));
   const std::string name="Local\\L4D2WorkshopTest_"+std::to_string(GetCurrentProcessId())+"_"+std::to_string(GetTickCount64());
   Channel missing;require(!missing.reader((name+"_absent").c_str(),GetCurrentProcess()));
   Channel writer;require(writer.publisher(name.c_str()));Channel duplicate;require(!duplicate.publisher(name.c_str()));

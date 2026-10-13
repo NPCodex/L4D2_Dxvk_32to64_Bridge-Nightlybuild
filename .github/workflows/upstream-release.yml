@@ -171,6 +171,11 @@ jobs:
             .deps/retention-journal-test/**
             .deps/optimization45-ipc-test/**
             .deps/ipc-reply-budget/**
+            .deps/steam-window-test/**
+            .deps/steam-web-test/**
+            .deps/steam-workshop-x86/**
+            .deps/steam-workshop-x64/**
+            .deps/steam-invite-guard-test/**
           include-hidden-files: true
           if-no-files-found: warn
       - name: Build and verify the native ThinFlex repair tool
@@ -202,6 +207,13 @@ jobs:
           $metadata.original_project_commit = $original.commit
           $metadata.original_project_version = $original.version
           $metadata.original_project_integration = $original.integration
+          $metadata.original_project_main_baseline = $original.main_baseline
+          if ($original.integration -eq 'partial') {
+            $metadata.original_project_reviewed_commit = $original.reviewed_commit
+            $metadata.original_project_partial_commit = $original.partial_commit
+            $metadata.original_project_partial_version = $original.partial_version
+            $metadata.original_project_partial_content = $original.partial_content
+          }
           $metadata.host_architectures = @('x86', 'x64')
           $metadata.default_host_architecture = 'x64'
           $metadata.l4n_plugin = 'bin/neko/plugins/L4D2BridgePlugin.dll'

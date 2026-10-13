@@ -16,6 +16,25 @@ ROOT = Path(__file__).resolve().parents[1]
 APPROVAL_PATH = ROOT / "config/nvidia-upstream.json"
 
 
+def read_original_project(root=None):
+    root = ROOT if root is None else root
+    original = json.loads((root / "config/original-project.json").read_text(encoding="utf-8"))
+    if not isinstance(original, dict) or original.get("integration") not in ("full", "partial"):
+        raise ValueError("L4D2 integration must be explicitly full or partial")
+    for field in ("repository", "version"):
+        if not isinstance(original.get(field), str) or not original[field].strip():
+            raise ValueError(f"L4D2 provenance requires {field}")
+    commits = ["commit", "main_baseline"]
+    if original["integration"] == "partial":
+        commits.extend(("reviewed_commit", "partial_commit"))
+        if not isinstance(original.get("partial_version"), str) or not original["partial_version"].strip():
+            raise ValueError("Partial L4D2 integration requires partial_version")
+    for field in commits:
+        if not isinstance(original.get(field), str) or not re.fullmatch(r"[0-9a-f]{40}", original[field]):
+            raise ValueError(f"L4D2 provenance requires a full {field} SHA")
+    return original
+
+
 def read_approval():
     approval = json.loads(APPROVAL_PATH.read_text(encoding="utf-8"))
     if (not isinstance(approval, dict)
@@ -92,8 +111,11 @@ def pending():
     if not re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version):
         raise ValueError("Invalid project version")
     identifier = "v" + version + ("-thinflex-test-" if thinflex else "-") + names["release_tag"]
-    original = json.loads((ROOT / "config/original-project.json").read_text(encoding="utf-8"))
-    title = "v" + version + " L4N 整合包 · 完整同步上游 " + original["version"] + (" + ThinFlex 测试版" if thinflex else "")
+    original = read_original_project()
+    upstream_title = ("上游 " + original["partial_version"] + " 选择性更新"
+                      if original["integration"] == "partial"
+                      else "完整同步上游 " + original["version"])
+    title = "v" + version + " L4N 整合包 · " + upstream_title + (" + ThinFlex 测试版" if thinflex else "")
     names.update(release_tag=identifier, title=title,
                  archive="l4d2-bridge-" + identifier + ".zip")
     return [{"tag": names["group"], "commit": commit, "branch": branch,

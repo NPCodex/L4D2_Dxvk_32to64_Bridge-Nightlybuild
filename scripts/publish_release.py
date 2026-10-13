@@ -1,11 +1,10 @@
 """Publish a new build instance without replacing a published release."""
 import hashlib
-import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
-from detect_release import api
+from detect_release import api, read_original_project
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -99,6 +98,7 @@ def publish():
     elif "-thinflex-test-" in tag:
         raise ValueError("ThinFlex test tag requires the experimental release channel")
     changes = current_release_notes()
+    original = read_original_project(ROOT)
     name = os.environ.get("ARCHIVE_NAME", "")
     expected_names = {name, name + ".sha256"}
     files = list(Path("assets").iterdir())
@@ -122,9 +122,12 @@ def publish():
         uploads = pending_uploads(repo, existing, uploads)
     upstream = os.environ["UPSTREAM_COMMIT"]
     recipe = os.environ["RECIPE_COMMIT"]
-    original = json.loads((ROOT / "config/original-project.json").read_text(encoding="utf-8"))
     channel = "thinflex-test" if experimental else "nightly"
     digest_label = "Experimental recipe digest" if experimental else "Recipe digest"
+    partial_provenance = (f"L4D2 reviewed commit: {original['reviewed_commit']}\n"
+                          f"L4D2 partial commit: {original['partial_commit']}\n"
+                          f"L4D2 partial version: {original['partial_version']}\n"
+                          if original["integration"] == "partial" else "")
     notes = (
         f"L4D2 Bridge {title}\n\n{changes}\n\n"
         f"[安装与回退说明](https://github.com/{repo}/blob/{recipe}/README.md) · "
@@ -132,6 +135,8 @@ def publish():
         "<details>\n<summary>构建指纹</summary>\n\n"
         f"Release channel: {channel}\nUpstream commit: {upstream}\n"
         f"L4D2 original project: {original['repository']}\nL4D2 original commit: {original['commit']}\nL4D2 original version: {original['version']}\n"
+        f"L4D2 integration: {original['integration']}\nL4D2 full main baseline: {original['main_baseline']}\n"
+        f"{partial_provenance}"
         f"Build recipe: {recipe}\n{digest_label}: {os.environ['RECIPE_DIGEST']}\n\n"
         "</details>\n")
     Path("notes.md").write_text(notes, encoding="utf-8", newline="\n")

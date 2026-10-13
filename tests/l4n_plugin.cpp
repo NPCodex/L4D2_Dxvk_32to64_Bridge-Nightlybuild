@@ -93,19 +93,19 @@ struct MenuHost {
   void back() { assert(pages.size() > 1); pages.pop_back(); }
 };
 static void rootOrder(const std::string& menu) {
-  const char* labels[] = { "Status", "GC", "Memory Policy", "ReShade Presenter", "Host", "ipcBatchSize", "vbibMappedShadow", "Language" };
+  const char* labels[] = { "Status", "GC", "Memory Policy", "ReShade / Steam Overlay", "Host", "ipcBatchSize", "vbibMappedShadow", "Language" };
   size_t previous = 0;
   for (const auto* label : labels) {
     const auto position = menu.find(std::string("\"") + label + "\"");
     assert(position != std::string::npos && position > previous); previous = position;
   }
-  for (const auto* forbidden : { "PageBlock Stats", "Retention Policy", "GC Learned", "GC Aggressive", "GC Force", "diagnostics", "readback test", "color", "API wait", "Steam", "exception" }) {
+  for (const auto* forbidden : { "PageBlock Stats", "Retention Policy", "GC Learned", "GC Aggressive", "GC Force", "diagnostics", "readback test", "color", "API wait", "exception" }) {
     assert(menu.find(forbidden) == std::string::npos);
   }
   assert(menu.find("\"Back\"") == std::string::npos);
 }
 static void pageBlockOnly(const std::string& page) {
-  for (const auto* label : { "Runtime Host", "Configured Host", "ReShade Presenter", "Restart Required", "Configured Memory Policy", "persistent settings" }) {
+  for (const auto* label : { "Runtime Host", "Configured Host", "ReShade Presenter", "ReShade / Steam Overlay", "Restart Required", "Configured Memory Policy", "persistent settings" }) {
     assert(page.find(label) == std::string::npos);
   }
 }
@@ -137,6 +137,14 @@ int wmain(int argc, wchar_t** argv) {
   assert(host.page().find(u8"语言立即生效") != std::string::npos);
   MenuHost chinese(plugin->RequestHudMenu(false));
   assert(chinese.page().find(u8"状态") != std::string::npos && chinese.page().find(u8"保存") == std::string::npos);
+  chinese.select("ReShade / Steam Overlay");
+#ifdef L4D2_TEST_GENERAL
+  assert(chinese.page().find(u8"ReShade 与 Steam Overlay 输入依赖此开关") != std::string::npos);
+  assert(chinese.page().find(u8"不会安装 ReShade 本体") != std::string::npos);
+#else
+  assert(chinese.page().find(u8"不可用") != std::string::npos);
+#endif
+  chinese.back();
   chinese.select(u8"语言"); chinese.select("English");
   assert(chinese.page().find("Language applies immediately") != std::string::npos);
   assert(configWrites == languageWrites && runtimeSets == languageRuntime);
@@ -189,7 +197,7 @@ int wmain(int argc, wchar_t** argv) {
 #ifdef L4D2_TEST_NO_API
   assert(host.page().find("PageBlock status failed") != std::string::npos);
   host.back(); host.select("Host"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
-  host.select("ReShade Presenter"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
+  host.select("ReShade / Steam Overlay"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
   host.select("Memory Policy");
   assert(host.page().find("Current policy unavailable") != std::string::npos);
   host.select("save to configure [unavailable]"); assert(host.pages.size() == 2);
@@ -277,11 +285,16 @@ int wmain(int argc, wchar_t** argv) {
   host.select("Host"); host.select("Save");
   assert(configured.host == general::Host::X86 && configWrites == writesBefore + 1); host.back(); host.back();
 
-  host.select("ReShade Presenter"); host.select("Enable");
-  assert(host.page().find("ReShade Presenter enabled. Restart L4D2 to apply.") != std::string::npos && host.page().find("x64 Host + Vulkan ReShade 6.0.1") != std::string::npos); host.back(); host.back();
+  host.select("ReShade / Steam Overlay");
+  assert(host.page().find("Required for ReShade and Steam Overlay input") != std::string::npos);
+  assert(host.page().find("Does not install ReShade") != std::string::npos);
+  host.select("Enable");
+  assert(host.page().find("ReShade / Steam Overlay Presenter enabled. Restart L4D2 to apply.") != std::string::npos && host.page().find("x64 Host + Vulkan ReShade 6.0.1") != std::string::npos); host.back(); host.back();
   host.select("Status"); pageBlockOnly(host.page()); host.back();
-  host.select("ReShade Presenter"); assert(host.page().find("Configured: Enabled") != std::string::npos);
-  host.select("Disable"); host.back(); host.back();
+  host.select("ReShade / Steam Overlay"); assert(host.page().find("Configured: Enabled") != std::string::npos);
+  host.select("Disable");
+  assert(host.page().find("Disabling also disables Steam Overlay input") != std::string::npos);
+  host.back(); host.back();
   assert(configured.host == general::Host::X86 && runtimeSets == setsBeforeHost);
 
   configError = E_ACCESSDENIED;
@@ -315,7 +328,7 @@ int wmain(int argc, wchar_t** argv) {
   readError = S_OK;
 #else
   host.select("Host"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
-  host.select("ReShade Presenter"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
+  host.select("ReShade / Steam Overlay"); assert(host.page().find("Unavailable") != std::string::npos); host.back();
 #endif
   for (unsigned int i = 0; i < 100; ++i) {
     host.select("Status"); assert(host.pages.size() == 2); pageBlockOnly(host.page()); host.back();

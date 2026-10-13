@@ -2,7 +2,7 @@
 
 开发接入见 [完整 API 参考](API.md)，进程/资源/配置的技术边界见 [当前架构](ARCHITECTURE.md)。本文描述最终 HUD 行为；控制 ABI 仍提供 runtime Host 等字段，插件按当前菜单要求不显示这些字段。
 
-本页描述 Nightly v1.5.0 的 `common-settings-3` 插件，包括此前常用设置、上游 IPC 批次/静态映射设置与中英文菜单。Nightly 从配套源码编译 x86 `L4D2BridgePlugin.dll`，随唯一全量 ZIP 直接放在 `bin/neko/plugins/`。完整包已含 Starfelll（@Starfelll）的 L4N 2.51.0 本体及维护者提供的 `config.vdf`；来源见 [整合包说明](L4N-BUNDLE.md)。Bridge 本体不依赖设置插件，插件需支持随仓库提供的 SDK v2 的 L4N HUD。
+本页描述 Nightly v1.5.3 的 `common-settings-3` 插件，包括此前常用设置、上游 IPC 批次/静态映射设置与中英文菜单。Nightly 从配套源码编译 x86 `L4D2BridgePlugin.dll`，随唯一全量 ZIP 直接放在 `bin/neko/plugins/`。完整包已含 Starfelll（@Starfelll）的 L4N 2.51.0 本体及维护者提供的 `config.vdf`；来源见 [整合包说明](L4N-BUNDLE.md)。Bridge 本体不依赖设置插件，插件需支持随仓库提供的 SDK v2 的 L4N HUD。
 
 ## 安装与停用插件
 
@@ -25,7 +25,7 @@ L4D2 Bridge
 │  ├─ lg
 │  ├─ drop [experimental]
 │  └─ save to configure
-├─ ReShade Presenter
+├─ ReShade / Steam Overlay
 │  ├─ Enable
 │  └─ Disable
 ├─ Host
@@ -52,7 +52,7 @@ L4D2 Bridge
 | GC | 执行原 learned/aggressive/force GC | 否 | 否 |
 | Memory Policy: keep / lg / drop | 调用原 runtime SetPolicy | 否 | 否 |
 | Memory Policy: save to configure | 确认当前 runtime 值 | 是 | 否 |
-| ReShade Presenter | 不重建当前 Presenter | 是 | 是 |
+| ReShade / Steam Overlay | 不重建当前 Presenter | 是 | 是 |
 | Host: x86 / x64 | 仅暂存选择 | 否 | 否 |
 | Host: Save | 不更换当前 Host | 是 | 是 |
 | ipcBatchSize / vbibMappedShadow: 选择 | 仅暂存选择 | 否 | 否 |
@@ -78,11 +78,13 @@ keep、lg、drop 三项仅调用旧 PageBlock `SetPolicy`，当前会话立即�
 
 运行中选择 drop 不会自动清空 backing，也不会放宽现有 capability/safety/recovery 检查。GC 算法、等待与回收语义均未改变。旧 `L4D2BridgePageBlockControl::SetPolicy` 仍是 session only；只有新通用控制会额外保存。
 
-## Host 和 ReShade Presenter
+## Host 和 ReShade / Steam Overlay
 
 Host 每次进入重新读取配置，首行显示 `Configured Host`。点击 x86/x64 仅暂存选择，选择结果页底部有 Save；点击 Save 才由 Client 持久化，并重新读取、显示新的配置值。离开而未保存的选择在再次进入 Host 时丢弃。保存规则保持现有实现：x86 写 `forceX64Server=True`、`client.testX86Server=True`；x64 写 `forceX64Server=True`、`client.testX86Server=False`。两者都不能使用 `forceX64Server=False` 模拟切换。不杀进程、不 reconnect、不 Reset、不搬迁资源；退出整个游戏后重新启动才应用。
 
 SDK v2 的非空回调返回值会打开结果子页，不能原地替换已经打开的父菜单。选择结果页可直接保存，保存结果显示重新读取的值；若返回到先前缓存的页面，需要退出并重新进入对应菜单以刷新。说明行继续返回 nullptr，不新增层级；结果页不递归提供其他选择。
+
+菜单显示“ReShade / Steam Overlay”，说明两者共享 Bridge Presenter，并在 Disable 页面提示会一并停用所需支持。本次仅改双语文字，既有操作 ID 和保存逻辑不变；它不是全部 Steam 功能的总开关。
 
 Presenter Enable 保存以下九项：
 
@@ -98,7 +100,7 @@ client.DirectInput.forward.mousePolicy = 0
 client.DirectInput.forward.keyboardPolicy = 0
 ```
 
-Disable 只保存 `server.presenterWindow=False`、`client.hookMessagePump=False`、`client.overrideCustomWinHooks=False`，其余配置保留。Enable/Disable 都只修改 Bridge Presenter/输入支持，不安装、卸载或重载 ReShade 本体，也不改 Host 选择。此前验证过的 ReShade 组合为 **x64 Host + Vulkan ReShade 6.0.1**；x86 配置允许启用，只显示非阻塞提示。这些历史验证不能替代 v1.5.0 整合包的游戏测试。
+Disable 只保存 `server.presenterWindow=False`、`client.hookMessagePump=False`、`client.overrideCustomWinHooks=False`，其余配置保留。Enable/Disable 都只修改 Bridge Presenter/输入支持，不安装、卸载或重载 ReShade 本体，也不改 Host 选择。此前验证过的 ReShade 组合为 **x64 Host + Vulkan ReShade 6.0.1**；x86 配置允许启用，只显示非阻塞提示。这些历史验证不能替代当前整合包的游戏测试。
 
 v1.5.0 新安装的主配置已启用上述 Presenter 依赖以及两端 Steam 输入、Host 原生输入、窗口适配、Client hook/query 链、鼠标捕获交接和工坊可用性代理。**Presenter 菜单不是完整 Steam 功能开关**：Disable 会停用 Steam 所需子窗口和 Client 钩子，其他 Steam 键仍保留；Enable 也不会补写缺失的 Steam 键。升级保留旧配置时按 [完整配置说明](CONFIGURATION.md#steam-窗口与输入适配) 合并依赖。不要把关闭 Presenter 当成已停用所有 Steam 工作。
 
@@ -137,4 +139,4 @@ Client 内部序列化读写。用同目录 `bridge.conf.tmp` 的 CREATE_NEW 防
 
 自动测试包含：新/旧/缺失控制导出的 SDK v2 菜单回调、菜单顺序和 GC 映射、Status 仅查询 PageBlock、说明文字不新增层级、100 轮导航、新鲜状态、策略 configure/runtime 来源、选择不写配置、保存实时策略及部分失败、Host 暂存/保存/放弃选择、保存后重新读取配置、Presenter 行为、配置读失败和旧 Bridge 保存不可用。IPC/映射覆盖合法值、无效请求、仅写目标键、保存与未保存导航、失败提示、无运行时 GC/策略调用、旧 API 能力标记以及中英文菜单。Client 测试继续覆盖 Presenter 配套键、restart 判定、配置文本保留/重复键/换行/Unicode、实际 Config 路径与缓存隔离、写入和替换失败、Host 拒绝写配置、旧 ABI 大小和边界。Windows 脚本为 `scripts/test_pageblock_gc.ps1`；构建保留 x86 插件。
 
-真实 L4D2 + L4N 的 HUD 布局/文字容量、保存失败提示、操作后返回导航、完整重启后的设置应用，以及 Steam/ReShade 与用户配置组合，均需对应整合包实机证据。此前候选的 smoke/性能记录不能证明最终 v1.5.0 包已经完成这些验证；原生 mock/unit 检查也不代替游戏和 GPU 验证。
+真实 L4D2 + L4N 的 HUD 布局/文字容量、保存失败提示、操作后返回导航、完整重启后的设置应用，以及 Steam/ReShade 与用户配置组合，均需对应整合包实机证据。此前候选的 smoke/性能记录不能证明最终 v1.5.3 包已经完成这些验证；原生 mock/unit 检查也不代替游戏和 GPU 验证。

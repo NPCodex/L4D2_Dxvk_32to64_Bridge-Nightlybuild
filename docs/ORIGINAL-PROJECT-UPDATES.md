@@ -1,6 +1,14 @@
-# L4D2 原项目完整同步
+# L4D2 原项目同步记录
 
-NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.2 合入 L4D2 main 至 c8d55b0，并独立采用 NVIDIA d2a5033。
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.3 选择性采用 L4D2 v1.3.1 / `677653d`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+
+## 2026-10-13：v1.3.1 Steam 邀请保护与菜单说明（部分采用）
+
+已审阅 upstream/main [`677653d5d6751377799187c0677ff1e7d3f2f9ad`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/677653d5d6751377799187c0677ff1e7d3f2f9ad)、v1.3.1 发布说明、问题与原生 CI。选择独立的邀请入口可用性保护/ABI 转发、既有 Steam 窗口观察包装的模块生命周期保护，以及 L4N 菜单共享 Presenter 依赖和停用警告。
+
+输入捕获及 owner-thread 激活整组暂不采用：新 raw callback 在旧消息处理前写入聚合激活状态，会跳过已有修饰键释放分支；完整激活辅助函数的并发一致性亦无对应覆盖。未将源码缺口说成已复现实机卡键或性能退步。配套默认钩子 False/False 与菜单 Enable 仍写 True/True 不一致；保留本分支现有输入路径和默认配置，也不接入新的 Client renderer 观察器。
+
+本次是有明确范围的选择性移植，**完整生产/main 基准不推进**，不通过第二父提交把整个 677653d 标记为已合入。详情和原生验证边界见 [本次 Steam 集成审查](UPSTREAM-STEAM-20261013.md)。正式构建、附件和发布状态以本次交付收据为准。
 
 ## 2026-10-13：IPC/上传安全增量
 
