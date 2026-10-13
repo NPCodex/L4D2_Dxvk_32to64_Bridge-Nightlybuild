@@ -1,4 +1,4 @@
-# v1.5.5
+# v1.5.6
 
 - 合入四项经审阅的候选：Bridge retention 数据库的单次数字解析与延迟 CNG provider、GPLALL 裁剪平面 packed override 修复、低核数 shader worker 下溢保护，以及按实际可用 GPL 能力判断 specialization 状态。
 - GPLALL 后端改为固定源码 `Digger1955/dxvk-gplall@6a0ea561f9add008899680e6c313aa21c151e03e` 构建 x86/x64，并保留已发布的 MSAA `DontUnroll` 变换。构建收据会逐字节绑定三项 GPL 源码补丁和两个架构 DLL。
