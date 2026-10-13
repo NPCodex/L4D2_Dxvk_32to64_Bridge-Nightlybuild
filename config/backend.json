@@ -8,5 +8,60 @@
   "files": {
     "x32/d3d9.dll": "9b0113fd1e596a45c75368f8568858a0c5f004f1a5560f66e29d41b098b8fd1d",
     "x64/d3d9.dll": "d7b3e078a913f8ae66e29851b9dbcdf40a4d35639d6ef6493a6f9382173e3300"
+  },
+  "modification": {
+    "id": "msaa-linear-dont-unroll-20261013",
+    "kind": "spirv-loop-control",
+    "date": "2026-10-13",
+    "upstream_repository": "https://github.com/Digger1955/dxvk-gplall",
+    "upstream_commit": "6a0ea561f9add008899680e6c313aa21c151e03e",
+    "upstream_path": "src/dxvk/shaders/dxvk_blit_frag_2d_ms.frag",
+    "original_source": {
+      "path": "patches/gplall-msaa-loop/original.frag",
+      "sha256": "e4f9b91156a7745dcd67102fd70c8f30713ffcd660cf45fe8ae079f965cc370f"
+    },
+    "modified_source": {
+      "path": "patches/gplall-msaa-loop/modified.frag",
+      "sha256": "8e0809394262fa46647ece619aad1f2634d5166fca7d758bf0127ea21c48baaa"
+    },
+    "source_patch": {
+      "path": "patches/gplall-msaa-loop/shader.patch",
+      "sha256": "75ea63522acc00e51a56dd4cd123e2532092df6b769829a83425702f31b5438f"
+    },
+    "original_spirv": {
+      "path": "patches/gplall-msaa-loop/original.spv",
+      "sha256": "e879efae72d147585afa2814ad7e5a4e04d0543d1a39f37b7e2bab212cb17a37"
+    },
+    "modified_spirv": {
+      "path": "patches/gplall-msaa-loop/modified.spv",
+      "sha256": "4a99ba7d328be8a1bed42dd761a08a6edabfda788cb523414a036a728c9dce18"
+    },
+    "license": {
+      "path": "patches/gplall-msaa-loop/LICENSE",
+      "sha256": "a5cb1a6ded7d2d7e92d550ba28edd21be2d1d4044662b399887351023e30ce64"
+    },
+    "control_word": 1178,
+    "embedded_offsets": {
+      "x32/d3d9.dll": 3269120,
+      "x64/d3d9.dll": 3090208
+    },
+    "files": {
+      "x32/d3d9.dll": "c64118d7dc2c6865dda9c459f66d16aee659ba0fe8b7a9cb887e6ab12e95cd15",
+      "x64/d3d9.dll": "1648c8261ac9d382ceb05d44aa8a517383bfbac7e4049c0262acf439413513c2"
+    },
+    "compiler_reproduction": {
+      "tool": "glslangValidator",
+      "version": "16.5.0",
+      "arguments": [
+        "--target-env",
+        "vulkan1.3",
+        "-V",
+        "-S",
+        "frag"
+      ],
+      "baseline_compiled_equals_captured_shader": true,
+      "candidate_compiled_equals_embedded_replacement": true
+    },
+    "notice": "Modified by NPCodex on 2026-10-13: only the MSAA linear/nearest sample loop hint changes Unroll to DontUnroll; average-resolve loop, sampling and math remain unchanged. Original GPLALL/DXVK attribution and zlib/libpng license are retained. This is not a complete backend rebuild."
   }
 }

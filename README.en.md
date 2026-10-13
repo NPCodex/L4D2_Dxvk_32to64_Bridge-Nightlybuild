@@ -8,7 +8,7 @@
 
 ## Download and installation — start here
 
-**v1.5.2 integrates L4D2 upstream `c8d55b0`, fixes zero-byte buffer upload compatibility, and adopts NVIDIA source `d2a5033`.** Implemented changes from the 45-item ledger are retained. New NVIDIA RTX changes are excluded from this package; no new FPS or image-quality gain is claimed. Defaults remain x64, C8 and mapped shadow off; the complete Steam/Presenter configuration is enabled. The maintainer explicitly accepted the earlier candidate's measured average-FPS regression; see this Release and the [ledger](docs/OPTIMIZATION-45.md) for scope and evidence. **If 1% low drops, frames drop or frame rates become unstable, return to [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1).** Restore the Client and both Hosts together.
+**v1.5.4 adopts the IPC immediate-publication deadline change and the GPLALL MSAA shader loop-hint change.** GPU intermediate outputs have disclosed 1-half-ULP differences and fail the original byte-exact gate, although the captured final frame is identical. Replay does not demonstrate a speedup, and IPC comparisons do not establish a stable gain. This combination has no completed gameplay-performance or all-scene image-quality validation. See [implementation and evidence](docs/GPU-IPC-20261013.md). Defaults remain x64, C8 and mapped shadow off. **If 1% low drops, frames drop or frame rates become unstable, return to [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1).** Exit the game and all Hosts, restore the Client and both Hosts together, and restore that version's two GPLALL backends to undo this GPU change.
 
 **[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. It includes **L4N 2.51.0, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. No patch tool or Python installation is needed. The layout follows the maintainer's supplied bundle; `config_template.vdf` is omitted. See [bundle provenance](docs/L4N-BUNDLE.md). The player ZIP contains runtime components, active configuration, L4N's original VDF templates and QC/VMT examples, a short `README.txt`, and one combined `THIRD-PARTY-NOTICES.txt`. Developer documentation, JSON manifests, diagnostic scripts, the SDK and offline Mod authoring tools remain in the repository.
 
@@ -42,7 +42,7 @@ Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remi
 
 - Builds only Bridge; the RTX Remix renderer is neither built nor distributed.
 - Applies L4D2 patches for Host and backend loading paths, surface and buffer shadow-memory management, diagnostic logging, and game-specific configuration. See [patches/l4d2-bridge.patch](patches/l4d2-bridge.patch).
-- Uses **DXVK-GPLALL 2.6.8-2 x64** as the default backend. Its version and download checksum are pinned separately in [config/backend.json](config/backend.json); updating Bridge does not automatically update the backend.
+- Uses **DXVK-GPLALL 2.6.8-2 x64** as the default backend. Its version and download checksum are pinned separately in [config/backend.json](config/backend.json); updating Bridge does not automatically update the backend. This package additionally applies the pinned MSAA loop-hint transformation; see the [validation scope](docs/GPU-IPC-20261013.md).
 - Adds upstream monitoring, automated builds and tests, Nightly releases, and minimal runtime packaging.
 - Fixes volume-texture byte pitches and upload offsets to prevent corrupted color-correction lookup tables. See [fix provenance and validation](docs/VOLUME-TEXTURE-COLOR-FIX.md).
 - Fully integrates original-project **1.3.0 / `f6a059b`**, including IPC v2, Steam input/window/workshop adaptation, PageBlock retention/reclaim/recovery, manual GC, Reset state handling, diagnostic separation, both Hosts and L4N settings. Source, presets, tests and the optional DXVK memory experiment are retained; the experimental backend does not replace default GPLALL. See [integration tracking](docs/ORIGINAL-PROJECT-UPDATES.md).
@@ -53,7 +53,7 @@ Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remi
 
 ## Automatic and manual builds
 
-The workflow checks the NVIDIA build source default branch (currently `main`) every hour at minute 23. Codex reviews new commits hourly and adopts them after validation. Actions builds only the approved commit in `config/nvidia-upstream.json`, skipping an already published source/recipe pair. GitHub scheduling may be delayed.
+The workflow checks the NVIDIA build source default branch (currently `main`) every hour at minute 23. Codex reviews new commits hourly; future production updates are reported for the maintainer's decision. Actions builds only the approved commit in `config/nvidia-upstream.json`, skipping an already published source/recipe pair. GitHub scheduling may be delayed.
 
 Under **Actions → Build latest upstream Bridge → Run workflow**:
 

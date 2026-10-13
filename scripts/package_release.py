@@ -12,6 +12,7 @@ import struct
 import subprocess
 import re
 from build_identity import protocol_digest
+from backend_recipe import package_backend_info
 from engine_payload import source_engine_files
 from l4n_payload import source_l4n_files, VERSION as L4N_VERSION, AUTHOR as L4N_AUTHOR
 
@@ -67,6 +68,9 @@ def package(source, dxvk, output, dxvk_x86, plugin):
             if not struct.unpack_from("<H", data, pe + 22)[0] & 0x20:
                 raise ValueError("The x86 Host must be LARGEADDRESSAWARE")
         files[relative] = data
+    metadata = json.loads((ROOT / "config/backend.json").read_text(encoding="utf-8"))
+    backend_info = package_backend_info(ROOT, metadata, {
+        arch: files[f"bin/.l4d2bridge/d3d9vk_{arch}.dll"] for arch in ("x64", "x86")})
     if output.exists():
         raise FileExistsError(f"Output already exists; preserve or move it first: {output}")
     source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
@@ -77,16 +81,6 @@ def package(source, dxvk, output, dxvk_x86, plugin):
         destination.write_bytes(data)
     hashes = {relative: hashlib.sha256(data).hexdigest() for relative, data in files.items()}
     shutil.copy2(ROOT / "config/bridge.conf", output / "bin/.l4d2bridge/bridge.conf")
-    backend_hashes = {arch: hashes[f"bin/.l4d2bridge/d3d9vk_{arch}.dll"] for arch in ("x64", "x86")}
-    backend_info = {"files": backend_hashes, "default_architecture": "x86_64", "source": "custom -DxvkDll / -Dxvk32Dll"}
-    archive = ROOT / ".deps/gplall/backend.zip"
-    metadata = json.loads((ROOT / "config/backend.json").read_text(encoding="utf-8"))
-    if (archive.is_file() and hashlib.sha256(archive.read_bytes()).hexdigest() == metadata["sha256"]
-            and backend_hashes == {"x64": metadata["files"]["x64/d3d9.dll"], "x86": metadata["files"]["x32/d3d9.dll"]}):
-        backend_info.update(metadata)
-        backend_info["archive_sha256"] = backend_info.pop("sha256")
-        backend_info["files"] = backend_hashes
-        backend_info["source"] = metadata["release"]
     (output / "BACKEND.json").write_text(json.dumps(backend_info, indent=2) + "\n", encoding="utf-8")
     receipt = {"version": version, "build_id": build_id, "patch_sha256": patch_hash, "source_commit": source_commit,
                "protocol_version": "0x00020004", "protocol_source_sha256": protocol_hash,

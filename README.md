@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.3 选择性采用上游 v1.3.1 的 Steam 邀请保护、窗口观察包装生命周期保护及菜单依赖说明。** 完整 L4D2 基准仍为 `c8d55b0`，NVIDIA 基准为 `d2a5033`；新输入捕获和默认钩子变更未采用，详情见[本次审查](docs/UPSTREAM-STEAM-20261013.md)。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套设置默认启用。保留 45 项台账已实现改进和维护者接受的历史性能取舍，本次不宣称新的帧率或画质收益。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。**
+**v1.5.4 合入 IPC 立即发布 deadline 调整和 GPLALL MSAA 着色器循环提示调整。** GPU 中间结果存在已披露的 1 half ULP 舍入差异，最终捕获帧相同，但未通过原逐字节一致门槛；回放未显示提速，IPC 对照也未证明稳定收益。本组合未完成游戏性能或全场景画质验证，详情见[本次实现与验证](docs/GPU-IPC-20261013.md)。默认 x64、C8、静态映射关闭，现有配置与组件保留。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 退出游戏和所有 Host 后，成套恢复 Client 与两个 Host，并恢复该旧版的两个 GPLALL 后端以撤销本次 GPU 改动。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -34,7 +34,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-本次范围见 [Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md)；此前源码更新见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)，完整整合见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次范围见 [GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)；此前 [Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 继续保留；此前源码更新见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)，完整整合见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
@@ -42,7 +42,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 - 仅构建 Bridge，不构建或分发 RTX Remix 渲染器。
 - 应用 L4D2 补丁：调整 Host 和后端加载路径，加入表面／缓冲区影子内存管理及诊断日志，并使用游戏专用配置。补丁见 [patches/l4d2-bridge.patch](patches/l4d2-bridge.patch)。
-- 默认使用 **DXVK-GPLALL 2.6.8-2 x64** 后端，版本和下载校验值独立固定在 [config/backend.json](config/backend.json)，不随 Bridge 自动升级。
+- 默认使用 **DXVK-GPLALL 2.6.8-2 x64** 后端，版本和下载校验值独立固定在 [config/backend.json](config/backend.json)，不随 Bridge 自动升级；本包另外应用固定的 MSAA 循环提示变换，详见[验证范围](docs/GPU-IPC-20261013.md)。
 - 本仓库增加上游检查、自动编译、测试、Nightly 发布和精简安装包规则。
 - 修复三维纹理字节步长及上传偏移，避免颜色校正查色表损坏造成的偏色。来源与复测步骤见 [偏色修复说明](docs/VOLUME-TEXTURE-COLOR-FIX.md)。
 - 完整同步原项目 **1.3.0 / `f6a059b`**，包括最新双向 IPC 预留/消费、回绕与错误传播修复，以及此前 PageBlock 保留/回收/恢复、手动 GC、Reset 状态机、Presenter/输入路径、诊断分离、x86 Host 与 L4N 常用设置。源码、配置片段、测试和可选 DXVK 内存实验均保留，实验后端不替换默认 GPLALL。同步基准与本地兼容差异见 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。
@@ -55,7 +55,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 项目版本从 **v1.0** 起，重大更新递增次版本号，小改动递增补丁号；当前版本见 [VERSION](VERSION)，维护者设置见 [版本规则](docs/VERSIONING.md)。
 
-每小时第 23 分钟检查 NVIDIA 构建源的默认分支（当前为 `main`）。L4D2 原项目功能同步另记于 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。Codex 每小时审查新提交并在验证通过后更新；Actions 默认只构建 `config/nvidia-upstream.json` 中已批准的提交，相同源码与配方已发布时跳过。详见 [NVIDIA 更新记录](docs/NVIDIA-UPSTREAM-UPDATES.md)。GitHub 调度可能延迟。
+每小时第 23 分钟检查 NVIDIA 构建源的默认分支（当前为 `main`）。L4D2 原项目功能同步另记于 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。Codex 每小时审查新提交，后续生产更新先汇报、再由维护者决定；Actions 默认只构建 `config/nvidia-upstream.json` 中已批准的提交，相同源码与配方已发布时跳过。详见 [NVIDIA 更新记录](docs/NVIDIA-UPSTREAM-UPDATES.md)。GitHub 调度可能延迟。
 
 在 **Actions → Build latest upstream Bridge → Run workflow** 中：
 

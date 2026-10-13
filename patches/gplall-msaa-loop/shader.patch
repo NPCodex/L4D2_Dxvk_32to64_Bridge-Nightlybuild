@@ -1,0 +1,17 @@
+--- a/src/dxvk/shaders/dxvk_blit_frag_2d_ms.frag
++++ b/src/dxvk/shaders/dxvk_blit_frag_2d_ms.frag
+@@ -1,3 +1,5 @@
++// Modified by NPCodex on 2026-10-13: only the linear/nearest sample loop
++// changes from unroll to dont_unroll. Original GPLALL/DXVK attribution and license apply.
+ #version 450
+ 
+ #extension GL_EXT_control_flow_attributes : enable
+@@ -63,7 +65,7 @@
+   vec4 accumulated_color = vec4(0.0f);
+   float total_weight = 0.0f;
+ 
+-  [[unroll]]
++  [[dont_unroll]]
+   for (uint s = 0u; s < c_src_samples; s++) {
+     int sample_idx = int(s);
+ 

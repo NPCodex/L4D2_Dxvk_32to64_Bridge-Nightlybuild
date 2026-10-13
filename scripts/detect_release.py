@@ -112,10 +112,8 @@ def pending():
         raise ValueError("Invalid project version")
     identifier = "v" + version + ("-thinflex-test-" if thinflex else "-") + names["release_tag"]
     original = read_original_project()
-    upstream_title = ("上游 " + original["partial_version"] + " 选择性更新"
-                      if original["integration"] == "partial"
-                      else "完整同步上游 " + original["version"])
-    title = "v" + version + " L4N 整合包 · " + upstream_title + (" + ThinFlex 测试版" if thinflex else "")
+    # Integration provenance belongs in the body; a local update need not resync upstream.
+    title = "v" + version + " L4N 整合包" + (" + ThinFlex 测试版" if thinflex else "")
     names.update(release_tag=identifier, title=title,
                  archive="l4d2-bridge-" + identifier + ".zip")
     return [{"tag": names["group"], "commit": commit, "branch": branch,

@@ -24,4 +24,15 @@ $expected = $metadata.files.PSObject.Properties[$relative].Value
 if (!$expected -or (Get-FileHash -LiteralPath $backend -Algorithm SHA256).Hash.ToLower() -ne $expected) {
   throw "DXVK-GPLALL $Architecture file checksum mismatch"
 }
+if ($metadata.PSObject.Properties.Name -contains 'modification') {
+  # Keep the verified upstream DLL separate. The recipe fails closed on any
+  # source/shader/offset/output mismatch and never patches an installed game.
+  $modified = Join-Path $directory "modified/$($metadata.modification.id)/$Architecture/d3d9.dll"
+  $prepared = & python (Join-Path $PSScriptRoot 'backend_recipe.py') --input $backend --output $modified --architecture $Architecture
+  if ($LASTEXITCODE -ne 0) { throw "DXVK-GPLALL $Architecture shader recipe failed" }
+  if (@($prepared).Count -ne 1 -or !(Test-Path -LiteralPath $prepared)) {
+    throw 'Backend recipe did not return one prepared DLL'
+  }
+  $backend = $prepared
+}
 Write-Output $backend

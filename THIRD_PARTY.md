@@ -58,9 +58,10 @@ L4D2 与 Steam 属于 Valve，游戏及平台不包含在本项目的授权范�
 ## DXVK-GPLALL 后端变体
 
 - 来源：https://github.com/Digger1955/dxvk-gplall/releases/tag/DXVK-GPLALL-2.6.8-2 。
-- 使用 GCC-WinMacLinux-SSE2-O3-LTO 发布包中的 x32/d3d9.dll 和 x64/d3d9.dll，仅重命名，不修改二进制。
+- 原始输入为 GCC-WinMacLinux-SSE2-O3-LTO 发布包中的 x32/d3d9.dll 和 x64/d3d9.dll，固定源码提交 `6a0ea561f9add008899680e6c313aa21c151e03e`。2026-10-13 由 NPCodex 明确修改：仅将 `dxvk_blit_frag_2d_ms.frag` 中 MSAA linear/nearest 样本循环的展开提示由 Unroll 改为 DontUnroll；平均 resolve 循环、采样数和源码数学表达式保持不变。
+- 这是明确标识的修改版。原/改 shader 源码、补丁、SPIR-V、编译复现步骤及原许可证位于 [patches/gplall-msaa-loop](patches/gplall-msaa-loop/README.md)；`scripts/backend_recipe.py` 核验原版归档、两架构 DLL、唯一 shader 嵌入位置和输出哈希，只替换对应一个字节，未重编整个后端。不能将原版验证冒充修改版验证，也不将展开提示变化自动视为 FPS 收益。
 - 归属 Digger1955、上游 DXVK 和原文件所列贡献者；保留原始 [LICENSE](licenses/DXVK-GPLALL-LICENSE.txt)。
-- 下载地址和 SHA-256 固定在 config/backend.json，完整包记录 BACKEND.json、BUILD-INFO.json 和 DLL 校验值；归档校验值另由附件 .sha256 提供。
+- 原版下载地址、输入与修改版输出 SHA-256 固定在 config/backend.json，构建阶段记录 BACKEND.json、BUILD-INFO.json 和 DLL 校验值；玩家包仍仅包含两个后端 DLL，修改声明与原许可原文合并保留于唯一 THIRD-PARTY-NOTICES.txt。源码及复现材料保留在公开仓库，归档校验值另由附件 .sha256 提供。
 - 原版实测结果不能视作该变体已经通过验证。
 
 ## ReShade 接口参考

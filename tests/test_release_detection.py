@@ -69,11 +69,11 @@ class HeadDetection(unittest.TestCase):
 
     def test_full_integration_keeps_full_sync_title(self):
         rows, _ = self.run_case(original=ORIGINAL)
-        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包 · 完整同步上游 1.3.0")
+        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包")
 
     def test_partial_integration_identifies_selected_version_without_full_sync_claim(self):
         rows, _ = self.run_case(original=PARTIAL)
-        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包 · 上游 1.3.1 选择性更新")
+        self.assertEqual(rows[0]["title"], "v1.5.3 L4N 整合包")
         self.assertNotIn("完整同步", rows[0]["title"])
         self.assertEqual(rows[0]["commit"], SHA)
 

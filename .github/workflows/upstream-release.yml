@@ -151,6 +151,8 @@ jobs:
           name: validation-${{ matrix.release_tag }}
           path: |
             .deps/build-validation.json
+            .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
+            dist/l4d2-bridge/BACKEND.json
             .deps/queue-test/*.json
             .deps/queue-test/*.csv
             .deps/queue-test/*.exe
@@ -200,7 +202,7 @@ jobs:
           COMMITS_AFTER_TAG: ${{ matrix.distance }}
           THINFLEX_TEST: ${{ inputs.thinflex_test }}
         run: |
-          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Native validation and exact source receipt are attached to this Actions run. Game measurements and limitations for this version are recorded in its Release and docs/OPTIMIZATION-45.md; component benchmarks alone are not evidence of FPS or long-term stability.'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
+          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Native validation and exact Bridge/backend source receipts are attached to this Actions run. Current GPU/IPC measurements and numerical differences are recorded in the Release and docs/GPU-IPC-20261013.md; no combined gameplay-performance or all-scene image-quality result is claimed.'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
           if ($env:THINFLEX_TEST -eq 'true') { $metadata.release_channel = 'thinflex-test' }
           $original = Get-Content config/original-project.json -Raw | ConvertFrom-Json
           $metadata.original_project = $original.repository

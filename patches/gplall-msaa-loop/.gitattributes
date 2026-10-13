@@ -1,0 +1,5 @@
+# All recipe inputs are hashed verbatim, including upstream license bytes.
+*.frag -text whitespace=-blank-at-eol,-blank-at-eof
+*.spv -text
+*.patch -text whitespace=-blank-at-eol,-blank-at-eof
+LICENSE -text

@@ -100,10 +100,10 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
-        "本次选择性更新 Steam 邀请保护、窗口观察包装生命周期保护及菜单依赖说明；未采用上游新输入捕获和默认钩子变更。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套启用，保留 45 项台账已实现改进。此前已采用候选的平均 FPS 有下降；本次不保证帧率收益。已知 Steam 模块版本适配和性能验证范围有限，详情见 Release。\n"
-        "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
-        "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
+        "本次合入 IPC 立即发布 deadline 调整与 GPLALL MSAA 循环提示调整。GPU 中间结果存在已披露的微小舍入差异，未通过原逐字节一致门槛；回放未显示提速，IPC 对照亦无稳定收益。本组合未完成游戏性能或全场景画质验证，不保证帧率提升。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套启用。详情见 Release。\n"
+        "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
+        "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host，并恢复该旧版的两个 GPLALL 后端以撤销本次 GPU 改动：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"
         "升级时先解压到临时目录，保留原有 dxvk.conf、bin/.l4d2bridge/bridge.conf、left4dead2/neko/config.vdf、自定义后端、ReShade 和 retention DB，再合并覆盖。客户端与两个 Host 一并更新、回退。\n"
         "L4N 原作者：Starfelll（@Starfelll）。Bridge 设置菜单插件已放在 bin/neko/plugins/L4D2BridgePlugin.dll，随包安装；不需要菜单时退出游戏后移走该 DLL。\n"

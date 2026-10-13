@@ -119,6 +119,14 @@ class FullPackage(unittest.TestCase):
             self.run_package()
         self.assertEqual((self.output / "private.txt").read_bytes(), b"existing")
 
+    def test_required_backend_recipe_failure_precedes_output_creation(self):
+        self.metadata["modification"] = {"id": "required-modified-backend"}
+        self.metadata["sha256"] = "0" * 64
+        (self.root / "config/backend.json").write_text(json.dumps(self.metadata))
+        with self.assertRaisesRegex(ValueError, "pinned original GPLALL archive"):
+            self.run_package()
+        self.assertFalse(self.output.exists())
+
     def test_stale_protocol_identity_is_rejected_before_output(self):
         stamp = self.source / "bridge/src/util/ipc_v2/ipc_v2_build.h"
         stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x00000000u\n' for i in range(4)))

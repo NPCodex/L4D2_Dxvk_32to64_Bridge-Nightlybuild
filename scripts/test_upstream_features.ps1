@@ -5,7 +5,7 @@ foreach ($suite in @('runtime_observation', 'pageblock_gc', 'exception_diagnosti
     'device_reset', 'color_diagnostics', 'data_diagnostics', 'buffer_contract',
     'volume_layout', 'adapter_information', 'overlay_presenter', 'api_wait_diagnostics',
     'readback_recovery', 'x86_backend', 'ipc_api_failure',
-    'ipc_full', 'buffer_shadow_arena', 'hot_command_packets',
+    'ipc_full', 'ipc_immediate_publication', 'buffer_shadow_arena', 'hot_command_packets',
     'client_parameter_contract', 'host_upload_contract', 'retention_journal',
     'optimization45_ipc', 'ipc_reply_budget', 'steam_window_diagnostics', 'steam_web_diagnostics',
     'steam_invite_guard', 'steam_workshop_status', 'steam_availability_diagnostics')) {
