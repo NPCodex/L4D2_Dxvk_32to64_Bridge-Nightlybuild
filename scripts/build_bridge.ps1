@@ -10,8 +10,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
-if (-not $DxvkDll) { $DxvkDll = & "$PSScriptRoot/prepare_backend.ps1" }
-if (-not $Dxvk32Dll) { $Dxvk32Dll = & "$PSScriptRoot/prepare_backend.ps1" -Architecture x86 }
+if (-not $DxvkDll) { $DxvkDll = & "$PSScriptRoot/prepare_backend.ps1" -VcVarsVer $VcVarsVer }
+if (-not $Dxvk32Dll) { $Dxvk32Dll = & "$PSScriptRoot/prepare_backend.ps1" -Architecture x86 -VcVarsVer $VcVarsVer }
 $dxvkPath = (Resolve-Path $DxvkDll).Path
 $dxvk32Path = (Resolve-Path $Dxvk32Dll).Path
 $projectVersion = (Get-Content (Join-Path $repoRoot 'VERSION') -Raw).Trim()

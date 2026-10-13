@@ -1,0 +1,10 @@
+--- a/src/dxvk/dxvk_pipemanager.cpp
++++ b/src/dxvk/dxvk_pipemanager.cpp
+@@ -90,6 +90,6 @@
+       // Use (number of CPU logical threads - 2) CPU logical threads.
+       // Less stuttering when compiling shaders while playing,
+       // in comparison to using all CPU logical threads.
+-      coreCount = coreCount - 2;
++      coreCount = coreCount > 2 ? coreCount - 2 : 1;
+ 
+       coreCount = std::clamp(coreCount, 1u, 64u);

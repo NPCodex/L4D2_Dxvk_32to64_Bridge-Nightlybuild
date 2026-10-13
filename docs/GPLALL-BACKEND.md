@@ -1,10 +1,10 @@
 # DXVK-GPLALL bridge variant
 
-This variant retains the project's x86 client, x64 Host, protocol and texture shadow cache. Only the separately loaded D3D9 backend changes to DXVK-GPLALL 2.6.8-2, GCC SSE2 O3 LTO. The generic SSE2 Windows DLL avoids requiring an AMD/Intel-specific CPU build. Do not use the release's Native Linux libraries or its x32 DLL in the Host.
+This variant retains the project's x86 client, x64 Host, protocol and texture shadow cache. The separately loaded D3D9 backend is built from the pinned DXVK-GPLALL 2.6.8-2 source with the reviewed CLIP, WORKERS and SPEC repairs plus the MSAA `DontUnroll` shader change. The generic SSE2 build avoids requiring an AMD/Intel-specific CPU build. Do not use the release's Native Linux libraries or its x32 DLL in the Host.
 
 Release: https://github.com/Digger1955/dxvk-gplall/releases/tag/DXVK-GPLALL-2.6.8-2
 
-The archive URL and SHA-256 are pinned in `config/backend.json`. Run `./scripts/build_bridge.ps1` to download the verified backend and build the complete bridge using the existing MSVC v142 toolchain. An explicit `-DxvkDll` remains available for other backends; their identity is not claimed to be GPLALL.
+The GPLALL source repository, commit, candidate patch hashes and original release provenance are pinned in `config/backend.json`. Run `./scripts/build_bridge.ps1` to fetch that exact source, apply all four reviewed backend changes and build the x86/x64 D3D9 DLLs with the selected MSVC toolset. `BACKEND-SOURCE.json` is required during packaging. An explicit `-DxvkDll` remains available for other backends; their identity is not claimed to be GPLALL.
 
 For an existing compatible bridge installation, close the game and Host, back up `bin/.l4d2bridge/d3d9vk_x64.dll`, then copy the backend-update package's `bin` contents into the game's `bin`. This historical backend-only package contains no client or Host. Keep the Bridge client (currently `bin/d3d9.dll`, optionally `bin/dxvk_d3d9.dll` with `-vulkan`) and `bridge.conf`.
 

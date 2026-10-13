@@ -8457,6 +8457,32 @@ index 0000000000000000000000000000000000000000..31b241e9150334f4c2de4d2a6c763561
 +};
 +enum class Match { None, Strong, Content };
 +
++// One provider per locked journal read; every row still uses a fresh SHA-256 hash.
++// Open lazily so empty or structurally rejected files keep their old failure boundary.
++class JournalHash {
++  BCRYPT_ALG_HANDLE m_algorithm = nullptr;
++public:
++  JournalHash() = default;
++  JournalHash(const JournalHash&) = delete;
++  JournalHash& operator=(const JournalHash&) = delete;
++  ~JournalHash() { if (m_algorithm) { BCryptCloseAlgorithmProvider(m_algorithm, 0); } }
++  HRESULT hash(const uint8_t* data, size_t bytes, Digest& digest) {
++    digest = {};
++    if (!data || !bytes || bytes > UINT32_MAX) { return E_INVALIDARG; }
++    BCRYPT_HASH_HANDLE hash = nullptr;
++    NTSTATUS status = 0;
++    if (!m_algorithm) {
++      status = BCryptOpenAlgorithmProvider(&m_algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0);
++    }
++    if (status >= 0) { status = BCryptCreateHash(m_algorithm, &hash, nullptr, 0, nullptr, 0, 0); }
++    if (status >= 0) {
++      status = BCryptHashData(hash, const_cast<PUCHAR>(data), static_cast<ULONG>(bytes), 0);
++    }
++    if (status >= 0) { status = BCryptFinishHash(hash, digest.data(), static_cast<ULONG>(digest.size()), 0); }
++    if (hash) { BCryptDestroyHash(hash); }
++    return status >= 0 ? S_OK : HRESULT_FROM_NT(status);
++  }
++};
 +// Append-only, checksummed KEEP journal. No downgrade, compaction or deletion path exists.
 +class Database {
 +  HANDLE m_file = INVALID_HANDLE_VALUE;
@@ -8479,9 +8505,12 @@ index 0000000000000000000000000000000000000000..31b241e9150334f4c2de4d2a6c763561
 +    return key.size() == 64 && key.find_first_not_of("0123456789abcdef") == std::string::npos;
 +  }
 +  static bool number(std::string_view text, uint64_t& value) {
-+    if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos) { return false; }
-+    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value);
-+    return parsed.ec == std::errc() && parsed.ptr == text.data() + text.size();
++    if (text.empty()) { return false; }
++    uint64_t parsedValue = 0;
++    const auto parsed = std::from_chars(text.data(), text.data() + text.size(), parsedValue);
++    if (parsed.ec != std::errc() || parsed.ptr != text.data() + text.size()) { return false; }
++    value = parsedValue;
++    return true;
 +  }
 +  void merge(DbRecord record) {
 +    const auto previous = m_strong.find(record.strong);
@@ -8504,6 +8533,7 @@ index 0000000000000000000000000000000000000000..31b241e9150334f4c2de4d2a6c763561
 +    if (!data.empty() && (!ReadFile(m_file, &data[0], static_cast<DWORD>(data.size()), &read, nullptr) || read != data.size())) { return false; }
 +    if (data.empty()) { return true; }
 +    if (data.compare(0, std::strlen(kHeader), kHeader) != 0 || data.back() != '\n') { return false; }
++    JournalHash journalHash;
 +    size_t cursor = std::strlen(kHeader);
 +    while (cursor < data.size()) {
 +      const size_t end = data.find('\n', cursor);
@@ -8515,7 +8545,7 @@ index 0000000000000000000000000000000000000000..31b241e9150334f4c2de4d2a6c763561
 +      const size_t checksum = line.rfind('\t');
 +      if (checksum == std::string::npos) { return false; }
 +      Digest actual {};
-+      if (FAILED(hashBytes(reinterpret_cast<const uint8_t*>(line.data()), checksum, actual))
++      if (FAILED(journalHash.hash(reinterpret_cast<const uint8_t*>(line.data()), checksum, actual))
 +        || line.substr(checksum + 1) != digestText(actual).data()) { return false; }
 +      std::array<std::string_view, 7> fields {};
 +      size_t fieldStart = 0;

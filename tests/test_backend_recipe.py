@@ -22,6 +22,9 @@ class BackendRecipe(unittest.TestCase):
         self.root = Path(temporary.name)
         shutil.copytree(recipe.ROOT / "patches/gplall-msaa-loop", self.root / "patches/gplall-msaa-loop")
         self.metadata = json.loads((recipe.ROOT / "config/backend.json").read_text())
+        # These tests exercise the legacy archive recipe in isolation. Source
+        # build provenance has its own receipt gate and is covered by CI.
+        self.metadata.pop("source_build", None)
         self.original, self.modified = recipe.validated_shaders(self.root, self.metadata)
         self.backends = {}
         for arch, relative in recipe.ARCH_PATHS.items():

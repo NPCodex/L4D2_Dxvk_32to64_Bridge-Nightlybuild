@@ -1,0 +1,26 @@
+--- a/src/d3d9/d3d9_fixed_function.cpp
++++ b/src/d3d9/d3d9_fixed_function.cpp
+@@ -2417,7 +2417,9 @@
+     m_module.decorateBuiltIn(clipDistArray, spv::BuiltInClipDistance);
+ 
+     // Always consider clip planes enabled when doing GPL by forcing 6 for the quick value.
+-    uint32_t clipPlaneCount = m_spec.get(m_module, m_specUbo, SpecClipPlaneCount, 0, 32, m_module.constu32(caps::MaxClipPlanes));
++    // The override is a packed spec dword; get() extracts the clip-count bitfield.
++    uint32_t quickClipWord = caps::MaxClipPlanes << D3D9SpecializationInfo::Layout[SpecClipPlaneCount].bitOffset;
++    uint32_t clipPlaneCount = m_spec.get(m_module, m_specUbo, SpecClipPlaneCount, 0, 32, m_module.constu32(quickClipWord));
+ 
+     // Compute clip distances
+     for (uint32_t i = 0; i < caps::MaxClipPlanes; i++) {
+--- a/src/dxso/dxso_compiler.cpp
++++ b/src/dxso/dxso_compiler.cpp
+@@ -3599,7 +3599,9 @@
+     position.id = m_module.opLoad(vec4Type, positionPtr);
+ 
+     // Always consider clip planes enabled when doing GPL by forcing 6 for the quick value.
+-    uint32_t clipPlaneCount = m_spec.get(m_module, m_specUbo, SpecClipPlaneCount, 0, 32, m_module.constu32(caps::MaxClipPlanes));
++    // The override is a packed spec dword; get() extracts the clip-count bitfield.
++    uint32_t quickClipWord = caps::MaxClipPlanes << D3D9SpecializationInfo::Layout[SpecClipPlaneCount].bitOffset;
++    uint32_t clipPlaneCount = m_spec.get(m_module, m_specUbo, SpecClipPlaneCount, 0, 32, m_module.constu32(quickClipWord));
+     
+     for (uint32_t i = 0; i < caps::MaxClipPlanes; i++) {
+       std::array<uint32_t, 2> blockMembers = {{

@@ -94,8 +94,46 @@ def patch_backend(data, architecture, metadata, root=ROOT):
 
 def package_backend_info(root, metadata, backends):
     """Validate modified production inputs before package output is created."""
-    archive = root / ".deps/gplall/backend.zip"
     hashes = {arch: sha(data) for arch, data in backends.items()}
+    source_build = metadata.get("source_build")
+    if source_build:
+        receipt_path = root / ".deps/gplall/source-build/BACKEND-SOURCE.json"
+        if not receipt_path.is_file():
+            raise ValueError("GPLALL source-build receipt is missing")
+        try:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError("GPLALL source-build receipt is invalid") from exc
+        if receipt.get("source_commit") != source_build.get("commit"):
+            raise ValueError("GPLALL source-build commit does not match the pinned metadata")
+        if receipt.get("repository") != source_build.get("repository"):
+            raise ValueError("GPLALL source-build repository does not match the pinned metadata")
+        expected_patches = [entry.get("id") for entry in source_build.get("patches", [])]
+        if receipt.get("patches") != expected_patches:
+            raise ValueError("GPLALL source-build candidate list does not match the pinned metadata")
+        if receipt.get("shader_patch") != "patches/gplall-msaa-loop/shader.patch":
+            raise ValueError("GPLALL source-build shader patch receipt is missing")
+        outputs = receipt.get("outputs")
+        if not isinstance(outputs, dict):
+            raise ValueError("GPLALL source-build outputs are missing")
+        for arch in ("x64", "x86"):
+            output = outputs.get(arch)
+            if not isinstance(output, dict) or output.get("sha256") != hashes.get(arch):
+                raise ValueError(f"Packaged GPLALL {arch} backend does not match the source-build receipt")
+            output_path = Path(output.get("path", ""))
+            if not output_path.is_file() or sha(output_path.read_bytes()) != hashes[arch]:
+                raise ValueError(f"GPLALL {arch} source-build output is missing or changed")
+        info = copy.deepcopy(metadata)
+        info["source"] = (source_build["repository"] + "@" + source_build["commit"]
+                           + " (source-built: " + ", ".join(expected_patches) + ")")
+        info["source_build_receipt"] = "BACKEND-SOURCE.json"
+        info["original_release"] = metadata.get("release")
+        info["original_archive_sha256"] = metadata.get("sha256")
+        info["files"] = hashes
+        info.pop("sha256", None)
+        return info
+
+    archive = root / ".deps/gplall/backend.zip"
     info = {"files": hashes, "default_architecture": "x86_64", "source": "custom -DxvkDll / -Dxvk32Dll"}
     archive_matches = archive.is_file() and sha(archive.read_bytes()) == metadata["sha256"]
     if "modification" in metadata:

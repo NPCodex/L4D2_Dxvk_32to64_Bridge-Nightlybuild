@@ -62,6 +62,17 @@
       "baseline_compiled_equals_captured_shader": true,
       "candidate_compiled_equals_embedded_replacement": true
     },
-    "notice": "Modified by NPCodex on 2026-10-13: only the MSAA linear/nearest sample loop hint changes Unroll to DontUnroll; average-resolve loop, sampling and math remain unchanged. Original GPLALL/DXVK attribution and zlib/libpng license are retained. This is not a complete backend rebuild."
+    "notice": "The production source build applies the reviewed MSAA linear/nearest loop hint after the three GPLALL source repairs; average-resolve loop, sampling and math remain unchanged. Original GPLALL/DXVK attribution and zlib/libpng license are retained. The modification metadata also preserves the older byte-level shader reproduction gate."
+  },
+  "source_build": {
+    "repository": "https://github.com/Digger1955/dxvk-gplall.git",
+    "commit": "6a0ea561f9add008899680e6c313aa21c151e03e",
+    "patches": [
+      {"path": "patches/gplall-source/gpl-clip.patch", "sha256": "ab67f5783b7216e0b4c03c7603f4e0a705a415e291c5fe9ea796b4d06cef1970", "id": "GPL-CLIP-01"},
+      {"path": "patches/gplall-source/gpl-workers.patch", "sha256": "24b44a0357705008ee53821eff3b0f0e2ff0cbd4afe683bfb478847991e4d5b1", "id": "GPL-WORKERS-01"},
+      {"path": "patches/gplall-source/gpl-spec.patch", "sha256": "49b571f024b157efa6e824db66039c0024ce86fead35bcf1ec10aba155b289e4", "id": "GPL-SPEC-01"}
+    ],
+    "build_kind": "source-rebuilt-d3d9",
+    "compiler_note": "Formal Windows build uses the workflow MSVC toolchain; local candidate evidence used MSVC 14.51 and is not a formal 14.29 result."
   }
 }

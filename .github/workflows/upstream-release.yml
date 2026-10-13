@@ -152,6 +152,8 @@ jobs:
           path: |
             .deps/build-validation.json
             .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
+            .deps/gplall/source-build/BACKEND-SOURCE.json
+            .deps/gplall/source-build/PATCHES-APPLIED.json
             dist/l4d2-bridge/BACKEND.json
             .deps/queue-test/*.json
             .deps/queue-test/*.csv

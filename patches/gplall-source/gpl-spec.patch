@@ -1,0 +1,11 @@
+--- a/src/d3d9/d3d9_device.cpp
++++ b/src/d3d9/d3d9_device.cpp
+@@ -129,7 +129,7 @@
+     }
+ 
+     // Check for VK_EXT_graphics_pipeline_libraries
+-    m_usingGraphicsPipelines = dxvkDevice->features().extGraphicsPipelineLibrary.graphicsPipelineLibrary;
++    m_usingGraphicsPipelines = dxvkDevice->canUseGraphicsPipelineLibrary();
+ 
+     // Check for VK_EXT_depth_bias_control and set up initial state
+     m_depthBiasRepresentation = { VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT, false };

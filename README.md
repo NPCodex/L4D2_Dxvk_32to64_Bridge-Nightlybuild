@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.4 合入 IPC 立即发布 deadline 调整和 GPLALL MSAA 着色器循环提示调整。** GPU 中间结果存在已披露的 1 half ULP 舍入差异，最终捕获帧相同，但未通过原逐字节一致门槛；回放未显示提速，IPC 对照也未证明稳定收益。本组合未完成游戏性能或全场景画质验证，详情见[本次实现与验证](docs/GPU-IPC-20261013.md)。默认 x64、C8、静态映射关闭，现有配置与组件保留。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 退出游戏和所有 Host 后，成套恢复 Client 与两个 Host，并恢复该旧版的两个 GPLALL 后端以撤销本次 GPU 改动。
+**v1.5.5 合入 O34 retention 数据库优化及 GPLALL 的 CLIP、WORKERS、SPEC 三项源码修复。** O34 的 warm-cache 微基准约快 49%，不代表 FPS；CLIP 和 WORKERS 是正确性/边界修复，SPEC 对照没有稳定 FPS 或 1% low 收益。GPLALL 固定源码和四项验证见[四项调查与验证记录](docs/OPTIMIZATION-37-20261013.md)。此前 GPU/IPC 组合的舍入差异和无稳定收益结论仍保留，未完成本版本的全场景游戏性能或长期稳定性验证。默认 x64、C8、静态映射关闭。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和两个 GPLALL 后端。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
@@ -42,7 +42,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 - 仅构建 Bridge，不构建或分发 RTX Remix 渲染器。
 - 应用 L4D2 补丁：调整 Host 和后端加载路径，加入表面／缓冲区影子内存管理及诊断日志，并使用游戏专用配置。补丁见 [patches/l4d2-bridge.patch](patches/l4d2-bridge.patch)。
-- 默认使用 **DXVK-GPLALL 2.6.8-2 x64** 后端，版本和下载校验值独立固定在 [config/backend.json](config/backend.json)，不随 Bridge 自动升级；本包另外应用固定的 MSAA 循环提示变换，详见[验证范围](docs/GPU-IPC-20261013.md)。
+- 默认使用固定源码构建的 **DXVK-GPLALL 2.6.8-2 x64** 后端，源码、三项 GPL 修复和 MSAA 循环提示变换见 [config/backend.json](config/backend.json) 与 [四项调查与验证记录](docs/OPTIMIZATION-37-20261013.md)。
 - 本仓库增加上游检查、自动编译、测试、Nightly 发布和精简安装包规则。
 - 修复三维纹理字节步长及上传偏移，避免颜色校正查色表损坏造成的偏色。来源与复测步骤见 [偏色修复说明](docs/VOLUME-TEXTURE-COLOR-FIX.md)。
 - 完整同步原项目 **1.3.0 / `f6a059b`**，包括最新双向 IPC 预留/消费、回绕与错误传播修复，以及此前 PageBlock 保留/回收/恢复、手动 GC、Reset 状态机、Presenter/输入路径、诊断分离、x86 Host 与 L4N 常用设置。源码、配置片段、测试和可选 DXVK 内存实验均保留，实验后端不替换默认 GPLALL。同步基准与本地兼容差异见 [更新跟踪](docs/ORIGINAL-PROJECT-UPDATES.md)。
