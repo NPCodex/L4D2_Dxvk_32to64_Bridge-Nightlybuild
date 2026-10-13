@@ -1,3 +1,8 @@
+# v1.5.8
+
+- 修复 retention 数据库补丁头的行数声明错误，避免 Git 在 CI 应用补丁时截断 `retention_database.h`。结合 Vulkan SDK 1.4.363 的 `glslangValidator` 安装，GPLALL/Bridge 源码构建链现在具备正确输入和着色器工具。
+- v1.5.6 的 O34、GPL-CLIP、GPL-WORKERS 和 GPL-SPEC 内容保持不变；本版本仍不宣称 FPS、全场景画质或长期稳定性提升。
+
 # v1.5.7
 
 - 修复 Windows runner 未提供 `glslangValidator` 导致 GPLALL 固定源码构建在 Meson 配置阶段失败的问题。正式 workflow 现在安装并验证 Vulkan SDK 1.4.363，再开始三端 MSVC 构建。

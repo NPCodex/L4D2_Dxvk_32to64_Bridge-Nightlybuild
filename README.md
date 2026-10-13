@@ -8,7 +8,7 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.7 延续 v1.5.6 的 O34 retention 数据库优化及 GPLALL 的 CLIP、WORKERS、SPEC 三项源码修复，并修复 Windows runner 缺少 `glslangValidator` 导致 GPLALL 源码构建无法启动的问题。** O34 的 warm-cache 微基准约快 49%，不代表 FPS；CLIP 和 WORKERS 是正确性/边界修复，SPEC 对照没有稳定 FPS 或 1% low 收益。GPLALL 固定源码和四项验证见[四项调查与验证记录](docs/OPTIMIZATION-37-20261013.md)。此前 GPU/IPC 组合的舍入差异和无稳定收益结论仍保留，未完成本版本的全场景游戏性能或长期稳定性验证。默认 x64、C8、静态映射关闭。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和两个 GPLALL 后端。
+**v1.5.8 延续 v1.5.6 的 O34 retention 数据库优化及 GPLALL 的 CLIP、WORKERS、SPEC 三项源码修复，并修复 Windows runner 缺少 `glslangValidator` 以及 retention 数据库补丁行数声明错误导致 GPLALL/Bridge 源码构建失败的问题。** O34 的 warm-cache 微基准约快 49%，不代表 FPS；CLIP 和 WORKERS 是正确性/边界修复，SPEC 对照没有稳定 FPS 或 1% low 收益。GPLALL 固定源码和四项验证见[四项调查与验证记录](docs/OPTIMIZATION-37-20261013.md)。此前 GPU/IPC 组合的舍入差异和无稳定收益结论仍保留，未完成本版本的全场景游戏性能或长期稳定性验证。默认 x64、C8、静态映射关闭。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** 退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和两个 GPLALL 后端。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
 
