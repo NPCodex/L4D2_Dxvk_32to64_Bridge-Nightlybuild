@@ -22,6 +22,51 @@ std::string uniqueName() {
   return std::to_string(processId()) + "-" + std::to_string(milliseconds()) + "-" + std::to_string(++counter);
 }
 void delay(uint32_t ms) { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+// Close scheduling regressions adapted from NPCodex Nightly Build c2e7694 (MIT).
+Writer* tailCloseWriter = nullptr;
+void publishTailAfterSnapshot() {
+  Reader::afterPublishedSnapshot = nullptr;
+  require(tailCloseWriter && tailCloseWriter->close() == Result::Success, "forced tail publication and close");
+}
+void closeTailTests() {
+  uint32_t cases = 0;
+  for (uint32_t kind : { 1u, 2u }) {
+    for (uint32_t direction : { 0u, 1u }) {
+      for (uint32_t spins : { 0u, 128u }) {
+        for (uint32_t initial : { 0u, UINT32_MAX }) {
+          for (uint32_t records : { 1u, 3u }) {
+            Config c; c.blockCount = 2; c.blockBytes = 128; c.kind = kind; c.direction = direction;
+            Channel channel(uniqueName(), c, true);
+            channel.shared().producer.published.store(initial);
+            channel.shared().consumer.completed.store(initial);
+            Writer writer(channel, 100, spins); Reader reader(channel, 100, spins);
+            for (uint32_t i = 0; i < records; ++i) {
+              auto tail = writer.begin(6, 0, i, 4);
+              require(tail.scalar(i) && tail.finish(false) == Result::Success, "pending final records");
+            }
+            require(channel.shared().producer.published.load() == initial, "final block remains unpublished");
+            tailCloseWriter = &writer;
+            Reader::afterPublishedSnapshot = publishTailAfterSnapshot;
+            uint32_t handled = 0;
+            const auto result = reader.consume([&](Message& message) {
+              uint32_t value = UINT32_MAX;
+              return message.header.uid == handled && message.scalar(value) && value == handled++;
+            });
+            Reader::afterPublishedSnapshot = nullptr;
+            tailCloseWriter = nullptr;
+            require(result == Result::Success && handled == records, "close must drain final published block");
+            require(channel.shared().consumer.completed.load() == initial + 1, "final block credit returned");
+            require(reader.consume([&](Message&) { ++handled; return true; }) == Result::Closed,
+              "closed only after final block");
+            require(handled == records && reader.metrics.records == records, "final records handled exactly once");
+            ++cases;
+          }
+        }
+      }
+    }
+  }
+  std::printf("IPC_V2_CLOSE_TAIL_PASS cases=%u bits=%u\n", cases, static_cast<unsigned>(sizeof(void*) * 8));
+}
 class Process {
 #ifdef _WIN32
   PROCESS_INFORMATION m_process {};
@@ -340,6 +385,8 @@ int main(int argc, char** argv) {
       return child(argv[2], argv[3], static_cast<uint32_t>(std::stoul(argv[4])),
         static_cast<uint32_t>(std::stoul(argv[5])), static_cast<uint32_t>(std::stoul(argv[6])));
     }
+    closeTailTests();
+    if(argc==2 && std::string(argv[1])=="--close-tail-only") {return 0;}
     const std::string host = argc == 3 && std::string(argv[1]) == "--host" ? argv[2] : argv[0];
     localTests();
     for (uint32_t spins : { 0u, 128u }) {
