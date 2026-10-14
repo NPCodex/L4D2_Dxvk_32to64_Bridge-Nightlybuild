@@ -1,3 +1,11 @@
+# v1.5.9
+
+- 适配已审阅的 Steam Renderer 11.12.30.7 x64 文件身份，保留未知版本拒绝和一次性哈希校验。
+- 增加 Steam 捕获状态的跨线程窗口通知，恢复游戏线程上的鼠标捕获清理，并在窗口终止时停止 Renderer 观察器。
+- x86/x64 可用性、Steam 窗口观察、跨架构适配和生命周期负对照通过；没有新增 FPS、ReShade 键盘或全场景游戏保证。
+
+安装方式见 [README](../README.md)。如出现 1% low 下降、掉帧或帧数不稳定，请按 README 的 v1.1.10 回退说明成套恢复 Client、两个 Host 和两个 GPLALL 后端。
+
 # v1.5.8
 
 - 修复 retention 数据库补丁头的行数声明错误，避免 Git 在 CI 应用补丁时截断 `retention_database.h`。结合 Vulkan SDK 1.4.363 的 `glslangValidator` 安装，GPLALL/Bridge 源码构建链现在具备正确输入和着色器工具。

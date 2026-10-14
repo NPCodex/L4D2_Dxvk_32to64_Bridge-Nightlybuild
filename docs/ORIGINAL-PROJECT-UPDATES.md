@@ -1,6 +1,12 @@
 # L4D2 原项目同步记录
 
-NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.3 选择性采用 L4D2 v1.3.1 / `677653d`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.9 选择性采用 L4D2 main / `20ef9df`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+
+## 2026-10-14：Steam Renderer 11.12.30.7 与跨线程捕获清理（部分采用）
+
+已审阅 upstream/main [`20ef9df71037125f7a5546f8179bd5b902b3c510`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/20ef9df71037125f7a5546f8179bd5b902b3c510) 及其前置 [`e4485f704e7a70621d8a91671b95f45a4440a27e`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/e4485f704e7a70621d8a91671b95f45a4440a27e)。本次适配了已审阅 x64 Steam Renderer 11.12.30.7 文件哈希白名单、一次性哈希与 getter 边界验证、`LDB_STEAM_CAPTURE_NOTIFY_V1` 跨线程通知、Steam 鼠标捕获清理和 Renderer 诊断停机；未知 Renderer 继续 fail-closed，x86 Renderer 仍不宣称可用。
+
+本次适配保留当前 Presenter 的 ReShade/Steam 捕获聚合和既有输入策略，没有把上游整组 owner-thread/default-hook 行为直接覆盖进来。x86/x64 可用性测试、Steam 窗口观察回归、跨架构适配与生命周期负对照在合并候选上通过；这些是 native contract 验证，不是游戏 FPS、ReShade 键盘或全场景验收。完整上游 main 仍未宣称逐文件同步，NVIDIA `d2a5033` 基准未变。
 
 ## 2026-10-13：v1.3.1 Steam 邀请保护与菜单说明（部分采用）
 

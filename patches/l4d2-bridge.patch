@@ -8423,7 +8423,7 @@ index 0000000000000000000000000000000000000000..d370fbea8df77c3705486fca196dfdac
 +}
 diff --git a/bridge/src/client/retention_database.h b/bridge/src/client/retention_database.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..31b241e9150334f4c2de4d2a6c763561a5edb30e
+index 0000000000000000000000000000000000000000..a29e6a748284840d32affb9f06d03e731b6f41cf
 --- /dev/null
 +++ b/bridge/src/client/retention_database.h
 @@ -0,0 +1,192 @@
@@ -9422,26 +9422,52 @@ index 185005e0e37354fb798402fcbf0491c26c7124c6..aa09a478918a4a99bb4afaaeb51ce2c7
      END
      BLOCK "VarFileInfo"
 diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
-index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281e34541f6 100644
+index a6d5a4237e843a37c3c04dceec082b845efc69e8..b7bfc1f7eb57952a6c6f1cf303508a85517737c0 100644
 --- a/bridge/src/client/window.cpp
 +++ b/bridge/src/client/window.cpp
-@@ -31,6 +31,10 @@
+@@ -31,6 +31,11 @@
  #include "log/log.h"
  
  #include "util_monitor.h"
 +#include "overlay_input_diagnostics.h"
 +#include "steam_activity_diagnostics.h"
 +#include "steam_web_diagnostics.h"
++#include "../server/steam_window_diagnostics.h"
 +#include "config/config.h"
  
  #include <unordered_map>
  #include <mutex>
-@@ -49,6 +53,15 @@ namespace {
+@@ -49,6 +54,40 @@ namespace {
  HWND g_hwnd = nullptr;
  WNDPROC g_gameWndProc = nullptr;
  bool g_bActivateProcessed = false;
 +// NV-DXVK start: opt-in cross-process Steam input observations and capture.
 +std::atomic<bool> g_steamActive { false }, g_steamKnown { false };
++// LDB_STEAM_ACTIVATION_BEGIN
++static std::atomic<UINT> g_steamCaptureNotification {0};
++static UINT steamCaptureNotification() {
++  static const UINT message=RegisterWindowMessageW(L"LDB_STEAM_CAPTURE_NOTIFY_V1");
++  g_steamCaptureNotification.store(message,std::memory_order_release);
++  return message;
++}
++static bool handleSteamCaptureNotification(UINT message) {
++  if(message<0xc000)return false;
++  const UINT expected=g_steamCaptureNotification.load(std::memory_order_acquire);
++  if(!expected || message!=expected)return false;
++  // Evaluate the current callback state, never the state of a delayed message.
++  if(g_steamKnown.load(std::memory_order_acquire) && g_steamActive.load(std::memory_order_acquire))DI::releaseSteamMouseCapture();
++  return true;
++}
++static void applySteamActivation(bool active) {
++  const bool previous=g_steamActive.exchange(active,std::memory_order_acq_rel);
++  g_steamKnown.store(true,std::memory_order_release);
++  RemixState::setSteam(active);
++  if(active && !previous && g_hwnd) {
++    if(GetWindowThreadProcessId(g_hwnd,nullptr)==GetCurrentThreadId())DI::releaseSteamMouseCapture();
++    else if(const UINT message=steamCaptureNotification())PostMessageW(g_hwnd,message,0,0);
++  }
++}
++// LDB_STEAM_ACTIVATION_END
 +l4d2_overlay::InputDiagnostics& inputDiagnostics() {
 +  static l4d2_overlay::InputDiagnostics diagnostics(
 +    Config::getOption<bool>("client.steamInputDiagnostics", false), "client",
@@ -9452,7 +9478,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  std::atomic<bool> g_suppressWindowManagement { false };
  
  // reinterpret_cast wrappers
-@@ -78,12 +91,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
+@@ -78,12 +117,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
        // We only handle cases wherein the window's handle matches the window's handle 
        // used in D3DDEVICE_CREATION_PARAMETERS or D3DPRESENT_PARAMETERS
        if(hWnd != g_hwnd) {
@@ -9467,7 +9493,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
          return oldGameWndProc;
        }
      }
-@@ -195,14 +208,21 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -195,14 +234,21 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  // and so removed from the client application message pump (e.g. you don't want
  // Remix UI clicks to accidentally click "Exit" in game menu)
  bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -9489,7 +9515,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
      if (!uiWasActive && RemixState::isUIActive()) {
        // Remix UI has been activated - unstick modifier keys at application side
        auto unstick = [hWnd](uint32_t vk) {
-@@ -271,6 +291,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -271,6 +317,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  
    // Forward to remix renderer
    if (doForward) {
@@ -9497,7 +9523,15 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
      gpRemixMessageChannel->send(msg, wParam, lParam);
    }
  
-@@ -310,6 +331,23 @@ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -287,6 +334,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+ }
+ 
+ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
++  if(handleSteamCaptureNotification(msg))return 0;
+   const bool isUnicode = IsWindowUnicode(hWnd);
+   LRESULT lresult = 0;
+ 
+@@ -310,6 +358,23 @@ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  // External funcs //
  ////////////////////
  
@@ -9521,15 +9555,16 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  bool init() {
    if(!attach()) {
      Logger::err(kStr_init_attachErr);
-@@ -320,6 +358,7 @@ bool init() {
+@@ -320,6 +385,8 @@ bool init() {
  }
  
  bool terminate() {
 +  l4d2_web::Diagnostics::stop();
++  l4d2_steam_window::Diagnostics::stop();
    if(!detach()) {
      Logger::err(kStr_terminate_detachErr);
      return false;
-@@ -364,7 +403,7 @@ bool set(HWND hwnd) {
+@@ -364,7 +431,7 @@ bool set(HWND hwnd) {
    // Fix up DirectInput forwarding if setting has succeeded
    DInputSetDefaultWindow(hwnd);
  
@@ -9538,7 +9573,12 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  
    return true;
  }
-@@ -390,7 +429,7 @@ bool unset() {
+@@ -386,11 +453,12 @@ bool unset() {
+       "another component likely subclassed the window during a mode change", RemixWndProc, prevWndProc));
+   }
+ 
++
+   // Clean out the globals
    g_hwnd = nullptr;
    g_gameWndProc = nullptr;
  
@@ -9547,13 +9587,21 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  
    return true;
  }
-@@ -439,3 +478,56 @@ void prepareForCrashDialog(bool async) {
+@@ -439,3 +507,68 @@ void prepareForCrashDialog(bool async) {
  }
  
  }
 +
 +// NV-DXVK start: poll from Present, including when game input messages stop.
 +void WndProc::sampleSteamInput() {
++  static const bool rendererDiagnostics=Config::getOption<bool>("client.steamWindowDiagnostics",false);
++  if(rendererDiagnostics) {
++    static ULONGLONG nextRenderer=0;
++    const ULONGLONG now=GetTickCount64();
++    if(now>=nextRenderer){nextRenderer=now+1000;
++      l4d2_steam_window::Diagnostics::poll(true,g_hwnd,nullptr,[](const char* line){Logger::info(line);},l4d2_steam_window::Diagnostics::rendererName(),false,"client");
++    }
++  }
 +  static const bool webDiagnostics = Config::getOption<bool>("client.steamWebDiagnostics", false);
 +  static const bool workshopProxy = Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false);
 +  if(webDiagnostics || workshopProxy) {
@@ -9571,7 +9619,11 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
 +    nextSteamAttempt = now + 1000;
 +    std::function<void(bool)> state;
 +    if (steamInput) {
-+      state = [](bool active) { g_steamActive.store(active); g_steamKnown.store(true); };
++      state = [](bool active) {
++        applySteamActivation(active);
++        static const bool trace=Config::getOption<bool>("client.steamInputDiagnostics",false);
++        if(trace)Logger::info(format_string("L4D2_STEAM_INPUT event=steam-capture role=client active=%d source_capture=%d aggregate_capture=%d source=callback331 presenter_required=0",active,RemixState::steamActive(),RemixState::isUIActive()));
++      };
 +    }
 +    std::function<void(const char*)> log;
 +    if (diagnosticsEnabled) { log = [](const char* line) { Logger::info(line); }; }
@@ -10168,7 +10220,7 @@ index 0000000000000000000000000000000000000000..72eb1adf46deceb9b2d8c32a8d98fc52
 +}
 diff --git a/bridge/src/server/host_upload_contract.h b/bridge/src/server/host_upload_contract.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..1df8680845f999a61619de42d92fa3d5955e997a
+index 0000000000000000000000000000000000000000..c6416918880ffa55901a70152eaaa570100e65c8
 --- /dev/null
 +++ b/bridge/src/server/host_upload_contract.h
 @@ -0,0 +1,137 @@
@@ -13222,10 +13274,10 @@ index 0000000000000000000000000000000000000000..2e52a4583970b630709a1cea583ffa31
 +}
 diff --git a/bridge/src/server/steam_availability_diagnostics.h b/bridge/src/server/steam_availability_diagnostics.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db61200e6d
+index 0000000000000000000000000000000000000000..d1dcec6d6df308eb9c68a35da26a507932ef1c12
 --- /dev/null
 +++ b/bridge/src/server/steam_availability_diagnostics.h
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,80 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -13237,6 +13289,13 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +#include "diagnostic_file_hash.h"
 +#include "steam_workshop_status.h"
 +namespace l4d2_steam_availability {
++// Full-file identities of the reviewed user samples. Getter decoding below
++// still validates the loaded instructions and image bounds; unknown files fail closed.
++inline constexpr const char* rendererHashes[] = {
++  "59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee", // 10.96.30.42
++  "cbde033f76ac070ad8b7d25328e8acfbbabae6e40487f40dfcf6203b6c932c0b"  // 11.12.30.7
++};
++inline constexpr size_t rendererHashCount=sizeof(rendererHashes)/sizeof(rendererHashes[0]);
 +// Reproduce the exact supplied renderer getter's single byte read. Never call
 +// its undocumented export, initialize another SDK context, or change a byte.
 +inline uintptr_t decode(uintptr_t base,size_t size,uintptr_t getter,const BYTE code[8]) {
@@ -13271,7 +13330,8 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +        if(!waiting){waiting=true;emit(logger,"L4D2_STEAM_WEB_HOST event=waiting reason=renderer-not-loaded");}return;
 +      }
 +      attempted=true;wchar_t path[MAX_PATH]{};
-+      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFile(path,"59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee")){
++      // Hash once at initial identification, including when the second sample matches.
++      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFileAny(path,rendererHashes,rendererHashCount)){
 +        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-file-hash-mismatch");return;
 +      }
 +      const auto getter=GetProcAddress(module,"IsOverlayEnabled");
@@ -13300,6 +13360,7 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +}
 diff --git a/bridge/src/server/steam_window_diagnostics.h b/bridge/src/server/steam_window_diagnostics.h
 new file mode 100644
+index 0000000000000000000000000000000000000000..ef2b846d8faee2c7f85e0f59a12f580d8caa516d
 --- /dev/null
 +++ b/bridge/src/server/steam_window_diagnostics.h
 @@ -0,0 +1,230 @@
@@ -15621,10 +15682,10 @@ index 0000000000000000000000000000000000000000..859094725b069aa6ca3b22474f34b8dc
 +}
 diff --git a/bridge/src/util/diagnostic_file_hash.h b/bridge/src/util/diagnostic_file_hash.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65eea79563
+index 0000000000000000000000000000000000000000..50f7084fe4b876d41aea71d182809a6f74150413
 --- /dev/null
 +++ b/bridge/src/util/diagnostic_file_hash.h
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,44 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -15635,8 +15696,14 @@ index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65
 +#include <cstring>
 +namespace l4d2_file_hash {
 +struct ErrorGuard { DWORD saved=GetLastError(); ~ErrorGuard(){SetLastError(saved);} };
-+inline bool hashFile(const wchar_t* path,const char* expected) {
++inline bool matchesAny(const char* digest,const char* const* expected,size_t count) {
++  if(!digest || !expected)return false;
++  for(size_t i=0;i<count;++i)if(expected[i] && std::strcmp(digest,expected[i])==0)return true;
++  return false;
++}
++inline bool hashFileAny(const wchar_t* path,const char* const* expected,size_t expectedCount) {
 +    ErrorGuard error;
++    if(!path || !expected || !expectedCount)return false;
 +    HMODULE crypto=LoadLibraryExW(L"bcrypt.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);if(!crypto)return false;
 +    const auto open=reinterpret_cast<decltype(&BCryptOpenAlgorithmProvider)>(GetProcAddress(crypto,"BCryptOpenAlgorithmProvider"));
 +    const auto create=reinterpret_cast<decltype(&BCryptCreateHash)>(GetProcAddress(crypto,"BCryptCreateHash"));
@@ -15653,12 +15720,15 @@ index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65
 +        std::array<BYTE,65536> buffer{};DWORD count=0;bool ok=true;
 +        for(;;){if(!ReadFile(file,buffer.data(),static_cast<DWORD>(buffer.size()),&count,nullptr)){ok=false;break;}if(!count)break;if(add(hash,buffer.data(),count,0)<0){ok=false;break;}}
 +        BYTE digest[32]{};
-+        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=std::strcmp(hex,expected)==0;}
++        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=matchesAny(hex,expected,expectedCount);}
 +      }
 +      if(hash)destroy(hash);if(algorithm)close(algorithm,0);if(file!=INVALID_HANDLE_VALUE)CloseHandle(file);
 +    }
 +    FreeLibrary(crypto);return match;
 +  }
++inline bool hashFile(const wchar_t* path,const char* expected) {
++  return hashFileAny(path,&expected,1);
++}
 +}
 diff --git a/bridge/src/util/exception_diagnostics.cpp b/bridge/src/util/exception_diagnostics.cpp
 new file mode 100644
@@ -18892,6 +18962,7 @@ index 0000000000000000000000000000000000000000..307d1554610bb8743f6f1544ef1d86ac
 +}
 diff --git a/bridge/src/util/steam_web_diagnostics.h b/bridge/src/util/steam_web_diagnostics.h
 new file mode 100644
+index 0000000000000000000000000000000000000000..3049fae9fb089d0544be8e5e65eb8f00f26baed9
 --- /dev/null
 +++ b/bridge/src/util/steam_web_diagnostics.h
 @@ -0,0 +1,189 @@
@@ -19086,6 +19157,7 @@ new file mode 100644
 +}
 diff --git a/bridge/src/util/steam_workshop_status.h b/bridge/src/util/steam_workshop_status.h
 new file mode 100644
+index 0000000000000000000000000000000000000000..cca0ead68d944f45cf1e79fc4e8e0840d0477413
 --- /dev/null
 +++ b/bridge/src/util/steam_workshop_status.h
 @@ -0,0 +1,75 @@
