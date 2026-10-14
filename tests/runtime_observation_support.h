@@ -120,6 +120,14 @@ namespace WndProc { void sampleSteamInput(); }
 inline HWND g_hwnd = nullptr;
 inline WNDPROC g_gameWndProc = nullptr;
 inline std::atomic<bool> g_steamKnown { false }, g_steamActive { false };
+// The production window observer updates these atomics before forwarding the
+// state to the Presenter. The observation fixture does not install a real
+// DirectInput hook, so capture release is intentionally a no-op here.
+namespace DI { inline void releaseSteamMouseCapture() {} }
+inline void applySteamActivation(bool active) {
+  g_steamActive.store(active, std::memory_order_release);
+  g_steamKnown.store(true, std::memory_order_release);
+}
 inline auto OrigGetWindowLongW = &GetWindowLongW;
 inline auto OrigGetWindowLongA = &GetWindowLongA;
 struct MessageChannel { bool canSend() { return false; } };
