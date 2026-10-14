@@ -9437,7 +9437,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..b7bfc1f7eb57952a6c6f1cf303508a85
  
  #include <unordered_map>
  #include <mutex>
-@@ -49,6 +54,40 @@ namespace {
+@@ -49,6 +54,39 @@ namespace {
  HWND g_hwnd = nullptr;
  WNDPROC g_gameWndProc = nullptr;
  bool g_bActivateProcessed = false;
@@ -9461,7 +9461,6 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..b7bfc1f7eb57952a6c6f1cf303508a85
 +static void applySteamActivation(bool active) {
 +  const bool previous=g_steamActive.exchange(active,std::memory_order_acq_rel);
 +  g_steamKnown.store(true,std::memory_order_release);
-+  RemixState::setSteam(active);
 +  if(active && !previous && g_hwnd) {
 +    if(GetWindowThreadProcessId(g_hwnd,nullptr)==GetCurrentThreadId())DI::releaseSteamMouseCapture();
 +    else if(const UINT message=steamCaptureNotification())PostMessageW(g_hwnd,message,0,0);
@@ -9622,7 +9621,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..b7bfc1f7eb57952a6c6f1cf303508a85
 +      state = [](bool active) {
 +        applySteamActivation(active);
 +        static const bool trace=Config::getOption<bool>("client.steamInputDiagnostics",false);
-+        if(trace)Logger::info(format_string("L4D2_STEAM_INPUT event=steam-capture role=client active=%d source_capture=%d aggregate_capture=%d source=callback331 presenter_required=0",active,RemixState::steamActive(),RemixState::isUIActive()));
++        if(trace)Logger::info(format_string("L4D2_STEAM_INPUT event=steam-capture role=client active=%d source_capture=%d aggregate_capture=%d source=callback331 presenter_required=0",active,active,active || RemixState::isUIActive()));
 +      };
 +    }
 +    std::function<void(const char*)> log;
