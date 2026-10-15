@@ -1,6 +1,12 @@
 # L4D2 原项目同步记录
 
-NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.9 选择性采用 L4D2 main / `20ef9df`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.15 选择性采用 L4D2 main / `cafc044`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+
+## 2026-10-15：设备销毁清理（部分采用）
+
+维护者明确确认采用已验证的窄范围候选：从 L4D2 main [`cafc0442446c502a0de0ebb52d5e73ccaae67516`](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/cafc0442446c502a0de0ebb52d5e73ccaae67516) / v1.3.2 适配 Host Device Destroy 幂等清理。不存在或空的设备句柄可安全清理，普通命令仍严格校验。完整 main 基准仍为 c8d55b0，NVIDIA pin 仍为 d2a5033。
+
+Query、Shader、UpdateTexture、失败 Lock 和 SharedHeap 相关保护已经随 v1.5.14 发布，不计为本版新增；未纳入 IME、工坊更新器、此前跳过的 Steam 组、新 NVIDIA pin 或独立 VB/IB unpin 候选。实际改变与验证边界见 [设备销毁修复](DEVICE-DESTROY-20261015.md)。正式构建、源码/附件和发布状态以本版交付收据为准，部分采用不代表完整 main 同步。
 
 ## 2026-10-14：Steam Renderer 11.12.30.7 与跨线程捕获清理（部分采用）
 

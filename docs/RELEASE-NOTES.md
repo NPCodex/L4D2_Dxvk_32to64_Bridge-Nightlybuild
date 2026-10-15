@@ -1,12 +1,22 @@
+# v1.5.15
+
+- 修复 Host 重复销毁设备、清理未建立后端的设备时误报句柄错误、终止整个桥接会话的问题。正常命令的无效句柄检查继续生效。
+- GitHub 更新日志只显示当前版本，历史记录保留在仓库。
+
+验证：新增 x86/x64 设备销毁原生回归和旧实现负对照；发布门禁要求三端 MSVC 14.29 编译及完整原生回归通过。没有新增游戏或 FPS 测试。
+
+如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
+
+[安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+
 # v1.5.14
 
-- 修复 Steam 激活通知适配的原生观察夹具，使上游合并后的 x86/x64 回归继续覆盖激活状态传播；不改变生产 Steam 输入路径，也不宣称修复 ReShade 键盘或路径问题。
-- 修复 Steam 捕获跨线程通知适配中引用不存在的 `RemixState` Steam 聚合接口，改用本补丁已验证的客户端捕获状态，恢复 x86/x64 Bridge 的一致编译路径。
-- 保留 Renderer 11.12.30.7 x64 身份白名单、跨线程通知、鼠标捕获清理和诊断停止逻辑；本版本没有新增 FPS、ReShade 键盘或全场景游戏保证。
+- 增加 Steam Renderer 11.12.30.7 的 x64 身份识别，保留未知版本保护。
+- 适配 Steam 捕获状态的跨线程通知、鼠标捕获清理和诊断停机，并修正相关编译与测试夹具兼容问题。
 
-验证：全新 NVIDIA Bridge 基线可完整应用累计补丁；205 项 Python 回归通过（13 项按环境跳过）。正式 Windows CI 将继续执行三端 MSVC、原生回归、源码收据和 68 文件包校验。
+验证：三端 MSVC 14.29 编译、原生回归、285 个源码哈希及 68 文件包校验通过，CI 与正式下载包一致。未新增游戏性能验证，不承诺 FPS 提升或 ReShade 问题修复。
 
-安装方式见 [README](../README.md)。如出现 1% low 下降、掉帧或帧数不稳定，请按 README 的 v1.1.10 回退说明成套恢复 Client、两个 Host 和两个 GPLALL 后端。
+如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和两个 GPLALL 后端。
 
 # v1.5.9
 

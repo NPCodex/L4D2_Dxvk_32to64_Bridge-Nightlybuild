@@ -2,6 +2,7 @@
 import hashlib
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 from detect_release import api, read_original_project
@@ -10,13 +11,29 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def current_release_notes(root=None):
-    """Require notes for this VERSION, so later releases cannot reuse old prose."""
+    """Read only this VERSION's section, leaving historical entries unpublished."""
     root = ROOT if root is None else root
     version = (root / "VERSION").read_text(encoding="utf-8").strip()
     heading, separator, body = (root / "docs/RELEASE-NOTES.md").read_text(encoding="utf-8").partition("\n")
     if heading.strip() != f"# v{version}" or not separator or not body.strip():
         raise ValueError("Current release notes must match VERSION and contain this release's changes")
-    return body.strip()
+    lines = []
+    fence = None
+    for line in body.splitlines():
+        marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+        if fence:
+            if (marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence)
+                    and not marker[2].strip()):
+                fence = None
+        elif marker:
+            fence = marker[1]
+        elif re.match(r"^ {0,3}#{1,6}[ \t]+v[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:[ \t]|$)", line):
+            break
+        lines.append(line)
+    changes = "\n".join(lines).strip()
+    if not changes:
+        raise ValueError("Current release notes must match VERSION and contain this release's changes")
+    return changes
 
 
 def file_sha256(path):

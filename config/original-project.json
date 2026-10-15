@@ -5,14 +5,15 @@
   "integration": "partial",
   "source_ref": "main",
   "main_baseline": "c8d55b0f5d913d71488266469b4dca236439a4e9",
-  "reviewed_commit": "20ef9df71037125f7a5546f8179bd5b902b3c510",
-  "partial_commit": "20ef9df71037125f7a5546f8179bd5b902b3c510",
-  "partial_version": "1.3.1",
+  "reviewed_commit": "cafc0442446c502a0de0ebb52d5e73ccaae67516",
+  "partial_commit": "cafc0442446c502a0de0ebb52d5e73ccaae67516",
+  "partial_version": "1.3.2",
   "partial_content": [
     "guarded Steam invitation availability and ABI forwarding",
     "Steam window observer module lifetime protection",
     "L4N shared Presenter dependency wording",
     "Steam Renderer 11.12.30.7 x64 availability hash allowlist",
-    "cross-thread Steam capture notification and mouse-capture cleanup"
+    "cross-thread Steam capture notification and mouse-capture cleanup",
+    "idempotent Host Device Destroy cleanup for absent/null device handles"
   ]
 }

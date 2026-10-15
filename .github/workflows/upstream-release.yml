@@ -135,6 +135,9 @@ jobs:
         if: ${{ inputs.validation_only }}
         shell: powershell
         run: ./scripts/benchmark_function_logging.ps1
+      - name: Test idempotent Host device cleanup and strict live-command guards
+        shell: powershell
+        run: ./scripts/test_device_destroy.ps1 -VcVarsVer 14.29
       - name: Test Host swapchain query and Reset temporary references
         shell: powershell
         run: ./scripts/test_device_reset_lifetime.ps1
@@ -175,6 +178,7 @@ jobs:
           name: validation-${{ matrix.release_tag }}
           path: |
             .deps/build-validation.json
+            .deps/device-destroy-contract/**
             .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
             .deps/gplall/source-build/BACKEND-SOURCE.json
             .deps/gplall/source-build/PATCHES-APPLIED.json

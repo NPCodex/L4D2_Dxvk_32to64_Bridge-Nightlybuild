@@ -10361,7 +10361,7 @@ index 0000000000000000000000000000000000000000..c6416918880ffa55901a70152eaaa570
 +}
 +}
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
-index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb478e4a1b8 100644
+index 86434ec..bee0f9f 100644
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp
 @@ -1,3 +1,7 @@
@@ -10888,7 +10888,18 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -527,7 +794,8 @@ void ProcessDeviceCommandQueue() {
+@@ -518,7 +785,9 @@ void ProcessDeviceCommandQueue() {
+         break;
+       case IDirect3DDevice9Ex_Destroy:
+       {
+-        GET_RES(pD3DDevice, gpD3DDevices);
++        // Cleanup is idempotent, including a wrapper whose backend creation failed.
++        GET_HND(pD3DDeviceHandle);
++        const auto pD3DDevice = lookupHostHandle(gpD3DDevices, pD3DDeviceHandle);
+         safeDestroy(pD3DDevice, pD3DDeviceHandle);
+         gpD3DDevices.erase(pD3DDeviceHandle);
+         break;
+@@ -527,7 +796,8 @@ void ProcessDeviceCommandQueue() {
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->TestCooperativeLevel();
@@ -10898,7 +10909,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_GetAvailableTextureMem:
-@@ -561,8 +829,14 @@ void ProcessDeviceCommandQueue() {
+@@ -561,8 +831,14 @@ void ProcessDeviceCommandQueue() {
        {
  
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -10914,7 +10925,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          BRIDGE_ASSERT_LOG(SUCCEEDED(hresult), "Issue retrieving D3D9 device specific information");
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
-@@ -632,9 +906,11 @@ void ProcessDeviceCommandQueue() {
+@@ -632,9 +908,11 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10926,7 +10937,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
            gpD3DSwapChains[pHandle] = pSwapChain;
          }
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
-@@ -646,8 +922,13 @@ void ProcessDeviceCommandQueue() {
+@@ -646,8 +924,13 @@ void ProcessDeviceCommandQueue() {
          PULL_U(iSwapChain);
          IDirect3DSwapChain9* pSwapChain = nullptr;
          const auto hresult = pD3DDevice->GetSwapChain(iSwapChain, &pSwapChain);
@@ -10942,7 +10953,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_GetNumberOfSwapChains:
-@@ -664,19 +945,31 @@ void ProcessDeviceCommandQueue() {
+@@ -664,19 +947,31 @@ void ProcessDeviceCommandQueue() {
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10986,7 +10997,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_ResetEx:
-@@ -689,26 +982,38 @@ void ProcessDeviceCommandQueue() {
+@@ -689,26 +984,38 @@ void ProcessDeviceCommandQueue() {
          PULL_DATA(sizeof(D3DDISPLAYMODEEX), pFullscreenDisplayMode);
  
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -11038,7 +11049,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  #endif
  
          GET_RES(pD3DDevice, gpD3DDevices);
-@@ -717,9 +1022,10 @@ void ProcessDeviceCommandQueue() {
+@@ -717,9 +1024,10 @@ void ProcessDeviceCommandQueue() {
          PULL(uint32_t, hDestWindowOverride);
          PULL_OBJ(RGNDATA, pDirtyRegion);
  
@@ -11051,7 +11062,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << "Present() failed! Check all logs for reported errors.";
-@@ -730,7 +1036,7 @@ void ProcessDeviceCommandQueue() {
+@@ -730,7 +1038,7 @@ void ProcessDeviceCommandQueue() {
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11060,7 +11071,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  #endif
          }
          break;
-@@ -746,6 +1052,7 @@ void ProcessDeviceCommandQueue() {
+@@ -746,6 +1054,7 @@ void ProcessDeviceCommandQueue() {
          assert(SUCCEEDED(hresult));
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pSurfaceHandle] = pBackbuffer;
@@ -11068,7 +11079,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          break;
        }
-@@ -767,6 +1074,7 @@ void ProcessDeviceCommandQueue() {
+@@ -767,6 +1076,7 @@ void ProcessDeviceCommandQueue() {
          PULL_D(Flags);
          PULL_OBJ(D3DGAMMARAMP, pRamp);
          pD3DDevice->SetGammaRamp(iSwapChain, Flags, pRamp);
@@ -11076,7 +11087,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_GetGammaRamp:
-@@ -780,20 +1088,30 @@ void ProcessDeviceCommandQueue() {
+@@ -780,20 +1090,30 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_CreateTexture:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11117,7 +11128,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_CreateVolumeTexture:
-@@ -807,12 +1125,22 @@ void ProcessDeviceCommandQueue() {
+@@ -807,12 +1127,22 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11143,7 +11154,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -825,12 +1153,18 @@ void ProcessDeviceCommandQueue() {
+@@ -825,12 +1155,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11165,7 +11176,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -842,12 +1176,18 @@ void ProcessDeviceCommandQueue() {
+@@ -842,12 +1178,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(FVF);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11187,7 +11198,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -859,12 +1199,18 @@ void ProcessDeviceCommandQueue() {
+@@ -859,12 +1201,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11209,7 +11220,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -878,12 +1224,18 @@ void ProcessDeviceCommandQueue() {
+@@ -878,12 +1226,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(MultisampleQuality);
          PULL(BOOL, Lockable);
          PULL_HND(pHandle);
@@ -11231,7 +11242,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -897,12 +1249,18 @@ void ProcessDeviceCommandQueue() {
+@@ -897,12 +1251,18 @@ void ProcessDeviceCommandQueue() {
          PULL_D(MultisampleQuality);
          PULL(BOOL, Discard);
          PULL_HND(pHandle);
@@ -11253,7 +11264,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -919,7 +1277,8 @@ void ProcessDeviceCommandQueue() {
+@@ -919,7 +1279,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pDestinationSurface = (IDirect3DSurface9*) gpD3DResources[pDestHandle];
          assert(pDestinationSurface != nullptr);
          if (pSourceSurface != nullptr && pDestinationSurface != nullptr) {
@@ -11263,7 +11274,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -936,7 +1295,8 @@ void ProcessDeviceCommandQueue() {
+@@ -936,7 +1297,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pDestinationTexture = (IDirect3DBaseTexture9*) gpD3DResources[pDestinationTextureHandle];
          assert(pDestinationTexture != nullptr);
          if (pSourceTexture != nullptr && pDestinationTexture != nullptr) {
@@ -11273,7 +11284,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -949,7 +1309,7 @@ void ProcessDeviceCommandQueue() {
+@@ -949,7 +1311,7 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pDestSurfaceHandle);
          const auto& pRenderTarget = (IDirect3DSurface9*) gpD3DResources[pRenderTargetHandle];
          const auto& pDestSurface = (IDirect3DSurface9*) gpD3DResources[pDestSurfaceHandle];
@@ -11282,7 +11293,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
          break;
-@@ -1001,12 +1361,18 @@ void ProcessDeviceCommandQueue() {
+@@ -1001,12 +1363,18 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11304,7 +11315,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1023,6 +1389,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1023,6 +1391,7 @@ void ProcessDeviceCommandQueue() {
          assert((pHandle != 0 && pRenderTarget != 0) || pHandle == 0);
          if ((pHandle != 0 && pRenderTarget != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetRenderTarget(IN RenderTargetIndex, IN pRenderTarget);
@@ -11312,7 +11323,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1034,12 +1401,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1034,12 +1403,9 @@ void ProcessDeviceCommandQueue() {
          PULL_D(RenderTargetIndex);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pRenderTarget = nullptr;
@@ -11327,7 +11338,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DDevice9Ex_SetDepthStencilSurface:
-@@ -1054,6 +1418,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1054,6 +1420,7 @@ void ProcessDeviceCommandQueue() {
          assert((pHandle != 0 && pDepthStencil != 0) || pHandle == 0);
          if ((pHandle != 0 && pDepthStencil != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetDepthStencilSurface(IN pDepthStencil);
@@ -11335,7 +11346,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1064,11 +1429,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1064,11 +1431,8 @@ void ProcessDeviceCommandQueue() {
          GET_RES(pD3DDevice, gpD3DDevices);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pZStencilSurface = nullptr;
@@ -11349,7 +11360,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1084,6 +1446,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1084,6 +1448,7 @@ void ProcessDeviceCommandQueue() {
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->EndScene();
@@ -11357,7 +11368,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1186,6 +1549,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1186,6 +1551,7 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DRENDERSTATETYPE, State);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetRenderState(IN State, IN Value);
@@ -11365,7 +11376,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1244,6 +1608,30 @@ void ProcessDeviceCommandQueue() {
+@@ -1244,6 +1610,30 @@ void ProcessDeviceCommandQueue() {
            assert(pTexture != nullptr);
          }
          const auto hresult = pD3DDevice->SetTexture(IN Stage, IN pTexture);
@@ -11396,7 +11407,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1270,6 +1658,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1270,6 +1660,7 @@ void ProcessDeviceCommandQueue() {
          PULL(D3DSAMPLERSTATETYPE, Type);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetSamplerState(IN Sampler, IN Type, IN Value);
@@ -11404,7 +11415,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1323,6 +1712,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1323,6 +1714,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11412,7 +11423,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(StartVertex);
          PULL_U(PrimitiveCount);
-@@ -1334,6 +1724,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1334,6 +1726,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawIndexedPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11420,7 +11431,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          PULL(D3DPRIMITIVETYPE, Type);
          PULL_I(BaseVertexIndex);
          PULL_U(MinVertexIndex);
-@@ -1348,6 +1739,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1348,6 +1741,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11428,7 +11439,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(PrimitiveCount);
          void* pVertexStreamZeroData = nullptr;
-@@ -1361,6 +1753,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1361,6 +1755,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_DrawIndexedPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11436,7 +11447,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(MinVertexIndex);
          PULL_U(NumVertices);
-@@ -1450,6 +1843,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1450,6 +1845,10 @@ void ProcessDeviceCommandQueue() {
          if (SUCCEEDED(hresult)) {
            gpD3DVertexShaders[pHandle] = pShader;
          }
@@ -11447,7 +11458,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1463,6 +1860,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1463,6 +1862,7 @@ void ProcessDeviceCommandQueue() {
            pShader = gpD3DVertexShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetVertexShader(IN pShader);
@@ -11455,7 +11466,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1514,10 +1912,11 @@ void ProcessDeviceCommandQueue() {
+@@ -1514,10 +1914,11 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_SetStreamSource:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11471,7 +11482,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          IDirect3DVertexBuffer9* pStreamData = nullptr;
          if (pHandle != NULL) {
            pStreamData = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
-@@ -1544,7 +1943,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1544,7 +1945,8 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DDevice9Ex_SetIndices:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11481,7 +11492,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          IDirect3DIndexBuffer9* pIndexData = NULL;
          if (pHandle != NULL) {
            pIndexData = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
-@@ -1568,6 +1968,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1568,6 +1970,10 @@ void ProcessDeviceCommandQueue() {
          if (SUCCEEDED(hresult)) {
            gpD3DPixelShaders[pHandle] = pShader;
          }
@@ -11492,7 +11503,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1581,6 +1985,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1581,6 +1987,7 @@ void ProcessDeviceCommandQueue() {
            pShader = gpD3DPixelShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetPixelShader(IN pShader);
@@ -11500,7 +11511,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1595,6 +2000,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1595,6 +2002,7 @@ void ProcessDeviceCommandQueue() {
          float* pConstantData = nullptr;
          PULL_DATA(Count * sizeof(float) * 4, pConstantData);
          const auto hresult = pD3DDevice->SetPixelShaderConstantF(IN StartRegister, IN pConstantData, IN Count);
@@ -11508,7 +11519,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1734,6 +2140,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1734,6 +2142,7 @@ void ProcessDeviceCommandQueue() {
          const auto& pSB = gpD3DStateBlocks[pHandle];
          assert(pSB != nullptr);
          const auto hresult = pSB->Apply();
@@ -11516,7 +11527,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -1749,7 +2156,17 @@ void ProcessDeviceCommandQueue() {
+@@ -1749,7 +2158,17 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          const auto& pSwapChain = gpD3DSwapChains[pHandle];
@@ -11535,7 +11546,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          gpD3DSwapChains.erase(pHandle);
          break;
        }
-@@ -1757,7 +2174,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1757,7 +2176,7 @@ void ProcessDeviceCommandQueue() {
        {
          FrameMark;
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11544,7 +11555,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  #endif
  
          GET_RES(pSwapChain, gpD3DSwapChains);
-@@ -1767,9 +2184,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1767,9 +2186,9 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(RGNDATA, pDirtyRegion);
          PULL(uint32_t, dwFlags);
  
@@ -11556,7 +11567,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
-@@ -1780,7 +2197,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1780,7 +2199,7 @@ void ProcessDeviceCommandQueue() {
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11565,7 +11576,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  #endif
          }
          break;
-@@ -1793,6 +2210,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1793,6 +2212,7 @@ void ProcessDeviceCommandQueue() {
          auto hresult = pSwapChain->GetFrontBufferData(pDestSurface);
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pDestSurfaceHandle] = pDestSurface;
@@ -11573,7 +11584,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
-@@ -1807,7 +2225,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1807,7 +2227,9 @@ void ProcessDeviceCommandQueue() {
          IDirect3DSurface9* pBackbuffer = nullptr;
          const auto hresult = pSwapChain->GetBackBuffer(iBackBuffer, Type, &pBackbuffer);
          if (SUCCEEDED(hresult)) {
@@ -11583,7 +11594,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -2019,6 +2439,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2019,6 +2441,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          safeDestroy(pTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11593,7 +11604,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DTexture9_GetDevice:
-@@ -2063,7 +2486,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2063,7 +2488,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11602,7 +11613,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2074,9 +2497,14 @@ void ProcessDeviceCommandQueue() {
+@@ -2074,9 +2499,14 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pSurfaceHandle);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pTextureHandle];
          LPDIRECT3DSURFACE9 pSurfaceLevel;
@@ -11618,7 +11629,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2120,6 +2548,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2120,6 +2550,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pVolumeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11628,7 +11639,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DVolumeTexture9_GetDevice:
-@@ -2164,7 +2595,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2164,7 +2597,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -11637,7 +11648,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2175,9 +2606,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2175,9 +2608,13 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pVolumeLevelHandle);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pVolumeTextureHandle];
          LPDIRECT3DVOLUME9 pVolumeLevel;
@@ -11652,7 +11663,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2193,42 +2628,21 @@ void ProcessDeviceCommandQueue() {
+@@ -2193,42 +2630,21 @@ void ProcessDeviceCommandQueue() {
          PULL_U(Level);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -11707,7 +11718,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
        case IDirect3DVolumeTexture9_AddDirtyBox:
        {
          GET_HND(pHandle);
-@@ -2259,6 +2673,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2259,6 +2675,9 @@ void ProcessDeviceCommandQueue() {
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pCubeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11717,7 +11728,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DCubeTexture9_GetDevice:
-@@ -2303,7 +2720,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2303,7 +2722,7 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11726,7 +11737,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2315,9 +2732,10 @@ void ProcessDeviceCommandQueue() {
+@@ -2315,9 +2734,10 @@ void ProcessDeviceCommandQueue() {
          PULL_HND(pCubeMapSurfaceHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pCubeTextureHandle];
          LPDIRECT3DSURFACE9 pCubeMapSurface;
@@ -11738,7 +11749,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2359,9 +2777,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2359,9 +2779,13 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DVertexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11752,7 +11763,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DVertexBuffer9_GetDevice:
-@@ -2384,6 +2806,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2384,6 +2808,7 @@ void ProcessDeviceCommandQueue() {
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11760,7 +11771,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2391,32 +2814,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2391,32 +2816,46 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DVertexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11830,7 +11841,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DVertexBuffer9_GetDesc:
-@@ -2425,7 +2862,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2425,7 +2864,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DVERTEXBUFFER_DESC, orig_desc);
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
          D3DVERTEXBUFFER_DESC pDesc;
@@ -11839,7 +11850,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2445,9 +2882,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2445,9 +2884,13 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DIndexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11853,7 +11864,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DIndexBuffer9_GetDevice:
-@@ -2470,6 +2911,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2470,6 +2913,7 @@ void ProcessDeviceCommandQueue() {
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11861,7 +11872,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2477,31 +2919,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2477,31 +2921,46 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DIndexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11930,7 +11941,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DIndexBuffer9_GetDesc:
-@@ -2510,7 +2967,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2510,7 +2969,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DINDEXBUFFER_DESC, orig_desc);
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
          D3DINDEXBUFFER_DESC pDesc;
@@ -11939,7 +11950,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2531,8 +2988,11 @@ void ProcessDeviceCommandQueue() {
+@@ -2531,8 +2990,11 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
@@ -11952,7 +11963,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DSurface9_GetDevice:
-@@ -2559,10 +3019,55 @@ void ProcessDeviceCommandQueue() {
+@@ -2559,10 +3021,55 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DSURFACE_DESC, orig_desc);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -12009,7 +12020,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
        case IDirect3DSurface9_LockRect:
        {
          // Currently we only recieve calls for LockRect in cases where backbuffer data is to be copied for screenshots
-@@ -2577,39 +3082,145 @@ void ProcessDeviceCommandQueue() {
+@@ -2577,39 +3084,145 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL_OBJ(RECT, pRect);
          PULL_D(Flags);
@@ -12182,7 +12193,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DSurface9_GetDC:
-@@ -2635,6 +3246,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2635,6 +3248,8 @@ void ProcessDeviceCommandQueue() {
          const auto& pVolume = gpD3DVolumes[pHandle];
          safeDestroy(pVolume, pHandle);
          gpD3DVolumes.erase(pHandle);
@@ -12191,7 +12202,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        case IDirect3DVolume9_GetDevice:
-@@ -2653,7 +3266,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2653,7 +3268,7 @@ void ProcessDeviceCommandQueue() {
          PULL_OBJ(D3DVOLUME_DESC, orig_desc);
          const auto& pVolume = gpD3DVolumes[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -12200,7 +12211,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2667,40 +3280,16 @@ void ProcessDeviceCommandQueue() {
+@@ -2667,40 +3282,16 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -12250,7 +12261,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
  
-@@ -2714,7 +3303,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2714,7 +3305,7 @@ void ProcessDeviceCommandQueue() {
        case IDirect3DQuery9_Destroy:
        {
          GET_HND(pHandle);
@@ -12259,7 +12270,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          safeDestroy(pQuery, pHandle);
          gpD3DQuery.erase(pHandle);
          break;
-@@ -2729,8 +3318,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2729,8 +3320,8 @@ void ProcessDeviceCommandQueue() {
        {
          GET_HND(pHandle);
          PULL(DWORD, dwIssueFlags);
@@ -12270,7 +12281,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -2739,25 +3328,24 @@ void ProcessDeviceCommandQueue() {
+@@ -2739,25 +3330,24 @@ void ProcessDeviceCommandQueue() {
          GET_HND(pHandle);
          PULL(DWORD, dwSize);
          PULL(DWORD, dwGetDataFlags);
@@ -12306,7 +12317,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
  
-@@ -2769,7 +3357,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2769,7 +3359,7 @@ void ProcessDeviceCommandQueue() {
          PULL_U(i);
          const int length = DeviceBridge::getReaderChannel().data->peek();
          void* text = nullptr;
@@ -12315,7 +12326,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          std::stringstream ss;
          ss << "DebugMessage. i = " << i << ", length = " << length << " = " << size << ", text = '" << (char*) text << "'";
          Logger::info(ss.str().c_str());
-@@ -2792,26 +3380,37 @@ void ProcessDeviceCommandQueue() {
+@@ -2792,26 +3382,37 @@ void ProcessDeviceCommandQueue() {
          GET_HDR_VAL(_allocId);
          const auto allocId = (SharedHeap::AllocId) _allocId;
          PULL_U(chunkId);
@@ -12355,7 +12366,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          break;
        }
        /*
-@@ -3156,11 +3755,11 @@ void ProcessDeviceCommandQueue() {
+@@ -3156,11 +3757,11 @@ void ProcessDeviceCommandQueue() {
        case RemixApi_SetConfigVariable:
        {
          void* var_ptr = nullptr;
@@ -12369,7 +12380,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
          std::string value_str((const char*) value_ptr, value_size);
  
          remixapi::g_remix.SetConfigVariable(var_str.c_str(), value_str.c_str());
-@@ -3191,41 +3790,29 @@ void ProcessDeviceCommandQueue() {
+@@ -3191,41 +3792,29 @@ void ProcessDeviceCommandQueue() {
        Logger::warn("Data not in sync");
      }
      assert(CHECK_DATA_OFFSET);
@@ -12421,7 +12432,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    }
  }
  
-@@ -3268,14 +3855,26 @@ bool InitializeD3D() {
+@@ -3268,14 +3857,26 @@ bool InitializeD3D() {
    // If vanilla dxvk is enabled attempt to load that first.
    if (ServerOptions::getUseVanillaDxvk()) {
      Logger::info("Loading standard Non-RTX DXVK d3d9 dll.");
@@ -12451,7 +12462,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
      // Since vanilla dxvk is diabled attempt loading regular d3d9.dll which
      // could be either the system d3d9 one or our own Remix dxvk flavor of it.
      ghModule = LoadLibraryExA("d3d9.dll", nullptr,
-@@ -3285,6 +3884,10 @@ bool InitializeD3D() {
+@@ -3285,6 +3886,10 @@ bool InitializeD3D() {
    // create the D3D instance used for the lifetime of this process.
    if (ghModule != nullptr) {
      auto Direct3DCreate9 = (D3DC9) GetProcAddress(ghModule, "Direct3DCreate9");
@@ -12462,7 +12473,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
      if (nullptr == (gpD3D = Direct3DCreate9(D3D_SDK_VERSION))) {
        Logger::err(format_string("D3D9 interface object creation failed: %ld\n", GetLastError()));
        return false;
-@@ -3311,6 +3914,10 @@ bool InitializeD3D() {
+@@ -3311,6 +3916,10 @@ bool InitializeD3D() {
    }
  
    CheckD3D9Type(ghModule);
@@ -12473,7 +12484,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    if (bDxvkModuleLoaded) {
      auto queryFeatureVersion = (version::QueryFunc)GetProcAddress(ghModule, version::QueryFuncName);
      if(queryFeatureVersion == NULL) {
-@@ -3343,18 +3950,29 @@ bool InitializeD3D() {
+@@ -3343,18 +3952,29 @@ bool InitializeD3D() {
  }
  
  void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
@@ -12512,7 +12523,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
  
    // Give the server some time to shut down, but then force quit so it doesn't hang forever
    uint32_t numRetries = 0;
-@@ -3371,7 +3989,7 @@ void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
+@@ -3371,7 +3991,7 @@ void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
  }
  
  bool RegisterExitCallback(const uint32_t hProcess) {
@@ -12521,7 +12532,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    if (!result) {
      DWORD error = GetLastError();
      Logger::err(format_string("RegisterExitCallback() failed with error code %d", error));
-@@ -3482,22 +4100,52 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3482,22 +4102,52 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
  
    Config::init(Config::App::Server);
    GlobalOptions::init();
@@ -12577,7 +12588,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
      Logger::info("Launched server with GUID " + gUniqueIdentifier.toString());
    } else {
      Logger::err("Server was invoked with invalid GUID! Unable to establish bridge, exiting...");
-@@ -3511,6 +4159,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3511,6 +4161,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    }
    LocalFree(argList);
  
@@ -12590,7 +12601,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    initModuleBridge();
    initDeviceBridge();
  
-@@ -3541,6 +4195,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3541,6 +4197,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12598,7 +12609,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -3554,6 +4209,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3554,6 +4211,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    }
    const SentryShutdownOnExit sentryShutdownOnExit;
  
@@ -12607,7 +12618,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    // (3) Send ACK to Client. Connection has been established
    Logger::info("Sync request received, sending ACK response...");
    ServerMessage { Commands::Bridge_Ack, (uintptr_t) gpClientMessageChannel->getWorkerThreadId() };
-@@ -3576,6 +4233,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3576,6 +4235,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12615,7 +12626,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -3589,12 +4247,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3589,12 +4249,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
    bSignalDone.store(true);
    moduleCmdProcessingThread.join();
  
@@ -12633,7 +12644,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    if (ghModule) {
      // Skip unloading the d3d9.dll for now, since it seems to be doing more harm than good
      // especially with other dependencies loaded by dxvk and threads that may deadlock due
-@@ -3610,6 +4272,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3610,6 +4274,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
      hWait = NULL;
    }
  
@@ -12644,7 +12655,7 @@ index 86434ece9002c1e05dea9af65efa97568dc450b9..b0a3d8f715cc6da22d9a43678d31dbb4
    Logger::info("Shutdown cleanup successful, exiting now!");
  
    const auto timeEnd = std::chrono::high_resolution_clock::now();
-@@ -3624,4 +4290,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3624,4 +4292,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
      ServerMessage { Commands::Bridge_Ack };
    }
    return 0;
