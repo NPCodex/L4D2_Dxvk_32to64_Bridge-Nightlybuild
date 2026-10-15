@@ -94,7 +94,9 @@ Nightly 默认 x64；可选 x86 通常降低指针相关占用，但地址空间
 | 配置 | 当前随包值 | 作用与边界 |
 |---|---|---|
 | `client.steamOverlayInput` / `server.steamOverlayInput` | `True` | 协调真实 Steam 激活通知、游戏输入抑制和 Host 输入捕获。 |
-| `server.steamNativeInput` | `True` | 配套 Host Steam 原生输入与焦点交互，依赖两端 Steam 输入及 Presenter 路径。 |
+| `server.steamNativeInput` | `True` | 配套 Host Steam 原生输入与焦点交互，依赖两端 Steam 输入及 Presenter 路径。Steam 捕获期间保留系统组合键与 IME 焦点；中文提交由 Steam 接收后，阻止默认窗口过程再次生成同一结果，不按文本内容或时间去重。 |
+| `server.steamImeTsfActivate` | `True` | 在 Presenter 所属线程初始化 COM/TSF，停止时仅释放本实现拥有的引用；要求 Presenter 输入及 Steam 原生输入启用。源码缺省 True。 |
+| `server.steamImeNativeWarmup` | `True` | 首次前台 Steam 捕获时用临时 EDIT 初始化原生输入上下文，随后销毁；不在后台抢焦点，不重复预热。源码缺省 True。 |
 | `client.steamHookChainPassThrough` | `True` | Steam 激活时保留下游 Win32 hook 链，继续抑制游戏输入。 |
 | `client.steamMouseCaptureHandoff` | `True` | 在所属游戏窗口线程移交/恢复鼠标捕获，不修改其他线程的捕获。 |
 | `client.steamPollChainPassThrough` | `True` | Steam 活动时执行原输入查询，游戏仍收到受抑制的结果。 |

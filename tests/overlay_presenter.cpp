@@ -6,9 +6,125 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <mutex>
+#include <objbase.h>
 
 static void require(bool condition, const char* reason) {
   if (!condition) { std::fprintf(stderr, "%s (error %lu)\n", reason, GetLastError()); std::exit(1); }
+}
+// Presenter logs originate on both the caller and window thread.
+class TestLog {
+  std::mutex m_mutex;
+  std::string m_text;
+public:
+  void append(const char* line) {
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    m_text += line;
+    m_text += "\n";
+  }
+  void clear() {
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    m_text.clear();
+  }
+  std::string snapshot() {
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    return m_text;
+  }
+};
+
+// Observe the actual apartment teardown on the Presenter thread.
+class ApartmentSpy final : public IInitializeSpy {
+  std::atomic<ULONG> m_refs { 1 };
+public:
+  std::atomic<unsigned> uninitializations { 0 };
+  std::atomic<DWORD> lastReferences { MAXDWORD }, callbackThread { 0 };
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID id, void** result) override {
+    if (!result) { return E_POINTER; }
+    *result = nullptr;
+    if (id != __uuidof(IUnknown) && id != __uuidof(IInitializeSpy)) { return E_NOINTERFACE; }
+    *result = static_cast<IInitializeSpy*>(this);
+    AddRef();
+    return S_OK;
+  }
+  ULONG STDMETHODCALLTYPE AddRef() override { return ++m_refs; }
+  ULONG STDMETHODCALLTYPE Release() override {
+    const ULONG remaining = --m_refs;
+    if (!remaining) { delete this; }
+    return remaining;
+  }
+  HRESULT STDMETHODCALLTYPE PreInitialize(DWORD, DWORD) override { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PostInitialize(HRESULT result, DWORD, DWORD) override { return result; }
+  HRESULT STDMETHODCALLTYPE PreUninitialize(DWORD) override { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PostUninitialize(DWORD references) override {
+    lastReferences.store(references);
+    callbackThread.store(GetCurrentThreadId());
+    ++uninitializations;
+    return S_OK;
+  }
+};
+
+static constexpr UINT kBarrier = WM_APP + 61;
+static constexpr UINT kApartmentProbe = WM_APP + 62;
+static constexpr UINT kCreateFocusedEdit = WM_APP + 63;
+static constexpr UINT kCreateFocusedPopup = WM_APP + 64;
+static constexpr UINT kFocusPresenter = WM_APP + 65;
+static constexpr UINT kDestroyFocusHelpers = WM_APP + 66;
+static constexpr UINT kClearFocus = WM_APP + 67;
+static std::atomic<WNDPROC> presenterProc { nullptr };
+static HWND focusEdit = nullptr, focusPopup = nullptr;
+static LRESULT CALLBACK probeProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+  if (message == kBarrier) { return SetEvent(reinterpret_cast<HANDLE>(wParam)); }
+  if (message == kApartmentProbe) {
+    APTTYPE apartment = APTTYPE_CURRENT;
+    APTTYPEQUALIFIER qualifier = APTTYPEQUALIFIER_NONE;
+    if (FAILED(CoGetApartmentType(&apartment, &qualifier))
+      || (apartment != APTTYPE_STA && apartment != APTTYPE_MAINSTA)) { return 0; }
+    ULARGE_INTEGER cookie {};
+    return SUCCEEDED(CoRegisterInitializeSpy(reinterpret_cast<ApartmentSpy*>(wParam), &cookie));
+  }
+  if (message == kCreateFocusedEdit) {
+    focusEdit = CreateWindowExW(0, L"EDIT", L"", WS_CHILD | WS_VISIBLE,
+      0, 0, 100, 20, hwnd, nullptr, GetModuleHandleW(nullptr), nullptr);
+    if (!focusEdit) { return 0; }
+    SetFocus(focusEdit);
+    return GetFocus() == focusEdit ? reinterpret_cast<LRESULT>(focusEdit) : 0;
+  }
+  if (message == kCreateFocusedPopup) {
+    focusPopup = CreateWindowExW(WS_EX_NOACTIVATE, L"STATIC", L"IME focus transition test", WS_POPUP,
+      0, 0, 1, 1, hwnd, nullptr, GetModuleHandleW(nullptr), nullptr);
+    if (!focusPopup) { return 0; }
+    SetFocus(focusPopup);
+    return GetFocus() == focusPopup ? reinterpret_cast<LRESULT>(focusPopup) : 0;
+  }
+  if (message == kFocusPresenter) {
+    SetFocus(hwnd);
+    return GetFocus() == hwnd;
+  }
+  if (message == kClearFocus) {
+    SetFocus(nullptr);
+    return GetFocus() == nullptr;
+  }
+  if (message == kDestroyFocusHelpers) {
+    if (focusEdit) { DestroyWindow(focusEdit); focusEdit = nullptr; }
+    if (focusPopup) { DestroyWindow(focusPopup); focusPopup = nullptr; }
+    return 1;
+  }
+  return CallWindowProcW(presenterProc.load(), hwnd, message, wParam, lParam);
+}
+static void flushPresenter(HWND window) {
+  HANDLE barrier = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+  require(barrier != nullptr, "create Presenter queue barrier");
+  require(PostMessageW(window, kBarrier, reinterpret_cast<WPARAM>(barrier), 0) != FALSE,
+    "post Presenter queue barrier");
+  const DWORD result = WaitForSingleObject(barrier, 3000);
+  CloseHandle(barrier);
+  require(result == WAIT_OBJECT_0, "drain posted Presenter mode changes");
+}
+static HWND threadFocus(HWND window) {
+  GUITHREADINFO state {}; state.cbSize = sizeof(state);
+  require(GetGUIThreadInfo(GetWindowThreadProcessId(window, nullptr), &state) != FALSE,
+    "read owning thread's actual keyboard focus");
+  return state.hwndFocus;
 }
 static bool enabled(HWND window, bool expected) {
   for (int i = 0; i < 100; ++i) {
@@ -21,15 +137,28 @@ static bool enabled(HWND window, bool expected) {
 // Host the permission Windows normally supplies with a user's activation click.
 static constexpr UINT kPrepareActivation = WM_APP + 41;
 static constexpr UINT kFinishActivation = WM_APP + 42;
+static constexpr UINT kFocusGame = WM_APP + 43;
 static HWND otherWindow = nullptr;
 static LRESULT CALLBACK parentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
   if (message == kPrepareActivation) {
     ShowWindow(hwnd, SW_SHOWNOACTIVATE);
     otherWindow = CreateWindowW(L"STATIC", L"Other application test", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
       300, 0, 240, 120, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
-    if (!otherWindow || !SetForegroundWindow(otherWindow)
-      || !AllowSetForegroundWindow(static_cast<DWORD>(wParam))) { return 0; }
+    const bool activated = otherWindow && SetForegroundWindow(otherWindow) != FALSE;
+    const bool granted = activated && AllowSetForegroundWindow(static_cast<DWORD>(wParam)) != FALSE;
+    if (!otherWindow || !activated || !granted) {
+      std::fprintf(stderr, "foreground setup: other=%p actual=%p activated=%d granted=%d error=%lu\n",
+        static_cast<void*>(otherWindow), static_cast<void*>(GetForegroundWindow()), activated, granted, GetLastError());
+      return 0;
+    }
     return reinterpret_cast<LRESULT>(otherWindow);
+  }
+  if (message == kFocusGame) {
+    ShowWindow(hwnd, SW_SHOW);
+    AllowSetForegroundWindow(static_cast<DWORD>(wParam));
+    if (!SetForegroundWindow(hwnd)) { return 0; }
+    SetFocus(hwnd);
+    return GetFocus() == hwnd;
   }
   if (message == kFinishActivation) {
     if (otherWindow) { DestroyWindow(otherWindow); otherWindow = nullptr; }
@@ -42,39 +171,46 @@ int main(int argc, char** argv) {
   if (argc == 3 && std::string(argv[1]) == "--child") {
     const HWND parent = reinterpret_cast<HWND>(static_cast<uintptr_t>(std::strtoull(argv[2], nullptr, 10)));
     // Input is enabled to exercise the foreground-scoped hook and public ABI.
-    std::string diagnosticLog;
+    TestLog diagnosticLog;
     l4d2_overlay::SuppressionDiagnostics suppression;
-    auto appendSuppression = [&](const char* line) { diagnosticLog += line; diagnosticLog += "\n"; };
+    auto appendSuppression = [&](const char* line) { diagnosticLog.append(line); };
     const void* knownCaller = reinterpret_cast<const void*>(GetModuleHandleW(nullptr));
     SetLastError(0x1234);
     suppression.observe("test-api", knownCaller, "neutralize", appendSuppression);
     require(GetLastError() == 0x1234, "module lookup and diagnostic logging preserve caller error state");
-    require(diagnosticLog.find("caller_path=unresolved") == std::string::npos
-      && diagnosticLog.find("scope=immediate-caller") != std::string::npos,
+    require(diagnosticLog.snapshot().find("caller_path=unresolved") == std::string::npos
+      && diagnosticLog.snapshot().find("scope=immediate-caller") != std::string::npos,
       "suppression observer resolves the actual module containing the address");
-    const std::string firstCaller = diagnosticLog;
+    const std::string firstCaller = diagnosticLog.snapshot();
     suppression.observe("test-api", knownCaller, "neutralize", appendSuppression);
-    require(firstCaller == diagnosticLog, "repeated input polling does not flood suppression logs");
+    require(firstCaller == diagnosticLog.snapshot(), "repeated input polling does not flood suppression logs");
     suppression.observe("test-api", knownCaller, "poll-chain-neutralize", appendSuppression);
-    require(diagnosticLog.find("action=poll-chain-neutralize") != std::string::npos,
+    require(diagnosticLog.snapshot().find("action=poll-chain-neutralize") != std::string::npos,
       "same caller's transition to polling delegation must be observed");
-    const std::string changedAction = diagnosticLog;
+    const std::string changedAction = diagnosticLog.snapshot();
     suppression.observe("test-api", knownCaller, "poll-chain-neutralize", appendSuppression);
-    require(changedAction == diagnosticLog, "repeated delegation action stays deduplicated");
+    require(changedAction == diagnosticLog.snapshot(), "repeated delegation action stays deduplicated");
     for (uintptr_t i = 1; i <= 130; ++i) {
       suppression.observe("test-api", reinterpret_cast<const void*>(i), "neutralize", appendSuppression);
     }
-    const std::string boundedCallers = diagnosticLog;
+    const std::string boundedCallers = diagnosticLog.snapshot();
     require(boundedCallers.find("event=input-suppression-limit") != std::string::npos,
       "diagnostic saturation is explicit instead of silently claiming complete coverage");
     suppression.observe("test-api", reinterpret_cast<const void*>(131), "neutralize", appendSuppression);
-    require(boundedCallers == diagnosticLog, "saturated observer remains bounded");
+    require(boundedCallers == diagnosticLog.snapshot(), "saturated observer remains bounded");
     diagnosticLog.clear();
-    l4d2_overlay::InputDiagnostics disabled(false, "test", [&](const char* line) { diagnosticLog += line; });
+    l4d2_overlay::InputDiagnostics disabled(false, "test", [&](const char* line) { diagnosticLog.append(line); });
     disabled.message(WM_LBUTTONDOWN, 0); disabled.sample(parent, nullptr, false);
-    require(diagnosticLog.empty(), "diagnostics are inert by default");
+    require(diagnosticLog.snapshot().empty(), "diagnostics are inert by default");
+    std::atomic<unsigned> warmupCalls { 0 }, warmupSuccess { 0 };
     l4d2_overlay::Presenter presenter(true, VK_HOME, false,
-      [&](const char* line) { diagnosticLog += line; diagnosticLog += "\n"; }, true, true, true);
+      [&](const char* line) {
+        if (std::strstr(line, "event=native-warmup")) {
+          if (std::strstr(line, "created=1 focused=1 restored=1 destroyed=1")) { ++warmupSuccess; }
+          ++warmupCalls;
+        }
+        diagnosticLog.append(line);
+      }, true, true, true, true, true);
     char modulePath[MAX_PATH] {}; require(GetModuleFileNameA(nullptr, modulePath, MAX_PATH) != 0, "test module path");
     std::string fakePath(modulePath); fakePath = fakePath.substr(0, fakePath.find_last_of("\\/")) + (sizeof(void*) == 8 ? "\\fake-x64.dll" : "\\fake-x86.dll");
     HMODULE fake = LoadLibraryA(fakePath.c_str()); require(fake != nullptr, "load API test double");
@@ -106,23 +242,32 @@ int main(int argc, char** argv) {
     require(!presenter.capturing(), "Steam diagnostics do not change capture policy");
     const HWND child = presenter.window(parent);
     require(child != nullptr, "cross-process child creation");
+    presenterProc.store(reinterpret_cast<WNDPROC>(GetWindowLongPtrW(child, GWLP_WNDPROC)));
+    require(presenterProc.load() != nullptr, "read Presenter procedure before publishing probe");
+    const auto previousProc = reinterpret_cast<WNDPROC>(SetWindowLongPtrW(child, GWLP_WNDPROC,
+      reinterpret_cast<LONG_PTR>(&probeProc)));
+    require(previousProc == presenterProc.load(), "attach owner-thread focus and apartment probes");
+    auto* apartmentSpy = new ApartmentSpy;
+    require(SendMessageW(child, kApartmentProbe, reinterpret_cast<WPARAM>(apartmentSpy), 0) != 0,
+      "Presenter owns a real STA apartment and accepts a native teardown observer");
+    const DWORD presenterThread = GetWindowThreadProcessId(child, nullptr);
     DWORD pid = 0; GetWindowThreadProcessId(child, &pid);
     require(pid == GetCurrentProcessId(), "presenter must belong to host process");
     require(GetParent(child) == parent, "presenter must remain inside game window");
     require(presenter.route(parent) == child && presenter.route(nullptr) == nullptr, "present override routing");
     require(enabled(child, false), "input initially passes through disabled child");
     presenter.sampleInput();
-    require(diagnosticLog.find("event=modules role=host") != std::string::npos, "both-process module observation available");
-    require(diagnosticLog.find("presenter_pid=" + std::to_string(GetCurrentProcessId())) != std::string::npos,
+    require(diagnosticLog.snapshot().find("event=modules role=host") != std::string::npos, "both-process module observation available");
+    require(diagnosticLog.snapshot().find("presenter_pid=" + std::to_string(GetCurrentProcessId())) != std::string::npos,
       "diagnostic identifies actual presenter owner");
-    require(diagnosticLog.find("enabled=0 capture=0") != std::string::npos, "disabled mouse target is observable");
-    require(diagnosticLog.find("local_gui_ok=") != std::string::npos, "host and foreground thread focus observed separately");
-    const std::string firstSample = diagnosticLog;
-    presenter.sampleInput(); require(diagnosticLog == firstSample, "diagnostic polling is throttled");
-    l4d2_overlay::InputDiagnostics counted(true, "test", [&](const char* line) { diagnosticLog += line; });
+    require(diagnosticLog.snapshot().find("enabled=0 capture=0") != std::string::npos, "disabled mouse target is observable");
+    require(diagnosticLog.snapshot().find("local_gui_ok=") != std::string::npos, "host and foreground thread focus observed separately");
+    const std::string firstSample = diagnosticLog.snapshot();
+    presenter.sampleInput(); require(diagnosticLog.snapshot() == firstSample, "diagnostic polling is throttled");
+    l4d2_overlay::InputDiagnostics counted(true, "test", [&](const char* line) { diagnosticLog.append(line); });
     counted.message(WM_MOUSEMOVE, 0); counted.message(WM_KEYDOWN, VK_HOME); counted.message(WM_INPUT, 0);
     counted.forwarded(); counted.sample(parent, child, false);
-    require(diagnosticLog.find("mouse=1 keyboard=1 raw=1 forward=1") != std::string::npos,
+    require(diagnosticLog.snapshot().find("mouse=1 keyboard=1 raw=1 forward=1") != std::string::npos,
       "count message classes without recording input contents");
     require(presenter.bindReShade(fake), "register documented API and overlay callback");
     auto rawToggle = GetProcAddress(fake, "TestToggleOverlay");
@@ -165,24 +310,127 @@ int main(int argc, char** argv) {
     SendMessageW(parent, WM_NULL, 0, 0);
     require(GetForegroundWindow() == parent, "clicking captured presenter restores foreground to game root");
     hostGui = {}; hostGui.cbSize = sizeof(hostGui);
+    Sleep(350);
     require(GetGUIThreadInfo(GetWindowThreadProcessId(child, nullptr), &hostGui) != FALSE
       && hostGui.hwndFocus != child, "click does not give keyboard focus to Host presenter");
     require(toggle(false) && enabled(child, false), "ReShade closes and releases capture after reactivation");
     SendMessageW(parent, kFinishActivation, 0, 0);
+    require(warmupCalls.load() == 0, "background Steam and ReShade never warm up IME focus");
+    require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
+      "activate owned game for native Steam IME regression");
+    presenter.steamCapture(true);
+    flushPresenter(child);
+    require(warmupCalls.load() == 1 && warmupSuccess.load() == 1,
+      "first foreground Steam capture focuses and destroys the real hidden EDIT once");
+    require(threadFocus(child) == child, "warmup restores actual Presenter keyboard focus");
+    require(FindWindowExW(child, nullptr, L"EDIT", nullptr) == nullptr,
+      "warmup leaves no hidden EDIT child behind");
+    require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
+      "simulate native input switch returning focus to Client game window");
+    bool timerRestoredFocus = false;
+    for (int i = 0; i < 150; ++i) {
+      if (threadFocus(child) == child) { timerRestoredFocus = true; break; }
+      Sleep(10);
+    }
+    require(timerRestoredFocus, "natural Presenter timer restores native Steam focus without language notification");
+    const HWND nativeEdit = reinterpret_cast<HWND>(SendMessageW(child, kCreateFocusedEdit, 0, 0));
+    require(nativeEdit != nullptr, "focus a real same-thread Steam-style input child");
+    SendMessageW(child, WM_INPUTLANGCHANGE, 0, reinterpret_cast<LPARAM>(GetKeyboardLayout(0)));
+    flushPresenter(child);
+    Sleep(350);
+    require(threadFocus(child) == nativeEdit, "input-language refresh preserves focused native input child");
+    presenter.steamCapture(false);
+    flushPresenter(child);
+    require(enabled(child, false) && !presenter.capturing(), "close native Steam from child focus");
+    require(threadFocus(child) == parent, "release from native child restores simulated game focus");
+    presenter.steamCapture(true);
+    flushPresenter(child);
+    require(enabled(child, true) && threadFocus(child) == child, "native Steam re-open acquires focus");
+    require(warmupCalls.load() == 1, "subsequent Steam opens do not repeat IME initialization");
+    const HWND nativePopup = reinterpret_cast<HWND>(SendMessageW(child, kCreateFocusedPopup, 0, 0));
+    require(nativePopup != nullptr, "focus a real same-thread IME-style transient window");
+    SendMessageW(child, WM_INPUTLANGCHANGE, 0, reinterpret_cast<LPARAM>(GetKeyboardLayout(0)));
+    flushPresenter(child);
+    Sleep(350);
+    require(threadFocus(child) == nativePopup, "input-language refresh preserves transient IME focus");
+    require(warmupCalls.load() == 1, "input-language changes do not repeat warmup");
+    require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
+      "restore game foreground after temporary IME window");
+    flushPresenter(child);
+    require(SendMessageW(child, kClearFocus, 0, 0) != FALSE, "temporary IME releases its own focus");
+    timerRestoredFocus = false;
+    for (int i = 0; i < 150; ++i) {
+      if (threadFocus(child) == child) { timerRestoredFocus = true; break; }
+      Sleep(10);
+    }
+    require(timerRestoredFocus, "natural Presenter timer retries after temporary IME relinquishes focus");
+    SendMessageW(child, kDestroyFocusHelpers, 0, 0);
+    const HWND background = reinterpret_cast<HWND>(SendMessageW(parent, kPrepareActivation, GetCurrentProcessId(), 0));
+    require(background && GetForegroundWindow() == background, "move focus away while Steam capture remains active");
+    const HWND focusBefore = threadFocus(child);
+    SendMessageW(child, WM_INPUTLANGCHANGE, 0, reinterpret_cast<LPARAM>(GetKeyboardLayout(0)));
+    SendMessageW(child, WM_ACTIVATEAPP, TRUE, 0);
+    flushPresenter(child);
+    Sleep(350);
+    require(GetForegroundWindow() == background && threadFocus(child) == focusBefore,
+      "background language and activation notifications never steal foreground or focus");
+    require(warmupCalls.load() == 1, "background notifications do not initialize IME again");
+    presenter.steamCapture(false);
+    flushPresenter(child);
+    require(enabled(child, false) && GetForegroundWindow() == background,
+      "background Steam close returns capture without reactivating game");
+    SendMessageW(parent, kFinishActivation, 0, 0);
     presenter.stop(); require(!toggle(true), "callback unregistered on shutdown"); FreeLibrary(fake);
+    require(apartmentSpy->uninitializations.load() != 0
+      && apartmentSpy->lastReferences.load() == 0
+      && apartmentSpy->callbackThread.load() == presenterThread,
+      "stop balances the real COM apartment on the owning Presenter thread");
+    apartmentSpy->Release();
     presenter.stop(); require(!IsWindow(child), "presenter destruction and idempotent stop");
-    std::printf("PASS: host-owned cross-process child, capture, reset routing, resizing and teardown (%zu-bit)\n", sizeof(void*) * 8);
+    l4d2_overlay::Presenter nativeOff(true, VK_HOME, false, {}, false, true, false, true, true);
+    const HWND nonNativeChild = nativeOff.window(parent);
+    require(nonNativeChild != nullptr, "create non-native Steam input control");
+    require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
+      "activate game for non-native Steam input control");
+    nativeOff.steamCapture(true);
+    require(enabled(nonNativeChild, true), "capture enabled for non-native Steam control");
+    Sleep(350);
+    require(threadFocus(nonNativeChild) == parent, "timer never acquires Host focus with native input disabled");
+    nativeOff.stop();
+    SendMessageW(parent, kFinishActivation, 0, 0);
+    std::printf("PASS: host-owned cross-process child, capture, IME lifecycle, focus transitions, reset routing, resizing and teardown (%zu-bit)\n", sizeof(void*) * 8);
     return 0;
   }
-  require(argc == 2, "provide other architecture's test executable");
+  const bool waitForeground = argc == 3 && std::string(argv[2]) == "--wait-foreground";
+  require(argc == 2 || waitForeground, "provide other architecture's test executable");
   WNDCLASSW wc {}; wc.lpfnWndProc = parentProc; wc.hInstance = GetModuleHandleW(nullptr); wc.lpszClassName = L"L4D2OverlayParentTest";
   require(RegisterClassW(&wc) != 0, "register simulated game window");
   HWND parent = CreateWindowW(wc.lpszClassName, L"L4D2 input compatibility test", WS_OVERLAPPEDWINDOW, 0, 0, 240, 120, nullptr, nullptr, wc.hInstance, nullptr);
   require(parent != nullptr, "create simulated game window");
+  if (waitForeground) {
+    wchar_t title[140] {};
+    std::swprintf(title, sizeof(title) / sizeof(title[0]), L"L4D2 Presenter foreground permission (%zu-bit parent PID %lu)",
+      sizeof(void*) * 8, GetCurrentProcessId());
+    SetWindowTextW(parent, title);
+    ShowWindow(parent, SW_SHOWNOACTIVATE);
+    std::printf("WAIT_FOREGROUND parent_bits=%zu pid=%lu timeout_seconds=60\n", sizeof(void*) * 8, GetCurrentProcessId());
+    std::fflush(stdout);
+    const ULONGLONG focusDeadline = GetTickCount64() + 60000;
+    while (GetForegroundWindow() != parent && GetTickCount64() < focusDeadline) {
+      MSG message {};
+      while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE)) { TranslateMessage(&message); DispatchMessageW(&message); }
+      Sleep(5);
+    }
+    require(GetForegroundWindow() == parent, "desktop must activate the explicit test window before foreground tests");
+    SetFocus(parent);
+    ShowWindow(parent, SW_HIDE);
+    std::printf("FOREGROUND_PERMISSION acquired=1 pid=%lu\n", GetCurrentProcessId());
+    std::fflush(stdout);
+  }
   std::string command = std::string("\"") + argv[1] + "\" --child " + std::to_string(reinterpret_cast<uintptr_t>(parent));
   STARTUPINFOA startup {}; startup.cb = sizeof(startup); PROCESS_INFORMATION process {};
   require(CreateProcessA(nullptr, &command[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startup, &process) != FALSE, "launch cross-architecture host");
-  const ULONGLONG deadline = GetTickCount64() + 15000;
+  const ULONGLONG deadline = GetTickCount64() + 30000;
   while (WaitForSingleObject(process.hProcess, 0) == WAIT_TIMEOUT && GetTickCount64() < deadline) {
     MSG message {}; while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE)) { TranslateMessage(&message); DispatchMessageW(&message); }
     Sleep(5);

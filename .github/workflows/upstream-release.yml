@@ -178,6 +178,10 @@ jobs:
           name: validation-${{ matrix.release_tag }}
           path: |
             .deps/build-validation.json
+            .deps/steam-ime-native/**
+            .deps/overlay-keyboard-route/**
+            .deps/overlay-ime-result/**
+            .deps/overlay-presenter-test/**
             .deps/device-destroy-contract/**
             .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
             .deps/gplall/source-build/BACKEND-SOURCE.json

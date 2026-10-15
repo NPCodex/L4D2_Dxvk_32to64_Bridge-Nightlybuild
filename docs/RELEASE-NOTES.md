@@ -1,3 +1,14 @@
+# v1.5.16
+
+- 修复 Steam Overlay 中文输入法无法正常启用，以及确认中文候选词后整词重复的问题。
+- 修复 Win+Space 切换输入法时只打开开始菜单、中文输入状态下 Shift+Tab 无法关闭 Overlay 的问题。
+
+验证：用户已在默认 x64 Host 的 Steam 聊天与网页输入框验收，微软拼音、微信输入法均不重复，快捷键正常；新增双架构 IME 生命周期、键盘路由和提交边界回归。实机验收使用修复候选，正式包另经 CI 构建与校验；没有新增 FPS 或长期稳定性测试。
+
+如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
+
+[安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+
 # v1.5.15
 
 - 修复 Host 重复销毁设备、清理未建立后端的设备时误报句柄错误、终止整个桥接会话的问题。正常命令的无效句柄检查继续生效。

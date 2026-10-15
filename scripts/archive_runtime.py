@@ -101,7 +101,7 @@ def runtime_archive(source, output):
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
-        "本次合入 O34 retention 数据库优化与 GPLALL CLIP、WORKERS、SPEC 三项源码修复。O34 warm-cache 微基准约快 49%，不代表 FPS；CLIP/WORKERS 是正确性与边界修复，SPEC 没有稳定 FPS 或 1% low 收益。此前 GPU/IPC 舍入差异和无稳定收益结论仍保留，本版本未完成全场景游戏性能或长期稳定性验证。默认 x64、C8，静态映射默认关闭；Steam/Presenter 配套启用。详情见 Release。\n"
+        "默认 x64、C8，静态映射关闭；Steam/Presenter 配套启用。当前版本的新增改动、验证及已知问题见对应 GitHub Release；局部微基准不代表游戏 FPS，本包不承诺全场景性能改善。\n"
         "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "若出现 1% low 下降、掉帧或帧数不稳定，请退出游戏和所有 Host，成套回退 v1.1.10 的 Client 与两个 Host，并恢复该旧版的两个 GPLALL 后端以撤销本次 GPU 改动：https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"

@@ -1,6 +1,12 @@
 # L4D2 原项目同步记录
 
-NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.15 选择性采用 L4D2 main / `cafc044`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.16 选择性采用 L4D2 main / `cafc044`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+
+## 2026-10-15：Steam 中文输入与快捷键（部分采用）
+
+维护者在实际 Steam 聊天与网页输入验收后，明确要求将修复发布为 v1.5.16。选择性适配已经进入 cafc044 的 [4d61407](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge/commit/4d61407e3df0e218d40a096c5359c90c18f53eba) Presenter 线程 COM/TSF 生命周期和首次前台捕获 EDIT 预热；同时修复本分支 Windows 组合键路由、原生 IME 焦点及 Steam 提交结果的重复默认处理。没有把整个上游输入组覆盖到本分支。
+
+完整 main 基准仍 c8d55b0，partial 仍 cafc044，NVIDIA pin 仍 d2a5033。双架构原生回归与用户实测的各自范围见 [Steam 输入修复](STEAM-IME-20261015.md)；正式构建和发布结果以交付收据为准，不将本地候选游戏验收冒称最终二进制复测。
 
 ## 2026-10-15：设备销毁清理（部分采用）
 

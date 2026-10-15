@@ -14,6 +14,7 @@
     "L4N shared Presenter dependency wording",
     "Steam Renderer 11.12.30.7 x64 availability hash allowlist",
     "cross-thread Steam capture notification and mouse-capture cleanup",
-    "idempotent Host Device Destroy cleanup for absent/null device handles"
+    "idempotent Host Device Destroy cleanup for absent/null device handles",
+    "Presenter-thread Steam IME COM/TSF lifecycle and first-capture native EDIT warmup"
   ]
 }

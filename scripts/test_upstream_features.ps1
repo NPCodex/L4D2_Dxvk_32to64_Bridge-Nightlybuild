@@ -3,7 +3,8 @@
 $ErrorActionPreference = 'Stop'
 foreach ($suite in @('runtime_observation', 'pageblock_gc', 'exception_diagnostics',
     'device_reset', 'color_diagnostics', 'data_diagnostics', 'buffer_contract',
-    'volume_layout', 'adapter_information', 'overlay_presenter', 'api_wait_diagnostics',
+    'volume_layout', 'adapter_information', 'overlay_presenter', 'steam_ime_native',
+    'overlay_keyboard_route', 'overlay_ime_result', 'api_wait_diagnostics',
     'readback_recovery', 'x86_backend', 'ipc_api_failure',
     'ipc_full', 'ipc_immediate_publication', 'buffer_shadow_arena', 'hot_command_packets',
     'client_parameter_contract', 'host_upload_contract', 'retention_journal',
