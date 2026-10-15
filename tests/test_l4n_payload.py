@@ -21,11 +21,11 @@ class L4NPayload(unittest.TestCase):
         metadata = l4n.manifest_metadata(self.files[l4n.MANIFEST_NAME])
         self.assertEqual(metadata["author"], "Starfelll")
         self.assertEqual(metadata["original_author_signature"], "@Starfelll")
-        self.assertEqual(metadata["version"], "2.51.0")
+        self.assertEqual(metadata["version"], "2.52.1")
         self.assertEqual(len(metadata["files"]), 78)
-        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 23232626)
+        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 23396342)
         self.assertEqual(hashlib.sha256(self.files["readme_l4n.txt"]).hexdigest(),
-                         "0c70401226bbb923816ccf1a84281160778745011e8a3819206c2445f8e6e82c")
+                         metadata["source_archive_files"]["readme_l4n.txt"]["sha256"])
         self.assertIn("bin/neko/other_tools.7z", self.files)
         self.assertNotIn("left4dead2/neko/config_template.vdf", self.files)
         self.assertIn("left4dead2/neko/config.vdf", self.files)
@@ -33,6 +33,27 @@ class L4NPayload(unittest.TestCase):
         self.assertNotIn("L4N_v2.51.0.7z", self.files)
         self.assertNotIn("bin/d3d9.dll", self.files)
         self.assertNotIn("bin/.l4d2bridge/bridge.conf", self.files)
+
+    def test_complete_original_distribution_with_only_template_merge_exception(self):
+        metadata = l4n.manifest_metadata(self.files[l4n.MANIFEST_NAME])
+        originals = metadata["source_archive_files"]
+        template = "left4dead2/neko/config_template.vdf"
+        config = "left4dead2/neko/config.vdf"
+        self.assertEqual(len(originals), 76)
+        self.assertEqual(set(originals) - set(metadata["files"]), {template})
+        self.assertEqual(set(metadata["files"]) - set(originals), {
+            "dxvk.conf", config, "left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs"})
+        for name, expected in originals.items():
+            if name != template:
+                self.assertEqual(metadata["files"][name], expected, name)
+        merge = metadata["config_merge"]
+        self.assertEqual(merge["new_template"], originals[template])
+        self.assertEqual(merge["merged_config"], metadata["files"][config])
+        text = self.files[config].decode("utf-8")
+        self.assertIn("!force/", text)
+        self.assertIn('"index_buffer_size" "131072"', text)
+        self.assertIn('\t"-novid"\t""', text)
+        self.assertIn('\t-l4n_use_neko_engine_post ""', text)
 
     def test_binary_config_and_manifest_tampering_rejected(self):
         for name in ("left4dead2.exe", "bin/left4neko.dll", "dxvk.conf", "readme_l4n.txt",

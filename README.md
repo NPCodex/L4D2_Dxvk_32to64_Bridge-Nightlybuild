@@ -8,9 +8,9 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.16 修复 Steam Overlay 中文输入与候选词重复、Win+Space 切换和中文状态 Shift+Tab 关闭问题。** 用户已在修复候选的默认 x64 Host 聊天与网页输入框验收，微软拼音、微信输入法及快捷键正常；没有新增游戏性能或长期稳定性测试。默认 x64、C8、静态映射关闭。如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
+**v1.5.16 现有附件已更新为完整 L4N 2.52.1，补齐全部工具与配套文件；版本号不变。** **v1.5.16 修复 Steam Overlay 中文输入与候选词重复、Win+Space 切换和中文状态 Shift+Tab 关闭问题。** 用户已在修复候选的默认 x64 Host 聊天与网页输入框验收，微软拼音、微信输入法及快捷键正常；没有新增游戏性能或长期稳定性测试。默认 x64、C8、静态映射关闭。如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
 
-**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包内包含 **L4N 2.51.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`，无需运行补丁工具或安装 Python。按维护者提供的整合目录布局交付，未附 `config_template.vdf`；组件来源见 [整合包说明](docs/L4N-BUNDLE.md)。安装包保留运行组件、实际配置、L4N 原配套 VDF 模板和 QC/VMT 范例、简短 `README.txt` 和合并后的 `THIRD-PARTY-NOTICES.txt`；开发文档、JSON 清单、诊断脚本、SDK 与离线 Mod 制作工具均留在仓库，不随安装包提供。
+**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.16 包含 **完整 L4N 2.52.1、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 88 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 1. **退出游戏和 Bridge Host，备份现有文件。** 备份原 `left4dead2.exe`、L4N 文件、客户端、Host、`dxvk.conf`、`left4dead2/neko/config.vdf`、Bridge 配置和 `bin/studiorender.dll`，将完整 ZIP 解压到临时目录。若已安装 ThinFlex 修复，继续保留最初的原始 DLL 备份，勿用修复版覆盖它。已装其他同类项目时，先按其说明卸载或恢复原文件，再安装本包。
 2. **已有用户先保留配置：** 从临时解压目录移除想保留的 `dxvk.conf`、`left4dead2/neko/config.vdf` 和 `bin/.l4d2bridge/bridge.conf`，再覆盖游戏目录。若自行修改过后端，同样从临时目录移除 `bin/.l4d2bridge/d3d9vk_x64.dll` 与 `d3d9vk_x86.dll`，避免覆盖。首次安装跳过此步；包内 L4N 附带的着色器等同路径文件也会覆盖，请备份个人修改。
@@ -72,7 +72,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 - 项目特有的新增与修改：**MIT**，见 [LICENSE](LICENSE)，保留 `yeyunyyds` 的原版权声明。
 - NVIDIA Bridge：**MIT**，见 [licenses/Bridge-MIT.txt](licenses/Bridge-MIT.txt)。
-- L4N / Left4Neko 2.51.0：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
+- L4N / Left4Neko 2.52.1：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
 - DXVK／DXVK-GPLALL：随附 **zlib/libpng** 许可，见 [licenses/DXVK-LICENSE.txt](licenses/DXVK-LICENSE.txt) 和 [licenses/DXVK-GPLALL-LICENSE.txt](licenses/DXVK-GPLALL-LICENSE.txt)。
 - Bridge 所含 Detours、Tracy 等依赖继续遵循各自许可，见 [licenses/Bridge-third-party.txt](licenses/Bridge-third-party.txt)。
 - 包内修改版 `studiorender.dll` 来自维护者本机的匹配游戏文件，按用户要求应用限定 ThinFlex 修复。原引擎归 Valve，不属于根目录 MIT 授权；见 [引擎归属说明](licenses/Valve-engine-NOTICE.txt)。

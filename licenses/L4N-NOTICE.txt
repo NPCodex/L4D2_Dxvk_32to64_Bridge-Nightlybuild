@@ -1,22 +1,26 @@
-L4N / Left4Neko 2.51.0
+L4N / Left4Neko 2.52.1
 Original author: Starfelll (original files identify the author as @Starfelll).
 
 L4N is an independent third-party project. Its launcher, modules, shaders,
 materials, conversion tools, SDK and original documentation were supplied by
-the maintainer in L4N_v2.51.0.7z and are preserved byte-for-byte. They are not
+the maintainer in L4N_v2.52.1.7z and are preserved byte-for-byte, except for
+the explicit configuration-template merge described below. They are not
 authored by this Bridge project or Codex and are not covered by its MIT license.
 All original author and third-party notices remain applicable.
 
 Original archive SHA-256:
-5a530a24ee0e8a3014ab99df35e22279e410bed1a1f4cca1a08c2eb058eb0d4c
+1647f8ae44ff77cfdbe22f594a49535d0ba0ac0d91a92e988865523c845f49f9
 
 The original readme_l4n.txt is included unchanged. The reference
-left4dead2/neko/config_template.vdf is omitted at the maintainer's request;
-the integration preset supplies the active config.vdf instead.
-The maintainer's integration preset additionally supplies dxvk.conf,
-left4dead2/neko/config.vdf, and
+left4dead2/neko/config_template.vdf is merged into the active config.vdf
+using the previous template and maintainer's preset, preserving its existing
+settings while incorporating the new template changes. The template itself
+is the sole original file not shipped separately. All other original files,
+including bin/neko tools, SDK, nested archive and launchers, are included.
+The maintainer's integration preset additionally supplies dxvk.conf and
 left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs.
-These additions are identified separately in L4N-PAYLOAD.json and must not be
+These additions and the configuration merge are identified separately in
+the repository's runtime/l4n/manifest.json and must not be
 represented as the original L4N defaults.
 
 This repository builds the Bridge Client/Hosts and the separate optional

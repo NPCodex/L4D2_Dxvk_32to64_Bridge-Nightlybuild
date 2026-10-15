@@ -1,9 +1,13 @@
 # v1.5.16
 
+- 同版本附件更新：L4N 升级为 2.52.1，补齐完整 `bin/neko`、SDK、转换工具、`other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 和原始说明，完整包现为 88 文件。
+- 唯一例外：新版 `config_template.vdf` 的修改三方合并进实际 `config.vdf`，保留原有用户设置，模板不单独附带。
 - 修复 Steam Overlay 中文输入法无法正常启用，以及确认中文候选词后整词重复的问题。
 - 修复 Win+Space 切换输入法时只打开开始菜单、中文输入状态下 Shift+Tab 无法关闭 Overlay 的问题。
 
-验证：用户已在默认 x64 Host 的 Steam 聊天与网页输入框验收，微软拼音、微信输入法均不重复，快捷键正常；新增双架构 IME 生命周期、键盘路由和提交边界回归。实机验收使用修复候选，正式包另经 CI 构建与校验；没有新增 FPS 或长期稳定性测试。
+附件验证：原包 76 个文件中 75 个保持原字节，唯一模板例外有合并收据；最终 78 个 L4N 文件完整入包。Bridge 三端、后端、插件与 ThinFlex 沿用已验证的 v1.5.16 正式二进制，逐字节核对；未为此次 L4N 更新重复编译或新增游戏/FPS 验证。
+
+本版原有 IME 修复验证：用户已在默认 x64 Host 的 Steam 聊天与网页输入框验收，微软拼音、微信输入法均不重复，快捷键正常；新增双架构 IME 生命周期、键盘路由和提交边界回归。实机验收使用修复候选，正式包另经 CI 构建与校验；没有新增 FPS 或长期稳定性测试。
 
 如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
 

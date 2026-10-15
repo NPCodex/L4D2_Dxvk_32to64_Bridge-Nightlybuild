@@ -24,6 +24,7 @@
     // │   └── _disabled/                  <-- 【下划线忽略】：以 _ 开头的文件夹会被自动忽略
     // │       ├── Old_Skin.vpk            <-- 里面的文件不会被挂载
     // │       └── Test.vpk
+    // ├── !force/                         <-- 特殊文件夹，里面所有的vpk都会被加载，除了下划线开头的文件或文件夹，优先级比Overlay文件夹高
     // └── Survivors_Rochelle/
     //     ├── Outfit_A.vpk
     //     └── _temp.vpk                   <-- 【下划线忽略】：以 _ 开头的文件也会被忽略

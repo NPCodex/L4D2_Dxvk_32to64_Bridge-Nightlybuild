@@ -5,16 +5,16 @@ from pathlib import Path, PurePosixPath
 import stat
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "2.51.0"
+VERSION = "2.52.1"
 AUTHOR = "Starfelll"
-SOURCE_ARCHIVE_SHA256 = "5a530a24ee0e8a3014ab99df35e22279e410bed1a1f4cca1a08c2eb058eb0d4c"
+SOURCE_ARCHIVE_SHA256 = "1647f8ae44ff77cfdbe22f594a49535d0ba0ac0d91a92e988865523c845f49f9"
 # Canonical JSON digest pins both the file list and its provenance. Text checkout
 # line endings and formatting may differ without altering the recorded identity.
-MANIFEST_SHA256 = "a89b66f79dba8f5e12414551dbab2eb762bfb1007cf020ff4c6c103d6ddc0fe7"
+MANIFEST_SHA256 = "d4984c6226ad692c2d1494e40ed03572e836aa9657c904e7059b97212163fd6c"
 MANIFEST_NAME = "L4N-PAYLOAD.json"
 NOTICE_NAME = "licenses/L4N-NOTICE.txt"
 FILE_COUNT = 78
-TOTAL_SIZE = 23232626
+TOTAL_SIZE = 23396342
 
 
 def _unique_object(pairs):

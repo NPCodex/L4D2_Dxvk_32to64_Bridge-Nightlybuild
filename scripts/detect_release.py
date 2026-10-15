@@ -95,9 +95,14 @@ def pending():
                 lines = (release.get("body") or "").splitlines()
                 release_channel = next((line.split(": ", 1)[1] for line in lines
                                         if line.startswith("Release channel: ")), "nightly")
+                # An authorized nightly repack preserves the original binary
+                # recipe and records its package recipe separately. Recognize
+                # that exact receipt without treating it as a new binary build.
+                recipe_published = (f"{digest_label}: {recipe}" in lines
+                                    or (not thinflex and f"Repack recipe digest: {recipe}" in lines))
                 if (not release["draft"] and f"Upstream commit: {commit}" in lines
                         and release_channel == channel
-                        and f"{digest_label}: {recipe}" in lines):
+                        and recipe_published):
                     print(f"Already published upstream and recipe as {release['tag_name']}")
                     return []
             if len(releases) < 100:

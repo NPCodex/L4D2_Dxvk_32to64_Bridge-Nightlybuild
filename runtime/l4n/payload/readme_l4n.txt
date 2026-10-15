@@ -1,20 +1,90 @@
 ﻿本文档会随版本更新，部分功能会添加进hud菜单里方便使用
 
-[2.51.0]
-新增：VPK Overlay功能
-新增：cvar l4n_vm_allow_movex
-新增：cvar l4n_vm_allow_vaims
-新增：concmd l4n_vm_inspect_config
-修复：l4n_analyze_dumps输出的时间不匹配本机时区
-修改：l4n插件的hud菜单提供了刷新菜单状态的接口
+[2.52.1]
+修改：l4n_bonesetup_patch能够接管实体的hitbox计算，防止超128骨骼的溢出问题
+
+[2.52.0] - 2026-10-14
+新增：convar l4n_bonesetup_force_threaded
+新增：convar l4n_bonesetup_patch
+新增：convar l4n_vpkoverlay
+修改：修复自定义命令菜单的重复加载问题
+新增：concmd l4n_show_addon_load_order
+修改：优化更新失败后的收尾
 
 
-[2.50.3]
-修改：启动时检查启动项的合规性
+======== 接管骨骼变换计算(实验性) ========
+    convar l4n_bonesetup_patch 设置为1时生效
+    启用后，以下骨骼相关功能由l4n来计算：
+        骨骼动画，骨骼动画混合
+        Jiggle飘骨，Procedural程序骨
+        根据VPhysics的物理模拟结果来计算最终布娃娃效果
+        BoneMerge实体间骨骼变换复制
+        IK逆向动力学
+        Attachment变换的更新
+        实体模型缩放
 
-[2.50.2]
-修复：PBR着色器的手电筒光照衰减问题
-修复：动画镜头意外应用了开镜fov倍率调整
+    目前用于评估自定义实现与原生效果的差异，为待办清单的一些计划功能做好铺垫
+    该实现能够正常处理256骨骼的mdl模型
+
+    注意：
+        目前只接管了客户端的逻辑，如果服务端读取了超过128骨骼的mdl来计算动画，会遇到内存溢出导致的奇怪问题
+        对于目前想尝试256骨骼上限的用户，请连接到其它服务器，或者使用类似l4n_surrivor这种仅替换客户端实体模型的功能
+        其它的未适配256骨骼的情况：
+            实体粒子消散效果
+            客户端处理布娃娃数据的逻辑
+            模型批渲染
+
+    128不是mdl格式的上限，L4D2的起源引擎分支只支持最大128骨骼的mdl模型
+    上限硬编码在相关函数的栈缓冲区里，这样做有利于cpu矩阵运算加速，如SIMD指令集加速等
+    还能提高cpu缓存命中率，缺点是固定的内存大小，不能动态分配
+    是的，cpu在面对复杂场景时，需要在一帧内计算上千根骨骼的矩阵变换，既l4n_bonesetup_patch所涵盖的计算
+
+
+    从128骨骼上限升级到256意味着什么：
+        拥抱未来的生态，已经确定的一个非官方64版本L4D2，使用的是CSGO引擎分支，支持256骨骼
+        还有存疑中的官方64版本，在移植到64位的更新里，大概率会顺手将128的上限解除
+
+        对于幸存者模型：
+            为了保证人体动画的效果，保底需要占掉64根骨骼(腿，脊椎，30根手指关节，手臂，武器动画的弹匣拉栓骨骼等)
+            128上限的情况下，只剩下64根骨骼给头发飘带这些部位分配
+            对于飘动部位的数量提升最大，如一个角色模型有几十个蝴蝶结、丝带的情况，头发可以做到根根分明
+
+        对于武器模型：
+            手部骨骼需要保底占用，提高上限可以让更多的部位拥有动画效果，例如烘焙的部件散落效果
+
+        我可以使用密度更高的骨链吗：
+            可以，但是可能效果更差的同时还浪费性能，你可能需要注意以下：
+
+            前面提到了骨骼变换是由cpu计算的，如果是无意义的密度增加可能会增加cpu负担
+            如果要考虑优化，思路类似于模型顶点密度和贴图像素密度
+
+            起源引擎jiggle飘骨算法在过长的骨链上，迭代收敛变慢，效果拖沓，不过未来或许能通过改进算法来避免这个问题
+
+            模型每个顶点的权重上限为三个，骨链密度过高可能导致蒙皮效果变差，现代游戏引擎通常保底为4个
+            有一些mmd模型对骨骼数量的滥用特别严重，密度甚至比模型顶点密度还高，不过mmd属于离线渲染领域，这不是什么大问题
+            这里需要告诫一些不做优化，直接将高密度骨骼绑定移植到游戏的人
+
+     如何生成超128骨骼的mdl：
+        使用nekomdl的用户，在QC脚本里加入“$MaxBones 256”
+        使用其它引擎分支的studiomdl，如GMOD，CSGO，这些分支原生支持256骨骼
+
+
+======== 待办清单 ========
+    有一部分还处在可行性验证阶段
+    提供Jolt物理引擎替代起源VPhysics引擎的功能
+    基于l4n_bonesetup_patch：
+        使本地服务端能够妥善处理超128骨骼的mdl
+        修复原生Jiggle飘骨算法的一些鬼畜BUG
+        使网络同步的角色布娃娃能够应用pps(骨架比例修正动画/Proportiontrick)
+        l4n player_foot介入IK计算
+        提供更多程序骨算法
+        提供另一套更现代的飘动骨骼方案/算法，支持碰撞模拟，以及高可视化、高易用性的参数调整体验
+        扩展原生Jiggle飘骨的功能，如增加碰撞体支持
+        提供一套后处理绑定/或算法来修正因动画制作水平导致的第一人称手模变形
+        现已提供了：
+            l4n_prevent_varms_stretching，禁止动画修改手指比例
+            l4n_vm_dual_quaternion_skinning，手模使用对偶四元数蒙皮算法，或许能缓解手臂扭转失去过多体积的问题(目前仅支持NekoToon材质)
+
 
 更多历史更新日志在本文档末尾
 
@@ -161,12 +231,16 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
 
     着色器缓存：
         不同版本的l4n着色器功能会有差别，安装/更新/切换版本后可能会触发着色器缓存编译
-        切换显卡驱动版本或者dxvk版本时，包括第一次使用dxvk，可能触发着色器重编译(包括引擎自带的着色器)
+        显卡驱动版本变动或者dxvk版本变动时，着色器缓存可能命中失败，需要编译新的着色器缓存(包括引擎自带的着色器)
         着色器编译时可能出现掉帧，内存占用高的情况，如果很长一段时间后问题依旧，尝试按照以下指南清除着色器缓存
             控制台运行l4n_open_shader_cache_dir打开着色器缓存目录后关闭游戏
             如果是550文件夹，删除目录下的所有文件夹
             如果是AMD或NVIDIA文件夹，某些厂商的命名会有出路，删除所有Cache结尾的文件夹最稳妥
             打开失败或其它GPU核心厂商的情况下，请自行搜索方法
+        注意：
+            windows更新会自动更新驱动，所以你可能会遇到第二天醒来就“xxx”了这种情况
+            这里说的不是steam设置里的"着色器预缓存"
+            回退l4n版本后可能会发现问题不存在了，这是因为以前使用老版本时，着色器正常编译并成功缓存，换回老版本继续复用旧的缓存
 
     mod检查的注意事项：
         地图类mod可能会有模型、材质、cvar、脚本污染冲突的问题，这类mod带有战役标签，冲突检测会忽略这类mod
@@ -364,6 +438,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
 ========== VPK Overlay ==========
     能够在每次加载地图时，自动从备选库中为你随机、顺序挑选或指定挂载不同的VPK模组，无需重启游戏
     例如：每次换地图自动换一把不同皮肤的枪，或切换不同的幸存者模型
+    cvar l4n_vpkoverlay     启用或者禁用
     更多信息在config_template.vdf里
 
 部分cvar(convar)的值是没有启用保存功能的，可以把cvar带上期望值写进autoexec.cfg里
@@ -397,7 +472,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_game_usage_pos 32，             控制l4n_game_usage显示的位置
     l4n_game_usage_padding 24，         控制l4n_game_usage距屏幕边缘的位置
     l4n_survivor_sequence_strip         是否修复幸存者mod的动画数量，修改后需重启游戏，更多信息查看config_template.vdf
-    l4n_prevent_varms_stretching 0      是否禁止第一人称手模动画里部分骨骼的拉伸
+    l4n_prevent_varms_stretching 0              是否禁止第一人称手模动画里部分骨骼的拉伸
     l4n_player_list_show_steam_avatar 1         +l4n_player_list显示steam玩家头像
     l4n_player_list_vomitjar_icon_clip 0        +l4n_player_list裁剪胆汁图标
     l4n_engine_post_allow_local_contrast 1      是否允许使用局部对比度(-1仅负, 0完全禁用, 1正负, 2仅正)
@@ -462,6 +537,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_scope_fov_adjust                        开镜fov缩放调整(滚轮，蹲下微调)
     l4n_vm_dual_quaternion_skinning             为v模材质添加"$DualQuatSkinning 1"
     l4nsv_steam_auth_bypass                     是否绕过玩家的steam验证，可以避免"No Steam Logon"问题
+    l4n_bonesetup_force_threaded                是否使用多线程骨骼变换计算
 【ConCommand】
     l4n_vm_offset2 [x/dx/y/dy/z/dz/reset] [value], 为当前使用的v模设置位置偏移，带d的是增量；参数reset归零xyz
     l4n_menu                                显示l4n主菜单
@@ -495,6 +571,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_reload_sequence_event_vdf
     l4n_reload_config
     l4n_analyze_dumps
+    l4n_show_addon_load_order               和show_addon_load_order功能一样，区别是能够正确输出utf8格式的文本
 【NekoShaders】
     mat_outline_thickness_scale 1.0     描边粗细倍率，0则关闭描边
     mat_pbr_where 0                     设置1则高亮闪烁PBR材质，用于查找哪些材质使用了PBR着色器
@@ -577,6 +654,21 @@ pcf粒子文件加载:
 
 
 ===========历史更新日志==========
+[2.51.0]
+新增：VPK Overlay功能
+新增：cvar l4n_vm_allow_movex
+新增：cvar l4n_vm_allow_vaims
+新增：concmd l4n_vm_inspect_config
+修复：l4n_analyze_dumps输出的时间不匹配本机时区
+修改：l4n插件的hud菜单提供了刷新菜单状态的接口
+
+[2.50.3]
+修改：启动时检查启动项语法的合规性
+
+[2.50.2]
+修复：PBR着色器的手电筒光照衰减问题
+修复：动画镜头意外应用了开镜fov倍率调整
+
 [2.50.1]
 新增：convar l4nsurvivor_trace
 修复：上个版本带来的栈异常问题

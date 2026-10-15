@@ -116,6 +116,47 @@ class HeadDetection(unittest.TestCase):
     def test_existing_success_skipped(self):
         self.assertEqual(self.run_case(existing={"draft": False})[0], [])
 
+    def test_verified_nightly_repack_skips_without_relabelling_binary_recipe(self):
+        body = (f"Release channel: nightly\nUpstream commit: {SHA}\n"
+                f"Recipe digest: {'c' * 64}\nRepack recipe digest: {RECIPE}")
+        rows, _ = self.run_case(existing={"draft": False, "body": body})
+        self.assertEqual(rows, [])
+
+    def test_changed_repack_recipe_builds(self):
+        body = (f"Release channel: nightly\nUpstream commit: {SHA}\n"
+                f"Recipe digest: {'c' * 64}\nRepack recipe digest: {'d' * 64}")
+        rows, _ = self.run_case(existing={"draft": False, "body": body})
+        self.assertEqual(rows[0]["recipe_digest"], RECIPE)
+
+    def test_repack_does_not_skip_draft_wrong_upstream_or_wrong_channel(self):
+        for draft, upstream, channel in ((True, SHA, "nightly"),
+                                         (False, "d" * 40, "nightly"),
+                                         (False, SHA, "thinflex-test")):
+            with self.subTest(draft=draft, upstream=upstream, channel=channel):
+                body = (f"Release channel: {channel}\nUpstream commit: {upstream}\n"
+                        f"Repack recipe digest: {RECIPE}")
+                self.assertTrue(self.run_case(existing={"draft": draft, "body": body})[0])
+
+    def test_repack_marker_never_suppresses_experimental_builds(self):
+        for channel in ("nightly", "thinflex-test"):
+            with self.subTest(channel=channel):
+                body = (f"Release channel: {channel}\nUpstream commit: {SHA}\n"
+                        f"Repack recipe digest: {RECIPE}")
+                self.assertTrue(self.run_case(existing={"draft": False, "body": body}, thinflex=True)[0])
+
+    def test_repack_marker_requires_exact_digest_line(self):
+        for line in (f"Repack recipe digest: {RECIPE} extra", f"Repack recipe digest: {RECIPE[:-1]}",
+                     f"Description: Repack recipe digest: {RECIPE}"):
+            with self.subTest(line=line):
+                body = f"Upstream commit: {SHA}\n{line}"
+                self.assertTrue(self.run_case(existing={"draft": False, "body": body})[0])
+
+    def test_force_rebuild_bypasses_repack_receipt(self):
+        body = f"Upstream commit: {SHA}\nRepack recipe digest: {RECIPE}"
+        rows, calls = self.run_case(existing={"draft": False, "body": body}, force=True)
+        self.assertEqual(rows[0]["commit"], SHA)
+        self.assertFalse(any("/releases" in path for path in calls))
+
     def test_force_rebuild_bypasses_all_published_release_checks(self):
         rows, calls = self.run_case(existing={"draft": False}, force=True)
         self.assertEqual(rows[0]["commit"], SHA)

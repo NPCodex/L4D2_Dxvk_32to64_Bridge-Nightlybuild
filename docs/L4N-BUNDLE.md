@@ -1,30 +1,31 @@
 # L4N 整合包
 
-本构建包含 DXVK-GPLALL、L4N 2.51.0 和 Bridge 桥接工具，按 [README 的下载与安装步骤](../README.md) 解压覆盖即可安装。不要与其他同类项目或整合包混装；先移除 `-vulkan`，备份移走游戏根目录的 `d3d9.dll`，保留本包的 `bin/d3d9.dll`。
+本构建包含 DXVK-GPLALL、L4N 2.52.1 和 Bridge 桥接工具，按 [README 的下载与安装步骤](../README.md) 解压覆盖即可安装。不要与其他同类项目或整合包混装；先移除 `-vulkan`，备份移走游戏根目录的 `d3d9.dll`，保留本包的 `bin/d3d9.dll`。
 
-**L4N / Left4Neko 原作者为 Starfelll，原文件署名为 @Starfelll。** 本仓库负责组合交付和 Bridge 构建，不将 L4N 标为本项目或 Codex 原创。原 `readme_l4n.txt` 与 [L4N 归属说明](../licenses/L4N-NOTICE.txt) 的原文收录于包内唯一的 `THIRD-PARTY-NOTICES.txt`。原说明涉及普通 DXVK 的安装路径时，以本整合包的 Bridge 路径为准。
+**L4N / Left4Neko 原作者为 Starfelll，原文件署名为 @Starfelll。** 本仓库负责组合交付和 Bridge 构建，不将 L4N 标为本项目或 Codex 原创。原 `readme_l4n.txt` 完整随包保留，原文和 [L4N 归属说明](../licenses/L4N-NOTICE.txt) 也收录于 `THIRD-PARTY-NOTICES.txt`。原说明涉及普通 DXVK 的安装路径时，以本整合包的 Bridge 路径为准。
 
-## 文件来源
+## 完整交付与来源
 
-- 原始 L4N 2.51.0 包由维护者提供，归档 SHA-256 为 `5a530a24ee0e8a3014ab99df35e22279e410bed1a1f4cca1a08c2eb058eb0d4c`。源码校验材料从原 76 个文件保留 75 个，按用户要求省略 `left4dead2/neko/config_template.vdf`；保留的文件均不修改。
-- 维护者提供的 `L4N+64位补丁_10101041` 整合目录另外贡献三个文件：根目录 `dxvk.conf`、实际使用的 `left4dead2/neko/config.vdf`、`left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs`。这些是用户提供的预设，不表示 L4N 原版默认值，也不是本次新增的性能优化。
-- 源码中的 L4N 校验集合共 78 个文件，`runtime/l4n/manifest.json` 记录来源及每个文件的大小和 SHA-256。归档前仍逐个验证完整来源，玩家 ZIP 输出其中 58 个运行及配套文件，共 10,023,581 字节，不包含 JSON 清单。
-- Bridge Client、x64/x86 Host 和设置插件来自本次源码构建，GPLALL 与 ThinFlex DLL 分别使用固定校验的版本。不会使用桌面整合目录里的旧 Bridge 二进制。
-- SDK、离线模型/音频转换工具、`other_tools.7z` 与开发说明不随玩家包提供，仍保留在源码。`server_name_filter_template.txt` 是实际默认服务器过滤规则，`crashpad_handler.exe` 用于保留原有崩溃转储功能，两者继续随包。外层原版归档、玩家日志及转储不随包。
-- `left4dead2/neko/` 中的 `localize_overrides_template.vdf`、`scheme_overrides_template.vdf`、`sequence_event_template.vdf`、`mdl_extension.qc` 和 `neko_proxy.vmt` 保留原路径和原字节。前三者是 L4N 配置模板，后两者是模型扩展和材质代理的配套范例；不能因名称含 template 或属于 QC/VMT 文本就排除。五个文件共 8,404 字节，修正了首次精简包的遗漏；只有用户明确要求去除的 `config_template.vdf` 继续不附带。
+- 维护者提供 `L4N_v2.52.1.7z`，SHA-256 为 `1647f8ae44ff77cfdbe22f594a49535d0ba0ac0d91a92e988865523c845f49f9`。原包共有 76 个文件，除下述配置模板处理外，其余 75 个文件全部按原路径、原字节交付。
+- 完整保留 `bin/neko/`，包括 SDK、音频和模型转换脚本、模型、`other_tools.7z`；根目录 `to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 和原始说明也全部随包。原包中的嵌套归档保持原样，未展开或执行其中的工具。
+- 唯一例外是 `left4dead2/neko/config_template.vdf`：以旧模板、原有用户 `config.vdf` 和新版模板完成三方合并，更新实际 `config.vdf`，模板不单独附带。本次新增 `!force` VPK 目录说明，没有新增活动配置键；保留用户的 `index_buffer_size=131072`、`-novid`、`-l4n_use_neko_engine_post` 及其余设置。
+- 继续保留维护者此前提供的 `dxvk.conf` 与 `left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs` 原字节。这些是整合预设，不代表 L4N 原版默认配置。
+- `runtime/l4n/manifest.json` 同时记录全部原包文件、最终 78 个 L4N 文件及模板合并的输入/输出 SHA-256。最终 L4N 文件共 23,396,342 字节，打包前逐项验证，不能按扩展名或旧精简清单遗漏原包内容。
 
-## 安装包精简
+完整玩家 ZIP 共 88 个文件：78 个 L4N 文件、7 个 Bridge/后端/配置/设置插件文件、ThinFlex DLL、`README.txt` 和合并的 `THIRD-PARTY-NOTICES.txt`。不加入原包之外的玩家私有日志、转储、旧 Bridge、重复外层原包或本仓库诊断材料。
 
-玩家 ZIP 共 68 个文件：58 个 L4N 运行及配套文件、7 个 Bridge/后端/配置/设置插件文件、ThinFlex DLL、`README.txt` 和合并的 `THIRD-PARTY-NOTICES.txt`。没有 MD、JSON、开发脚本、独立许可证目录或额外压缩包。完整技术文档与诊断工具通过仓库获取，程序二进制与实际配置不变；设置插件改为直接安装到 L4N 插件目录。
+## v1.5.16 附件更新
 
-v1.1.4 本次仅重新打包，沿用成功构建 `38022671369` 的二进制，不改程序版本或 Git 发布标签；原 Release 记录打包提交和新附件校验值。
+按维护者要求，L4N 2.52.1 更新替换现有 v1.5.16 的完整 ZIP 和校验文件，不新增版本号或 Release。Bridge Client、x64/x86 Host、设置插件、GPLALL 后端和 ThinFlex DLL 沿用已验证的正式 v1.5.16 二进制，逐字节核对。原构建标签和二进制指纹保留，Release 另记本次重新打包提交、配方和 ZIP 校验值。
+
+原作者将新的骨骼计算接管标为实验性功能，相关限制见原始说明；整合包未额外启用这些选项。本次没有新增游戏或 FPS 测试，归档及字节校验不代表游戏性能或完整兼容性验证。
 
 ## 配置与安装
 
-首次安装可直接使用包内 `dxvk.conf` 和 `left4dead2/neko/config.vdf`。升级时先备份个人配置，并从临时解压目录移除想保留的同名配置，再覆盖游戏目录。这里使用的配置与参考整合目录逐字节相同；`config_template.vdf` 不随包，避免与实际配置混淆。
+首次安装可使用包内 `dxvk.conf` 和已合并的 `left4dead2/neko/config.vdf`。升级时先备份个人配置，在临时解压目录对照合并后再覆盖。自定义配置不要直接丢弃。
 
-`dxvk.conf` 内保留维护者提供的 `dxvk.bridgeMappedChunkSize`、`dxvk.bridgeMemoryDiagnostics` 等键；前两项属于可选 mem1 后端的扩展，不表示默认 GPLALL 实现了这些键。默认后端仍是 GPLALL，默认 Host 仍为 x64。
+`dxvk.conf` 保留维护者提供的 `dxvk.bridgeMappedChunkSize`、`dxvk.bridgeMemoryDiagnostics` 等键；它们属于可选 mem1 后端的扩展，不表示默认 GPLALL 实现了这些键。默认 Host 为 x64。
 
-L4N 本体与 Bridge 设置菜单插件随完整包一同安装。插件直接放在 `bin/neko/plugins/L4D2BridgePlugin.dll`，下次启动游戏时加载，无需额外复制。加载插件本身不修改配置或执行 GC；菜单操作由玩家主动选择。不需要菜单时，退出游戏后移走或删除该 DLL；Bridge 本体不依赖此插件。详见 [菜单说明](L4N-BRIDGE-CONTROLS.md)。
+Bridge 设置插件直接位于 `bin/neko/plugins/L4D2BridgePlugin.dll`，无需额外复制。加载插件不修改配置或执行 GC；菜单操作由玩家主动选择。不需要菜单时，退出游戏后移走该 DLL。详见 [菜单说明](L4N-BRIDGE-CONTROLS.md)。
 
-安装前仍须按 README 核对 `studiorender.dll` 的适用版本并保留原始备份。本次没有新增游戏实测，不将既往版本的 FPS 数据作为此整合包的性能结论。
+安装前仍须按 README 核对 `studiorender.dll` 的适用版本并保留最初的原始备份。

@@ -1,4 +1,4 @@
-"""The full ZIP carries only the exact engine repair and selected runtime files."""
+"""The full ZIP carries the exact engine repair and complete approved L4N payload."""
 import hashlib
 import json
 from pathlib import Path
@@ -38,7 +38,7 @@ class Packaging(unittest.TestCase):
         (self.source / "SHA256.json").write_text(json.dumps(manifest), encoding="utf-8")
         self.output = self.root / "full.zip"
 
-    def test_full_package_contains_only_audited_runtime_and_two_text_documents(self):
+    def test_full_package_contains_complete_l4n_and_only_approved_integration_files(self):
         for name in ("bin/.l4d2bridge/ReShade.dll", "bin/.l4d2bridge/resource-retention.db",
                      "bin/other-engine.dll", "player.dmp", "private.log", "docs/guide.md",
                      "config/example.conf", "scripts/tool.py", "config.json", "licenses/private.txt"):
@@ -48,21 +48,23 @@ class Packaging(unittest.TestCase):
         runtime.runtime_archive(self.source, self.output)
         with zipfile.ZipFile(self.output) as archive:
             names = set(archive.namelist())
-            l4n_runtime = runtime.select_l4n_runtime(self.l4n_files)
-            expected = set(runtime.REQUIRED) | set(l4n_runtime) | {
+            # Derive coverage independently from the pinned source manifest,
+            # not from the packager's selector: omitted tools must fail here.
+            l4n_paths = set(l4n.manifest_metadata(self.l4n_files[l4n.MANIFEST_NAME])["files"])
+            expected = set(runtime.REQUIRED) | l4n_paths | {
                 "bin/studiorender.dll", "README.txt", "THIRD-PARTY-NOTICES.txt"}
             expected.remove("optional/L4N/L4D2BridgePlugin.dll")
             expected.add("bin/neko/plugins/L4D2BridgePlugin.dll")
             self.assertEqual(names, expected)
-            self.assertEqual(len(names), 68)
+            self.assertEqual(len(names), 88)
             for name in runtime.REQUIRED:
                 destination = ("bin/neko/plugins/L4D2BridgePlugin.dll"
                                if name == "optional/L4N/L4D2BridgePlugin.dll" else name)
                 self.assertEqual(archive.read(destination), (self.source / name).read_bytes())
             self.assertFalse(any(name.startswith("optional/") for name in names))
             self.assertEqual(archive.read("bin/studiorender.dll"), self.engine_files["bin/studiorender.dll"])
-            for name, data in l4n_runtime.items():
-                self.assertEqual(archive.read(name), data)
+            for name in l4n_paths:
+                self.assertEqual(archive.read(name), self.l4n_files[name])
             self.assertIn("left4dead2/neko/server_name_filter_template.txt", names)
             self.assertIn("left4dead2/bin/game_shader_generic_neko", names)
             # These original L4N companion files were lost during ZIP slimming.
@@ -74,11 +76,16 @@ class Packaging(unittest.TestCase):
                 self.assertIn(name, names)
                 self.assertEqual(archive.read(name), self.l4n_files[name])
             self.assertNotIn("left4dead2/neko/config_template.vdf", names)
-            self.assertFalse(any(name.endswith((".json", ".md", ".py", ".ps1", ".bat", ".7z")) for name in names))
+            self.assertFalse(any(name.endswith((".json", ".md", ".py", ".ps1")) for name in names))
             self.assertFalse(any(name.startswith(("scripts/", "docs/", "config/", "licenses/")) for name in names))
             self.assertEqual({name for name in names if name.startswith("bin/neko/")},
-                             {"bin/neko/plugins/L4D2BridgePlugin.dll"})
-            self.assertNotIn("readme_l4n.txt", names)
+                             {name for name in l4n_paths if name.startswith("bin/neko/")}
+                             | {"bin/neko/plugins/L4D2BridgePlugin.dll"})
+            for name in ("bin/neko/other_tools.7z", "bin/neko/plugins/l4n_plugin.h",
+                         "bin/neko/to_l4n_survivor.bat", "to_l4n_survivor.exe",
+                         "left4dead2 no-insecure.bat", "readme_l4n.txt"):
+                self.assertIn(name, names)
+                self.assertEqual(archive.read(name), self.l4n_files[name])
             notices = archive.read("THIRD-PARTY-NOTICES.txt")
             for name in runtime.NOTICE_INPUTS:
                 self.assertIn((self.source / name).read_bytes(), notices)
@@ -88,6 +95,8 @@ class Packaging(unittest.TestCase):
             self.assertIn("无需运行修复工具", guide)
             self.assertIn("原始备份", guide)
             self.assertIn("Starfelll", guide)
+            self.assertIn(f"完整保留 L4N {l4n.VERSION}", guide)
+            self.assertIn("模板不单独附带", guide)
             self.assertIn("bin/neko/plugins/L4D2BridgePlugin.dll", guide)
             self.assertNotIn("optional/", guide)
             self.assertIn(engine.ORIGINAL_SHA256, guide)
@@ -155,14 +164,27 @@ class Packaging(unittest.TestCase):
             self.assertEqual(archive.read("left4dead2.exe"), expected)
             for name in ("logs.7z", "L4N_v2.51.0.7z", "crash_dumps/player.dmp"):
                 self.assertNotIn(name, archive.namelist())
-            self.assertNotIn("bin/neko/other_tools.7z", archive.namelist())
+            self.assertEqual(archive.read("bin/neko/other_tools.7z"),
+                             self.l4n_files["bin/neko/other_tools.7z"])
 
-    def test_excluded_source_developer_tools_still_require_valid_provenance(self):
+    def test_shipped_companion_tools_require_valid_provenance(self):
         path = self.source / "bin/neko/other_tools.7z"
         path.write_bytes(b"unverified source archive")
         with self.assertRaisesRegex(ValueError, "differs"):
             runtime.runtime_archive(self.source, self.output)
         self.assertFalse(self.output.exists())
+
+    def test_payload_collisions_are_rejected_before_output(self):
+        for name in ("bin/studiorender.dll", "BIN/D3D9.DLL",
+                     "bin/neko/plugins/L4D2BridgePlugin.dll", "README.txt",
+                     "THIRD-PARTY-NOTICES.txt"):
+            with self.subTest(name=name):
+                files = dict(self.l4n_files)
+                files[name] = b"conflicting supplied file"
+                with patch.object(runtime, "staged_l4n_files", return_value=files):
+                    with self.assertRaisesRegex(ValueError, "Package file collision"):
+                        runtime.runtime_archive(self.source, self.output)
+                self.assertFalse(self.output.exists())
 
     def test_binary_receipt_or_required_license_failure_never_creates_output(self):
         binary = self.source / "bin/.l4d2bridge/L4D2Bridge64.exe"
