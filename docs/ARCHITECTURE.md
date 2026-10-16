@@ -50,7 +50,7 @@ flowchart LR
 
 ## 2. 源码布局与构建关系
 
-此仓库保存 fork 的构建脚本、配置、测试、插件和 `patches/l4d2-bridge.patch`。`scripts/prepare_bridge.py` 准备固定上游提交 `9aa74f8dfad2188efbd0f717c64d9f8fa909787e` 并应用补丁，形成可构建源码树。下表 `bridge/src/...` 路径指应用补丁后的上游树，不能直接在本仓库根目录查找这些文件。
+此仓库保存 fork 的构建脚本、配置、测试、插件和 `patches/l4d2-bridge.patch`。`scripts/prepare_bridge.py` 准备固定上游提交 `029602f83a2fdec8f4d4419e1967bf231fb8f0b5` 并应用补丁，形成可构建源码树。下表 `bridge/src/...` 路径指应用补丁后的上游树，不能直接在本仓库根目录查找这些文件。
 
 | 源码区域 | 主要实现 |
 |---|---|

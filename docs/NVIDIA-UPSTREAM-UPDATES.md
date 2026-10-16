@@ -2,6 +2,14 @@
 
 NVIDIA dxvk-remix、L4D2 原项目和独立 GPLALL 后端是三个不同来源；本页仅记录 NVIDIA 源码采用。L4D2 原项目基准继续见 [原项目同步记录](ORIGINAL-PROJECT-UPDATES.md)。
 
+## 2026-10-16：运行时初始化更新与全局驱动门槛移除
+
+本次审阅并采用 NVIDIA `main` 的 [`029602f83a2fdec8f4d4419e1967bf231fb8f0b5`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/029602f83a2fdec8f4d4419e1967bf231fb8f0b5)，替代此前固定的 `d2a5033ec79303fffc33ca8e6595dd560162ff69`。范围包括运行时缺失时回退 x64、Remix 初始化状态 IPC、Host 初始化状态传播、Bridge API 初始化顺序及上游 RTX/稀疏渲染与粒子法线变更。Client 与 x86/x64 Host 必须使用同一组配套二进制；本次没有声称修复首次启动或开机冷启动闪退，也没有新增游戏/FPS/画质验收证据。
+
+上游将 Windows 全局最低 NVIDIA 驱动提高到 `616.92`，本包明确排除这项提升。本分支同时移除 Windows 与 Linux 的全局驱动版本门槛，默认值为 `0`，因此不再因 `610.47`、`616.92` 或其他统一版本下限拒绝创建设备。NRC、Vulkan 扩展和各 RTX 功能仍保留自身能力检查；绕过全局门槛不等于旧驱动具备所需 Vulkan/RTX 能力，也不构成旧驱动实机兼容性保证。显式设置 `dxvk.nvidiaMinDriver` 或 `dxvk.nvidiaLinuxMinDriver` 为正值时仍可重新启用对应门槛。
+
+这次 NVIDIA 来源推进与 L4D2 的 `cafc044` partial 适配保持独立，不能写成完整 L4D2 main 同步。正式构建仍需三端 MSVC、原生回归、源码收据及附件核验；上游 CI 不能替代本项目验证。
+
 ## v1.5.2
 
 2026-10-13 审阅并选择 [`d2a5033ec79303fffc33ca8e6595dd560162ff69`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/d2a5033ec79303fffc33ca8e6595dd560162ff69)，替代 v1.5.1 的 `0a8c8a3`。六个新提交（三项改动及三个合并）涉及 SHaRC 预设、RTXDI 邻域采样和 Packman 发布迁移。SHaRC 上游说明的收敛速度和照明响应取舍属于未编译的 RTX renderer；本包未引入该功能，也不能宣称获得 RTXDI 阴影修复。

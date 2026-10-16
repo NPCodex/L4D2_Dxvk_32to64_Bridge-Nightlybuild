@@ -1,6 +1,6 @@
 # L4D2 原项目同步记录
 
-NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.16 选择性采用 L4D2 main / `cafc044`；完整 main/功能基准仍为 `c8d55b0`，NVIDIA 基准仍为 `d2a5033`。
+NVIDIA 构建源码的独立更新见 [NVIDIA 更新记录](NVIDIA-UPSTREAM-UPDATES.md)。v1.5.17 选择性采用 L4D2 main / `cafc044` 的既有适配；完整 main/功能基准仍为 `c8d55b0`，当前 NVIDIA 基准为 `029602f`。
 
 ## 2026-10-15：Steam 中文输入与快捷键（部分采用）
 

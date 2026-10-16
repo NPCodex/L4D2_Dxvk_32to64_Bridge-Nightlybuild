@@ -6,7 +6,7 @@ param(
   [string]$DxvkDll,
   [string]$Dxvk32Dll,
   [string]$VcVarsVer = '14.29',
-  [string]$UpstreamCommit = '9aa74f8dfad2188efbd0f717c64d9f8fa909787e'
+  [string]$UpstreamCommit = '029602f83a2fdec8f4d4419e1967bf231fb8f0b5'
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
