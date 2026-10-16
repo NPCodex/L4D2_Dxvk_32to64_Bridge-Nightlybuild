@@ -6,6 +6,7 @@ import re
 import subprocess
 import tempfile
 from detect_release import api, read_original_project
+from release_target import read_release_target
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -105,6 +106,9 @@ def pending_uploads(repo, release, uploads):
 def publish():
     tag = os.environ["RELEASE_TAG"]
     repo = os.environ["GITHUB_REPOSITORY"]
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    if read_release_target(ROOT, repo, version):
+        raise RuntimeError("Existing-release rebuilds are build-only; automatic publication is disabled")
     experimental = os.environ.get("THINFLEX_TEST", "false").lower() == "true"
     title = os.environ.get("RELEASE_TITLE", tag)
     if experimental:

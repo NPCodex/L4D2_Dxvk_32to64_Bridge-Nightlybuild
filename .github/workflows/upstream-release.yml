@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       force_rebuild:
-        description: "强制重建：创建独立版本，保留已有附件"
+        description: "强制重建；现有Release替换模式只构建，禁止自动发布"
         required: false
         default: false
         type: boolean
@@ -51,6 +51,7 @@ jobs:
     outputs:
       matrix: ${{ steps.detect.outputs.matrix }}
       pending: ${{ steps.detect.outputs.pending }}
+      publish_allowed: ${{ steps.detect.outputs.publish_allowed }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -144,6 +145,13 @@ jobs:
       - name: Test runtime filesystem selection, fallback and client configuration path
         shell: powershell
         run: ./scripts/test_runtime_filesys.ps1 -VcVarsVer 14.29
+      - name: Test ReShade Home with pinned upstream input hooks and native Presenter routing
+        shell: powershell
+        run: |
+          python scripts/fetch_reshade_keyboard_source.py
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned ReShade test source fetch failed' }
+          ./scripts/test_overlay_reshade_keyboard.ps1 -Source .deps/dxvk-remix -Output .deps/overlay-reshade-keyboard -VcVarsVer 14.29
+          if ($LASTEXITCODE -ne 0) { throw 'ReShade Home keyboard regression failed' }
       - name: Test Host swapchain query and Reset temporary references
         shell: powershell
         run: ./scripts/test_device_reset_lifetime.ps1
@@ -191,6 +199,8 @@ jobs:
             .deps/device-destroy-contract/**
             .deps/remix-init-contract/**
             .deps/runtime-filesys/**
+            .deps/overlay-reshade-keyboard/**
+            .deps/reshade-keyboard-source/**
             .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
             .deps/gplall/source-build/BACKEND-SOURCE.json
             .deps/gplall/source-build/PATCHES-APPLIED.json
@@ -240,12 +250,18 @@ jobs:
           ARCHIVE_NAME: ${{ matrix.archive }}
           RECIPE_DIGEST: ${{ matrix.recipe_digest }}
           RELEASE_TAG: ${{ matrix.release_tag }}
+          BUILD_INSTANCE: ${{ matrix.build_instance }}
+          DELIVERY_MODE: ${{ matrix.delivery_mode }}
+          REPLACEMENT_RELEASE_ID: ${{ matrix.release_id }}
           BUILD_KIND: ${{ matrix.kind }}
           COMMITS_AFTER_TAG: ${{ matrix.distance }}
           THINFLEX_TEST: ${{ inputs.thinflex_test }}
         run: |
-          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Native validation and exact Bridge/backend source receipts are attached to this Actions run. Current GPU/IPC measurements and numerical differences are recorded in the Release and docs/GPU-IPC-20261013.md; no combined gameplay-performance or all-scene image-quality result is claimed.'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
+          $metadata = @{ release_tag = $env:RELEASE_TAG; upstream_branch = $env:UPSTREAM_BRANCH; upstream_commit = $env:UPSTREAM_COMMIT; recipe_commit = $env:RECIPE_COMMIT; recipe_digest = $env:RECIPE_DIGEST; build_run = $env:GITHUB_RUN_ID; build_attempt = $env:GITHUB_RUN_ATTEMPT; game_validation = 'Native validation and exact Bridge/backend source receipts are attached to this Actions run. Actual game acceptance is recorded separately in the version-specific Release notes and documentation; CI does not establish gameplay, FPS or all-scene image-quality results.'; thinflex_tool_included = $false; thinflex_engine_patch_applied = $true; release_channel = 'nightly' }
           if ($env:THINFLEX_TEST -eq 'true') { $metadata.release_channel = 'thinflex-test' }
+          $metadata.build_instance = $env:BUILD_INSTANCE
+          $metadata.delivery_mode = $env:DELIVERY_MODE
+          if ($env:DELIVERY_MODE -eq 'replace-existing') { $metadata.replacement_release_id = [long]$env:REPLACEMENT_RELEASE_ID }
           $original = Get-Content config/original-project.json -Raw | ConvertFrom-Json
           $metadata.original_project = $original.repository
           $metadata.original_project_commit = $original.commit
@@ -272,6 +288,12 @@ jobs:
           python scripts/archive_runtime.py dist/l4d2-bridge $env:ARCHIVE_NAME
           if ($LASTEXITCODE -ne 0) { throw 'Archive failed' }
           "$((Get-FileHash $env:ARCHIVE_NAME -Algorithm SHA256).Hash.ToLower())  $env:ARCHIVE_NAME" | Set-Content "$env:ARCHIVE_NAME.sha256" -Encoding ascii
+      - name: Save exact build delivery provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-${{ matrix.release_tag }}
+          path: dist/l4d2-bridge/UPSTREAM.json
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.release_tag }}
@@ -281,7 +303,7 @@ jobs:
           if-no-files-found: error
   publish:
     needs: [detect, build]
-    if: ${{ needs.detect.outputs.pending == 'true' && needs.build.result == 'success' && !inputs.validation_only }}
+    if: ${{ needs.detect.outputs.pending == 'true' && needs.detect.outputs.publish_allowed == 'true' && needs.build.result == 'success' && !inputs.validation_only }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

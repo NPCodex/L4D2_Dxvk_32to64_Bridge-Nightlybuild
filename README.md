@@ -3,21 +3,16 @@
 > **本构建已包含 DXVK（GPLALL）、L4N 和 Bridge 桥接工具，一体整合，解压覆盖即可一键安装，无需另下这三项组件。请勿与其他同类项目或整合包混合安装。**
 >
 > **安装前移除 `-vulkan` 启动参数，并备份移走游戏根目录的 `d3d9.dll`；保留本包的 `bin/d3d9.dll`。** L4N / Left4Neko 原作者为 **Starfelll（@Starfelll）**，感谢原作者的工作。
+>
+> **ReShade 安装：选择游戏目录下的 `bin/.l4d2bridge/L4D2Bridge64.exe`，渲染 API 选择 Vulkan；不要选择游戏根目录的 `left4dead2.exe`。** 本包默认由 x64 Bridge Host 执行 Vulkan 渲染。这里的 Vulkan 是 ReShade 安装程序中的 API 选项，不是游戏启动参数；游戏的 `-vulkan` 仍需移除。
 
 **简体中文** | [English](README.en.md)
 
-## 下载与安装（先看这里）
+## 说明
 
-**v1.5.17 更新 NVIDIA Bridge 运行时初始化与 Host 状态同步。** x86 Client、x86 Host 与 x64 Host 必须成套更新。默认 x64、C8、静态映射关闭。本次没有验证首次启动或开机冷启动闪退，也没有新增游戏性能或长期稳定性测试。
-
-本仓库同时将 NVIDIA Remix 渲染器源码中的 Windows、GFN 与 Linux 全局驱动版本门槛默认关闭，既不保留 `610.47`，也不采用 `616.92` 下限。这部分 `src/dxvk` 源码不参与本包编译；随包渲染后端仍为独立固定的 GPLALL，因此该源码修改不代表玩家包新增了旧驱动兼容性。详见 [NVIDIA 源码采用范围](docs/NVIDIA-UPSTREAM-UPDATES.md)。
+**v1.5.17 本次修订修复 ReShade 6.8 菜单打开后 Home 无法关闭，以及效果复选框需要反复点击的问题。** 用户已在正式 Steam 游戏安装中验收本地候选，确认 Home 正常开关、复选框正常勾选。x86 Client、x86 Host 与 x64 Host 必须成套更新。机制与验证范围见 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.52.1、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 88 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
-
-1. **退出游戏和 Bridge Host，备份现有文件。** 备份原 `left4dead2.exe`、L4N 文件、客户端、Host、`dxvk.conf`、`left4dead2/neko/config.vdf`、Bridge 配置和 `bin/studiorender.dll`，将完整 ZIP 解压到临时目录。若已安装 ThinFlex 修复，继续保留最初的原始 DLL 备份，勿用修复版覆盖它。已装其他同类项目时，先按其说明卸载或恢复原文件，再安装本包。
-2. **已有用户先保留配置：** 从临时解压目录移除想保留的 `dxvk.conf`、`left4dead2/neko/config.vdf` 和 `bin/.l4d2bridge/bridge.conf`，再覆盖游戏目录。若自行修改过后端，同样从临时目录移除 `bin/.l4d2bridge/d3d9vk_x64.dll` 与 `d3d9vk_x86.dll`，避免覆盖。首次安装跳过此步；包内 L4N 附带的着色器等同路径文件也会覆盖，请备份个人修改。
-3. **核对游戏引擎 DLL 版本：** 用 PowerShell 的 `Get-FileHash '你的游戏目录\bin\studiorender.dll' -Algorithm SHA256` 与下表比较。匹配原版时可覆盖；已是修复版时保留现有文件和原始备份。**若是其他哈希，先从临时目录移除 `bin/studiorender.dll`，只更新 Bridge，不覆盖未知游戏版本。**
-4. **覆盖安装：** 移除 `-vulkan` 启动参数，备份移走游戏根目录的 `d3d9.dll`。将准备好的内容合并到游戏根目录（`left4dead2.exe` 所在目录），一起安装 L4N、DXVK 和配套 Client/Host；匹配版本的 `studiorender.dll` 随文件覆盖即应用 ThinFlex 修复。**不要删除 `bin/d3d9.dll`**，它是 Bridge 客户端；配套 x86/x64 Host、后端和配置位于 `bin/.l4d2bridge`。L4N 原说明中的普通 DXVK 安装路径不适用于此整合包，以本节为准。
 
 | 游戏 `bin/studiorender.dll` | SHA-256 |
 |---|---|
@@ -36,7 +31,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-本次范围见 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)；此前 [GPU 与 IPC 调整](docs/GPU-IPC-20261013.md) 的历史结果继续保留；此前 [Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 继续保留；此前源码更新见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)，完整整合见 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md)。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次范围见 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md)；v1.5.17 原始 NVIDIA 更新说明保留于 [历史发布记录](docs/RELEASE-HISTORY.md)，源码采用范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。此前 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)、[GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)、[Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 和 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md) 的历史记录继续保留。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
@@ -62,13 +57,13 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 在 **Actions → Build latest upstream Bridge → Run workflow** 中：
 
 - `upstream_commit` 留空时观察最新 HEAD、构建已批准提交；填写完整 40 位 SHA 可显式指定已授权的提交。
-- 勾选 `force_rebuild` 可强制编译并创建新的独立版本；已有版本和附件保留，默认关闭。
+- 勾选 `force_rebuild` 可强制编译，默认创建新的独立版本并保留已有附件；仅在维护者明确授权同版本修订、且发布目标已固定时替换指定原 Release。默认关闭。
 - 勾选 `validation_only` 仅构建、测试和运行 A/B 基准，保存结果供检查，跳过发布。
 - 手动勾选 `thinflex_test` 标记为完整上游同步与 ThinFlex 修复测试版（Pre-release，不设为 Latest）。所有构建均提供包含固定 ThinFlex 修复 DLL 的单一完整包；安装时先核对游戏版本。
 
-去重同时检查上游提交和构建输入指纹；补丁、后端配置、脚本或测试更新会触发新构建。版本名为 `nightly-YYYYMMDD-上游短SHA-r输入指纹-b运行ID.重试号`，日期采用上游提交日期（UTC）。强制重建和重新运行均产生独立版本；旧附件不覆盖。Release 说明记录完整提交、输入指纹和构建实例；JSON 清单只用于构建校验，不放入玩家安装包。补丁冲突、编译或测试失败时不发布。
+去重同时检查上游提交和构建输入指纹；补丁、后端配置、脚本或测试更新会触发新构建。版本名为 `nightly-YYYYMMDD-上游短SHA-r输入指纹-b运行ID.重试号`，日期采用上游提交日期（UTC）。强制重建和重新运行默认产生独立版本，旧附件不覆盖。例外是维护者明确授权的同版本原位修订：固定原 Release/tag 身份，完成新源码的全部构建与验证后替换该 Release 的完整 ZIP 和 SHA，保留旧附件证据并记录新提交、配方及构建实例，不另建版本。Release 说明记录完整提交、输入指纹和构建实例；JSON 清单只用于构建校验，不放入玩家安装包。补丁冲突、编译或测试失败时不发布。
 
-复用本地源码目录时，构建脚本核对完整补丁和暂存区，拒绝混入额外源码修改并保留现场。发布中断后重跑失败的发布作业，会分页查找尚未发布的草稿，校验已有附件的内容，只上传缺失附件；内容冲突时停止，已有附件不覆盖。
+复用本地源码目录时，构建脚本核对完整补丁和暂存区，拒绝混入额外源码修改并保留现场。普通发布中断后重跑失败的发布作业，会分页查找尚未发布的草稿，校验已有附件的内容，只上传缺失附件；内容冲突时停止。明确授权的原位修订使用单独固定的替换目标与旧附件身份校验，不把普通发布重试视为覆盖授权。
 
 ## License
 

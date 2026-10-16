@@ -126,6 +126,13 @@ static HWND threadFocus(HWND window) {
     "read owning thread's actual keyboard focus");
   return state.hwndFocus;
 }
+static bool waitForFocus(HWND window, HWND expected) {
+  for (int i = 0; i < 150; ++i) {
+    if (threadFocus(window) == expected) { return true; }
+    Sleep(10);
+  }
+  return false;
+}
 static bool enabled(HWND window, bool expected) {
   for (int i = 0; i < 100; ++i) {
     if ((IsWindowEnabled(window) != FALSE) == expected) { return true; }
@@ -272,8 +279,13 @@ int main(int argc, char** argv) {
     require(presenter.bindReShade(fake), "register documented API and overlay callback");
     auto rawToggle = GetProcAddress(fake, "TestToggleOverlay");
     bool (*toggle)(bool) = nullptr; std::memcpy(&toggle, &rawToggle, sizeof(toggle));
+    const HWND initialForeground = GetForegroundWindow();
+    const HWND initialFocus = threadFocus(child);
     require(toggle && toggle(true), "overlay event allows opening");
     require(presenter.capturing() && enabled(child, true), "overlay event captures mouse");
+    flushPresenter(child);
+    require(GetForegroundWindow() == initialForeground && threadFocus(child) == initialFocus,
+      "background ReShade activation does not steal foreground or keyboard focus");
     require(toggle(false), "overlay event allows closing");
     require(!presenter.capturing() && enabled(child, false), "overlay event restores game input");
     const UINT steamMessage = RegisterWindowMessageW(L"L4D2BRIDGE_STEAM_ACTIVE");
@@ -309,13 +321,24 @@ int main(int argc, char** argv) {
     // Foreground activation of a different thread can complete asynchronously.
     SendMessageW(parent, WM_NULL, 0, 0);
     require(GetForegroundWindow() == parent, "clicking captured presenter restores foreground to game root");
-    hostGui = {}; hostGui.cbSize = sizeof(hostGui);
-    Sleep(350);
-    require(GetGUIThreadInfo(GetWindowThreadProcessId(child, nullptr), &hostGui) != FALSE
-      && hostGui.hwndFocus != child, "click does not give keyboard focus to Host presenter");
+    require(waitForFocus(child, child), "reactivated ReShade presenter acquires native keyboard focus");
+    require(warmupCalls.load() == 0, "ReShade native focus does not trigger Steam IME warmup");
     require(toggle(false) && enabled(child, false), "ReShade closes and releases capture after reactivation");
+    flushPresenter(child);
+    require(threadFocus(child) == parent, "closing foreground ReShade restores game keyboard focus");
+    require(toggle(true), "reopen ReShade while game already owns foreground");
+    flushPresenter(child);
+    require(presenter.capturing() && enabled(child, true) && threadFocus(child) == child,
+      "foreground ReShade-only capture acquires native Presenter focus");
+    require(SendMessageW(child, kClearFocus, 0, 0) != FALSE,
+      "simulate temporary loss of ReShade keyboard focus");
+    require(waitForFocus(child, child), "natural timer restores ReShade native focus without Steam activation");
+    require(toggle(false), "close ReShade-only capture after native focus recovery");
+    flushPresenter(child);
+    require(!presenter.capturing() && enabled(child, false) && threadFocus(child) == parent,
+      "last ReShade capture releases native focus and disables the child");
     SendMessageW(parent, kFinishActivation, 0, 0);
-    require(warmupCalls.load() == 0, "background Steam and ReShade never warm up IME focus");
+    require(warmupCalls.load() == 0, "background Steam and ReShade-only capture never warm up IME focus");
     require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
       "activate owned game for native Steam IME regression");
     presenter.steamCapture(true);
@@ -380,25 +403,84 @@ int main(int argc, char** argv) {
     require(enabled(child, false) && GetForegroundWindow() == background,
       "background Steam close returns capture without reactivating game");
     SendMessageW(parent, kFinishActivation, 0, 0);
-    presenter.stop(); require(!toggle(true), "callback unregistered on shutdown"); FreeLibrary(fake);
+    require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
+      "activate owned game for native capture-source handoff regression");
+    require(toggle(true), "begin ReShade-to-Steam native capture handoff");
+    flushPresenter(child);
+    require(threadFocus(child) == child, "ReShade-to-Steam handoff begins with Host native focus");
+    presenter.steamCapture(true);
+    flushPresenter(child);
+    require(threadFocus(child) == child, "adding Steam capture preserves ReShade native focus");
+    require(toggle(false), "release ReShade source while Steam capture remains");
+    flushPresenter(child);
+    require(presenter.capturing() && enabled(child, true) && threadFocus(child) == child,
+      "Steam source retains native focus after ReShade closes");
+    presenter.steamCapture(false);
+    flushPresenter(child);
+    require(!presenter.capturing() && enabled(child, false) && threadFocus(child) == parent,
+      "last Steam capture releases focus after ReShade-to-Steam handoff");
+    presenter.steamCapture(true);
+    flushPresenter(child);
+    require(toggle(true), "add ReShade source while Steam owns native focus");
+    flushPresenter(child);
+    presenter.steamCapture(false);
+    flushPresenter(child);
+    require(presenter.capturing() && enabled(child, true) && threadFocus(child) == child,
+      "ReShade source retains native focus after Steam closes");
+    require(toggle(false), "release final ReShade source after Steam-to-ReShade handoff");
+    flushPresenter(child);
+    require(!presenter.capturing() && enabled(child, false) && threadFocus(child) == parent,
+      "last ReShade capture releases focus after Steam-to-ReShade handoff");
+    require(warmupCalls.load() == 1, "capture-source handoffs never repeat Steam IME warmup");
+    presenter.stop(); require(!toggle(true), "callback unregistered on shutdown");
     require(apartmentSpy->uninitializations.load() != 0
       && apartmentSpy->lastReferences.load() == 0
       && apartmentSpy->callbackThread.load() == presenterThread,
       "stop balances the real COM apartment on the owning Presenter thread");
     apartmentSpy->Release();
     presenter.stop(); require(!IsWindow(child), "presenter destruction and idempotent stop");
-    l4d2_overlay::Presenter nativeOff(true, VK_HOME, false, {}, false, true, false, true, true);
+    std::atomic<unsigned> nonNativeWarmups { 0 };
+    l4d2_overlay::Presenter nativeOff(true, VK_HOME, false,
+      [&](const char* line) { if (std::strstr(line, "event=native-warmup")) { ++nonNativeWarmups; } },
+      false, true, false, true, true);
     const HWND nonNativeChild = nativeOff.window(parent);
     require(nonNativeChild != nullptr, "create non-native Steam input control");
+    presenterProc.store(reinterpret_cast<WNDPROC>(GetWindowLongPtrW(nonNativeChild, GWLP_WNDPROC)));
+    require(presenterProc.load() != nullptr, "read non-native Steam control procedure before publishing probe");
+    require(reinterpret_cast<WNDPROC>(SetWindowLongPtrW(nonNativeChild, GWLP_WNDPROC,
+      reinterpret_cast<LONG_PTR>(&probeProc))) == presenterProc.load(),
+      "attach owner-thread barrier to non-native Steam control");
     require(SendMessageW(parent, kFocusGame, GetCurrentProcessId(), 0) != FALSE,
       "activate game for non-native Steam input control");
     nativeOff.steamCapture(true);
     require(enabled(nonNativeChild, true), "capture enabled for non-native Steam control");
     Sleep(350);
     require(threadFocus(nonNativeChild) == parent, "timer never acquires Host focus with native input disabled");
+    require(nativeOff.bindReShade(fake) && toggle(true), "ReShade callback works with Steam native input disabled");
+    flushPresenter(nonNativeChild);
+    require(nativeOff.capturing() && threadFocus(nonNativeChild) == nonNativeChild,
+      "ReShade gains native focus even when aggregate non-native Steam capture was already active");
+    require(toggle(false), "close ReShade while non-native Steam capture remains");
+    flushPresenter(nonNativeChild);
+    require(nativeOff.capturing() && enabled(nonNativeChild, true) && threadFocus(nonNativeChild) == parent,
+      "closing ReShade returns to non-native Steam policy without dropping aggregate capture");
+    nativeOff.steamCapture(false);
+    flushPresenter(nonNativeChild);
+    require(!nativeOff.capturing() && enabled(nonNativeChild, false), "non-native Steam source closes normally");
+    require(toggle(true), "open ReShade-only with Steam native input disabled");
+    flushPresenter(nonNativeChild);
+    require(enabled(nonNativeChild, true) && threadFocus(nonNativeChild) == nonNativeChild,
+      "Steam native option does not disable ReShade-only native focus");
+    require(toggle(false), "close final ReShade-only source with Steam native input disabled");
+    flushPresenter(nonNativeChild);
+    require(!nativeOff.capturing() && enabled(nonNativeChild, false) && threadFocus(nonNativeChild) == parent,
+      "ReShade-only close restores game focus independently of Steam native option");
+    require(nonNativeWarmups.load() == 0, "disabled Steam native input never performs IME warmup");
     nativeOff.stop();
+    require(!toggle(true), "second Presenter unregisters ReShade callback on shutdown");
+    FreeLibrary(fake);
     SendMessageW(parent, kFinishActivation, 0, 0);
-    std::printf("PASS: host-owned cross-process child, capture, IME lifecycle, focus transitions, reset routing, resizing and teardown (%zu-bit)\n", sizeof(void*) * 8);
+    std::printf("PASS: host-owned cross-process child, ReShade native focus and capture handoffs, IME lifecycle, focus transitions, reset routing, resizing and teardown (%zu-bit)\n", sizeof(void*) * 8);
     return 0;
   }
   const bool waitForeground = argc == 3 && std::string(argv[2]) == "--wait-foreground";

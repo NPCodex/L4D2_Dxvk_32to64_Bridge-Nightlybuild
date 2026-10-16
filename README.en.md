@@ -3,21 +3,16 @@
 > **This build includes DXVK (GPLALL), L4N and the Bridge tools in one package. Extract and copy to install; no separate component downloads are needed. Do not mix it with other similar projects or bundles.**
 >
 > **Remove the `-vulkan` launch option and back up/move away `d3d9.dll` from the game root; keep this package's `bin/d3d9.dll`.** L4N / Left4Neko is the work of **Starfelll (@Starfelll)**, with thanks to its original author.
+>
+> **Installing ReShade: select `bin/.l4d2bridge/L4D2Bridge64.exe` inside the game directory and choose Vulkan as the rendering API. Do not select `left4dead2.exe` in the game root.** This package uses the x64 Bridge Host for Vulkan rendering by default. Vulkan here is an API option in the ReShade installer, not a game launch option; the game's `-vulkan` launch option must still be removed.
 
 [简体中文](README.md) | **English**
 
-## Download and installation — start here
+## Information
 
-**v1.5.17 updates NVIDIA Bridge runtime initialization and Host initialization-state synchronization.** Keep the x86 Client, x86 Host and x64 Host from the same package together. Defaults remain x64, C8 and mapped shadow off. This release does not verify first-launch or cold-start crashes, gameplay performance or long-term stability.
-
-The repository also disables the default global NVIDIA driver-version floors for Windows, GFN and Linux in the Remix renderer source, retaining neither the `610.47` floor nor the upstream `616.92` increase. That `src/dxvk` source is not compiled into this package, which continues to use the independently pinned GPLALL backend. This source change therefore does not establish new compatibility with older drivers in the player package. See [NVIDIA source adoption scope](docs/NVIDIA-UPSTREAM-UPDATES.md).
+**This v1.5.17 revision fixes ReShade 6.8 staying open after a second Home press and effect checkboxes requiring repeated clicks.** The user tested the local candidate in their Steam game installation and confirmed Home toggling and checkbox selection. Keep the x86 Client, x86 Host and x64 Host from the same package together. See the [mechanism and validation scope](docs/RESHADE-INPUT-20261016.md).
 
 **[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.52.1, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 88 files; see [bundle provenance](docs/L4N-BUNDLE.md).
-
-1. **Exit the game and Bridge Host, then back up existing files.** Save the original `left4dead2.exe`, L4N files, client, Host, `dxvk.conf`, `left4dead2/neko/config.vdf`, Bridge configuration and `bin/studiorender.dll`. Extract the ZIP into a temporary directory. If ThinFlex is already installed, keep the initial original-DLL backup. If another similar project is installed, uninstall it or restore its original files before installing this package.
-2. **Preserve configuration before upgrading:** remove any configuration you want to retain (`dxvk.conf`, `left4dead2/neko/config.vdf`, `bin/.l4d2bridge/bridge.conf`) from the temporary extraction directory before copying. If you customized your backend, also remove the packaged `bin/.l4d2bridge/d3d9vk_x64.dll` and `d3d9vk_x86.dll` there. Skip this step on first installation. Back up personal changes to L4N shaders and other files with matching paths, as those will also be replaced.
-3. **Check the installed engine DLL:** run `Get-FileHash 'your-game-directory\bin\studiorender.dll' -Algorithm SHA256` in PowerShell and compare with the table below. The supported original can be replaced. If the repair is already installed, retain it and the original backup. **For any other hash, remove `bin/studiorender.dll` from the temporary extraction directory and update Bridge only.**
-4. **Copy the prepared files:** remove `-vulkan` and back up/move away any game-root `d3d9.dll`. Merge the prepared files into the game root beside `left4dead2.exe`, installing L4N, DXVK and the matching Client/Hosts together. Replacing the matching `studiorender.dll` applies ThinFlex directly. **Keep `bin/d3d9.dll`**, the Bridge client; the matching x86/x64 Hosts, backends and configuration stay in `bin/.l4d2bridge`. Follow this layout instead of the ordinary DXVK instructions in the original L4N readme.
 
 | Installed `bin/studiorender.dll` | SHA-256 |
 |---|---|
@@ -36,7 +31,7 @@ Fresh installs use upstream's learned-aggressive retention policy and disable ro
 
 Roll back the Bridge client and Host together. Restore your original `studiorender.dll` backup to undo ThinFlex. To uninstall, remove the installed files and restore your backups.
 
-See the [NVIDIA source update](docs/NVIDIA-UPSTREAM-UPDATES.md) and the earlier [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
+See the [current ReShade input fix](docs/RESHADE-INPUT-20261016.md), the [original v1.5.17 release record](docs/RELEASE-HISTORY.md), the [NVIDIA source scope](docs/NVIDIA-UPSTREAM-UPDATES.md) and the earlier [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
 
 Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix), this repository retains the patches from the [original L4D2 project](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) and automatically builds an x86 client and both x86/x64 Hosts for 32-bit Left 4 Dead 2.
 
@@ -60,13 +55,13 @@ The workflow checks the NVIDIA build source default branch (currently `main`) ev
 Under **Actions → Build latest upstream Bridge → Run workflow**:
 
 - Leave `upstream_commit` empty to observe HEAD and build the approved commit, or enter a full 40-character SHA for an explicitly authorized override.
-- Enable `force_rebuild` to create a new independent build without replacing existing assets. This option is disabled by default.
+- Enable `force_rebuild` to compile again. It creates an independent release by default; replacing a specified existing release requires explicit maintainer authorization and a pinned replacement target. This option is disabled by default.
 - Enable `validation_only` to build, test and run A/B benchmarks, saving artifacts and skipping publication.
 - Enable `thinflex_test` to label a full upstream integration + ThinFlex test release (Pre-release, not Latest). Every build includes the fixed ThinFlex engine DLL in one full package; check the installed game version before copying it.
 
-Deduplication checks both upstream SHA and a fingerprint of build/package/test inputs. Versions use `nightly-YYYYMMDD-upstreamSHA-rRecipeDigest-bRunID.Attempt`. Dates use upstream commit UTC time. Rebuilds and reruns have separate versions, preserving old assets. Release notes record full identities. JSON manifests remain build-validation inputs and are excluded from the player ZIP. Patch, compile or test failures prevent publication.
+Deduplication checks both upstream SHA and a fingerprint of build/package/test inputs. Versions use `nightly-YYYYMMDD-upstreamSHA-rRecipeDigest-bRunID.Attempt`. Dates use upstream commit UTC time. Rebuilds and reruns create separate versions by default, preserving old assets. An explicitly authorized revision may keep a pinned release and tag identity, rebuild and validate the changed source, then replace that release's complete ZIP and SHA assets without creating another version. Retain the old asset evidence and record the new commit, recipe and build identity. JSON manifests remain build-validation inputs and are excluded from the player ZIP. Patch, compile or test failures prevent publication.
 
-When reusing a local source checkout, the build script verifies the complete patch and index, rejecting additional source changes while preserving the checkout. Rerunning a failed publish job searches paginated release listings for the unpublished draft, verifies existing assets and uploads only missing files. Conflicting assets stop publication; existing files are never overwritten.
+When reusing a local source checkout, the build script verifies the complete patch and index, rejecting additional source changes while preserving the checkout. An ordinary publish retry searches paginated release listings for the unpublished draft, verifies existing assets and uploads only missing files; conflicting assets stop publication. An explicitly authorized replacement uses a separately pinned target and checks the previous asset identities. A routine retry is not permission to overwrite assets.
 
 ## License
 

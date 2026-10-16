@@ -72,12 +72,14 @@ Nightly 默认 x64；可选 x86 通常降低指针相关占用，但地址空间
 
 ## Presenter 与 ReShade 输入
 
-以下键在 1.1 已有。v1.5.0 随包启用 `server.presenterWindow=True`、`server.presenterInput=True` 和两项 Client 钩子，供 Steam 窗口/输入适配使用；保持窗口模式、普通 DXVK 和 `exposeRemixApi=False`。Presenter 因此会创建 Host 子窗口和相应输入处理。此前 x64 Host + Vulkan ReShade 6.0.1 的测试仅证明当时的组合，上游测试不能替代本次 GPLALL/Steam 整合包实测。
+以下键在 1.1 已有。v1.5.0 随包启用 `server.presenterWindow=True`、`server.presenterInput=True` 和两项 Client 钩子，供 Steam 窗口/输入适配使用；保持窗口模式、普通 DXVK 和 `exposeRemixApi=False`。Presenter 因此会创建 Host 子窗口和相应输入处理。
+
+v1.5.17 本次修订让已绑定的 ReShade 捕获输入时取得 Presenter 的原生键盘焦点，菜单打开后按键直接进入 Host 消息队列，避免 ReShade 6.8 阻塞低级键盘回调后无法用 Home 关闭。关闭菜单后按原有窗口边界恢复焦点；Steam 与 ReShade 的捕获来源独立记录，聚合处理。无需新增配置键或开启 `presenterHotkeyFallback`；未绑定 ReShade 的热键兜底仍使用原有路径。用户已在正式 Steam 安装中的本地候选验收 Home 开关及效果复选框单击。此前 ReShade 6.0.1 结果只属于历史组合，详见 [本次机制与验证范围](RESHADE-INPUT-20261016.md)。
 
 | 配置 | 当前随包值 | 作用 |
 |---|---|---|
 | `server.presenterWindow` | `True` | 按需创建 Host 拥有、嵌入游戏窗口的呈现子窗口，供 Vulkan Overlay 接收输入及 Steam 窗口适配使用；只在窗口模式、普通 DXVK、未暴露 Remix API 时采用。会改变呈现/输入路径并增加窗口线程等工作；省略键时为 False。 |
-| `server.presenterInput` | `True` | Presenter 启用后允许对应键鼠输入处理；False 可用于只呈现、不启用该输入路径。 |
+| `server.presenterInput` | `True` | Presenter 启用后允许对应键鼠输入处理；ReShade 捕获期间使用原生焦点和真实窗口消息。False 可用于只呈现、不启用该输入路径。 |
 | `server.presenterOverlayKey` | `36` | Windows VK_HOME，默认 Home。并非游戏按键绑定，主要用于 Overlay 热键相关处理。 |
 | `server.presenterHotkeyFallback` | `False` | 未绑定 ReShade 时是否允许热键兜底切换输入捕获；不是修复切屏或 Steam Overlay 的开关。 |
 | `client.hookMessagePump` | `True` | 挂接 Client 消息泵，使 Overlay 消息/输入协调生效；会增加输入消息处理，省略键时为 False。 |

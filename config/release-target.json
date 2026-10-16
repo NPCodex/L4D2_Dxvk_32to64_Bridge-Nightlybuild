@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "mode": "replace-existing",
+  "repository": "NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild",
+  "version": "1.5.17",
+  "release_id": 414607386,
+  "tag": "v1.5.17-nightly-20261015-029602f8-r8b082b344703-b38856675685.1",
+  "archive": "l4d2-bridge-v1.5.17-nightly-20261015-029602f8-r8b082b344703-b38856675685.1.zip"
+}

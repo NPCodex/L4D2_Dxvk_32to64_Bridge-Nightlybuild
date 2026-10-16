@@ -10,6 +10,7 @@ import urllib.request
 from release_names import classify
 from pathlib import Path
 from build_identity import recipe_digest
+from release_target import read_release_target, resolve_release_target
 
 UPSTREAM = "repos/NVIDIAGameWorks/dxvk-remix"
 ROOT = Path(__file__).resolve().parents[1]
@@ -120,7 +121,14 @@ def pending():
     # Integration provenance belongs in the body; a local update need not resync upstream.
     title = "v" + version + " L4N 整合包" + (" + ThinFlex 测试版" if thinflex else "")
     names.update(release_tag=identifier, title=title,
-                 archive="l4d2-bridge-" + identifier + ".zip")
+                 archive="l4d2-bridge-" + identifier + ".zip",
+                 build_instance=identifier, delivery_mode="new-release", publish_allowed=True)
+    target = read_release_target(ROOT, os.environ["GITHUB_REPOSITORY"], version)
+    if target:
+        if thinflex:
+            raise ValueError("Existing-release replacement cannot use an experimental release channel")
+        names.update(resolve_release_target(target, api))
+        print("Existing-release rebuild: preserve target identity and disable automatic publication")
     return [{"tag": names["group"], "commit": commit, "branch": branch,
              "recipe_digest": recipe, **names}]
 
@@ -130,6 +138,7 @@ if __name__ == "__main__":
     with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
         output.write("matrix=" + json.dumps({"include": rows}) + "\n")
         output.write("pending=" + str(bool(rows)).lower() + "\n")
+        output.write("publish_allowed=" + str(bool(rows) and all(row["publish_allowed"] for row in rows)).lower() + "\n")
     print(json.dumps(rows, indent=2))
 
 
