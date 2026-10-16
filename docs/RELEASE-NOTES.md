@@ -1,11 +1,9 @@
 # v1.5.17
 
 - 更新 NVIDIA Bridge 构建基准至 `029602f83a2fdec8f4d4419e1967bf231fb8f0b5`，加入运行时缺失时回退 x64、Remix 初始化状态 IPC、Host 初始化状态传播和 Bridge API 初始化顺序适配。x86 Client、x86 Host 与 x64 Host 必须成套更新。
-- 移除 Windows/Linux 全局 NVIDIA 驱动版本门槛，默认不再因 `610.47` 或 `616.92` 统一拒绝创建设备；NRC、Vulkan 扩展及 RTX 功能自身能力检查保留。上游 `616.92` 下限提升未编入本包。
+- NVIDIA Remix 渲染器源码中的 Windows/GFN/Linux 全局驱动版本门槛默认关闭，不保留 `610.47` 或采用 `616.92` 下限；功能能力检查保留。该 `src/dxvk` 渲染器未编入本包，随包后端仍为独立固定的 GPLALL，因此这项源码修改不代表玩家包新增了旧驱动兼容性或 RTX 功能。
 
-验证范围：213 项 Python 回归（13 项按条件跳过）；新补丁在全新 `029602f` 源码树应用成功，289 个 Bridge 源文件收据一致。正式发布门禁还包括三端 MSVC 14.29、原生回归、附件校验和 Latest 身份核对。本次没有新增游戏、FPS、画质、长期稳定性或首次启动/开机冷启动闪退验证，不能据此宣称该崩溃已修复。
-
-如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
+发布检查覆盖 Python 回归、全新 `029602f` 源码树、三端 MSVC 14.29 编译、原生回归、最终源码收据、附件校验和 Latest 身份核对。本次没有新增游戏、FPS、画质、长期稳定性或首次启动/开机冷启动闪退验证，不能据此宣称该崩溃已修复。
 
 [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
 

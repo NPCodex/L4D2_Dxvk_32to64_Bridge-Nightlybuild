@@ -138,6 +138,12 @@ jobs:
       - name: Test idempotent Host device cleanup and strict live-command guards
         shell: powershell
         run: ./scripts/test_device_destroy.ps1 -VcVarsVer 14.29
+      - name: Test Remix initialization status, startup guard and response identity
+        shell: powershell
+        run: ./scripts/test_remix_init.ps1 -VcVarsVer 14.29
+      - name: Test runtime filesystem selection, fallback and client configuration path
+        shell: powershell
+        run: ./scripts/test_runtime_filesys.ps1 -VcVarsVer 14.29
       - name: Test Host swapchain query and Reset temporary references
         shell: powershell
         run: ./scripts/test_device_reset_lifetime.ps1
@@ -183,6 +189,8 @@ jobs:
             .deps/overlay-ime-result/**
             .deps/overlay-presenter-test/**
             .deps/device-destroy-contract/**
+            .deps/remix-init-contract/**
+            .deps/runtime-filesys/**
             .deps/gplall/modified/msaa-linear-dont-unroll-20261013/**/d3d9.recipe.json
             .deps/gplall/source-build/BACKEND-SOURCE.json
             .deps/gplall/source-build/PATCHES-APPLIED.json

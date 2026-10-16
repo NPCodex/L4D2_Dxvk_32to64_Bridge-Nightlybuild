@@ -4,9 +4,11 @@ NVIDIA dxvk-remix、L4D2 原项目和独立 GPLALL 后端是三个不同来源�
 
 ## 2026-10-16：运行时初始化更新与全局驱动门槛移除
 
-本次审阅并采用 NVIDIA `main` 的 [`029602f83a2fdec8f4d4419e1967bf231fb8f0b5`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/029602f83a2fdec8f4d4419e1967bf231fb8f0b5)，替代此前固定的 `d2a5033ec79303fffc33ca8e6595dd560162ff69`。范围包括运行时缺失时回退 x64、Remix 初始化状态 IPC、Host 初始化状态传播、Bridge API 初始化顺序及上游 RTX/稀疏渲染与粒子法线变更。Client 与 x86/x64 Host 必须使用同一组配套二进制；本次没有声称修复首次启动或开机冷启动闪退，也没有新增游戏/FPS/画质验收证据。
+本次审阅并采用 NVIDIA `main` 的 [`029602f83a2fdec8f4d4419e1967bf231fb8f0b5`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/029602f83a2fdec8f4d4419e1967bf231fb8f0b5)，替代此前固定的 `d2a5033ec79303fffc33ca8e6595dd560162ff69`。编入本包的 Bridge 变化包括运行时缺失时回退 x64、Remix 初始化状态 IPC、Host 初始化状态传播及 Bridge API 初始化顺序适配。Client 与 x86/x64 Host 必须使用同一组配套二进制；本次没有声称修复首次启动或开机冷启动闪退，也没有新增游戏/FPS/画质验收证据。
 
-上游将 Windows 全局最低 NVIDIA 驱动提高到 `616.92`，本包明确排除这项提升。本分支同时移除 Windows 与 Linux 的全局驱动版本门槛，默认值为 `0`，因此不再因 `610.47`、`616.92` 或其他统一版本下限拒绝创建设备。NRC、Vulkan 扩展和各 RTX 功能仍保留自身能力检查；绕过全局门槛不等于旧驱动具备所需 Vulkan/RTX 能力，也不构成旧驱动实机兼容性保证。显式设置 `dxvk.nvidiaMinDriver` 或 `dxvk.nvidiaLinuxMinDriver` 为正值时仍可重新启用对应门槛。
+本项目仅构建 NVIDIA 的 `bridge/`，不编译或分发其 `src/dxvk` RTX Remix 渲染器。此次基准包含的 RTX/稀疏渲染与粒子法线变化属于源码采用范围，未编入玩家包。随包 GPLALL 后端继续由 `config/backend.json` 独立固定；不能将这些上游变化描述为本包新增的渲染功能或画质收益。
+
+按维护者要求，本分支补丁将 NVIDIA `src/dxvk/dxvk_options.cpp` 中 Windows、GFN 与 Linux 的全局驱动版本下限默认值均设为 `0.0f`，并使 `dxvk_adapter.cpp` 仅在下限非零时执行版本拦截；既不保留 `610.47`，也不采用上游 `616.92` 提升。这项源码策略不参与本包编译，不改变 GPLALL 源码及其驱动检查，也不能据此声称本包新增了旧驱动兼容性。渲染器源码中的 NRC、Vulkan 扩展和各 RTX 功能能力检查继续保留。若另行构建该渲染器，显式将 `dxvk.nvidiaMinDriver` 或 `dxvk.nvidiaLinuxMinDriver` 设为正值，或使用 `DXVK_REMIX_NVIDIA_MIN_DRIVER` 环境覆盖，仍可重新启用对应版本门槛。
 
 这次 NVIDIA 来源推进与 L4D2 的 `cafc044` partial 适配保持独立，不能写成完整 L4D2 main 同步。正式构建仍需三端 MSVC、原生回归、源码收据及附件核验；上游 CI 不能替代本项目验证。
 

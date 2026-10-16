@@ -8,7 +8,7 @@
 
 当前 Nightly **1.5.0** 按维护者明确授权整合上游 **1.3.0 / f6a059b** 与 [45 项处理结果](OPTIMIZATION-45.md)。新安装完整启用 Steam 窗口/输入适配的配套依赖；IPC 默认 C8，静态 VB/IB 映射仍默认关闭。“相比 1.1”列仍以原项目 v1.1.0 为参照。Nightly 保留默认 x64 Host、GPLALL 后端，以及包含 ThinFlex 并直接安装 L4N 设置插件的单一全量包。表中的“随包值”是当前 [config/bridge.conf](../config/bridge.conf) 写明的值；“缺省值”指不写该键时实现采用的值，两者不一定相同。旧实验 ZIP 保持原样；升级保留已有配置，不能用本文的随包值代替实际安装配置。下载与安装以 [Nightly README](../README.md) 为准。
 
-本次采用不等于确认帧率收益。此前 v1.4.4 的 45 项整合候选相对 v1.3.0 出现平均 FPS 和 low 帧下降，见 [实测记录](../results/optimization45/game/PERFORMANCE-GATE-REPORT.md)；该数据不是新增 Steam 组合或最终 v1.5.0 包的游戏测试。**如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。** Client 与两个 Host 必须成套回退。
+本次采用不等于确认帧率收益。此前 v1.4.4 的 45 项整合候选相对 v1.3.0 出现平均 FPS 和 low 帧下降，见 [实测记录](../results/optimization45/game/PERFORMANCE-GATE-REPORT.md)；该数据不是新增 Steam 组合或最终 v1.5.0 包的游戏测试。
 
 运行配置位于游戏的 **`bin/.l4d2bridge/bridge.conf`**。`client.*` 作用于游戏内的 Bridge Client；`server.*` 作用于渲染 Host，不指联机游戏服务器。更改后退出游戏及 Host，再重启；同一个键只保留一份。可选片段需要合并到该文件，不会因为放在旁边就自动生效。`dxvk.conf` 是后端配置，不能与 `bridge.conf` 混用。
 

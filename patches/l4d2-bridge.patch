@@ -3787,7 +3787,7 @@ index 20a5e2b6b6f6b19da9ceb60e0213039dd6cc2c27..ae74cf278bc3c362dc33f9d60aac5b52
      : LockableBuffer((IDirect3DIndexBuffer9*)nullptr, pDevice, desc) {
    }
 diff --git a/bridge/src/client/d3d9_lss.cpp b/bridge/src/client/d3d9_lss.cpp
-index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b37470a0a7f70 100644
+index c718df452b8f8215e5e58d9a0e202f82a82c8032..81dd8a14a452f0e7b3c62ca392dacbc784caf3f7 100644
 --- a/bridge/src/client/d3d9_lss.cpp
 +++ b/bridge/src/client/d3d9_lss.cpp
 @@ -1,3 +1,7 @@
@@ -3820,17 +3820,18 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
  
  #include "util_bridge_assert.h"
  #include "util_bridge_state.h"
-@@ -70,16 +81,20 @@ uintptr_t D3dBaseIdFactory::getNextId() {
+@@ -70,16 +81,20 @@
  
  #if defined(_DEBUG) || defined(DEBUGOPT)
  
 -std::map<std::thread::id, std::atomic<size_t>> FunctionEntryExitLogger::s_counters;
+-
+-FunctionEntryExitLogger::FunctionEntryExitLogger(const std::string functionName, void* thiz) {
 +std::map<std::thread::id, std::atomic<size_t>>& FunctionEntryExitLogger::counters() {
 +  static std::map<std::thread::id, std::atomic<size_t>> values;
 +  return values;
 +}
- 
--FunctionEntryExitLogger::FunctionEntryExitLogger(const std::string functionName, void* thiz) {
++
 +FunctionEntryExitLogger::FunctionEntryExitLogger(const char* functionName, void* thiz) {
 +  try {
    if (GlobalOptions::getLogApiCalls() || GlobalOptions::getLogAllCalls()) {
@@ -3838,21 +3839,22 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
      std::string tabs = "";
 -    if (s_counters.count(std::this_thread::get_id()) == 0) {
 -      s_counters[std::this_thread::get_id()] = 0;
+-    }
+-    std::atomic<size_t>& counter = s_counters[std::this_thread::get_id()];
 +    if (counters().count(std::this_thread::get_id()) == 0) {
 +      counters()[std::this_thread::get_id()] = 0;
-     }
--    std::atomic<size_t>& counter = s_counters[std::this_thread::get_id()];
++    }
 +    std::atomic<size_t>& counter = counters()[std::this_thread::get_id()];
      for (int i = 0; i < counter; i++) {
        tabs.append("\t");
      }
-@@ -91,16 +106,18 @@ FunctionEntryExitLogger::FunctionEntryExitLogger(const std::string functionName,
+@@ -91,16 +106,18 @@
      else {
        _LogFunctionCall(tabs + functionName + " ENTRY", thiz);
      }
--    counter++;
-     m_functionName = functionName;
-+    counter++;
++    m_functionName = functionName;
+     counter++;
+-    m_functionName = functionName;
      m_thiz = thiz;
    }
  
@@ -3868,7 +3870,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
      counter--;
      if (!GlobalOptions::getLogAllCalls()) {
        return;
-@@ -111,6 +128,7 @@ FunctionEntryExitLogger::~FunctionEntryExitLogger() {
+@@ -111,6 +128,7 @@
      }
      _LogFunctionCall(tabs + m_functionName + " EXIT", m_thiz);
    }
@@ -3876,7 +3878,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
  }
  
  #endif
-@@ -124,12 +142,27 @@ std::mutex gShadowMapMutex;
+@@ -124,12 +142,27 @@
  std::mutex serverStartMutex;
  SceneState gSceneState = WaitBeginScene;
  std::chrono::steady_clock::time_point gTimeStart;
@@ -3906,7 +3908,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
    // Log history of recent client side commands sent and received by the server
    Logger::info("Most recent Device Queue commands sent from Client");
    DeviceBridge::Command::print_writer_data_sent();
-@@ -144,6 +177,7 @@ void PrintRecentCommandHistory() {
+@@ -144,6 +177,7 @@
  // Setup bridge exception handler if requested
  void SetupExceptionHandler() {
    if (ClientOptions::getSetExceptionHandler()) {
@@ -3914,7 +3916,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
      ExceptionHandler::get().init();
    }
  }
-@@ -193,7 +227,7 @@ namespace {
+@@ -193,7 +227,7 @@
    // relaunch the bridge server process with the --sentry-upload-only flag.
    void triggerSentryUpload(bool isGpuCrash) {
      const auto logsDir = dxvk::util::RtxFileSys::path(dxvk::util::RtxFileSys::Logs);
@@ -3923,7 +3925,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
      const std::wstring crashTypeW = isGpuCrash ? L"GPU" : L"CPU";
      // logsDir is safe for command line: RtxFileSys::init rejects env paths containing ".
      const std::wstring cmdLine = L"\"" + exePathW + L"\" --sentry-upload-only \"" + logsDir.wstring() + L"\" " + crashTypeW;
-@@ -260,7 +294,14 @@ namespace {
+@@ -260,7 +294,14 @@
    }
  }
  
@@ -3939,7 +3941,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
    BridgeState::setServerState(BridgeState::ProcessState::Exited);
  
    // Stop the WndProc from restoring the fullscreen window during crash handling.
-@@ -304,8 +345,9 @@ void InitServer() {
+@@ -304,8 +345,9 @@
      return;
    }
    Logger::info("Launching server with GUID " + gUniqueIdentifier.toString());
@@ -3950,7 +3952,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
    cmdSS << " " << gUniqueIdentifier.toString();
    cmdSS << " " << BRIDGE_VERSION;
    cmdSS << " " << std::string(GetCommandLineA());
-@@ -357,8 +399,19 @@ void InitServer() {
+@@ -357,8 +399,19 @@
    // Remove Ack from queue and get thread id for thread proc message handler from server
    const auto ackResponse = DeviceBridge::pop_front();
    initServerMessageChannel(ackResponse.pHandle);
@@ -3970,7 +3972,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
    Logger::info("Ack received! Handshake completed! Telling server to continue waiting for commands...");
    ClientMessage { Commands::Bridge_Continue };
  
-@@ -390,10 +443,39 @@ void InitServer() {
+@@ -390,10 +443,39 @@
    }
  }
  
@@ -4012,15 +4014,18 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
    bool bNeedToFindExecutable = hModulePath.extension().compare(".exe") != 0;
    fspath executablePath = "";
    if (bNeedToFindExecutable) {
-@@ -405,6 +487,7 @@ bool initFileSys(const HMODULE hModule) {
+@@ -405,8 +487,9 @@
      executablePath = fspath(executablePathVec.data());
    }
    const auto exeDir = executablePath.parent_path();
-+  const auto remixPath = hModulePath.parent_path();
++  const auto remixPath = l4d2_paths::runtimeBase(hModulePath.parent_path(), ".l4d2bridge");
    dxvk::util::RtxFileSys::init(exeDir.string(), remixPath.string());
-   return true;
+-  return true;
++  return dxvk::util::RtxFileSys::isInitialized();
  }
-@@ -469,26 +552,61 @@ bool RemixAttach(HMODULE hModule) {
+ 
+ /*
+@@ -469,26 +552,61 @@
          return false;
        }
      }
@@ -4086,7 +4091,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..1c5bfb8f5ca13fbaa354e86e074b3747
  
      DInputHookAttach();
  
-@@ -555,6 +673,13 @@ void RemixDetach() {
+@@ -555,6 +673,13 @@
      // Clean up resources
      delete gpPresent;
  
@@ -8473,10 +8478,10 @@ index 0000000000000000000000000000000000000000..d370fbea8df77c3705486fca196dfdac
 +}
 diff --git a/bridge/src/client/retention_database.h b/bridge/src/client/retention_database.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..c2b7c6bf76a41069fc90d406afd5c8e847007feb
+index 0000000000000000000000000000000000000000..a29e6a748284840d32affb9f06d03e731b6f41cf
 --- /dev/null
 +++ b/bridge/src/client/retention_database.h
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,192 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -8639,6 +8644,36 @@ index 0000000000000000000000000000000000000000..c2b7c6bf76a41069fc90d406afd5c8e8
 +  size_t records() const { return m_strong.size(); }
 +  Match lookup(const std::string& strong, const std::string& content) const {
 +    if (!m_valid) { return Match::None; }
++    if (m_strong.count(strong)) { return Match::Strong; }
++    return m_content.count(content) ? Match::Content : Match::None;
++  }
++  bool keep(const std::string& strong, const std::string& content, const char* reason, bool miss, bool& added) {
++    added = false;
++    if (!m_valid || !keyValid(strong) || !keyValid(content)) { return false; }
++    if (!lock()) { m_valid = false; return false; }
++    bool ok = readLocked();
++    DbRecord record;
++    const auto existing = m_strong.find(strong);
++    if (existing != m_strong.end()) { record = existing->second; }
++    else {
++      const auto fallback = m_content.find(content);
++      if (fallback != m_content.end()) { record = m_strong.at(fallback->second); }
++      else { record.firstMiss = timestamp(); }
++    }
++    record.strong = strong; record.content = content;
++    if (record.reason.empty() || std::string(reason) == "recovery-failure") { record.reason = reason; }
++    record.lastSeen = timestamp(); record.misses += miss ? 1u : 0u;
++    std::ostringstream line;
++    line << record.strong << '\t' << record.content << "\tKEEP\t" << record.reason << '\t'
++      << record.firstMiss << '\t' << record.lastSeen << '\t' << record.misses;
++    const auto prefix = line.str(); Digest checksum {};
++    if (ok) { ok = SUCCEEDED(hashBytes(reinterpret_cast<const uint8_t*>(prefix.data()), prefix.size(), checksum)); }
++    if (ok) { ok = appendLocked(prefix + '\t' + digestText(checksum).data() + '\n'); }
++    if (ok) { added = existing == m_strong.end(); merge(std::move(record)); }
++    unlock(); m_valid = ok; return ok;
++  }
++};
++}
 diff --git a/bridge/src/client/retention_policy.h b/bridge/src/client/retention_policy.h
 new file mode 100644
 index 0000000000000000000000000000000000000000..39becf6cfd328a72dc1eba6beab8e0c8f1bf2813
@@ -9442,26 +9477,51 @@ index 185005e0e37354fb798402fcbf0491c26c7124c6..aa09a478918a4a99bb4afaaeb51ce2c7
      END
      BLOCK "VarFileInfo"
 diff --git a/bridge/src/client/window.cpp b/bridge/src/client/window.cpp
-index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281e34541f6 100644
+index a6d5a4237e843a37c3c04dceec082b845efc69e8..01e6e280860fa2ed6150800244694da0b8e76970 100644
 --- a/bridge/src/client/window.cpp
 +++ b/bridge/src/client/window.cpp
-@@ -31,6 +31,10 @@
+@@ -31,6 +31,11 @@
  #include "log/log.h"
  
  #include "util_monitor.h"
 +#include "overlay_input_diagnostics.h"
 +#include "steam_activity_diagnostics.h"
 +#include "steam_web_diagnostics.h"
++#include "../server/steam_window_diagnostics.h"
 +#include "config/config.h"
  
  #include <unordered_map>
  #include <mutex>
-@@ -49,6 +53,15 @@ namespace {
+@@ -49,6 +54,39 @@ namespace {
  HWND g_hwnd = nullptr;
  WNDPROC g_gameWndProc = nullptr;
  bool g_bActivateProcessed = false;
 +// NV-DXVK start: opt-in cross-process Steam input observations and capture.
 +std::atomic<bool> g_steamActive { false }, g_steamKnown { false };
++// LDB_STEAM_ACTIVATION_BEGIN
++static std::atomic<UINT> g_steamCaptureNotification {0};
++static UINT steamCaptureNotification() {
++  static const UINT message=RegisterWindowMessageW(L"LDB_STEAM_CAPTURE_NOTIFY_V1");
++  g_steamCaptureNotification.store(message,std::memory_order_release);
++  return message;
++}
++static bool handleSteamCaptureNotification(UINT message) {
++  if(message<0xc000)return false;
++  const UINT expected=g_steamCaptureNotification.load(std::memory_order_acquire);
++  if(!expected || message!=expected)return false;
++  // Evaluate the current callback state, never the state of a delayed message.
++  if(g_steamKnown.load(std::memory_order_acquire) && g_steamActive.load(std::memory_order_acquire))DI::releaseSteamMouseCapture();
++  return true;
++}
++static void applySteamActivation(bool active) {
++  const bool previous=g_steamActive.exchange(active,std::memory_order_acq_rel);
++  g_steamKnown.store(true,std::memory_order_release);
++  if(active && !previous && g_hwnd) {
++    if(GetWindowThreadProcessId(g_hwnd,nullptr)==GetCurrentThreadId())DI::releaseSteamMouseCapture();
++    else if(const UINT message=steamCaptureNotification())PostMessageW(g_hwnd,message,0,0);
++  }
++}
++// LDB_STEAM_ACTIVATION_END
 +l4d2_overlay::InputDiagnostics& inputDiagnostics() {
 +  static l4d2_overlay::InputDiagnostics diagnostics(
 +    Config::getOption<bool>("client.steamInputDiagnostics", false), "client",
@@ -9472,7 +9532,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  std::atomic<bool> g_suppressWindowManagement { false };
  
  // reinterpret_cast wrappers
-@@ -78,12 +91,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
+@@ -78,12 +116,12 @@ static LONG WINAPI NewSetWindowLong(_In_ HWND hWnd, _In_ int nIndex, _In_ LONG d
        // We only handle cases wherein the window's handle matches the window's handle 
        // used in D3DDEVICE_CREATION_PARAMETERS or D3DPRESENT_PARAMETERS
        if(hWnd != g_hwnd) {
@@ -9487,7 +9547,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
          return oldGameWndProc;
        }
      }
-@@ -195,14 +208,21 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -195,14 +233,21 @@ void windowMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  // and so removed from the client application message pump (e.g. you don't want
  // Remix UI clicks to accidentally click "Exit" in game menu)
  bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -9509,7 +9569,7 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
      if (!uiWasActive && RemixState::isUIActive()) {
        // Remix UI has been activated - unstick modifier keys at application side
        auto unstick = [hWnd](uint32_t vk) {
-@@ -271,6 +291,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -271,6 +316,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  
    // Forward to remix renderer
    if (doForward) {
@@ -9517,7 +9577,15 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
      gpRemixMessageChannel->send(msg, wParam, lParam);
    }
  
-@@ -310,6 +331,23 @@ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+@@ -287,6 +333,7 @@ bool remixMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+ }
+ 
+ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
++  if(handleSteamCaptureNotification(msg))return 0;
+   const bool isUnicode = IsWindowUnicode(hWnd);
+   LRESULT lresult = 0;
+ 
+@@ -310,6 +357,23 @@ LRESULT WINAPI RemixWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
  // External funcs //
  ////////////////////
  
@@ -9541,15 +9609,16 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  bool init() {
    if(!attach()) {
      Logger::err(kStr_init_attachErr);
-@@ -320,6 +358,7 @@ bool init() {
+@@ -320,6 +384,8 @@ bool init() {
  }
  
  bool terminate() {
 +  l4d2_web::Diagnostics::stop();
++  l4d2_steam_window::Diagnostics::stop();
    if(!detach()) {
      Logger::err(kStr_terminate_detachErr);
      return false;
-@@ -364,7 +403,7 @@ bool set(HWND hwnd) {
+@@ -364,7 +430,7 @@ bool set(HWND hwnd) {
    // Fix up DirectInput forwarding if setting has succeeded
    DInputSetDefaultWindow(hwnd);
  
@@ -9558,7 +9627,12 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  
    return true;
  }
-@@ -390,7 +429,7 @@ bool unset() {
+@@ -386,11 +452,12 @@ bool unset() {
+       "another component likely subclassed the window during a mode change", RemixWndProc, prevWndProc));
+   }
+ 
++
+   // Clean out the globals
    g_hwnd = nullptr;
    g_gameWndProc = nullptr;
  
@@ -9567,13 +9641,21 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
  
    return true;
  }
-@@ -439,3 +478,56 @@ void prepareForCrashDialog(bool async) {
+@@ -439,3 +506,68 @@ void prepareForCrashDialog(bool async) {
  }
  
  }
 +
 +// NV-DXVK start: poll from Present, including when game input messages stop.
 +void WndProc::sampleSteamInput() {
++  static const bool rendererDiagnostics=Config::getOption<bool>("client.steamWindowDiagnostics",false);
++  if(rendererDiagnostics) {
++    static ULONGLONG nextRenderer=0;
++    const ULONGLONG now=GetTickCount64();
++    if(now>=nextRenderer){nextRenderer=now+1000;
++      l4d2_steam_window::Diagnostics::poll(true,g_hwnd,nullptr,[](const char* line){Logger::info(line);},l4d2_steam_window::Diagnostics::rendererName(),false,"client");
++    }
++  }
 +  static const bool webDiagnostics = Config::getOption<bool>("client.steamWebDiagnostics", false);
 +  static const bool workshopProxy = Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false);
 +  if(webDiagnostics || workshopProxy) {
@@ -9591,7 +9673,11 @@ index a6d5a4237e843a37c3c04dceec082b845efc69e8..fc541855fc045883c4a6481c1b813281
 +    nextSteamAttempt = now + 1000;
 +    std::function<void(bool)> state;
 +    if (steamInput) {
-+      state = [](bool active) { g_steamActive.store(active); g_steamKnown.store(true); };
++      state = [](bool active) {
++        applySteamActivation(active);
++        static const bool trace=Config::getOption<bool>("client.steamInputDiagnostics",false);
++        if(trace)Logger::info(format_string("L4D2_STEAM_INPUT event=steam-capture role=client active=%d source_capture=%d aggregate_capture=%d source=callback331 presenter_required=0",active,active,active || RemixState::isUIActive()));
++      };
 +    }
 +    std::function<void(const char*)> log;
 +    if (diagnosticsEnabled) { log = [](const char* line) { Logger::info(line); }; }
@@ -10330,7 +10416,7 @@ index 0000000000000000000000000000000000000000..c6416918880ffa55901a70152eaaa570
 +}
 +}
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
-index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0a154bfb2 100644
+index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b355a4820 100644
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp
 @@ -1,3 +1,7 @@
@@ -10372,7 +10458,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  
  using namespace Commands;
  using namespace bridge_util;
-@@ -102,13 +118,98 @@ using namespace remixapi::util;
+@@ -102,12 +118,99 @@
              const DWORD& name = rpcHeader.pHandle;
  #define GET_RES(name, map) \
              GET_HND(name##Handle); \
@@ -10384,7 +10470,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  // NOTE: MSDN states HWNDs are safe to cross x86-->x64 boundary, and that a truncating cast should be used:
  // https://docs.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication?redirectedfrom=MSDN
  #define TRUNCATE_HANDLE(type, input) (type)(size_t)(input)
- 
++
 +// NV-DXVK start: opt-in server-owned window for Vulkan overlay input.
 +static std::unique_ptr<l4d2_overlay::Presenter> gOverlayPresenter;
 +static l4d2_reset::SwapchainReferences gSwapchainReferences;
@@ -10409,7 +10495,9 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +      [](const char* message) { Logger::info(message); },
 +      Config::getOption<bool>("server.steamInputDiagnostics", false),
 +      Config::getOption<bool>("server.steamOverlayInput", false),
-+      Config::getOption<bool>("server.steamNativeInput", false)));
++      Config::getOption<bool>("server.steamNativeInput", false),
++      Config::getOption<bool>("server.steamImeTsfActivate", true),
++      Config::getOption<bool>("server.steamImeNativeWarmup", true)));
 +  }
 +  const HWND parent = pp.hDeviceWindow ? pp.hDeviceWindow : focus;
 +  const HWND child = gOverlayPresenter->window(parent);
@@ -10469,11 +10557,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +  return gOverlayPresenter->route(original);
 +}
 +// NV-DXVK end
-+
+ 
  bool bDxvkModuleLoaded = false;
  std::chrono::steady_clock::time_point gTimeStart;
- 
-@@ -152,9 +253,43 @@ std::unordered_map<uint32_t, IDirect3DPixelShader9*> gpD3DPixelShaders;
+@@ -152,9 +255,43 @@
  std::unordered_map<uint32_t, IDirect3DSwapChain9*> gpD3DSwapChains;
  std::unordered_map<uint32_t, IDirect3DQuery9*> gpD3DQuery;
  std::unordered_map<uint32_t, void*> gMapRemixApi;
@@ -10518,7 +10605,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  HANDLE hWait;
  
  namespace {
-@@ -179,8 +314,8 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
+@@ -179,13 +316,26 @@
    if (obj) {
      const LONG cnt = static_cast<LONG>(obj->Release());
      if (cnt > 0) {
@@ -10529,10 +10616,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
      }
    }
  #endif
-@@ -188,6 +323,19 @@ static inline void safeDestroy(IUnknown* obj, uint32_t x86handle) {
-   while (obj && static_cast<LONG>(obj->Release()) > 0);
- }
  
+   while (obj && static_cast<LONG>(obj->Release()) > 0);
++}
++
 +static HRESULT finishSurfaceQuery(const char* api, uint32_t handle, HRESULT result, IUnknown* object) {
 +  const auto entry = gpD3DResources.find(handle);
 +  IUnknown* expected = entry == gpD3DResources.end() ? nullptr : entry->second;
@@ -10544,12 +10631,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +    bridge_exception::logDiagnostic(message);
 +  }
 +  return checkedResult;
-+}
-+
+ }
+ 
  D3DPRESENT_PARAMETERS getPresParamFromRaw(const uint32_t* rawPresentationParameters) {
-   D3DPRESENT_PARAMETERS presParam;
-   // Set up presentation parameters. We can't just directly cast the structure because the hDeviceWindow
-@@ -223,7 +371,7 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
+@@ -223,7 +373,7 @@
    }
    // Using surface desc to get width, height of the surface
    D3DSURFACE_DESC pDesc;
@@ -10558,7 +10643,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    if (!SUCCEEDED(hresult)) {
      c.send_data(hresult);
      return hresult;
-@@ -235,28 +383,51 @@ HRESULT ReturnSurfaceDataToClient(IDirect3DSurface9* pReturnSurfaceData, HRESULT
+@@ -235,28 +385,51 @@
  
    // Obtaining raw buffer from the surface and we send this data to client
    D3DLOCKED_RECT lockedRect;
@@ -10617,7 +10702,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    return hresult;
  }
  
-@@ -289,6 +460,57 @@ static bool dumpLeakedObjects() {
+@@ -289,6 +462,57 @@
    return anyLeaked;
  }
  
@@ -10675,7 +10760,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  void ProcessDeviceCommandQueue() {
    // Loop until the client sends terminate instruction
    bool done = false;
-@@ -296,10 +518,17 @@ void ProcessDeviceCommandQueue() {
+@@ -296,10 +520,17 @@
      ZoneScopedN("Process Command");
  #ifdef LOG_SERVER_COMMAND_TIME
      // Take a snapshot of the current tick count for profiling purposes
@@ -10694,7 +10779,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  
  #ifdef _DEBUG
      // If data batching is enabled and the data offset on the comamnd is different from
-@@ -318,6 +547,7 @@ void ProcessDeviceCommandQueue() {
+@@ -318,6 +549,7 @@
          ZoneName(commandStr.c_str(), commandStr.size());
        }
        PULL_U(currentUID);
@@ -10702,7 +10787,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  #if defined(_DEBUG) || defined(DEBUGOPT)
        if (GlobalOptions::getLogServerCommands()) {
          Logger::info("Device Processing: " + toString(rpcHeader.command) + " UID: " + std::to_string(currentUID));
-@@ -338,9 +568,10 @@ void ProcessDeviceCommandQueue() {
+@@ -338,9 +570,10 @@
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10714,7 +10799,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << format_string("CreateDeviceEx() call failed with error code 0x%x", hresult) << std::endl;
-@@ -355,7 +586,7 @@ void ProcessDeviceCommandQueue() {
+@@ -355,7 +588,7 @@
          }
  
          // Send response back to the client
@@ -10723,7 +10808,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
            c.send_data(hresult);
-@@ -373,9 +604,16 @@ void ProcessDeviceCommandQueue() {
+@@ -373,9 +606,16 @@
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10741,7 +10826,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << format_string("CreateDevice() call failed with error code 0x%x", hresult) << std::endl;
-@@ -383,6 +621,12 @@ void ProcessDeviceCommandQueue() {
+@@ -383,6 +623,12 @@
          } else {
            Logger::info("Server side D3D9 Device created successfully!");
            gpD3DDevices[pHandle] = (IDirect3DDevice9Ex*) pD3DDevice;
@@ -10754,7 +10839,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            if (GlobalOptions::getExposeRemixApi() && remixapi::g_remix_initialized) {
              remixapi::g_device = (IDirect3DDevice9Ex*) pD3DDevice;
              remixapi::g_remix.dxvk_RegisterD3D9Device(remixapi::g_device);
-@@ -390,7 +634,7 @@ void ProcessDeviceCommandQueue() {
+@@ -390,7 +636,7 @@
          }
  
          // Send response back to the client
@@ -10763,7 +10848,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
            c.send_data(hresult);
-@@ -425,12 +669,18 @@ void ProcessDeviceCommandQueue() {
+@@ -425,12 +671,18 @@
          PULL(BOOL, Lockable);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10773,9 +10858,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return ((IDirect3DDevice9Ex*) pD3DDevice)->CreateRenderTargetEx(IN Width, IN Height, IN Format, IN MultiSample, IN MultisampleQuality, IN Lockable, OUT & pSurface, IN nullptr, IN Usage); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateRenderTargetEx failed: hresult=0x%08lx resource_id=%u",
@@ -10785,7 +10871,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -443,12 +693,18 @@ void ProcessDeviceCommandQueue() {
+@@ -443,12 +695,18 @@
          PULL(D3DPOOL, Pool);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10795,9 +10881,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return ((IDirect3DDevice9Ex*) pD3DDevice)->CreateOffscreenPlainSurfaceEx(IN Width, IN Height, IN Format, IN Pool, OUT & pSurface, IN nullptr, IN Usage); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateOffscreenPlainSurfaceEx failed: hresult=0x%08lx resource_id=%u",
@@ -10807,7 +10894,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -463,12 +719,18 @@ void ProcessDeviceCommandQueue() {
+@@ -463,12 +721,18 @@
          PULL(BOOL, Discard);
          PULL(DWORD, Usage);
          PULL_HND(pHandle);
@@ -10817,9 +10904,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return ((IDirect3DDevice9Ex*) pD3DDevice)->CreateDepthStencilSurfaceEx(IN Width, IN Height, IN Format, IN MultiSample, IN MultisampleQuality, IN Discard, OUT & pSurface, IN nullptr, IN Usage); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateDepthStencilSurfaceEx failed: hresult=0x%08lx resource_id=%u",
@@ -10829,7 +10917,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -483,6 +745,7 @@ void ProcessDeviceCommandQueue() {
+@@ -483,6 +747,7 @@
          IDirect3DSwapChain9* pSwapChain = nullptr;
          const auto hresult = pD3DDevice->GetSwapChain(0, &pSwapChain);
          if (SUCCEEDED(hresult)) {
@@ -10837,7 +10925,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            gpD3DSwapChains[pClientSwapchain] = pSwapChain;
          }
          break;
-@@ -495,7 +758,9 @@ void ProcessDeviceCommandQueue() {
+@@ -495,7 +760,9 @@
          IDirect3DSurface9* pBackbuffer = nullptr;
          const auto hresult = pD3DDevice->GetBackBuffer(0, index, D3DBACKBUFFER_TYPE_MONO, &pBackbuffer);
          if (SUCCEEDED(hresult)) {
@@ -10847,7 +10935,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -507,7 +772,9 @@ void ProcessDeviceCommandQueue() {
+@@ -507,7 +774,9 @@
          IDirect3DSurface9* pDepthStencil = nullptr;
          const auto hresult = pD3DDevice->GetDepthStencilSurface(&pDepthStencil);
          if (SUCCEEDED(hresult)) {
@@ -10857,7 +10945,18 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -527,7 +794,8 @@ void ProcessDeviceCommandQueue() {
+@@ -518,7 +787,9 @@
+         break;
+       case IDirect3DDevice9Ex_Destroy:
+       {
+-        GET_RES(pD3DDevice, gpD3DDevices);
++        // Cleanup is idempotent, including a wrapper whose backend creation failed.
++        GET_HND(pD3DDeviceHandle);
++        const auto pD3DDevice = lookupHostHandle(gpD3DDevices, pD3DDeviceHandle);
+         safeDestroy(pD3DDevice, pD3DDeviceHandle);
+         gpD3DDevices.erase(pD3DDeviceHandle);
+         break;
+@@ -527,7 +798,8 @@
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->TestCooperativeLevel();
@@ -10867,7 +10966,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DDevice9Ex_GetAvailableTextureMem:
-@@ -561,8 +829,14 @@ void ProcessDeviceCommandQueue() {
+@@ -561,8 +833,14 @@
        {
  
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -10883,7 +10982,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          BRIDGE_ASSERT_LOG(SUCCEEDED(hresult), "Issue retrieving D3D9 device specific information");
          {
            ServerMessage c(Commands::Bridge_Response, currentUID);
-@@ -632,9 +906,11 @@ void ProcessDeviceCommandQueue() {
+@@ -632,9 +910,11 @@
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10895,7 +10994,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            gpD3DSwapChains[pHandle] = pSwapChain;
          }
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
-@@ -646,8 +922,13 @@ void ProcessDeviceCommandQueue() {
+@@ -646,8 +926,13 @@
          PULL_U(iSwapChain);
          IDirect3DSwapChain9* pSwapChain = nullptr;
          const auto hresult = pD3DDevice->GetSwapChain(iSwapChain, &pSwapChain);
@@ -10911,7 +11010,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DDevice9Ex_GetNumberOfSwapChains:
-@@ -664,19 +945,31 @@ void ProcessDeviceCommandQueue() {
+@@ -664,19 +949,31 @@
          uint32_t* rawPresentationParameters = nullptr;
          DeviceBridge::get_data((void**) &rawPresentationParameters);
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -10955,7 +11054,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DDevice9Ex_ResetEx:
-@@ -689,26 +982,38 @@ void ProcessDeviceCommandQueue() {
+@@ -689,26 +986,38 @@
          PULL_DATA(sizeof(D3DDISPLAYMODEEX), pFullscreenDisplayMode);
  
          D3DPRESENT_PARAMETERS PresentationParameters = getPresParamFromRaw(rawPresentationParameters);
@@ -11007,20 +11106,21 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  #endif
  
          GET_RES(pD3DDevice, gpD3DDevices);
-@@ -717,9 +1022,10 @@ void ProcessDeviceCommandQueue() {
+@@ -717,9 +1026,10 @@
          PULL(uint32_t, hDestWindowOverride);
          PULL_OBJ(RGNDATA, pDirtyRegion);
  
 -        HWND hwnd = TRUNCATE_HANDLE(HWND, hDestWindowOverride);
-+        HWND hwnd = overlayPresentWindow(TRUNCATE_HANDLE(HWND, hDestWindowOverride));
- 
+-
 -        const auto hresult = pD3DDevice->Present(pSourceRect, pDestRect, hwnd, pDirtyRegion);
++        HWND hwnd = overlayPresentWindow(TRUNCATE_HANDLE(HWND, hDestWindowOverride));
++
 +        l4d2_color::backendSnapshot(pD3DDevice, pD3DDeviceHandle, gpD3DResources, gpD3DPixelShaders, gpD3DVertexShaders, "Present");
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->Present(pSourceRect, pDestRect, hwnd, pDirtyRegion); });
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
            ss << "Present() failed! Check all logs for reported errors.";
-@@ -730,7 +1036,7 @@ void ProcessDeviceCommandQueue() {
+@@ -730,7 +1040,7 @@
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11029,7 +11129,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  #endif
          }
          break;
-@@ -746,6 +1052,7 @@ void ProcessDeviceCommandQueue() {
+@@ -746,6 +1056,7 @@
          assert(SUCCEEDED(hresult));
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pSurfaceHandle] = pBackbuffer;
@@ -11037,7 +11137,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          break;
        }
-@@ -767,6 +1074,7 @@ void ProcessDeviceCommandQueue() {
+@@ -767,6 +1078,7 @@
          PULL_D(Flags);
          PULL_OBJ(D3DGAMMARAMP, pRamp);
          pD3DDevice->SetGammaRamp(iSwapChain, Flags, pRamp);
@@ -11045,7 +11145,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DDevice9Ex_GetGammaRamp:
-@@ -780,20 +1088,30 @@ void ProcessDeviceCommandQueue() {
+@@ -780,20 +1092,30 @@
        case IDirect3DDevice9Ex_CreateTexture:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11069,6 +11169,8 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          if (SUCCEEDED(hresult)) {
 +          if (l4d2_color::enabled.load(std::memory_order_relaxed) && gColorTextures.size() < 65536) { gColorTextures[pHandle] = request; }
            gpD3DResources[pHandle] = pTexture;
+-        }
+-        assert(SUCCEEDED(hresult));
 +          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pTexture), l4d2_host_memory::ResourceKind::Texture);
 +        } else {
 +          // NV-DXVK start: Record backend creation errors before returning them to the client.
@@ -11078,15 +11180,14 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +            static_cast<unsigned>(sizeof(void*) * 8)));
 +          sampleHostMemory(true, "create-texture-failed");
 +          // NV-DXVK end
-         }
--        assert(SUCCEEDED(hresult));
++        }
 +        // NV-DXVK start: D3D9 creation failures are API results, including invalid-call probes.
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
 +        // NV-DXVK end
          break;
        }
        case IDirect3DDevice9Ex_CreateVolumeTexture:
-@@ -807,12 +1125,22 @@ void ProcessDeviceCommandQueue() {
+@@ -807,12 +1129,22 @@
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11101,9 +11202,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          if (SUCCEEDED(hresult)) {
 +          if (l4d2_color::enabled.load(std::memory_order_relaxed) && gColorTextures.size() < 65536) { gColorTextures[pHandle] = request; }
            gpD3DResources[pHandle] = pVolumeTexture;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pVolumeTexture), l4d2_host_memory::ResourceKind::VolumeTexture);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pVolumeTexture), l4d2_host_memory::ResourceKind::VolumeTexture);
++        }
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateVolumeTexture failed: hresult=0x%08lx resource_id=%u width=%u height=%u depth=%u format=%u",
 +            static_cast<unsigned long>(hresult), pHandle, Width, Height, Depth, static_cast<unsigned>(Format)));
@@ -11112,7 +11214,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -825,12 +1153,18 @@ void ProcessDeviceCommandQueue() {
+@@ -825,12 +1157,18 @@
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11123,9 +11225,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateCubeTexture(IN EdgeLength, IN Levels, IN Usage, IN Format, IN Pool, OUT & pCubeTexture, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pCubeTexture;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pCubeTexture), l4d2_host_memory::ResourceKind::CubeTexture);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pCubeTexture), l4d2_host_memory::ResourceKind::CubeTexture);
++        }
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateCubeTexture failed: hresult=0x%08lx resource_id=%u edge=%u format=%u",
 +            static_cast<unsigned long>(hresult), pHandle, EdgeLength, static_cast<unsigned>(Format)));
@@ -11134,7 +11237,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -842,12 +1176,18 @@ void ProcessDeviceCommandQueue() {
+@@ -842,12 +1180,18 @@
          PULL_D(FVF);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11144,9 +11247,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateVertexBuffer(IN Length, IN Usage, IN FVF, IN Pool, OUT & pVertexBuffer, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pVertexBuffer;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pVertexBuffer), l4d2_host_memory::ResourceKind::VertexBuffer);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pVertexBuffer), l4d2_host_memory::ResourceKind::VertexBuffer);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateVertexBuffer failed: hresult=0x%08lx resource_id=%u",
@@ -11156,7 +11260,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -859,12 +1199,18 @@ void ProcessDeviceCommandQueue() {
+@@ -859,12 +1203,18 @@
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11166,9 +11270,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateIndexBuffer(IN Length, IN Usage, IN Format, IN Pool, OUT & pIndexBuffer, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pIndexBuffer;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pIndexBuffer), l4d2_host_memory::ResourceKind::IndexBuffer);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pIndexBuffer), l4d2_host_memory::ResourceKind::IndexBuffer);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateIndexBuffer failed: hresult=0x%08lx resource_id=%u",
@@ -11178,7 +11283,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -878,12 +1224,18 @@ void ProcessDeviceCommandQueue() {
+@@ -878,12 +1228,18 @@
          PULL_D(MultisampleQuality);
          PULL(BOOL, Lockable);
          PULL_HND(pHandle);
@@ -11188,9 +11293,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateRenderTarget(IN Width, IN Height, IN Format, IN MultiSample, IN MultisampleQuality, IN Lockable, OUT & pSurface, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateRenderTarget failed: hresult=0x%08lx resource_id=%u",
@@ -11200,7 +11306,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -897,12 +1249,18 @@ void ProcessDeviceCommandQueue() {
+@@ -897,12 +1253,18 @@
          PULL_D(MultisampleQuality);
          PULL(BOOL, Discard);
          PULL_HND(pHandle);
@@ -11210,9 +11316,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateDepthStencilSurface(IN Width, IN Height, IN Format, IN MultiSample, IN MultisampleQuality, IN Discard, OUT & pSurface, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateDepthStencilSurface failed: hresult=0x%08lx resource_id=%u",
@@ -11222,7 +11329,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -919,7 +1277,8 @@ void ProcessDeviceCommandQueue() {
+@@ -919,7 +1281,8 @@
          const auto& pDestinationSurface = (IDirect3DSurface9*) gpD3DResources[pDestHandle];
          assert(pDestinationSurface != nullptr);
          if (pSourceSurface != nullptr && pDestinationSurface != nullptr) {
@@ -11232,7 +11339,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -936,7 +1295,8 @@ void ProcessDeviceCommandQueue() {
+@@ -936,7 +1299,8 @@
          const auto& pDestinationTexture = (IDirect3DBaseTexture9*) gpD3DResources[pDestinationTextureHandle];
          assert(pDestinationTexture != nullptr);
          if (pSourceTexture != nullptr && pDestinationTexture != nullptr) {
@@ -11242,7 +11349,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -949,7 +1309,7 @@ void ProcessDeviceCommandQueue() {
+@@ -949,7 +1313,7 @@
          PULL_HND(pDestSurfaceHandle);
          const auto& pRenderTarget = (IDirect3DSurface9*) gpD3DResources[pRenderTargetHandle];
          const auto& pDestSurface = (IDirect3DSurface9*) gpD3DResources[pDestSurfaceHandle];
@@ -11251,7 +11358,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
          break;
-@@ -1001,12 +1361,18 @@ void ProcessDeviceCommandQueue() {
+@@ -1001,12 +1365,18 @@
          PULL(D3DFORMAT, Format);
          PULL(D3DPOOL, Pool);
          PULL_HND(pHandle);
@@ -11261,9 +11368,10 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pD3DDevice->CreateOffscreenPlainSurface(IN Width, IN Height, IN Format, IN Pool, OUT & pSurface, IN nullptr); });
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pHandle] = pSurface;
-+          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
-         }
+-        }
 -        assert(SUCCEEDED(hresult));
++          gResourceInventory.track(pHandle, reinterpret_cast<uintptr_t>(pSurface), l4d2_host_memory::ResourceKind::Surface);
++        }
 +        // NV-DXVK start: Forward recoverable creation failures to the client.
 +        if (FAILED(hresult)) {
 +          Logger::err(format_string("L4D2 CreateOffscreenPlainSurface failed: hresult=0x%08lx resource_id=%u",
@@ -11273,7 +11381,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1023,6 +1389,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1023,6 +1393,7 @@
          assert((pHandle != 0 && pRenderTarget != 0) || pHandle == 0);
          if ((pHandle != 0 && pRenderTarget != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetRenderTarget(IN RenderTargetIndex, IN pRenderTarget);
@@ -11281,7 +11389,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1034,12 +1401,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1034,12 +1405,9 @@
          PULL_D(RenderTargetIndex);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pRenderTarget = nullptr;
@@ -11289,14 +11397,15 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -        if (SUCCEEDED(hresult)) {
 -          gpD3DResources[pSurfaceHandle] = pRenderTarget;
 -        }
+-        SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
+-        assert(SUCCEEDED(hresult));
 +        const auto backendResult = pD3DDevice->GetRenderTarget(RenderTargetIndex, &pRenderTarget);
 +        const auto hresult = finishSurfaceQuery("GetRenderTarget", pSurfaceHandle, backendResult, pRenderTarget);
-         SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
--        assert(SUCCEEDED(hresult));
++        SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
        case IDirect3DDevice9Ex_SetDepthStencilSurface:
-@@ -1054,6 +1418,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1054,6 +1422,7 @@
          assert((pHandle != 0 && pDepthStencil != 0) || pHandle == 0);
          if ((pHandle != 0 && pDepthStencil != 0) || pHandle == 0) {
            hresult = pD3DDevice->SetDepthStencilSurface(IN pDepthStencil);
@@ -11304,7 +11413,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
            assert(SUCCEEDED(hresult));
          }
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -1064,11 +1429,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1064,11 +1433,8 @@
          GET_RES(pD3DDevice, gpD3DDevices);
          PULL_HND(pSurfaceHandle);
          IDirect3DSurface9* pZStencilSurface = nullptr;
@@ -11318,7 +11427,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -1084,6 +1446,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1084,6 +1450,7 @@
        {
          GET_RES(pD3DDevice, gpD3DDevices);
          const auto hresult = pD3DDevice->EndScene();
@@ -11326,7 +11435,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1186,6 +1549,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1186,6 +1553,7 @@
          PULL(D3DRENDERSTATETYPE, State);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetRenderState(IN State, IN Value);
@@ -11334,7 +11443,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1244,6 +1608,30 @@ void ProcessDeviceCommandQueue() {
+@@ -1244,6 +1612,30 @@
            assert(pTexture != nullptr);
          }
          const auto hresult = pD3DDevice->SetTexture(IN Stage, IN pTexture);
@@ -11365,7 +11474,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1270,6 +1658,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1270,6 +1662,7 @@
          PULL(D3DSAMPLERSTATETYPE, Type);
          PULL_D(Value);
          const auto hresult = pD3DDevice->SetSamplerState(IN Sampler, IN Type, IN Value);
@@ -11373,7 +11482,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1323,6 +1712,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1323,6 +1716,7 @@
        case IDirect3DDevice9Ex_DrawPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11381,7 +11490,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(StartVertex);
          PULL_U(PrimitiveCount);
-@@ -1334,6 +1724,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1334,6 +1728,7 @@
        case IDirect3DDevice9Ex_DrawIndexedPrimitive:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11389,7 +11498,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          PULL(D3DPRIMITIVETYPE, Type);
          PULL_I(BaseVertexIndex);
          PULL_U(MinVertexIndex);
-@@ -1348,6 +1739,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1348,6 +1743,7 @@
        case IDirect3DDevice9Ex_DrawPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11397,7 +11506,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(PrimitiveCount);
          void* pVertexStreamZeroData = nullptr;
-@@ -1361,6 +1753,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1361,6 +1757,7 @@
        case IDirect3DDevice9Ex_DrawIndexedPrimitiveUP:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11405,7 +11514,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          PULL(D3DPRIMITIVETYPE, PrimitiveType);
          PULL_U(MinVertexIndex);
          PULL_U(NumVertices);
-@@ -1450,6 +1843,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1450,6 +1847,10 @@
          if (SUCCEEDED(hresult)) {
            gpD3DVertexShaders[pHandle] = pShader;
          }
@@ -11416,7 +11525,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1463,6 +1860,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1463,6 +1864,7 @@
            pShader = gpD3DVertexShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetVertexShader(IN pShader);
@@ -11424,7 +11533,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1514,10 +1912,11 @@ void ProcessDeviceCommandQueue() {
+@@ -1514,10 +1916,11 @@
        case IDirect3DDevice9Ex_SetStreamSource:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11440,7 +11549,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          IDirect3DVertexBuffer9* pStreamData = nullptr;
          if (pHandle != NULL) {
            pStreamData = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
-@@ -1544,7 +1943,8 @@ void ProcessDeviceCommandQueue() {
+@@ -1544,7 +1947,8 @@
        case IDirect3DDevice9Ex_SetIndices:
        {
          GET_RES(pD3DDevice, gpD3DDevices);
@@ -11450,7 +11559,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          IDirect3DIndexBuffer9* pIndexData = NULL;
          if (pHandle != NULL) {
            pIndexData = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
-@@ -1568,6 +1968,10 @@ void ProcessDeviceCommandQueue() {
+@@ -1568,6 +1972,10 @@
          if (SUCCEEDED(hresult)) {
            gpD3DPixelShaders[pHandle] = pShader;
          }
@@ -11461,7 +11570,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_CREATE_FUNCTION_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1581,6 +1985,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1581,6 +1989,7 @@
            pShader = gpD3DPixelShaders[pHandle];
          }
          const auto hresult = pD3DDevice->SetPixelShader(IN pShader);
@@ -11469,7 +11578,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1595,6 +2000,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1595,6 +2004,7 @@
          float* pConstantData = nullptr;
          PULL_DATA(Count * sizeof(float) * 4, pConstantData);
          const auto hresult = pD3DDevice->SetPixelShaderConstantF(IN StartRegister, IN pConstantData, IN Count);
@@ -11477,7 +11586,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
-@@ -1734,6 +2140,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1734,6 +2144,7 @@
          const auto& pSB = gpD3DStateBlocks[pHandle];
          assert(pSB != nullptr);
          const auto hresult = pSB->Apply();
@@ -11485,7 +11594,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -1749,7 +2156,17 @@ void ProcessDeviceCommandQueue() {
+@@ -1749,7 +2160,17 @@
        {
          GET_HND(pHandle);
          const auto& pSwapChain = gpD3DSwapChains[pHandle];
@@ -11504,7 +11613,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          gpD3DSwapChains.erase(pHandle);
          break;
        }
-@@ -1757,7 +2174,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1757,7 +2178,7 @@
        {
          FrameMark;
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11513,19 +11622,20 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  #endif
  
          GET_RES(pSwapChain, gpD3DSwapChains);
-@@ -1767,9 +2184,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1767,9 +2188,9 @@
          PULL_OBJ(RGNDATA, pDirtyRegion);
          PULL(uint32_t, dwFlags);
  
 -        HWND hwnd = TRUNCATE_HANDLE(HWND, hDestWindowOverride);
-+        HWND hwnd = overlayPresentWindow(TRUNCATE_HANDLE(HWND, hDestWindowOverride));
- 
+-
 -        const auto hresult = pSwapChain->Present(pSourceRect, pDestRect, hwnd, pDirtyRegion, dwFlags);
++        HWND hwnd = overlayPresentWindow(TRUNCATE_HANDLE(HWND, hDestWindowOverride));
++
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pSwapChain->Present(pSourceRect, pDestRect, hwnd, pDirtyRegion, dwFlags); });
  
          if (!SUCCEEDED(hresult)) {
            std::stringstream ss;
-@@ -1780,7 +2197,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1780,7 +2201,7 @@
          if (GlobalOptions::getPresentSemaphoreEnabled()) {
            gpPresent->release();
  #ifdef ENABLE_PRESENT_SEMAPHORE_TRACE
@@ -11534,7 +11644,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  #endif
          }
          break;
-@@ -1793,6 +2210,7 @@ void ProcessDeviceCommandQueue() {
+@@ -1793,6 +2214,7 @@
          auto hresult = pSwapChain->GetFrontBufferData(pDestSurface);
          if (SUCCEEDED(hresult)) {
            gpD3DResources[pDestSurfaceHandle] = pDestSurface;
@@ -11542,7 +11652,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          hresult = ReturnSurfaceDataToClient(pDestSurface, hresult, currentUID);
          assert(SUCCEEDED(hresult));
-@@ -1807,7 +2225,9 @@ void ProcessDeviceCommandQueue() {
+@@ -1807,7 +2229,9 @@
          IDirect3DSurface9* pBackbuffer = nullptr;
          const auto hresult = pSwapChain->GetBackBuffer(iBackBuffer, Type, &pBackbuffer);
          if (SUCCEEDED(hresult)) {
@@ -11552,7 +11662,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
-@@ -2019,6 +2439,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2019,6 +2443,9 @@
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          safeDestroy(pTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11562,7 +11672,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DTexture9_GetDevice:
-@@ -2063,7 +2486,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2063,7 +2490,7 @@
          PULL_U(Level);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11571,7 +11681,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2074,9 +2497,14 @@ void ProcessDeviceCommandQueue() {
+@@ -2074,9 +2501,14 @@
          PULL_HND(pSurfaceHandle);
          const auto& pTexture = (IDirect3DTexture9*) gpD3DResources[pTextureHandle];
          LPDIRECT3DSURFACE9 pSurfaceLevel;
@@ -11587,7 +11697,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2120,6 +2548,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2120,6 +2552,9 @@
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pVolumeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11597,7 +11707,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DVolumeTexture9_GetDevice:
-@@ -2164,7 +2595,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2164,7 +2599,7 @@
          PULL_U(Level);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -11606,7 +11716,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2175,9 +2606,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2175,9 +2610,13 @@
          PULL_HND(pVolumeLevelHandle);
          const auto& pVolumeTexture = (IDirect3DVolumeTexture9*) gpD3DResources[pVolumeTextureHandle];
          LPDIRECT3DVOLUME9 pVolumeLevel;
@@ -11621,7 +11731,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2193,42 +2628,21 @@ void ProcessDeviceCommandQueue() {
+@@ -2193,42 +2632,21 @@
          PULL_U(Level);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -11653,6 +11763,14 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -#endif
 -            memcpy((void*) ptr, (void*) row, row_size);
 -          }
+-        }
+-#ifdef SEND_ALL_LOCK_DATA_AT_ONCE
+-        assert(pulledSize == depth * slice_size);
+-#endif
+-        hresult = pVolumeTexture->UnlockBox(Level);
+-        assert(SUCCEEDED(hresult));
+-        break;
+-      }
 +        const auto resource = lookupHostHandle(gpD3DResources, pHandle);
 +        const auto volume = resource && resource->GetType() == D3DRTYPE_VOLUMETEXTURE
 +          ? static_cast<IDirect3DVolumeTexture9*>(resource) : nullptr;
@@ -11664,19 +11782,14 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +            [&]() { return l4d2_api_wait::backend([&]() { return volume->UnlockBox(Level); }); })) {
 +          DeviceBridge::reportFault("host-volume-upload", static_cast<uint32_t>(rpcHeader.command), currentUID);
 +          return;
-         }
--#ifdef SEND_ALL_LOCK_DATA_AT_ONCE
--        assert(pulledSize == depth * slice_size);
--#endif
--        hresult = pVolumeTexture->UnlockBox(Level);
--        assert(SUCCEEDED(hresult));
-         break;
-       }
++        }
++        break;
++      }
 +
        case IDirect3DVolumeTexture9_AddDirtyBox:
        {
          GET_HND(pHandle);
-@@ -2259,6 +2673,9 @@ void ProcessDeviceCommandQueue() {
+@@ -2259,6 +2677,9 @@
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          safeDestroy(pCubeTexture, pHandle);
          gpD3DResources.erase(pHandle);
@@ -11686,7 +11799,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DCubeTexture9_GetDevice:
-@@ -2303,7 +2720,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2303,7 +2724,7 @@
          GET_HND(pHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
@@ -11695,7 +11808,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2315,9 +2732,10 @@ void ProcessDeviceCommandQueue() {
+@@ -2315,9 +2736,10 @@
          PULL_HND(pCubeMapSurfaceHandle);
          const auto& pCubeTexture = (IDirect3DCubeTexture9*) gpD3DResources[pCubeTextureHandle];
          LPDIRECT3DSURFACE9 pCubeMapSurface;
@@ -11707,7 +11820,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          }
          assert(SUCCEEDED(hresult));
          break;
-@@ -2359,9 +2777,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2359,9 +2781,13 @@
        case IDirect3DVertexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11721,7 +11834,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DVertexBuffer9_GetDevice:
-@@ -2384,6 +2806,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2384,6 +2810,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11729,7 +11842,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2391,32 +2814,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2391,32 +2818,46 @@
        case IDirect3DVertexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11749,16 +11862,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -        if (Commands::IsDataReserved(rpcHeader.flags)) {
 -          PULL_D(DataOffset);
 -          data = DeviceBridge::Bridge::getReaderChannel().get_data_ptr() + DataOffset;
--        } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
--          PULL_U(allocId);
--          data = SharedHeap::getBuf(allocId) + OffsetToLock;
 +        if (Commands::IsDataReserved(rpcHeader.flags) || Commands::IsDataInSharedHeap(rpcHeader.flags)) {
 +          const auto packet = DeviceBridge::get_packet<4>(false);
 +          OffsetToLock = packet.fields[0]; SizeToLock = packet.fields[1]; Flags = packet.fields[2];
 +          reference = packet.fields[3];
-         } else {
--          const auto size = DeviceBridge::get_data(&data);
--          assert(SizeToLock == size);
++        } else {
 +          const auto packet = DeviceBridge::get_packet<3>();
 +          OffsetToLock = packet.fields[0]; SizeToLock = packet.fields[1]; Flags = packet.fields[2];
 +          data = packet.data;
@@ -11773,7 +11881,17 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const bool reserved = Commands::IsDataReserved(rpcHeader.flags);
 +        if (reserved) {
 +          data = DeviceBridge::reservedData(pHandle, reference, SizeToLock);
-+        } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+         } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+-          PULL_U(allocId);
+-          data = SharedHeap::getBuf(allocId) + OffsetToLock;
+-        } else {
+-          const auto size = DeviceBridge::get_data(&data);
+-          assert(SizeToLock == size);
+-        }
+-        memcpy(pbData, data, SizeToLock);
+-        hresult = pVertexBuffer->Unlock();
+-        assert(SUCCEEDED(hresult));
+-
 +          auto* base = SharedHeap::getBuf(reference);
 +          const size_t capacity = SharedHeap::getAllocationSize(reference);
 +          if (!base || OffsetToLock > capacity || SizeToLock > capacity - OffsetToLock) {
@@ -11791,15 +11909,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        if (FAILED(uploaded.status())) {
 +          DeviceBridge::reportFault("host-buffer-upload", static_cast<uint32_t>(rpcHeader.command), currentUID);
 +          return;
-         }
--        memcpy(pbData, data, SizeToLock);
--        hresult = pVertexBuffer->Unlock();
--        assert(SUCCEEDED(hresult));
--
++        }
          break;
        }
        case IDirect3DVertexBuffer9_GetDesc:
-@@ -2425,7 +2862,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2425,7 +2866,7 @@
          PULL_OBJ(D3DVERTEXBUFFER_DESC, orig_desc);
          const auto& pVertexBuffer = (IDirect3DVertexBuffer9*) gpD3DResources[pHandle];
          D3DVERTEXBUFFER_DESC pDesc;
@@ -11808,7 +11922,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2445,9 +2882,13 @@ void ProcessDeviceCommandQueue() {
+@@ -2445,9 +2886,13 @@
        case IDirect3DIndexBuffer9_Destroy:
        {
          GET_HND(pHandle);
@@ -11822,7 +11936,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DIndexBuffer9_GetDevice:
-@@ -2470,6 +2911,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2470,6 +2915,7 @@
        {
          // This is a no-op right now because we're doing all the logic on Unlock
          GET_HND(pHandle);
@@ -11830,7 +11944,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          void* data = nullptr;
          DeviceBridge::get_data(&data);
          break;
-@@ -2477,31 +2919,46 @@ void ProcessDeviceCommandQueue() {
+@@ -2477,31 +2923,46 @@
        case IDirect3DIndexBuffer9_Unlock:
        {
          GET_HND(pHandle);
@@ -11850,16 +11964,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -        if (Commands::IsDataReserved(rpcHeader.flags)) {
 -          PULL_D(DataOffset);
 -          data = DeviceBridge::Bridge::getReaderChannel().get_data_ptr() + DataOffset;
--        } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
--          PULL_U(allocId);
--          data = SharedHeap::getBuf(allocId) + OffsetToLock;
 +        if (Commands::IsDataReserved(rpcHeader.flags) || Commands::IsDataInSharedHeap(rpcHeader.flags)) {
 +          const auto packet = DeviceBridge::get_packet<4>(false);
 +          OffsetToLock = packet.fields[0]; SizeToLock = packet.fields[1]; Flags = packet.fields[2];
 +          reference = packet.fields[3];
-         } else {
--          const auto size = DeviceBridge::get_data(&data);
--          assert(SizeToLock == size);
++        } else {
 +          const auto packet = DeviceBridge::get_packet<3>();
 +          OffsetToLock = packet.fields[0]; SizeToLock = packet.fields[1]; Flags = packet.fields[2];
 +          data = packet.data;
@@ -11874,7 +11983,16 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        const bool reserved = Commands::IsDataReserved(rpcHeader.flags);
 +        if (reserved) {
 +          data = DeviceBridge::reservedData(pHandle, reference, SizeToLock);
-+        } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+         } else if (Commands::IsDataInSharedHeap(rpcHeader.flags)) {
+-          PULL_U(allocId);
+-          data = SharedHeap::getBuf(allocId) + OffsetToLock;
+-        } else {
+-          const auto size = DeviceBridge::get_data(&data);
+-          assert(SizeToLock == size);
+-        }
+-        memcpy(pbData, data, SizeToLock);
+-        hresult = pIndexBuffer->Unlock();
+-        assert(SUCCEEDED(hresult));
 +          auto* base = SharedHeap::getBuf(reference);
 +          const size_t capacity = SharedHeap::getAllocationSize(reference);
 +          if (!base || OffsetToLock > capacity || SizeToLock > capacity - OffsetToLock) {
@@ -11892,14 +12010,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        if (FAILED(uploaded.status())) {
 +          DeviceBridge::reportFault("host-buffer-upload", static_cast<uint32_t>(rpcHeader.command), currentUID);
 +          return;
-         }
--        memcpy(pbData, data, SizeToLock);
--        hresult = pIndexBuffer->Unlock();
--        assert(SUCCEEDED(hresult));
++        }
          break;
        }
        case IDirect3DIndexBuffer9_GetDesc:
-@@ -2510,7 +2967,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2510,7 +2971,7 @@
          PULL_OBJ(D3DINDEXBUFFER_DESC, orig_desc);
          const auto& pIndexBuffer = (IDirect3DIndexBuffer9*) gpD3DResources[pHandle];
          D3DINDEXBUFFER_DESC pDesc;
@@ -11908,7 +12023,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2531,8 +2988,11 @@ void ProcessDeviceCommandQueue() {
+@@ -2531,8 +2992,11 @@
        {
          GET_HND(pHandle);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
@@ -11921,15 +12036,18 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DSurface9_GetDevice:
-@@ -2559,10 +3019,55 @@ void ProcessDeviceCommandQueue() {
+@@ -2559,10 +3023,55 @@
          PULL_OBJ(D3DSURFACE_DESC, orig_desc);
          const auto& pSurface = (IDirect3DSurface9*) gpD3DResources[pHandle];
          D3DSURFACE_DESC pDesc;
 -        const auto hresult = pSurface->GetDesc(OUT & pDesc);
+-        assert(SUCCEEDED(hresult));
+-        break;
+-      }
 +        const auto hresult = l4d2_api_wait::backend([&]() { return pSurface->GetDesc(OUT & pDesc); });
-         assert(SUCCEEDED(hresult));
-         break;
-       }
++        assert(SUCCEEDED(hresult));
++        break;
++      }
 +      // NV-DXVK start: Forced readback writes only an independent experiment section.
 +      case Bridge_TestReadbackRecovery:
 +      {
@@ -11978,7 +12096,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
        case IDirect3DSurface9_LockRect:
        {
          // Currently we only recieve calls for LockRect in cases where backbuffer data is to be copied for screenshots
-@@ -2577,39 +3082,145 @@ void ProcessDeviceCommandQueue() {
+@@ -2577,39 +3086,145 @@
          GET_HND(pHandle);
          PULL_OBJ(RECT, pRect);
          PULL_D(Flags);
@@ -12110,6 +12228,13 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -          size_t pulledSize = DeviceBridge::get_data(&pData);
 -          const size_t numRows = bridge_util::calcStride(height, format);
 -          assert(pulledSize == numRows * IncomingPitch);
+-        }
+-        FOR_EACH_RECT_ROW(lockedRect, height, format,
+-          memcpy(ptr, (PBYTE) pData + y * IncomingPitch, rowSize);
+-        )
+-        hresult = pSurface->UnlockRect();
+-        assert(SUCCEEDED(hresult));
+-
 +          size_t rowOffset = 0, columnOffset = 0;
 +          if (!l4d2_host_upload::multiply(static_cast<size_t>(pRect->top) / blockSize, IncomingPitch, rowOffset)
 +            || !l4d2_host_upload::multiply(static_cast<size_t>(pRect->left) / blockSize, blockBytes, columnOffset)
@@ -12141,17 +12266,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        if (FAILED(uploaded.status())) {
 +          DeviceBridge::reportFault("host-surface-upload", static_cast<uint32_t>(rpcHeader.command), currentUID);
 +          return;
-         }
--        FOR_EACH_RECT_ROW(lockedRect, height, format,
--          memcpy(ptr, (PBYTE) pData + y * IncomingPitch, rowSize);
--        )
--        hresult = pSurface->UnlockRect();
--        assert(SUCCEEDED(hresult));
--
++        }
          break;
        }
        case IDirect3DSurface9_GetDC:
-@@ -2635,6 +3246,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2635,6 +3250,8 @@
          const auto& pVolume = gpD3DVolumes[pHandle];
          safeDestroy(pVolume, pHandle);
          gpD3DVolumes.erase(pHandle);
@@ -12160,7 +12279,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        case IDirect3DVolume9_GetDevice:
-@@ -2653,7 +3266,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2653,7 +3270,7 @@
          PULL_OBJ(D3DVOLUME_DESC, orig_desc);
          const auto& pVolume = gpD3DVolumes[pHandle];
          D3DVOLUME_DESC pDesc;
@@ -12169,7 +12288,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          assert(SUCCEEDED(hresult));
          break;
        }
-@@ -2667,40 +3280,16 @@ void ProcessDeviceCommandQueue() {
+@@ -2667,40 +3284,16 @@
          GET_HND(pHandle);
          PULL_OBJ(D3DBOX, pBox);
          PULL_D(Flags);
@@ -12201,6 +12320,12 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -#endif
 -            memcpy((void*) ptr, (void*) row, row_size);
 -          }
+-        }
+-#ifdef SEND_ALL_LOCK_DATA_AT_ONCE
+-        assert(pulledSize == depth * slice_size);
+-#endif
+-        hresult = pVolume->UnlockBox();
+-        assert(SUCCEEDED(hresult));
 +        const auto volume = lookupHostHandle(gpD3DVolumes, pHandle);
 +        D3DVOLUME_DESC desc {};
 +        if (!volume || !pBox || pBox_len != sizeof(D3DBOX)
@@ -12210,16 +12335,11 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +            [&]() { return l4d2_api_wait::backend([&]() { return volume->UnlockBox(); }); })) {
 +          DeviceBridge::reportFault("host-volume-upload", static_cast<uint32_t>(rpcHeader.command), currentUID);
 +          return;
-         }
--#ifdef SEND_ALL_LOCK_DATA_AT_ONCE
--        assert(pulledSize == depth * slice_size);
--#endif
--        hresult = pVolume->UnlockBox();
--        assert(SUCCEEDED(hresult));
++        }
          break;
        }
  
-@@ -2714,7 +3303,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2714,7 +3307,7 @@
        case IDirect3DQuery9_Destroy:
        {
          GET_HND(pHandle);
@@ -12228,7 +12348,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          safeDestroy(pQuery, pHandle);
          gpD3DQuery.erase(pHandle);
          break;
-@@ -2729,8 +3318,8 @@ void ProcessDeviceCommandQueue() {
+@@ -2729,8 +3322,8 @@
        {
          GET_HND(pHandle);
          PULL(DWORD, dwIssueFlags);
@@ -12239,7 +12359,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          SEND_OPTIONAL_SERVER_RESPONSE(hresult, currentUID);
          break;
        }
-@@ -2739,25 +3328,24 @@ void ProcessDeviceCommandQueue() {
+@@ -2739,25 +3332,24 @@
          GET_HND(pHandle);
          PULL(DWORD, dwSize);
          PULL(DWORD, dwGetDataFlags);
@@ -12247,6 +12367,9 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 -        void* pData = NULL;
 -        if (dwSize > 0) {
 -          pData = new char[dwSize];
+-        }
+-        const auto hresult = pQuery->GetData(pData, dwSize, dwGetDataFlags);
+-
 +        const auto pQuery = lookupHostHandle(gpD3DQuery, pHandle);
 +        // One fixed aligned scratch buffer covers all D3D9 SDK query results.
 +        // S_FALSE never serializes its stale contents.
@@ -12256,9 +12379,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
 +        if (pQuery && !(dwGetDataFlags & ~D3DGETDATA_FLUSH) && dwSize <= queryStorage.size()
 +          && (dwSize == 0 || dwSize == pQuery->GetDataSize())) {
 +          hresult = pQuery->GetData(pData, dwSize, dwGetDataFlags);
-         }
--        const auto hresult = pQuery->GetData(pData, dwSize, dwGetDataFlags);
--
++        }
          ServerMessage c(Commands::Bridge_Response, currentUID);
          c.send_data(hresult);
 -        if (SUCCEEDED(hresult) && dwSize > 0) {
@@ -12275,7 +12396,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
  
-@@ -2769,7 +3357,7 @@ void ProcessDeviceCommandQueue() {
+@@ -2769,7 +3361,7 @@
          PULL_U(i);
          const int length = DeviceBridge::getReaderChannel().data->peek();
          void* text = nullptr;
@@ -12284,7 +12405,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          std::stringstream ss;
          ss << "DebugMessage. i = " << i << ", length = " << length << " = " << size << ", text = '" << (char*) text << "'";
          Logger::info(ss.str().c_str());
-@@ -2792,26 +3380,37 @@ void ProcessDeviceCommandQueue() {
+@@ -2792,26 +3384,37 @@
          GET_HDR_VAL(_allocId);
          const auto allocId = (SharedHeap::AllocId) _allocId;
          PULL_U(chunkId);
@@ -12324,7 +12445,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          break;
        }
        /*
-@@ -3156,11 +3755,11 @@ void ProcessDeviceCommandQueue() {
+@@ -3156,11 +3759,11 @@
        case RemixApi_SetConfigVariable:
        {
          void* var_ptr = nullptr;
@@ -12338,21 +12459,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
          std::string value_str((const char*) value_ptr, value_size);
  
          remixapi::g_remix.SetConfigVariable(var_str.c_str(), value_str.c_str());
-@@ -3180,13 +3779,6 @@ void ProcessDeviceCommandQueue() {
-                                               "most recently created by client application.");
-         break;
-       }
--
--      case RemixApi_GetInitializationStatus:
--      {
--        ServerMessage c(Commands::Bridge_Response, currentUID);
--        c.send_data(static_cast<uint32_t>(remixapi::g_initStatus));
--        break;
--      }
-       
-       default:
-         break;
-@@ -3198,41 +3790,29 @@ void ProcessDeviceCommandQueue() {
+@@ -3198,41 +3801,29 @@
        Logger::warn("Data not in sync");
      }
      assert(CHECK_DATA_OFFSET);
@@ -12404,7 +12511,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    }
  }
  
-@@ -3275,14 +3855,26 @@ bool InitializeD3D() {
+@@ -3275,14 +3866,26 @@
    // If vanilla dxvk is enabled attempt to load that first.
    if (ServerOptions::getUseVanillaDxvk()) {
      Logger::info("Loading standard Non-RTX DXVK d3d9 dll.");
@@ -12434,7 +12541,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
      // Since vanilla dxvk is diabled attempt loading regular d3d9.dll which
      // could be either the system d3d9 one or our own Remix dxvk flavor of it.
      ghModule = LoadLibraryExA("d3d9.dll", nullptr,
-@@ -3292,6 +3884,10 @@ bool InitializeD3D() {
+@@ -3292,6 +3895,10 @@
    // create the D3D instance used for the lifetime of this process.
    if (ghModule != nullptr) {
      auto Direct3DCreate9 = (D3DC9) GetProcAddress(ghModule, "Direct3DCreate9");
@@ -12445,15 +12552,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
      if (nullptr == (gpD3D = Direct3DCreate9(D3D_SDK_VERSION))) {
        Logger::err(format_string("D3D9 interface object creation failed: %ld\n", GetLastError()));
        return false;
-@@ -3301,7 +3897,6 @@ bool InitializeD3D() {
-     // Initialize remixApi
-     if (GlobalOptions::getExposeRemixApi()) {
-       remixapi_ErrorCode status = remixapi_lib_loadRemixDllAndInitialize(L"d3d9.dll", &remixapi::g_remix, &remixapi::g_remix_dll);
--      remixapi::g_initStatus = status;
-       if (status != REMIXAPI_ERROR_CODE_SUCCESS) {
-         Logger::err(format_string("[RemixApi] RemixApi initialization failed: %d\n", status));
-       } else {
-@@ -3319,6 +3914,10 @@ bool InitializeD3D() {
+@@ -3319,6 +3926,10 @@
    }
  
    CheckD3D9Type(ghModule);
@@ -12464,7 +12563,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    if (bDxvkModuleLoaded) {
      auto queryFeatureVersion = (version::QueryFunc)GetProcAddress(ghModule, version::QueryFuncName);
      if(queryFeatureVersion == NULL) {
-@@ -3351,18 +3950,29 @@ bool InitializeD3D() {
+@@ -3351,18 +3962,29 @@
  }
  
  void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
@@ -12503,7 +12602,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
  
    // Give the server some time to shut down, but then force quit so it doesn't hang forever
    uint32_t numRetries = 0;
-@@ -3379,7 +3989,7 @@ void CALLBACK OnClientExited(void* context, BOOLEAN isTimeout) {
+@@ -3379,7 +4001,7 @@
  }
  
  bool RegisterExitCallback(const uint32_t hProcess) {
@@ -12512,7 +12611,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    if (!result) {
      DWORD error = GetLastError();
      Logger::err(format_string("RegisterExitCallback() failed with error code %d", error));
-@@ -3491,22 +4101,52 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3491,22 +4113,52 @@
  
    Config::init(Config::App::Server);
    GlobalOptions::init();
@@ -12568,20 +12667,20 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
      Logger::info("Launched server with GUID " + gUniqueIdentifier.toString());
    } else {
      Logger::err("Server was invoked with invalid GUID! Unable to establish bridge, exiting...");
-@@ -3520,6 +4160,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3519,6 +4171,12 @@
+     return 1;
    }
    LocalFree(argList);
- 
++
 +  if(Config::getOption<bool>("client.steamWorkshopAvailabilityProxy", false)) {
 +    const auto name=gUniqueIdentifier.toString("L4D2BridgeWorkshopV1");
 +    Logger::info(l4d2_workshop::publisher.publisher(name.c_str())
 +      ? "L4D2_STEAM_WORKSHOP event=host-channel ready=1" : "L4D2_STEAM_WORKSHOP event=host-channel ready=0");
 +  }
-+
+ 
    initModuleBridge();
    initDeviceBridge();
- 
-@@ -3550,6 +4196,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3550,6 +4208,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12589,16 +12688,16 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -3563,6 +4210,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3562,6 +4221,8 @@
+     return 1;
    }
    const SentryShutdownOnExit sentryShutdownOnExit;
- 
-+  sampleHostMemory(true, "backend-loaded");
 +
++  sampleHostMemory(true, "backend-loaded");
+ 
    // (3) Send ACK to Client. Connection has been established
    Logger::info("Sync request received, sending ACK response...");
-   ServerMessage { Commands::Bridge_Ack, (uintptr_t) gpClientMessageChannel->getWorkerThreadId() };
-@@ -3585,6 +4234,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3585,6 +4246,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12606,7 +12705,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -3598,12 +4248,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3598,12 +4260,16 @@
    bSignalDone.store(true);
    moduleCmdProcessingThread.join();
  
@@ -12624,7 +12723,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    if (ghModule) {
      // Skip unloading the d3d9.dll for now, since it seems to be doing more harm than good
      // especially with other dependencies loaded by dxvk and threads that may deadlock due
-@@ -3619,6 +4273,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3619,6 +4285,10 @@
      hWait = NULL;
    }
  
@@ -12635,7 +12734,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..275dc89a61a21c8181f12af6354c85a0
    Logger::info("Shutdown cleanup successful, exiting now!");
  
    const auto timeEnd = std::chrono::high_resolution_clock::now();
-@@ -3633,4 +4291,4 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+@@ -3633,4 +4303,4 @@
      ServerMessage { Commands::Bridge_Ack };
    }
    return 0;
@@ -12775,20 +12874,23 @@ index 33c7d7982abe0790ad0a2f8b4547c92479a04019..5fc1d2fcdee796508d3476ccc6e92247
    if (!destroyReceived && gbBridgeRunning) {
 diff --git a/bridge/src/server/overlay_presenter.h b/bridge/src/server/overlay_presenter.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac22d7aaa69
+index 0000000000000000000000000000000000000000..1020bacb815c158969791e4b45b9cf1e1da3e970
 --- /dev/null
 +++ b/bridge/src/server/overlay_presenter.h
-@@ -0,0 +1,344 @@
+@@ -0,0 +1,438 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
 +#pragma once
 +
 +#include "overlay_input_diagnostics.h"
++#include "steam_ime_native.h"
 +#include <windows.h>
++#include <imm.h>
 +#include <tlhelp32.h>
 +#include <atomic>
 +#include <cstdint>
++#include <cstdio>
 +#include <cstring>
 +#include <functional>
 +#include <thread>
@@ -12813,9 +12915,12 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +  std::atomic<bool> m_steamCapture { false };
 +  bool m_steamInput = false;
 +  bool m_steamNativeInput = false;
++  bool m_imeTsfActivate = false, m_imeNativeWarmup = false, m_imeWarmupAttempted = false;
++  unsigned m_imeResultObservations = 0;
 +  HWND m_restoreFocus = nullptr;
 +  UINT m_steamMessage = 0;
 +  bool m_input = true, m_fallback = false, m_keyDown = false, m_tabDown = false;
++  bool m_systemKeys[256] {};
 +  UINT m_hotkey = VK_HOME, m_uiMessage = 0;
 +  int m_cursorChanges = 0;
 +  HHOOK m_keyboard = nullptr;
@@ -12862,26 +12967,81 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +      }
 +    }
 +  }
++  void warmupIme(HWND window) {
++    if (!m_imeNativeWarmup || m_imeWarmupAttempted || m_stop.load() || GetFocus() != window
++      || !foreground() || !m_steamCapture.load()) { return; }
++    m_imeWarmupAttempted = true;
++    const HWND helper = CreateWindowExW(0, L"EDIT", L"", WS_CHILD | ES_MULTILINE | ES_AUTOVSCROLL,
++      0, 0, 1, 1, window, nullptr, GetModuleHandleW(nullptr), nullptr);
++    const DWORD createError = helper ? ERROR_SUCCESS : GetLastError();
++    bool acquired = false, restored = false, destroyed = false;
++    if (helper) {
++      if (GetFocus() == window && foreground() && m_steamCapture.load() && !m_stop.load()) {
++        SetFocus(helper);
++      }
++      acquired = GetFocus() == helper;
++      // Do not refocus the game if it lost foreground during initialization.
++      if (GetFocus() == helper) {
++        SetFocus(foreground() && m_steamCapture.load() && !m_stop.load() ? window : nullptr);
++      }
++      restored = GetFocus() == window;
++      destroyed = DestroyWindow(helper) != FALSE;
++    }
++    if (m_log) {
++      char line[300] {};
++      std::snprintf(line, sizeof(line), "L4D2_STEAM_IME event=native-warmup thread=%lu created=%d focused=%d restored=%d destroyed=%d create_error=%lu scope=once-per-presenter-window",
++        GetCurrentThreadId(), helper != nullptr, acquired, restored, destroyed, createError);
++      m_log(line);
++    }
++  }
++  bool nativeFocus(HWND window) const {
++    const HWND focus = GetFocus();
++    if (!window || !focus) { return false; }
++    if (focus == window) { return true; }
++    DWORD process = 0;
++    const DWORD thread = GetWindowThreadProcessId(focus, &process);
++    return IsChild(window, focus) && process == GetCurrentProcessId()
++      && thread == GetCurrentThreadId();
++  }
++  bool systemShortcut(const KBDLLHOOKSTRUCT& key) {
++    const bool up = (key.flags & LLKHF_UP) != 0;
++    if (key.flags & LLKHF_INJECTED) {
++      if (up && key.vkCode < 256) { m_systemKeys[key.vkCode] = false; }
++      return true;
++    }
++    const bool left = key.vkCode == VK_LWIN, right = key.vkCode == VK_RWIN;
++    const bool tracked = key.vkCode < 256 && m_systemKeys[key.vkCode];
++    const bool windows = (GetAsyncKeyState(VK_LWIN) & 0x8000)
++      || (GetAsyncKeyState(VK_RWIN) & 0x8000);
++    if (!left && !right && !tracked && !windows) { return false; }
++    // Preserve a chord's key-up even when its Windows modifier was released first.
++    if (!left && !right && key.vkCode < 256) { m_systemKeys[key.vkCode] = !up; }
++    return true;
++  }
 +  void applyMode() {
 +    const bool active = m_capture.load();
 +    const HWND window = m_window.load();
 +    // Restore focus before disabling the child can clear its focus ownership.
-+    if (m_steamNativeInput && !m_steamCapture.load() && GetFocus() == window) {
++    if (m_steamNativeInput && !m_steamCapture.load() && nativeFocus(window)) {
 +      SetFocus(foreground() ? (IsWindow(m_restoreFocus) ? m_restoreFocus : m_parent) : nullptr);
 +      m_restoreFocus = nullptr;
 +      if (m_log) { m_log("L4D2_STEAM_INPUT event=native-focus released=1"); }
 +    }
 +    EnableWindow(window, active);
 +    if (m_steamNativeInput) {
-+      if (m_steamCapture.load() && foreground() && GetFocus() != window) {
++      if (m_steamCapture.load() && foreground() && !nativeFocus(window)) {
 +        const HWND previous = GetFocus();
-+        m_restoreFocus = previous && GetAncestor(previous, GA_ROOT) == GetAncestor(m_parent, GA_ROOT) ? previous : m_parent;
-+        SetFocus(window);
-+        if (m_log) {
-+          m_log(GetFocus() == window ? "L4D2_STEAM_INPUT event=native-focus acquired=1"
-+            : "L4D2_STEAM_INPUT event=native-focus acquired=0");
++        // An IME may temporarily focus its own top-level window during a switch.
++        if (!previous || GetAncestor(previous, GA_ROOT) == GetAncestor(m_parent, GA_ROOT)) {
++          m_restoreFocus = previous ? previous : m_parent;
++          SetFocus(window);
++          if (m_log) {
++            m_log(GetFocus() == window ? "L4D2_STEAM_INPUT event=native-focus acquired=1"
++              : "L4D2_STEAM_INPUT event=native-focus acquired=0");
++          }
 +        }
 +      }
++      warmupIme(window);
 +    }
 +    if (active && !m_cursorChanges) {
 +      do { ++m_cursorChanges; } while (ShowCursor(TRUE) < 0 && m_cursorChanges < 16);
@@ -12901,8 +13061,36 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +        && reinterpret_cast<HWND>(lParam) == self->m_parent && wParam <= 1) {
 +        self->steamCapture(wParam != 0); return 0;
 +      }
++      if (self->m_steamNativeInput && self->m_steamCapture.load()
++        && message == WM_IME_COMPOSITION && (lParam & GCS_RESULTSTR)) {
++        // Steam's WH_CALLWNDPROC observer has already committed the result.
++        // DefWindowProc would pass it to the default IME window again, producing
++        // a second character stream. Leave all non-result messages unchanged.
++        if (self->m_diagnostics.enabled() && self->m_log && self->m_imeResultObservations < 32) {
++          const DWORD error = GetLastError();
++          char line[220] {};
++          std::snprintf(line, sizeof(line), "L4D2_STEAM_IME event=result-owned-by-steam sequence=%u flags=0x%lx default_forwarded=0 tick=%llu",
++            ++self->m_imeResultObservations, static_cast<unsigned long>(lParam), GetTickCount64());
++          try { self->m_log(line); } catch (...) { }
++          SetLastError(error);
++        }
++        return 0;
++      }
++      if ((message == WM_INPUTLANGCHANGE || (message == WM_ACTIVATEAPP && wParam))
++        && self->m_steamNativeInput && self->m_steamCapture.load()) {
++        PostMessageW(hwnd, kMode, 0, 0);
++      }
 +      if (message == kMode) { self->applyMode(); return 0; }
-+      if (message == WM_TIMER) { self->resize(); return 0; }
++      if (message == WM_TIMER) {
++        self->resize();
++        // Recover native focus after input-method or foreground transitions.
++        // applyMode still leaves a temporary IME top-level window alone.
++        if (self->m_steamNativeInput && self->m_steamCapture.load()
++          && self->foreground() && !self->nativeFocus(hwnd)) {
++          self->applyMode();
++        }
++        return 0;
++      }
 +      if (message == WM_MOUSEACTIVATE) {
 +        // A user click may reactivate the game without focusing the Host child.
 +        if (self->m_capture.load() && !self->foreground() && IsWindow(self->m_parent)) {
@@ -12922,18 +13110,18 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +  }
 +  static LRESULT CALLBACK keyHook(int code, WPARAM wParam, LPARAM lParam) {
 +    auto* self = s_active.load();
-+    if (code != HC_ACTION || !self || !self->foreground()) { return CallNextHookEx(nullptr, code, wParam, lParam); }
++    if (code != HC_ACTION || !self) { return CallNextHookEx(nullptr, code, wParam, lParam); }
 +    const auto& key = *reinterpret_cast<const KBDLLHOOKSTRUCT*>(lParam);
-+    // Preserve operating-system switching shortcuts and ignore injected input.
-+    if ((key.flags & LLKHF_INJECTED) || key.vkCode == VK_LWIN || key.vkCode == VK_RWIN
-+      || (key.vkCode == VK_TAB && (key.flags & LLKHF_ALTDOWN))) {
++    // System chords keep their real queue events across focus and modifier changes.
++    if (self->systemShortcut(key)
++      || !self->foreground() || (key.vkCode == VK_TAB && (key.flags & LLKHF_ALTDOWN))) {
 +      return CallNextHookEx(nullptr, code, wParam, lParam);
 +    }
 +    const bool up = (key.flags & LLKHF_UP) != 0;
 +    const bool captured = self->m_capture.load();
-+    if (self->m_steamNativeInput && self->m_steamCapture.load()
-+      && GetFocus() == self->m_window.load()) {
-+      // The focused Host window receives the real OS queue events and state.
++    if (self->m_steamNativeInput && self->m_steamCapture.load()) {
++      // TSF and Steam child windows keep native events during focus transitions.
++      // Posting copies here would lose queue modifiers and bypass composition.
 +      // Existing client UI-active hooks suppress gameplay input separately.
 +      return CallNextHookEx(nullptr, code, wParam, lParam);
 +    }
@@ -12965,6 +13153,9 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +  }
 +  void worker() {
 +    m_threadId = GetCurrentThreadId();
++    m_imeWarmupAttempted = false;
++    m_imeResultObservations = 0;
++    ImeThread ime(m_imeTsfActivate, m_log);
 +    MSG message {};
 +    PeekMessageW(&message, nullptr, WM_USER, WM_USER, PM_NOREMOVE);
 +    const HINSTANCE instance = GetModuleHandleW(nullptr);
@@ -13013,8 +13204,10 @@ index 0000000000000000000000000000000000000000..f96ee11d89f45abd832e65a2568e7ac2
 +  }
 +public:
 +  explicit Presenter(bool input = true, UINT hotkey = VK_HOME, bool fallback = false,
-+                     std::function<void(const char*)> log = {}, bool diagnostics = false, bool steamInput = false, bool steamNativeInput = false)
++                     std::function<void(const char*)> log = {}, bool diagnostics = false, bool steamInput = false, bool steamNativeInput = false, bool imeTsfActivate = true, bool imeNativeWarmup = true)
 +    : m_steamInput(steamInput), m_steamNativeInput(steamInput && steamNativeInput), m_input(input), m_fallback(fallback), m_hotkey(hotkey), m_log(std::move(log)), m_diagnostics(diagnostics, "host", m_log) {
++    m_imeTsfActivate = m_input && m_steamNativeInput && imeTsfActivate;
++    m_imeNativeWarmup = m_input && m_steamNativeInput && imeNativeWarmup;
 +    if (m_input) { m_uiMessage = RegisterWindowMessageW(L"UWM_REMIX_UIACTIVE_MSG"); }
 +    if (m_input && m_steamInput) { m_steamMessage = RegisterWindowMessageW(L"L4D2BRIDGE_STEAM_ACTIVE"); }
 +  }
@@ -13264,10 +13457,10 @@ index 0000000000000000000000000000000000000000..2e52a4583970b630709a1cea583ffa31
 +}
 diff --git a/bridge/src/server/steam_availability_diagnostics.h b/bridge/src/server/steam_availability_diagnostics.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db61200e6d
+index 0000000000000000000000000000000000000000..d1dcec6d6df308eb9c68a35da26a507932ef1c12
 --- /dev/null
 +++ b/bridge/src/server/steam_availability_diagnostics.h
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,80 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -13279,6 +13472,13 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +#include "diagnostic_file_hash.h"
 +#include "steam_workshop_status.h"
 +namespace l4d2_steam_availability {
++// Full-file identities of the reviewed user samples. Getter decoding below
++// still validates the loaded instructions and image bounds; unknown files fail closed.
++inline constexpr const char* rendererHashes[] = {
++  "59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee", // 10.96.30.42
++  "cbde033f76ac070ad8b7d25328e8acfbbabae6e40487f40dfcf6203b6c932c0b"  // 11.12.30.7
++};
++inline constexpr size_t rendererHashCount=sizeof(rendererHashes)/sizeof(rendererHashes[0]);
 +// Reproduce the exact supplied renderer getter's single byte read. Never call
 +// its undocumented export, initialize another SDK context, or change a byte.
 +inline uintptr_t decode(uintptr_t base,size_t size,uintptr_t getter,const BYTE code[8]) {
@@ -13313,7 +13513,8 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +        if(!waiting){waiting=true;emit(logger,"L4D2_STEAM_WEB_HOST event=waiting reason=renderer-not-loaded");}return;
 +      }
 +      attempted=true;wchar_t path[MAX_PATH]{};
-+      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFile(path,"59057f983ae6f02b7eb2495bf65e0430129dd81dff8d9628c764bd1a07e23fee")){
++      // Hash once at initial identification, including when the second sample matches.
++      if(!GetModuleFileNameW(module,path,MAX_PATH) || !l4d2_file_hash::hashFileAny(path,rendererHashes,rendererHashCount)){
 +        emit(logger,"L4D2_STEAM_WEB_HOST event=unsupported reason=renderer-file-hash-mismatch");return;
 +      }
 +      const auto getter=GetProcAddress(module,"IsOverlayEnabled");
@@ -13338,6 +13539,80 @@ index 0000000000000000000000000000000000000000..f3d4e3a5ba0ac7d70ac906adc35517db
 +      static_cast<unsigned>(value),GetCurrentProcessId(),now);emit(logger,line);
 +    #endif
 +  }
++};
++}
+diff --git a/bridge/src/server/steam_ime_native.h b/bridge/src/server/steam_ime_native.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..4e68cea4a4ac162f8d0d8ec4daeb786fe162e726
+--- /dev/null
++++ b/bridge/src/server/steam_ime_native.h
+@@ -0,0 +1,68 @@
++// SPDX-License-Identifier: MIT
++// Copyright (c) 2026 yeyunyyds.
++// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
++#pragma once
++#include <windows.h>
++#include <msctf.h>
++#include <objbase.h>
++#include <cstring>
++#include <cstdio>
++#include <functional>
++#include <utility>
++
++namespace l4d2_overlay {
++// Owning Presenter thread only; pairs only our COM and TSF activations.
++class ImeThread {
++  struct ErrorGuard { DWORD value = GetLastError(); ~ErrorGuard() { SetLastError(value); } };
++  using Init = HRESULT(WINAPI*)(LPVOID, DWORD);
++  using Uninit = void(WINAPI*)();
++  using Manager = HRESULT(WINAPI*)(ITfThreadMgr**);
++  HMODULE m_ole = nullptr, m_ctf = nullptr;
++  Uninit m_uninit = nullptr;
++  ITfThreadMgr* m_manager = nullptr;
++  bool m_comOwned = false, m_activated = false;
++  HRESULT m_com = E_NOTIMPL, m_create = E_NOTIMPL, m_activate = E_NOTIMPL;
++  TfClientId m_client = TF_CLIENTID_NULL;
++  template<class T> static T resolve(HMODULE module, const char* name) {
++    const FARPROC raw = module ? GetProcAddress(module, name) : nullptr;
++    T result = nullptr;
++    static_assert(sizeof(raw) == sizeof(result), "Win32 procedure size");
++    std::memcpy(&result, &raw, sizeof(result)); return result;
++  }
++public:
++  explicit ImeThread(bool enabled, const std::function<void(const char*)>& log = {}) {
++    if (!enabled) { return; }
++    ErrorGuard guard;
++    m_ole = LoadLibraryExW(L"ole32.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
++    const auto init = resolve<Init>(m_ole, "CoInitializeEx");
++    m_uninit = resolve<Uninit>(m_ole, "CoUninitialize");
++    if (init && m_uninit) { m_com = init(nullptr, COINIT_APARTMENTTHREADED); m_comOwned = SUCCEEDED(m_com); }
++    if (m_comOwned) {
++      m_ctf = LoadLibraryExW(L"msctf.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
++      const auto get = resolve<Manager>(m_ctf, "TF_GetThreadMgr");
++      const auto create = resolve<Manager>(m_ctf, "TF_CreateThreadMgr");
++      if (get) { m_create = get(&m_manager); }
++      if (!m_manager && create) { m_create = create(&m_manager); }
++      if (m_manager) { m_activate = m_manager->Activate(&m_client); m_activated = SUCCEEDED(m_activate); }
++    }
++    if (log) {
++      char line[260] {};
++      std::snprintf(line, sizeof(line), "L4D2_STEAM_IME event=thread-init thread=%lu com_hr=0x%08lx manager_hr=0x%08lx activate_hr=0x%08lx own_activation=%d",
++        GetCurrentThreadId(), static_cast<unsigned long>(m_com), static_cast<unsigned long>(m_create), static_cast<unsigned long>(m_activate), m_activated);
++      log(line);
++    }
++  }
++  ~ImeThread() {
++    ErrorGuard guard;
++    if (m_activated && m_manager) { m_manager->Deactivate(); }
++    if (m_manager) { m_manager->Release(); }
++    if (m_comOwned && m_uninit) { m_uninit(); }
++    if (m_ctf) { FreeLibrary(m_ctf); }
++    if (m_ole) { FreeLibrary(m_ole); }
++  }
++  ImeThread(const ImeThread&) = delete;
++  ImeThread& operator=(const ImeThread&) = delete;
++  HRESULT comResult() const { return m_com; }
++  bool active() const { return m_activated; }
 +};
 +}
 diff --git a/bridge/src/server/steam_window_diagnostics.h b/bridge/src/server/steam_window_diagnostics.h
@@ -15648,10 +15923,10 @@ index 0000000000000000000000000000000000000000..859094725b069aa6ca3b22474f34b8dc
 +}
 diff --git a/bridge/src/util/diagnostic_file_hash.h b/bridge/src/util/diagnostic_file_hash.h
 new file mode 100644
-index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65eea79563
+index 0000000000000000000000000000000000000000..50f7084fe4b876d41aea71d182809a6f74150413
 --- /dev/null
 +++ b/bridge/src/util/diagnostic_file_hash.h
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,44 @@
 +// SPDX-License-Identifier: MIT
 +// Copyright (c) 2026 yeyunyyds.
 +// All newly added implementation code in this fork was generated by OpenAI Codex from prompts and specifications provided by yeyunyyds.
@@ -15662,8 +15937,14 @@ index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65
 +#include <cstring>
 +namespace l4d2_file_hash {
 +struct ErrorGuard { DWORD saved=GetLastError(); ~ErrorGuard(){SetLastError(saved);} };
-+inline bool hashFile(const wchar_t* path,const char* expected) {
++inline bool matchesAny(const char* digest,const char* const* expected,size_t count) {
++  if(!digest || !expected)return false;
++  for(size_t i=0;i<count;++i)if(expected[i] && std::strcmp(digest,expected[i])==0)return true;
++  return false;
++}
++inline bool hashFileAny(const wchar_t* path,const char* const* expected,size_t expectedCount) {
 +    ErrorGuard error;
++    if(!path || !expected || !expectedCount)return false;
 +    HMODULE crypto=LoadLibraryExW(L"bcrypt.dll",nullptr,LOAD_LIBRARY_SEARCH_SYSTEM32);if(!crypto)return false;
 +    const auto open=reinterpret_cast<decltype(&BCryptOpenAlgorithmProvider)>(GetProcAddress(crypto,"BCryptOpenAlgorithmProvider"));
 +    const auto create=reinterpret_cast<decltype(&BCryptCreateHash)>(GetProcAddress(crypto,"BCryptCreateHash"));
@@ -15680,12 +15961,15 @@ index 0000000000000000000000000000000000000000..f469568df941341e41284d5d18416d65
 +        std::array<BYTE,65536> buffer{};DWORD count=0;bool ok=true;
 +        for(;;){if(!ReadFile(file,buffer.data(),static_cast<DWORD>(buffer.size()),&count,nullptr)){ok=false;break;}if(!count)break;if(add(hash,buffer.data(),count,0)<0){ok=false;break;}}
 +        BYTE digest[32]{};
-+        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=std::strcmp(hex,expected)==0;}
++        if(ok && finish(hash,digest,sizeof(digest),0)>=0){char hex[65]{};const char* digits="0123456789abcdef";for(size_t i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}match=matchesAny(hex,expected,expectedCount);}
 +      }
 +      if(hash)destroy(hash);if(algorithm)close(algorithm,0);if(file!=INVALID_HANDLE_VALUE)CloseHandle(file);
 +    }
 +    FreeLibrary(crypto);return match;
 +  }
++inline bool hashFile(const wchar_t* path,const char* expected) {
++  return hashFileAny(path,&expected,1);
++}
 +}
 diff --git a/bridge/src/util/exception_diagnostics.cpp b/bridge/src/util/exception_diagnostics.cpp
 new file mode 100644

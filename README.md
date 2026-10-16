@@ -8,7 +8,9 @@
 
 ## 下载与安装（先看这里）
 
-**v1.5.17 更新 NVIDIA Bridge 运行时初始化与 Host 状态同步，并移除 Windows/Linux 全局 NVIDIA 驱动版本门槛；上游 616.92 下限提升未编入。** 默认不再因统一驱动版本拒绝创建设备，但旧驱动仍需满足实际 Vulkan/RTX 功能能力；本次没有验证首次启动或开机冷启动闪退，也没有新增游戏性能或长期稳定性测试。x86 Client、x86 Host 与 x64 Host 必须成套更新。默认 x64、C8、静态映射关闭。如果出现 1% low 下降、掉帧或帧数不稳定，请返回使用 [v1.1.10](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases/tag/v1.1.10-nightly-20261009-3a75b814-r44c3dfa4ec5c-b38052959126.1)。退出游戏和所有 Host 后，成套恢复 Client、两个 Host 和旧版两个 GPLALL 后端，以撤销此前 GPU 改动。
+**v1.5.17 更新 NVIDIA Bridge 运行时初始化与 Host 状态同步。** x86 Client、x86 Host 与 x64 Host 必须成套更新。默认 x64、C8、静态映射关闭。本次没有验证首次启动或开机冷启动闪退，也没有新增游戏性能或长期稳定性测试。
+
+本仓库同时将 NVIDIA Remix 渲染器源码中的 Windows、GFN 与 Linux 全局驱动版本门槛默认关闭，既不保留 `610.47`，也不采用 `616.92` 下限。这部分 `src/dxvk` 源码不参与本包编译；随包渲染后端仍为独立固定的 GPLALL，因此该源码修改不代表玩家包新增了旧驱动兼容性。详见 [NVIDIA 源码采用范围](docs/NVIDIA-UPSTREAM-UPDATES.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.52.1、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 88 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 

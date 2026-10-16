@@ -22,6 +22,11 @@ PROTECTED_PROJECT = {'tests/volume_layout_test.cpp': '8ac62a56526cbadaecbe927856
 VOLUME_HANDLERS = {'IDirect3DVolume9_UnlockBox': '7c5508e966550b6e6737a139ce9a5fb395f6370f8afbbffd148bdec47aec27e7', 'IDirect3DVolumeTexture9_UnlockBox': '27eb0c58529901ad0cfa9d90e3147cb8c832fe81e7e3c09735918560dbfb5a09'}
 
 
+PROTECTED_RUNTIME['bridge/src/client/retention_database.h'] = (
+    '12ec56361ffead3e253510eced5eb44ac3370145ac94fac982a7b41b5e31ee32'
+)
+
+
 def normalize_runtime(data):
     data = data.replace(b"\r\n", b"\n")
     return re.sub(rb'(Logger::info\("Project version: )[0-9]+\.[0-9]+(?:\.[0-9]+)?("\);)',
