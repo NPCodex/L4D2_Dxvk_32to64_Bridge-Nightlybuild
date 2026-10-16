@@ -3787,7 +3787,7 @@ index 20a5e2b6b6f6b19da9ceb60e0213039dd6cc2c27..ae74cf278bc3c362dc33f9d60aac5b52
      : LockableBuffer((IDirect3DIndexBuffer9*)nullptr, pDevice, desc) {
    }
 diff --git a/bridge/src/client/d3d9_lss.cpp b/bridge/src/client/d3d9_lss.cpp
-index c718df452b8f8215e5e58d9a0e202f82a82c8032..81dd8a14a452f0e7b3c62ca392dacbc784caf3f7 100644
+index c718df452b8f8215e5e58d9a0e202f82a82c8032..6adbcd9836d37757c5fe6d646aba320429c810de 100644
 --- a/bridge/src/client/d3d9_lss.cpp
 +++ b/bridge/src/client/d3d9_lss.cpp
 @@ -1,3 +1,7 @@
@@ -3972,7 +3972,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..81dd8a14a452f0e7b3c62ca392dacbc7
    Logger::info("Ack received! Handshake completed! Telling server to continue waiting for commands...");
    ClientMessage { Commands::Bridge_Continue };
  
-@@ -390,10 +443,39 @@
+@@ -390,23 +443,60 @@
    }
  }
  
@@ -4008,24 +4008,43 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..81dd8a14a452f0e7b3c62ca392dacbc7
 +}
 +
  bool initFileSys(const HMODULE hModule) {
-   const auto hModulePath = getModuleFilePath(hModule);
+-  const auto hModulePath = getModuleFilePath(hModule);
 -  auto remixPath = hModulePath.parent_path();
 -
-   bool bNeedToFindExecutable = hModulePath.extension().compare(".exe") != 0;
-   fspath executablePath = "";
-   if (bNeedToFindExecutable) {
-@@ -405,8 +487,9 @@
-     executablePath = fspath(executablePathVec.data());
+-  bool bNeedToFindExecutable = hModulePath.extension().compare(".exe") != 0;
+-  fspath executablePath = "";
+-  if (bNeedToFindExecutable) {
+-    auto executablePathVec = createPathVec();
+-    if(GetModuleFileName(NULL,executablePathVec.data(), executablePathVec.size()) == 0) {
++  // Keep native paths through filesystem/config initialization. Narrowing here
++  // loses characters outside the active Windows code page.
++  std::vector<wchar_t> pathBuffer(32768);
++  const DWORD moduleLength = GetModuleFileNameW(hModule, pathBuffer.data(), static_cast<DWORD>(pathBuffer.size()));
++  if (moduleLength == 0 || moduleLength >= pathBuffer.size()) {
++    Logger::err("Failed to find bridge module path!");
++    return false;
++  }
++  const fspath hModulePath(std::wstring(pathBuffer.data(), moduleLength));
++  fspath executablePath = hModulePath;
++  if (hModulePath.extension().compare(".exe") != 0) {
++    const DWORD executableLength = GetModuleFileNameW(nullptr, pathBuffer.data(), static_cast<DWORD>(pathBuffer.size()));
++    if (executableLength == 0 || executableLength >= pathBuffer.size()) {
+       Logger::err("Failed to find executable path!");
+       return false;
+     }
+-    executablePath = fspath(executablePathVec.data());
++    executablePath = fspath(std::wstring(pathBuffer.data(), executableLength));
    }
    const auto exeDir = executablePath.parent_path();
-+  const auto remixPath = l4d2_paths::runtimeBase(hModulePath.parent_path(), ".l4d2bridge");
-   dxvk::util::RtxFileSys::init(exeDir.string(), remixPath.string());
+-  dxvk::util::RtxFileSys::init(exeDir.string(), remixPath.string());
 -  return true;
++  const auto remixPath = l4d2_paths::runtimeBase(hModulePath.parent_path(), ".l4d2bridge");
++  dxvk::util::RtxFileSys::init(exeDir, remixPath);
 +  return dxvk::util::RtxFileSys::isInitialized();
  }
  
  /*
-@@ -469,26 +552,61 @@
+@@ -469,26 +559,61 @@
          return false;
        }
      }
@@ -4091,7 +4110,7 @@ index c718df452b8f8215e5e58d9a0e202f82a82c8032..81dd8a14a452f0e7b3c62ca392dacbc7
  
      DInputHookAttach();
  
-@@ -555,6 +673,13 @@
+@@ -555,6 +680,13 @@
      // Clean up resources
      delete gpPresent;
  
@@ -10416,7 +10435,7 @@ index 0000000000000000000000000000000000000000..c6416918880ffa55901a70152eaaa570
 +}
 +}
 diff --git a/bridge/src/server/main.cpp b/bridge/src/server/main.cpp
-index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b355a4820 100644
+index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..82132a303e2b8c99a3c61263fdd4f4cc4411bb70 100644
 --- a/bridge/src/server/main.cpp
 +++ b/bridge/src/server/main.cpp
 @@ -1,3 +1,7 @@
@@ -12611,7 +12630,54 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
    if (!result) {
      DWORD error = GetLastError();
      Logger::err(format_string("RegisterExitCallback() failed with error code %d", error));
-@@ -3491,22 +4113,52 @@
+@@ -3422,21 +4044,31 @@
+ }
+ 
+ static inline bool initFileSys() {
+-  auto parentPid = bridge_util::getParentPid();
+-  DWORD accessRights = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
+-  HANDLE processHandle = OpenProcess(accessRights, FALSE, parentPid);
+-  {
+-    auto executable32PathVec = createPathVec();
+-    if(GetModuleFileNameEx(processHandle, NULL, executable32PathVec.data(), executable32PathVec.size()) == 0) {
+-      Logger::err("Failed to find executable path!");
+-      return false;
+-    }
+-    const fspath executable32Path(executable32PathVec.data());
+-    const auto exe32Dir = executable32Path.parent_path();
+-    const auto remixDir = bridge_util::getModuleFilePath().parent_path().parent_path();
+-    dxvk::util::RtxFileSys::init(exe32Dir.string(), remixDir.string());
+-  }
+-  return true;
++  const auto parentPid = bridge_util::getParentPid();
++  const DWORD accessRights = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
++  const HANDLE processHandle = OpenProcess(accessRights, FALSE, parentPid);
++  if (!processHandle) {
++    Logger::err("Failed to open parent process for filesystem initialization!");
++    return false;
++  }
++  std::vector<wchar_t> pathBuffer(32768);
++  const DWORD executableLength = GetModuleFileNameExW(processHandle, nullptr, pathBuffer.data(), static_cast<DWORD>(pathBuffer.size()));
++  CloseHandle(processHandle);
++  if (executableLength == 0 || executableLength >= pathBuffer.size()) {
++    Logger::err("Failed to find executable path!");
++    return false;
++  }
++  const fspath executable32Path(std::wstring(pathBuffer.data(), executableLength));
++  const DWORD moduleLength = GetModuleFileNameW(nullptr, pathBuffer.data(), static_cast<DWORD>(pathBuffer.size()));
++  if (moduleLength == 0 || moduleLength >= pathBuffer.size()) {
++    Logger::err("Failed to find bridge host path!");
++    return false;
++  }
++  const fspath modulePath(std::wstring(pathBuffer.data(), moduleLength));
++  const auto exe32Dir = executable32Path.parent_path();
++  const auto remixDir = modulePath.parent_path().parent_path();
++  dxvk::util::RtxFileSys::init(exe32Dir, remixDir);
++  return dxvk::util::RtxFileSys::isInitialized();
+ }
+ 
+ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow) {
+@@ -3491,22 +4123,52 @@
  
    Config::init(Config::App::Server);
    GlobalOptions::init();
@@ -12667,7 +12733,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
      Logger::info("Launched server with GUID " + gUniqueIdentifier.toString());
    } else {
      Logger::err("Server was invoked with invalid GUID! Unable to establish bridge, exiting...");
-@@ -3519,6 +4171,12 @@
+@@ -3519,6 +4181,12 @@
      return 1;
    }
    LocalFree(argList);
@@ -12680,7 +12746,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
  
    initModuleBridge();
    initDeviceBridge();
-@@ -3550,6 +4208,7 @@
+@@ -3550,6 +4218,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12688,7 +12754,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
    }
    Logger::info("Registering exit callback in case client exits unexpectedly.");
    RegisterExitCallback(synResponse.pHandle);
-@@ -3562,6 +4221,8 @@
+@@ -3562,6 +4231,8 @@
      return 1;
    }
    const SentryShutdownOnExit sentryShutdownOnExit;
@@ -12697,7 +12763,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
  
    // (3) Send ACK to Client. Connection has been established
    Logger::info("Sync request received, sending ACK response...");
-@@ -3585,6 +4246,7 @@
+@@ -3585,6 +4256,7 @@
    // Pulling default data sent from client to have the data queue in sync
    {
      PULL_U(uid);
@@ -12705,7 +12771,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
    }
    // (5) Ready to listen for incoming commands
    Logger::info("Handshake completed! Now waiting for incoming commands...");
-@@ -3598,12 +4260,16 @@
+@@ -3598,12 +4270,16 @@
    bSignalDone.store(true);
    moduleCmdProcessingThread.join();
  
@@ -12723,7 +12789,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
    if (ghModule) {
      // Skip unloading the d3d9.dll for now, since it seems to be doing more harm than good
      // especially with other dependencies loaded by dxvk and threads that may deadlock due
-@@ -3619,6 +4285,10 @@
+@@ -3619,6 +4295,10 @@
      hWait = NULL;
    }
  
@@ -12734,7 +12800,7 @@ index cd92f2f978ea680b3520fe4b4e0a0d263a2a96d2..c5f8e5f33bc087c468f6cae90486fa2b
    Logger::info("Shutdown cleanup successful, exiting now!");
  
    const auto timeEnd = std::chrono::high_resolution_clock::now();
-@@ -3633,4 +4303,4 @@
+@@ -3633,4 +4313,4 @@
      ServerMessage { Commands::Bridge_Ack };
    }
    return 0;
@@ -21425,7 +21491,7 @@ index 5c4155f7176809549a4ede0b840bacaecf638b3b..3ad0dcbd53be6f30920be21dc2a6d72e
  #if defined(REMIX_BRIDGE_CLIENT) && defined(REMIX_BRIDGE_SERVER)
  #error "Both REMIX_BRIDGE_CLIENT and REMIX_BRIDGE_SERVER are defined. Use the vcvars platform that matches the Meson build directory (x86 for *_x86, x64 for *_x64)."
 diff --git a/bridge/src/util/util_filesys.cpp b/bridge/src/util/util_filesys.cpp
-index d78c5ed2601c8e06831dae3ee162b7cfbca9d675..7a8bd88ae3ffc6c68b2104edc5d69250513a9f2c 100644
+index d78c5ed2601c8e06831dae3ee162b7cfbca9d675..645d365650e44fe86bafd70f4dbb92690c4bf434 100644
 --- a/bridge/src/util/util_filesys.cpp
 +++ b/bridge/src/util/util_filesys.cpp
 @@ -1,3 +1,7 @@
@@ -21436,39 +21502,64 @@ index d78c5ed2601c8e06831dae3ee162b7cfbca9d675..7a8bd88ae3ffc6c68b2104edc5d69250
  /*
  * Copyright (c) 2024, NVIDIA CORPORATION. All rights reserved.
  *
-@@ -85,7 +89,7 @@ void RtxFileSys::init(const std::string rootPath, const std::string remixPath) {
-   s_rootPath = std::filesystem::weakly_canonical(std::filesystem::absolute(fspath(rootPath)));
-   s_remixPath = std::filesystem::weakly_canonical(std::filesystem::absolute(fspath(remixPath)));
+@@ -65,7 +69,7 @@
+ RtxFileSys::fspath RtxFileSys::s_runtimePath;
+ RtxFileSys::PathArray RtxFileSys::s_paths;
+ 
+-void RtxFileSys::init(const std::string rootPath, const std::string remixPath) {
++void RtxFileSys::init(const fspath& rootPath, const fspath& remixPath) {
+   if (s_bInit) {
+     Logger::err("[RtxFileSys] Already init.");
+     return;
+@@ -75,17 +79,17 @@
+ 
+   std::error_code ec;
+   if(!std::filesystem::exists(rootPath, ec)) {
+-    Logger::err(format("[RtxFileSys] Cannot resolve RTX filesystem, base path does not exist: ", rootPath));
++    Logger::err(format("[RtxFileSys] Cannot resolve RTX filesystem, base path does not exist: ", rootPath.u8string()));
+     return;
+   }
+   if(!std::filesystem::exists(remixPath, ec)) {
+-    Logger::err(format("[RtxFileSys] Cannot resolve Remix folder, path does not exist: ", remixPath));
++    Logger::err(format("[RtxFileSys] Cannot resolve Remix folder, path does not exist: ", remixPath.u8string()));
+     return;
+   }
+-  s_rootPath = std::filesystem::weakly_canonical(std::filesystem::absolute(fspath(rootPath)));
+-  s_remixPath = std::filesystem::weakly_canonical(std::filesystem::absolute(fspath(remixPath)));
++  s_rootPath = std::filesystem::weakly_canonical(std::filesystem::absolute(rootPath));
++  s_remixPath = std::filesystem::weakly_canonical(std::filesystem::absolute(remixPath));
    s_runtimePath = s_remixPath / runtimeDirName(getNativeArchString());
 -  
 +
    if (!std::filesystem::exists(s_runtimePath, ec)) {
      // Platform preferred runtime does not exist - fallback to x64 runtime
      Logger::warn(format("[RtxFileSys] Remix runtime for ", getNativeArchString(), " platform does not exist. Falling back to x64."));
-@@ -114,9 +118,9 @@ void RtxFileSys::init(const std::string rootPath, const std::string remixPath) {
+@@ -114,9 +118,9 @@
  }
  
  void RtxFileSys::print() {
 -  Logger::debug(format("[RtxFileSys] Mods dir:    ", s_paths[Mods]));
 -  Logger::debug(format("[RtxFileSys] Capture dir: ", s_paths[Captures]));
 -  Logger::debug(format("[RtxFileSys] Logs dir:    ", s_paths[Logs]));
-+  Logger::debugLazy([&]() { return format("[RtxFileSys] Mods dir:    ", s_paths[Mods]); });
-+  Logger::debugLazy([&]() { return format("[RtxFileSys] Capture dir: ", s_paths[Captures]); });
-+  Logger::debugLazy([&]() { return format("[RtxFileSys] Logs dir:    ", s_paths[Logs]); });
++  Logger::debugLazy([&]() { return format("[RtxFileSys] Mods dir:    ", s_paths[Mods].u8string()); });
++  Logger::debugLazy([&]() { return format("[RtxFileSys] Capture dir: ", s_paths[Captures].u8string()); });
++  Logger::debugLazy([&]() { return format("[RtxFileSys] Logs dir:    ", s_paths[Logs].u8string()); });
  }
  
  void RtxFileSys::mkDirs(const fspath& path) {
-@@ -125,7 +129,7 @@ void RtxFileSys::mkDirs(const fspath& path) {
+@@ -125,8 +129,8 @@
      ctorPath /= part;
      ctorPath = absolute(ctorPath);
      if(!std::filesystem::is_directory(ctorPath)) {
 -      Logger::debug(format("Creating dir: ", ctorPath));
-+      Logger::debugLazy([&]() { return format("Creating dir: ", ctorPath); });
-       CreateDirectoryA(ctorPath.string().c_str(), nullptr);
+-      CreateDirectoryA(ctorPath.string().c_str(), nullptr);
++      Logger::debugLazy([&]() { return format("Creating dir: ", ctorPath.u8string()); });
++      CreateDirectoryW(ctorPath.c_str(), nullptr);
      }
    }
+ }
 diff --git a/bridge/src/util/util_filesys.h b/bridge/src/util/util_filesys.h
-index dc8d28463687bd5ebfbab440aae28c153c46c8bb..c15e56462349dae72a929aeda78e3001e1bf0477 100644
+index dc8d28463687bd5ebfbab440aae28c153c46c8bb..4b6ba1df120f76231ac4eac8ca4f25ed2d056d3f 100644
 --- a/bridge/src/util/util_filesys.h
 +++ b/bridge/src/util/util_filesys.h
 @@ -1,3 +1,7 @@
@@ -21479,7 +21570,16 @@ index dc8d28463687bd5ebfbab440aae28c153c46c8bb..c15e56462349dae72a929aeda78e3001
  /*
  * Copyright (c) 2024, NVIDIA CORPORATION. All rights reserved.
  *
-@@ -96,7 +100,7 @@ public:
+@@ -71,7 +75,7 @@
+   static PathArray s_paths;
+ 
+ public:
+-  static void init(const std::string rootPath, const std::string remixPath);
++  static void init(const fspath& rootPath, const fspath& remixPath);
+   static bool isInitialized() {
+     return s_bInit;
+   }
+@@ -96,7 +100,7 @@
      if (arch && 0 == std::strcmp(arch, bridge_util::RTX_ARCH_ARM64)) {
        return ".trex_arm64";
      }

@@ -66,7 +66,7 @@ foreach ($variant in $variants) {
   $expected = if ($Architecture -eq 'x86') { 0x14c } else { 0x8664 }
   if ($machine -ne $expected) { throw 'Wrong native fixture architecture' }
   $modes = switch ($variant) {
-    'real' { @('bin-client','root-client','native-fallback','native-preferred','missing-root','missing-remix','missing-executable','reinitialize') }
+    'real' { @('bin-client','root-client','unicode-root-client','native-fallback','native-preferred','missing-root','missing-remix','missing-executable','reinitialize') }
     'no-root-routing' { @('root-client') }
     'no-fallback' { @('native-fallback') }
     'false-success' { @('missing-root') }

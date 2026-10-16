@@ -14,15 +14,13 @@
 #include "config/config.h"
 #include "config/config_document.h"
 #include "util_filesys.h"
-// Test only Config; logging and unrelated UserSettings filesystem state are inert.
+// Exercise Config with the actual runtime filesystem; only logging is inert.
 namespace bridge_util {
+Logger* Logger::logger = nullptr;
+void Logger::debug(const std::string&) {}
 void Logger::info(const std::string& text) { puts(text.c_str()); }
 void Logger::warn(const std::string&) {}
 void Logger::err(const std::string& text) { puts(text.c_str()); }
-}
-namespace dxvk::util {
-bool RtxFileSys::s_bInit = false;
-std::filesystem::path RtxFileSys::s_rootPath;
 }
 int wmain(int argc, wchar_t** argv) {
   wchar_t filename[32768] {}; assert(GetModuleFileNameW(nullptr, filename, 32768));
@@ -34,8 +32,14 @@ int wmain(int argc, wchar_t** argv) {
   { std::ofstream output(configPath,std::ios::binary); output << original; assert(output.good()); }
   wchar_t temporary[MAX_PATH] {}; assert(GetTempPathW(MAX_PATH, temporary));
   assert(SetCurrentDirectoryW(temporary));
+  // Host fixture runs beside bridge.conf inside the runtime directory;
+  // Client runs beside that directory. Both must ignore the unrelated CWD.
+  const auto remixDirectory = server ? directory.parent_path() : directory;
+  dxvk::util::RtxFileSys::init(directory, remixDirectory);
+  assert(dxvk::util::RtxFileSys::isInitialized());
+  assert(dxvk::util::RtxFileSys::runtimePath() == configPath.parent_path());
   using bridge_util::Config;
-  Config::init(server ? Config::App::Server : Config::App::Client, GetModuleHandleW(nullptr));
+  Config::init(server ? Config::App::Server : Config::App::Client);
   assert(Config::userConfigPath() == configPath);
   assert(Config::getOption<bool>("forceX64Server",false) && Config::getOption<bool>("client.testX86Server",false));
   assert(Config::getOption<std::string>("custom.key", "") == u8"\u4fdd\u7559");

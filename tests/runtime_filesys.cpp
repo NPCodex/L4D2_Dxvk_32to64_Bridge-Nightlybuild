@@ -22,21 +22,19 @@ static BOOL WINAPI testIsWow64Process2(HANDLE, USHORT* process, USHORT* native) 
   *native = testNativeMachine;
   return TRUE;
 }
-static DWORD testGetModuleFileName(HMODULE, char* value, size_t count) {
-  const auto text = testExecutablePath.string();
+static DWORD testGetModuleFileNameW(HMODULE module, wchar_t* value, DWORD count) {
+  const auto& text = (module ? modulePath : testExecutablePath).native();
   if (text.empty() || text.size() >= count) { return 0; }
-  std::memcpy(value, text.c_str(), text.size() + 1);
+  std::memcpy(value, text.c_str(), (text.size() + 1) * sizeof(wchar_t));
   return static_cast<DWORD>(text.size());
 }
-static fs::path getModuleFilePath(HMODULE) { return modulePath; }
-static std::vector<char> createPathVec() { return std::vector<char>(32768); }
 
 namespace bridge_util {
 struct Logger {
   static void info(const std::string&) {}
   static void warn(const std::string&) {}
   static void err(const std::string&) {}
-  template<class F> static void debugLazy(F&&) {}
+  template<class F> static void debugLazy(F&& fn) { (void)fn(); }
 };
 struct Config {
   enum class App { Client, Server };
@@ -55,12 +53,11 @@ struct Config {
 };
 }
 
-#undef GetModuleFileName
-#define GetModuleFileName testGetModuleFileName
+#define GetModuleFileNameW testGetModuleFileNameW
 #define IsWow64Process2 testIsWow64Process2
 #include "runtime_filesys_generated.h"
 #undef IsWow64Process2
-#undef GetModuleFileName
+#undef GetModuleFileNameW
 
 static void check(bool condition, const char* message) {
   ++assertions;
@@ -70,7 +67,8 @@ static void check(bool condition, const char* message) {
 int main(int argc, char** argv) {
   if (argc != 2) { return 2; }
   const std::string mode = argv[1];
-  const fs::path game = fs::current_path() / "game";
+  const fs::path game = fs::current_path() / (mode == "unicode-root-client"
+    ? fs::path(L"game-\u914d\u7f6e-\U0001f680") : fs::path("game"));
   const fs::path bin = game / "bin";
   const fs::path x64 = bin / ".l4d2bridge";
   const fs::path native = bin / ".trex_arm64";
@@ -84,7 +82,7 @@ int main(int argc, char** argv) {
     testExecutablePath = game / "left4dead2.exe";
     std::ofstream(x64 / "bridge.conf") << "selected-x64\n";
     check(!dxvk::util::RtxFileSys::isInitialized(), "fresh process is uninitialized");
-    if (mode == "root-client") { modulePath = game / "d3d9.dll"; }
+    if (mode == "root-client" || mode == "unicode-root-client") { modulePath = game / "d3d9.dll"; }
     if (mode == "native-preferred" || mode == "native-fallback") {
       testNativeMachine = IMAGE_FILE_MACHINE_ARM64;
       if (mode == "native-preferred") {
@@ -114,10 +112,16 @@ int main(int argc, char** argv) {
       auto server = bridge_util::Config::getUserConfig(bridge_util::Config::App::Server);
       check(server.payload == client.payload, "host and client select same config");
       check(!bridge_util::Config::s_clientConfig, "host is not persistent config writer");
+      if (mode == "unicode-root-client") {
+        const auto created = game / L"generated-\U0001f680" / L"nested-\u914d\u7f6e";
+        dxvk::util::RtxFileSys::mkDirs(created);
+        check(fs::is_directory(created), "native Unicode directory creation");
+        dxvk::util::RtxFileSys::print();
+      }
       if (mode == "reinitialize") {
         const auto other = game / "other";
         fs::create_directory(other);
-        dxvk::util::RtxFileSys::init(other.string(), other.string());
+        dxvk::util::RtxFileSys::init(other, other);
         check(dxvk::util::RtxFileSys::runtimePath() == expected, "reinit does not redirect runtime");
         check(dxvk::util::RtxFileSys::rootPath() == game, "reinit does not redirect root");
       }
