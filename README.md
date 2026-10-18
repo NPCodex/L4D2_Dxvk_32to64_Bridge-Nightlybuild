@@ -1,6 +1,8 @@
 # L4D2 Bridge Nightly
 
-> **本构建已包含 DXVK（GPLALL）、L4N 和 Bridge 桥接工具，一体整合，解压覆盖即可一键安装，无需另下这三项组件。请勿与其他同类项目或整合包混合安装。**
+> **本构建已包含 DXVK（GPLALL）、L4N-necola 和 Bridge 桥接工具，一体整合，解压覆盖即可一键安装，无需另下这三项组件。请勿与其他同类项目或整合包混合安装。**
+>
+> **L4N-necola：** 基于 L4N 2.53.0，通过插件接入 necola 1.4.1 的模型兼容与状态写回等功能；检视、普通开镜、额外粒子加载和堆配置等重复功能优先由 L4N 负责，并附带 10 个转换为 L4N 加载方式的音频库。
 >
 > **安装前移除 `-vulkan` 启动参数，并备份移走游戏根目录的 `d3d9.dll`；保留本包的 `bin/d3d9.dll`。** L4N / Left4Neko 原作者为 **Starfelll（@Starfelll）**，感谢原作者的工作。
 >
@@ -10,7 +12,7 @@
 
 ## 说明
 
-**v1.5.17 本次修订接入已完成的 L4N-Necola：在 L4N 2.53.0 上通过插件加载 necola 1.4.1 兼容扩展，并附带转换为 L4N 加载路径的 10 个音频库。** 检视、开镜、额外粒子清单和堆内存配置由 L4N 负责；保留 necola 的模型协议及写回接口。整合说明、文件清单、安装脚本和诊断材料不加入玩家包。本次范围与限制见 [整合包说明](docs/L4N-BUNDLE.md)。
+**v1.5.17 本次修订接入已完成的 L4N-necola：在 L4N 2.53.0 上通过插件加载 necola 1.4.1 兼容扩展，并附带转换为 L4N 加载路径的 10 个音频库。** 检视、开镜、额外粒子清单和堆内存配置由 L4N 负责；保留 necola 的模型协议及写回接口。整合说明、文件清单、安装脚本和诊断材料不加入玩家包。本次范围与限制见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 104 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 

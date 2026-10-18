@@ -1,6 +1,8 @@
 # L4D2 Bridge Nightly
 
-> **This build includes DXVK (GPLALL), L4N and the Bridge tools in one package. Extract and copy to install; no separate component downloads are needed. Do not mix it with other similar projects or bundles.**
+> **This build includes DXVK (GPLALL), L4N-necola and the Bridge tools in one package. Extract and copy to install; no separate component downloads are needed. Do not mix it with other similar projects or bundles.**
+>
+> **L4N-necola:** Based on L4N 2.53.0, with a plugin that loads necola 1.4.1 model compatibility and status writeback features. L4N handles overlapping inspection, standard ADS, extra particle loading and heap settings. The bundle includes 10 audio libraries converted to L4N loading paths.
 >
 > **Remove the `-vulkan` launch option and back up/move away `d3d9.dll` from the game root; keep this package's `bin/d3d9.dll`.** L4N / Left4Neko is the work of **Starfelll (@Starfelll)**, with thanks to its original author.
 >
@@ -10,7 +12,7 @@
 
 ## Information
 
-**This v1.5.17 revision incorporates the completed L4N-Necola package: an L4N plugin loads the necola 1.4.1 compatibility extension alongside L4N 2.53.0, with 10 audio libraries converted to L4N loading paths.** L4N retains inspection, ADS, extra particle-manifest and heap configuration; necola retains its model protocols and status writeback interfaces. Merger documentation, manifests, installers and diagnostics are excluded from the player ZIP. See [scope and limitations](docs/L4N-BUNDLE.md).
+**This v1.5.17 revision incorporates the completed L4N-necola package: an L4N plugin loads the necola 1.4.1 compatibility extension alongside L4N 2.53.0, with 10 audio libraries converted to L4N loading paths.** L4N retains inspection, ADS, extra particle-manifest and heap configuration; necola retains its model protocols and status writeback interfaces. Merger documentation, manifests, installers and diagnostics are excluded from the player ZIP. See [scope and limitations](docs/L4N-BUNDLE.md).
 
 **[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.53.0, the necola 1.4.1 compatibility extension, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 104 files; see [bundle provenance](docs/L4N-BUNDLE.md).
 
