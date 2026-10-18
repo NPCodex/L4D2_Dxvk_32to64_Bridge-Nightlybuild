@@ -38,7 +38,8 @@ class Identity(unittest.TestCase):
             before = recipe_digest(root)
             for relative in ("plugins/l4n/plugin.cpp", "experiments/dxvk-memory/prepare.py",
                              "patches/gplall-msaa-loop/modified.frag",
-                             "patches/gplall-msaa-loop/modified.spv"):
+                             "patches/gplall-msaa-loop/modified.spv",
+                             "tools/quick-tool/Core.cs", "tools/quick-tool/Launch.cmd"):
                 path = root / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(b"new source")

@@ -1,9 +1,31 @@
 # Optional Windows quick tool
 
-This is a source-built desktop helper for the existing Nightly package. It does
-not change the release build, install a renderer, or download components.
+This optional desktop helper ships inside the Nightly player ZIP. It does not
+install a renderer or download missing components.
 
-## Build and use
+## Download and use (no compilation)
+
+Download the complete package from [Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases),
+extract it into the game directory following its README, and double-click
+**`L4D2-Quick-Tool.cmd`** in the game root. The executable is included at
+`tools/BridgeQuickTool/BridgeQuickTool.exe`; no compiler or Python is required.
+Close the existing helper before extracting an update and retain `state/`.
+
+The dedicated **Build player quick tool** Actions workflow also produces a
+ready-to-extract `L4D2-Quick-Tool.zip` plus checksum, for updating the helper on an
+existing installation without downloading game/runtime components. Download that
+workflow's `L4D2-Quick-Tool` artifact and extract the inner ZIP into the game root.
+Downloading Actions artifacts requires a signed-in GitHub account; public Nightly
+release ZIPs remain the normal user download route.
+
+The release workflow compiles/tests the tool before packaging, checks the build
+receipt against current source hashes, and requires the executable, launcher and
+player guide. A missing, modified or stale tool fails packaging. Test programs,
+build receipts, local backups and reports are excluded. Tool source changes are
+included in the release recipe fingerprint. Existing published ZIPs are not
+retroactively changed: distribution starts with a release built from this change.
+
+## Build from source (contributors)
 
 Requires Windows 10/11 with .NET Framework 4.8. No NuGet dependencies, Python or
 third-party runtime is needed by the built application.
@@ -149,9 +171,11 @@ layout. Actual gameplay and Steam-launch acceptance remain a manual follow-up.
 
 ## 说明（中文）
 
-这是可选的 Windows 源码工具，不改变 Nightly 发布流程。支持原版 Bridge 和
+这是随 Nightly 完整 ZIP 提供的可选 Windows 工具。解压后双击游戏根目录的
+`L4D2-Quick-Tool.cmd` 即可，不需要自己编译。也可从 Build player quick tool
+工作流下载已构建的更新 ZIP。现有已发布旧包不会自动改变。支持原版 Bridge 和
 “停用 Bridge、保留已有 L4N/ThinFlex 等组件”两种模式。不是额外优化的自动安装器。
-运行 `scripts/build_quick_tool.ps1` 构建；可放入游戏的 `tools/BridgeQuickTool/`，
+开发者可运行 `scripts/build_quick_tool.ps1` 构建；程序位于游戏的 `tools/BridgeQuickTool/`，
 也可单独运行并由 Steam 安装记录定位。升级工具请保留 `state/`。
 
 打开工具自动检查安装目录、Steam App 550 目标、文件位数和已知启动参数冲突。
