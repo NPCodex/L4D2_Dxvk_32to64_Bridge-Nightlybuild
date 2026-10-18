@@ -56,7 +56,7 @@ class Packaging(unittest.TestCase):
             expected.remove("optional/L4N/L4D2BridgePlugin.dll")
             expected.add("bin/neko/plugins/L4D2BridgePlugin.dll")
             self.assertEqual(names, expected)
-            self.assertEqual(len(names), 88)
+            self.assertEqual(len(names), 89)
             for name in runtime.REQUIRED:
                 destination = ("bin/neko/plugins/L4D2BridgePlugin.dll"
                                if name == "optional/L4N/L4D2BridgePlugin.dll" else name)
@@ -81,7 +81,7 @@ class Packaging(unittest.TestCase):
             self.assertEqual({name for name in names if name.startswith("bin/neko/")},
                              {name for name in l4n_paths if name.startswith("bin/neko/")}
                              | {"bin/neko/plugins/L4D2BridgePlugin.dll"})
-            for name in ("bin/neko/other_tools.7z", "bin/neko/plugins/l4n_plugin.h",
+            for name in ("bin/left4neko_server.dll", "bin/neko/other_tools.7z", "bin/neko/plugins/l4n_plugin.h",
                          "bin/neko/to_l4n_survivor.bat", "to_l4n_survivor.exe",
                          "left4dead2 no-insecure.bat", "readme_l4n.txt"):
                 self.assertIn(name, names)

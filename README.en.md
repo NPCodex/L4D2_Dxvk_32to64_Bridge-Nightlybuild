@@ -10,9 +10,9 @@
 
 ## Information
 
-**This v1.5.17 revision fixes ReShade 6.8 staying open after a second Home press and effect checkboxes requiring repeated clicks.** The user tested the local candidate in their Steam game installation and confirmed Home toggling and checkbox selection. Keep the x86 Client, x86 Host and x64 Host from the same package together. See the [mechanism and validation scope](docs/RESHADE-INPUT-20261016.md).
+**This v1.5.17 revision updates the complete L4N distribution to 2.53.0, including the new `bin/left4neko_server.dll`, and merges the updated configuration template.** The author's changelog covers local-server bone animation calculation, interrupting `l4n_lookat` and a fix for addon load-order output. The bundle does not enable experimental bone calculation. See [scope and provenance](docs/L4N-BUNDLE.md).
 
-**[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.52.1, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 88 files; see [bundle provenance](docs/L4N-BUNDLE.md).
+**[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.53.0, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 89 files; see [bundle provenance](docs/L4N-BUNDLE.md).
 
 | Installed `bin/studiorender.dll` | SHA-256 |
 |---|---|
@@ -31,7 +31,7 @@ Fresh installs use upstream's learned-aggressive retention policy and disable ro
 
 Roll back the Bridge client and Host together. Restore your original `studiorender.dll` backup to undo ThinFlex. To uninstall, remove the installed files and restore your backups.
 
-See the [current ReShade input fix](docs/RESHADE-INPUT-20261016.md), the [original v1.5.17 release record](docs/RELEASE-HISTORY.md), the [NVIDIA source scope](docs/NVIDIA-UPSTREAM-UPDATES.md) and the earlier [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
+See the [current L4N bundle update](docs/L4N-BUNDLE.md), the [earlier ReShade input fix](docs/RESHADE-INPUT-20261016.md), the [original v1.5.17 release record](docs/RELEASE-HISTORY.md), the [NVIDIA source scope](docs/NVIDIA-UPSTREAM-UPDATES.md) and the earlier [v1.5.0 integration and validation scope](docs/UPSTREAM-45-INTEGRATION.md). The [historical v1.2.3 comparison](docs/HOT-COMMAND-PACKETS.md) records FPS with this machine's GPLALL + x64 Host configuration; the [earlier IPC comparison](docs/UPSTREAM-1.2.2-INTEGRATION.md) documents the tradeoff when adopting v1.2.2. The [flashlight investigation](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) and [earlier paired runs](docs/PERFORMANCE-2026-10-10.md) concern previous versions; see also the [game validation guide](docs/GAME-VALIDATION.md).
 
 Based on [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix), this repository retains the patches from the [original L4D2 project](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) and automatically builds an x86 client and both x86/x64 Hosts for 32-bit Left 4 Dead 2.
 
@@ -67,7 +67,7 @@ When reusing a local source checkout, the build script verifies the complete pat
 
 - Project-specific additions and modifications: **MIT**, see [LICENSE](LICENSE). The original copyright notice for `yeyunyyds` is retained.
 - NVIDIA Bridge: **MIT**, see [licenses/Bridge-MIT.txt](licenses/Bridge-MIT.txt).
-- L4N / Left4Neko 2.52.1: original author **Starfelll (@Starfelll)**. Original files and documentation retain their attribution and are outside this project's root MIT license; see [L4N-NOTICE](licenses/L4N-NOTICE.txt).
+- L4N / Left4Neko 2.53.0: original author **Starfelll (@Starfelll)**. Original files and documentation retain their attribution and are outside this project's root MIT license; see [L4N-NOTICE](licenses/L4N-NOTICE.txt).
 - DXVK / DXVK-GPLALL: distributed with the **zlib/libpng** license; see [licenses/DXVK-LICENSE.txt](licenses/DXVK-LICENSE.txt) and [licenses/DXVK-GPLALL-LICENSE.txt](licenses/DXVK-GPLALL-LICENSE.txt).
 - Dependencies included in Bridge, such as Detours and Tracy, retain their respective licenses. See [licenses/Bridge-third-party.txt](licenses/Bridge-third-party.txt).
 - The modified `studiorender.dll` comes from the maintainer's matching local game file, with the limited ThinFlex repair applied at the user's request. The original engine belongs to Valve and is outside the root MIT license; see [engine attribution](licenses/Valve-engine-NOTICE.txt).

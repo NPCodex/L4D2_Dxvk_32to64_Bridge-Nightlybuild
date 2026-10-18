@@ -1,15 +1,15 @@
-L4N / Left4Neko 2.52.1
+L4N / Left4Neko 2.53.0
 Original author: Starfelll (original files identify the author as @Starfelll).
 
 L4N is an independent third-party project. Its launcher, modules, shaders,
 materials, conversion tools, SDK and original documentation were supplied by
-the maintainer in L4N_v2.52.1.7z and are preserved byte-for-byte, except for
+the maintainer in L4N_v2.53.0.7z and are preserved byte-for-byte, except for
 the explicit configuration-template merge described below. They are not
 authored by this Bridge project or Codex and are not covered by its MIT license.
 All original author and third-party notices remain applicable.
 
 Original archive SHA-256:
-1647f8ae44ff77cfdbe22f594a49535d0ba0ac0d91a92e988865523c845f49f9
+164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f
 
 The original readme_l4n.txt is included unchanged. The reference
 left4dead2/neko/config_template.vdf is merged into the active config.vdf

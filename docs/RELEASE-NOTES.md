@@ -1,11 +1,12 @@
 # v1.5.17
 
-- 本次同版本修订修复 ReShade 6.8 菜单打开后 Home 无法关闭，以及效果复选框需要反复点击的问题。已绑定的 ReShade 捕获输入时使用 Presenter 原生焦点与真实窗口消息，关闭后恢复游戏焦点。
-- ReShade 安装时请选择游戏目录下的 **`bin/.l4d2bridge/L4D2Bridge64.exe`**，渲染 API 选择 **Vulkan**；**不要选择根目录的 `left4dead2.exe`**。
+- 本次同版本附件更新将完整 L4N 升级为 2.53.0，包含新增的 `bin/left4neko_server.dll`；原包 77 个文件中 76 个保持原字节，完整玩家包为 89 文件。
+- 唯一模板例外：新版 `config_template.vdf` 三方合并进 `config.vdf`，保留用户预设，合入 VPK Overlay 说明及注释示例，移除原作者已删除的 `generate_addoninfo` 项。
+- 据原作者 Starfelll（@Starfelll）的更新说明，2.53.0 扩展本地服务端动画计算接管，修复右键攻击不能打断 `l4n_lookat` 和 `l4n_show_addon_load_order` 输出崩溃，并移除 `l4n_force_dummy_addoninfo`。整合包未额外启用实验性骨骼计算。
 
-验证：用户已在正式 Steam 游戏安装中验收本地候选，确认 Home 正常开关、复选框正常勾选；x86/x64 原生键盘回归和提取实际 ReShade 6.8 源码的输入模型通过。发布门禁要求三端 MSVC 14.29 编译、必需原生回归、最终源码收据与发布附件核验通过。本次没有新增 FPS、长期稳定性或冷启动验证。详见 [修复与证据范围](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/RESHADE-INPUT-20261016.md)。
+验证范围：原包完整性、逐文件身份、配置合并和完整包校验；发布门禁要求三端 MSVC 14.29 编译、必需原生回归、最终源码收据与发布附件核验通过。本次没有新增游戏、FPS、画质或长期稳定性验收，不将原作者的更新说明视为本项目实机验证。此前独立的 Necola 退出与 Special K 随机崩溃问题不由本次更新判定为已修复。
 
-[安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+[整合来源与配置说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/L4N-BUNDLE.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
 
 # v1.5.16
 

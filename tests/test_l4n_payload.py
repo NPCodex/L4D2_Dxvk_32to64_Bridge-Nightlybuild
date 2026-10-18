@@ -21,12 +21,13 @@ class L4NPayload(unittest.TestCase):
         metadata = l4n.manifest_metadata(self.files[l4n.MANIFEST_NAME])
         self.assertEqual(metadata["author"], "Starfelll")
         self.assertEqual(metadata["original_author_signature"], "@Starfelll")
-        self.assertEqual(metadata["version"], "2.52.1")
-        self.assertEqual(len(metadata["files"]), 78)
-        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 23396342)
+        self.assertEqual(metadata["version"], "2.53.0")
+        self.assertEqual(len(metadata["files"]), 79)
+        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 23748123)
         self.assertEqual(hashlib.sha256(self.files["readme_l4n.txt"]).hexdigest(),
                          metadata["source_archive_files"]["readme_l4n.txt"]["sha256"])
         self.assertIn("bin/neko/other_tools.7z", self.files)
+        self.assertIn("bin/left4neko_server.dll", self.files)
         self.assertNotIn("left4dead2/neko/config_template.vdf", self.files)
         self.assertIn("left4dead2/neko/config.vdf", self.files)
         self.assertNotIn("logs.7z", self.files)
@@ -39,7 +40,7 @@ class L4NPayload(unittest.TestCase):
         originals = metadata["source_archive_files"]
         template = "left4dead2/neko/config_template.vdf"
         config = "left4dead2/neko/config.vdf"
-        self.assertEqual(len(originals), 76)
+        self.assertEqual(len(originals), 77)
         self.assertEqual(set(originals) - set(metadata["files"]), {template})
         self.assertEqual(set(metadata["files"]) - set(originals), {
             "dxvk.conf", config, "left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs"})
@@ -51,12 +52,17 @@ class L4NPayload(unittest.TestCase):
         self.assertEqual(merge["merged_config"], metadata["files"][config])
         text = self.files[config].decode("utf-8")
         self.assertIn("!force/", text)
+        self.assertIn("VPK Overlay(VPK挂载层)", text)
+        self.assertRegex(text, r'(?m)^[ \t]*// "-nekook" ".*"\r?$')
+        self.assertNotIn("generate_addoninfo", text)
+        self.assertNotIn("l4n_bonesetup_patch", text)
         self.assertIn('"index_buffer_size" "131072"', text)
         self.assertIn('\t"-novid"\t""', text)
         self.assertIn('\t-l4n_use_neko_engine_post ""', text)
 
     def test_binary_config_and_manifest_tampering_rejected(self):
-        for name in ("left4dead2.exe", "bin/left4neko.dll", "dxvk.conf", "readme_l4n.txt",
+        for name in ("left4dead2.exe", "bin/left4neko.dll", "bin/left4neko_server.dll",
+                     "dxvk.conf", "readme_l4n.txt",
                      "left4dead2/neko/config.vdf"):
             with self.subTest(name=name):
                 files = dict(self.files)

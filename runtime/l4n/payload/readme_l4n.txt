@@ -1,5 +1,12 @@
 ﻿本文档会随版本更新，部分功能会添加进hud菜单里方便使用
 
+[2.53.0]
+修改：l4n_bonesetup_patch能够接管本地服务端的动画计算
+修复：右键攻击不能打断l4n_lookat
+修复：l4n_show_addon_load_order输出内容时崩溃
+移除：convar l4n_force_dummy_addoninfo
+移除：generate_addoninfo
+
 [2.52.1]
 修改：l4n_bonesetup_patch能够接管实体的hitbox计算，防止超128骨骼的溢出问题
 
@@ -27,7 +34,6 @@
     该实现能够正常处理256骨骼的mdl模型
 
     注意：
-        目前只接管了客户端的逻辑，如果服务端读取了超过128骨骼的mdl来计算动画，会遇到内存溢出导致的奇怪问题
         对于目前想尝试256骨骼上限的用户，请连接到其它服务器，或者使用类似l4n_surrivor这种仅替换客户端实体模型的功能
         其它的未适配256骨骼的情况：
             实体粒子消散效果
@@ -50,7 +56,7 @@
             对于飘动部位的数量提升最大，如一个角色模型有几十个蝴蝶结、丝带的情况，头发可以做到根根分明
 
         对于武器模型：
-            手部骨骼需要保底占用，提高上限可以让更多的部位拥有动画效果，例如烘焙的部件散落效果
+            手部骨骼需要保底占用，提高上限可以让更多的部位拥有动画效果，例如烘焙的部件散落效果，可以让更多的角色或动物等在武器上进行互动
 
         我可以使用密度更高的骨链吗：
             可以，但是可能效果更差的同时还浪费性能，你可能需要注意以下：
@@ -73,7 +79,6 @@
     有一部分还处在可行性验证阶段
     提供Jolt物理引擎替代起源VPhysics引擎的功能
     基于l4n_bonesetup_patch：
-        使本地服务端能够妥善处理超128骨骼的mdl
         修复原生Jiggle飘骨算法的一些鬼畜BUG
         使网络同步的角色布娃娃能够应用pps(骨架比例修正动画/Proportiontrick)
         l4n player_foot介入IK计算
@@ -81,6 +86,7 @@
         提供另一套更现代的飘动骨骼方案/算法，支持碰撞模拟，以及高可视化、高易用性的参数调整体验
         扩展原生Jiggle飘骨的功能，如增加碰撞体支持
         提供一套后处理绑定/或算法来修正因动画制作水平导致的第一人称手模变形
+        提供一种机制，根据某些模型部件的隐藏来跳过对应的骨骼计算
         现已提供了：
             l4n_prevent_varms_stretching，禁止动画修改手指比例
             l4n_vm_dual_quaternion_skinning，手模使用对偶四元数蒙皮算法，或许能缓解手臂扭转失去过多体积的问题(目前仅支持NekoToon材质)
@@ -258,18 +264,13 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
             打开bin\neko\other_tools.7z\vpkshellextensions文件夹(游戏根目录或l4n安装包)，获取vpk的资源管理器插件还有安装教程
             打开详细信息窗格，用于显示info信息(作者、标题、地图代码、封面、描述等)
             可以根据info信息排序，搜索(和mp3、doc这类资源管理器默认支持的文件使用是一样的)
-            通过将文件移动到别处的方式来禁用mod
-        更彻底的冲突检测：
-            在控制台运行l4n_force_dummy_addoninfo
-            打开内游戏内mod列表
-            发现冲突后打开控制台，查看哪些文件冲突了
-            注意：冲突检测只检测资产路径冲突，能过冲突检测不能代表和其它mod之间一定没有兼容性问题
+            通过将文件移动到别处的方式来禁用mod  
         查看实际挂载的mod：
             默认情况下，起源文件系统在读取资产时，遵循以下2点：
                 1.先从排名第一的挂载点开始读取文件
                 2.遵循第一点的情况下，vpk优先级比文件夹高
             在控制台里查看起源文件系统的挂载点：
-                查看vpk运行：show_addon_load_order
+                查看vpk运行：l4n_show_addon_load_order
                 查看文件夹运行：path
 
     材质透明效果：
@@ -373,8 +374,9 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4ns则是使用扩充的模型文件，主动修改客户端玩家实体要使用的模型，效果取决于玩家数量或已安装适配mod的数量
     l4ns还支持(头像/倒地图标/Bot名字)的替换，当前版本需要将l4n_patch_team_player_display设置为1才能生效
     注意事项：
-        此功能的使用与传统角色mod的使用是冲突的，避免混合使用以免造成不必要的困扰
-        l4ns生效的情况下，普通幸存者角色mod没有机会正常使用，因游戏的底层机制，八个幸存者的模型会被强制加载，此时禁用普通幸存者角色mod可以节省内存占用
+        此功能的使用与传统幸存者mod的使用是冲突的，请避免混合使用，以免造成不必要的困扰
+        l4ns只替换客户端模型，如果与传统幸存者mod同时使用，你的本地服务端的动画列表可能会被扩充，同步动画给你的客户端后，客户端的动画播放可能出现混乱
+        l4ns生效的情况下，普通幸存者mod没有机会正常使用，因游戏的底层机制，八个幸存者的模型会被强制加载，此时禁用普通幸存者角色mod可以节省内存占用
         模型是动态加载的，无用的角色模型会释放内存占用，新玩家加入时分配新模型可能会卡顿
         以玩家实体为单位会遇到一些问题
             大部分非玩家实体在客户端看来是不知道和哪个玩家有关联的，例如tumtara测试图里展示角色模型的实体
@@ -497,7 +499,6 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_flashlight_g 1.0                        手电筒颜色G倍率
     l4n_flashlight_b 1.0                        手电筒颜色B倍率
     l4n_allow_lobby_cheats 0                    Can't use cheats now; please exit to main menu and start your own listen server with "map mapname" so that you could enable cheats.
-    l4n_force_dummy_addoninfo 0                 参考上方mod检查的注意事项
     l4n_patch_team_player_display               是否接管HUD BOT名字和头像的显示，数值2则忽略BOT名字
     l4n_max_background_bik 5                    大厅背景视频的数量，如果你只有一个，不想要复制4遍并节省空间，可以设置为1，如果你不满足5个随机，可设置为大于5的数值
     l4n_to_nekotoon_allow_outline 1             l4n_to_nekotoon转nekotoon时是否启用描边
@@ -571,7 +572,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_reload_sequence_event_vdf
     l4n_reload_config
     l4n_analyze_dumps
-    l4n_show_addon_load_order               和show_addon_load_order功能一样，区别是能够正确输出utf8格式的文本
+    l4n_show_addon_load_order               输出utf8格式的VPK挂载信息，输出内容代表文件系统实际能够读取到的内容，可以提交给外部工具进行冲突检测
 【NekoShaders】
     mat_outline_thickness_scale 1.0     描边粗细倍率，0则关闭描边
     mat_pbr_where 0                     设置1则高亮闪烁PBR材质，用于查找哪些材质使用了PBR着色器

@@ -10,9 +10,9 @@
 
 ## 说明
 
-**v1.5.17 本次修订修复 ReShade 6.8 菜单打开后 Home 无法关闭，以及效果复选框需要反复点击的问题。** 用户已在正式 Steam 游戏安装中验收本地候选，确认 Home 正常开关、复选框正常勾选。x86 Client、x86 Host 与 x64 Host 必须成套更新。机制与验证范围见 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md)。
+**v1.5.17 本次修订将完整 L4N 更新为 2.53.0，包含新增的 `bin/left4neko_server.dll`，并合并新版配置模板。** 原作者更新说明涉及本地服务端骨骼动画计算、`l4n_lookat` 打断和模组加载顺序输出修复；整合包未额外启用实验性骨骼计算。本次范围与来源见 [整合包说明](docs/L4N-BUNDLE.md)。
 
-**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.52.1、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 88 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
+**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 89 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 | 游戏 `bin/studiorender.dll` | SHA-256 |
 |---|---|
@@ -31,7 +31,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-本次范围见 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md)；v1.5.17 原始 NVIDIA 更新说明保留于 [历史发布记录](docs/RELEASE-HISTORY.md)，源码采用范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。此前 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)、[GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)、[Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 和 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md) 的历史记录继续保留。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次范围见 [L4N 整合包说明](docs/L4N-BUNDLE.md)；此前 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md) 的机制与验证记录继续保留；v1.5.17 原始 NVIDIA 更新说明保留于 [历史发布记录](docs/RELEASE-HISTORY.md)，源码采用范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。此前 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)、[GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)、[Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 和 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md) 的历史记录继续保留。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 
@@ -69,7 +69,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 - 项目特有的新增与修改：**MIT**，见 [LICENSE](LICENSE)，保留 `yeyunyyds` 的原版权声明。
 - NVIDIA Bridge：**MIT**，见 [licenses/Bridge-MIT.txt](licenses/Bridge-MIT.txt)。
-- L4N / Left4Neko 2.52.1：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
+- L4N / Left4Neko 2.53.0：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
 - DXVK／DXVK-GPLALL：随附 **zlib/libpng** 许可，见 [licenses/DXVK-LICENSE.txt](licenses/DXVK-LICENSE.txt) 和 [licenses/DXVK-GPLALL-LICENSE.txt](licenses/DXVK-GPLALL-LICENSE.txt)。
 - Bridge 所含 Detours、Tracy 等依赖继续遵循各自许可，见 [licenses/Bridge-third-party.txt](licenses/Bridge-third-party.txt)。
 - 包内修改版 `studiorender.dll` 来自维护者本机的匹配游戏文件，按用户要求应用限定 ThinFlex 修复。原引擎归 Valve，不属于根目录 MIT 授权；见 [引擎归属说明](licenses/Valve-engine-NOTICE.txt)。
