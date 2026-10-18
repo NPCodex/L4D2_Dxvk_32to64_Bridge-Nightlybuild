@@ -92,6 +92,8 @@ def runtime_archive(source, output):
         f"L4D2 Bridge v{version} runtime package\n\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
         f"完整保留 L4N {L4N_VERSION} 的运行文件、bin/neko 工具与 SDK、to_l4n_survivor.exe、left4dead2 no-insecure.bat 和原作者 readme_l4n.txt；config_template.vdf 的更新已合并到实际 config.vdf，模板不单独附带。\n"
+        "已整合 L4N-Necola 兼容插件及音频库；检视、普通开镜、额外粒子加载与堆配置由 L4N 负责。不要再通过独立启动器重复加载 necola.dll。\n"
+        "已有 necola 配置时，覆盖前另行备份 kpatch.ini、necola/FeatureConfig.json 和 necola/weaponParticles.json，并合并自定义项；本包不自动合并。标为 L4N 接管的开关保持 false。\n"
         "默认 x64、C8，静态映射关闭；Steam/Presenter 配套启用。当前版本的新增改动、验证及已知问题见对应 GitHub Release；局部微基准不代表游戏 FPS，本包不承诺全场景性能改善。\n"
         "IPC v2 协议标识为 0x00020004：bin/d3d9.dll 与 L4D2Bridge32.exe、L4D2Bridge64.exe 必须一起更新或回退，不能混用旧版。\n"
         "移除 -vulkan 启动参数，备份移走游戏根目录的 d3d9.dll；保留本包 bin/d3d9.dll 和 bin/.l4d2bridge 目录。\n"

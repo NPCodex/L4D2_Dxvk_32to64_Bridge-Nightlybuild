@@ -1,4 +1,5 @@
 """Pin the complete Starfelll distribution and explicit user preset, without private material."""
+import configparser
 import hashlib
 import json
 from pathlib import Path
@@ -22,8 +23,8 @@ class L4NPayload(unittest.TestCase):
         self.assertEqual(metadata["author"], "Starfelll")
         self.assertEqual(metadata["original_author_signature"], "@Starfelll")
         self.assertEqual(metadata["version"], "2.53.0")
-        self.assertEqual(len(metadata["files"]), 79)
-        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 23748123)
+        self.assertEqual(len(metadata["files"]), 94)
+        self.assertEqual(sum(len(self.files[name]) for name in metadata["files"]), 32711312)
         self.assertEqual(hashlib.sha256(self.files["readme_l4n.txt"]).hexdigest(),
                          metadata["source_archive_files"]["readme_l4n.txt"]["sha256"])
         self.assertIn("bin/neko/other_tools.7z", self.files)
@@ -42,8 +43,10 @@ class L4NPayload(unittest.TestCase):
         config = "left4dead2/neko/config.vdf"
         self.assertEqual(len(originals), 77)
         self.assertEqual(set(originals) - set(metadata["files"]), {template})
+        extension = metadata["necola_integration"]["files"]
         self.assertEqual(set(metadata["files"]) - set(originals), {
-            "dxvk.conf", config, "left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs"})
+            "dxvk.conf", config, "left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs"}
+            | set(extension))
         for name, expected in originals.items():
             if name != template:
                 self.assertEqual(metadata["files"][name], expected, name)
@@ -60,10 +63,57 @@ class L4NPayload(unittest.TestCase):
         self.assertIn('\t"-novid"\t""', text)
         self.assertIn('\t-l4n_use_neko_engine_post ""', text)
 
+    def test_necola_runtime_only_provenance_and_coexisting_plugin_paths(self):
+        metadata = l4n.manifest_metadata(self.files[l4n.MANIFEST_NAME])
+        extension = metadata["necola_integration"]
+        self.assertEqual(extension["name"], "L4N-Necola")
+        self.assertEqual(extension["necola_version"], "1.4.1")
+        self.assertEqual(extension["source_archive_sha256"],
+                         "b4be6642cab06526238bd1147872af1a6aa54ec5aa22d67264d1ae65c562896d")
+        self.assertEqual(extension["source_archive_bytes"], 17006203)
+        expected = {
+            "bin/neko/plugins/l4n_necola_bridge.dll", "bin/neko/necola/necola.dll",
+            "kpatch.ini", "necola/FeatureConfig.json", "necola/weaponParticles.json",
+            "left4dead2/addons/l4n_necola_audio_base.vpk",
+        } | {f"left4dead2/addons/l4n_necola_audio_ncl{index}0.vpk" for index in range(1, 10)}
+        self.assertEqual(set(extension["files"]), expected)
+        self.assertEqual(len(expected), 15)
+        for name, provenance in extension["files"].items():
+            self.assertEqual(metadata["files"][name], provenance, name)
+        # The existing Bridge settings plugin is compiled separately, and must
+        # not be replaced or shadowed by this x86 L4N runtime extension.
+        self.assertNotIn("bin/neko/plugins/L4D2BridgePlugin.dll", metadata["files"])
+        for name in extension["excluded_package_paths"]:
+            self.assertNotIn(name, metadata["files"])
+        for name in ("README_merge.md", "package-manifest.json", "left4dead2_necola.exe",
+                     "start.bat", "scripts/install.ps1", "scripts/restore.ps1"):
+            self.assertNotIn(name, metadata["files"])
+        self.assertFalse(any(name.startswith(("docs/", "tools/", "src/", "tests/"))
+                             for name in metadata["files"]))
+
+    def test_necola_configuration_keeps_l4n_feature_ownership(self):
+        settings = configparser.ConfigParser(interpolation=None, strict=True)
+        settings.read_string(self.files["kpatch.ini"].decode("utf-8-sig"))
+        for section, key in (("Necola", "openInspect"), ("Necola", "customParticleManifest"),
+                             ("Necola", "enableHeapSizeHook"), ("AdsSupport", "enableAdsSupport")):
+            self.assertIs(settings.getboolean(section, key), False, f"{section}.{key}")
+        # Missing serverbrowser.dll must leave a bounded initialization wait.
+        self.assertEqual(settings.getint("Necola", "injectWaitTime"), 5)
+        features = json.loads(self.files["necola/FeatureConfig.json"])
+        self.assertIs(features["InspectInitiative"]["EnableInspect"], False)
+        self.assertIs(features["AdsSupport"]["EnableAdsSupport"], False)
+        self.assertEqual(json.loads(self.files["necola/weaponParticles.json"]), [])
+        # Integrating the extension must not replace the already accepted
+        # active L4N preset with the source package's reference template.
+        self.assertEqual(hashlib.sha256(self.files["left4dead2/neko/config.vdf"]).hexdigest(),
+                         "36f2238e9b1ed0a3f2b69a4888858c7a126353a19331b20aacbf49ce1cdbb3b8")
+
     def test_binary_config_and_manifest_tampering_rejected(self):
         for name in ("left4dead2.exe", "bin/left4neko.dll", "bin/left4neko_server.dll",
                      "dxvk.conf", "readme_l4n.txt",
-                     "left4dead2/neko/config.vdf"):
+                     "left4dead2/neko/config.vdf", "bin/neko/plugins/l4n_necola_bridge.dll",
+                     "bin/neko/necola/necola.dll", "kpatch.ini", "necola/FeatureConfig.json",
+                     "necola/weaponParticles.json", "left4dead2/addons/l4n_necola_audio_base.vpk"):
             with self.subTest(name=name):
                 files = dict(self.files)
                 files[name] += b"tampered"

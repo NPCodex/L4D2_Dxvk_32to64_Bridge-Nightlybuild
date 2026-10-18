@@ -26,3 +26,27 @@ represented as the original L4N defaults.
 This repository builds the Bridge Client/Hosts and the separate optional
 L4D2BridgePlugin.dll. Packaging them with L4N does not transfer authorship of
 L4N to this repository or imply endorsement by its original author.
+
+L4N-Necola compatibility extension (necola 1.4.1)
+
+The maintainer supplied the completed L4N-Necola package. This bundle takes
+its l4n_necola_bridge.dll plugin, the unchanged original necola.dll,
+integration settings and ten converted audio-library VPKs. It preserves
+L4N 2.53.0 and loads necola through L4N's plugin interface; this is not a
+transfer of necola authorship or a claim that its original source was merged.
+necola and its original audio-library content remain the work of their
+original rightsholders. The supplied necola archive contains no separate
+license grant; this repository's MIT license does not relicense that content.
+
+Supplied L4N-Necola.zip SHA-256:
+b4be6642cab06526238bd1147872af1a6aa54ec5aa22d67264d1ae65c562896d
+Original necola.dll SHA-256:
+9f0ac0ee715bf3f311a77db543183b888165f78320329c5ab7717ef469f96ef4
+
+The integration plugin and configuration are distinct from the original
+L4N and necola components. Audio scripts use L4N loading paths; the supplied
+conversion repairs missing closing braces in nine supplemental scripts.
+Their original caches and base script content remain intact. These are
+sound mappings and caches, not additional WAV, PCF or weapon-model assets.
+The standalone necola launcher, merger documentation, file manifests,
+install/restore scripts and diagnostic material are not included.

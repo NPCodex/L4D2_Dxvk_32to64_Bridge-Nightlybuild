@@ -41,7 +41,10 @@ class Packaging(unittest.TestCase):
     def test_full_package_contains_complete_l4n_and_only_approved_integration_files(self):
         for name in ("bin/.l4d2bridge/ReShade.dll", "bin/.l4d2bridge/resource-retention.db",
                      "bin/other-engine.dll", "player.dmp", "private.log", "docs/guide.md",
-                     "config/example.conf", "scripts/tool.py", "config.json", "licenses/private.txt"):
+                     "config/example.conf", "scripts/tool.py", "config.json", "licenses/private.txt",
+                     "README_merge.md", "package-manifest.json", ".build-owned.json",
+                     "scripts/install.ps1", "scripts/restore.ps1", "docs/validation.md",
+                     "necola/l4n_bridge.log", "left4dead2_necola.exe", "start.bat"):
             path = self.source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"must not ship")
@@ -56,7 +59,7 @@ class Packaging(unittest.TestCase):
             expected.remove("optional/L4N/L4D2BridgePlugin.dll")
             expected.add("bin/neko/plugins/L4D2BridgePlugin.dll")
             self.assertEqual(names, expected)
-            self.assertEqual(len(names), 89)
+            self.assertEqual(len(names), 104)
             for name in runtime.REQUIRED:
                 destination = ("bin/neko/plugins/L4D2BridgePlugin.dll"
                                if name == "optional/L4N/L4D2BridgePlugin.dll" else name)
@@ -76,7 +79,9 @@ class Packaging(unittest.TestCase):
                 self.assertIn(name, names)
                 self.assertEqual(archive.read(name), self.l4n_files[name])
             self.assertNotIn("left4dead2/neko/config_template.vdf", names)
-            self.assertFalse(any(name.endswith((".json", ".md", ".py", ".ps1")) for name in names))
+            self.assertEqual({name for name in names if name.endswith(".json")},
+                             {"necola/FeatureConfig.json", "necola/weaponParticles.json"})
+            self.assertFalse(any(name.endswith((".md", ".py", ".ps1")) for name in names))
             self.assertFalse(any(name.startswith(("scripts/", "docs/", "config/", "licenses/")) for name in names))
             self.assertEqual({name for name in names if name.startswith("bin/neko/")},
                              {name for name in l4n_paths if name.startswith("bin/neko/")}
@@ -86,6 +91,14 @@ class Packaging(unittest.TestCase):
                          "left4dead2 no-insecure.bat", "readme_l4n.txt"):
                 self.assertIn(name, names)
                 self.assertEqual(archive.read(name), self.l4n_files[name])
+            self.assertIn("bin/neko/plugins/l4n_necola_bridge.dll", names)
+            self.assertIn("bin/neko/necola/necola.dll", names)
+            self.assertIn("bin/neko/plugins/L4D2BridgePlugin.dll", names)
+            self.assertEqual(len([name for name in names
+                                  if name.startswith("left4dead2/addons/l4n_necola_audio_")]), 10)
+            for name in ("README_merge.md", "package-manifest.json", ".build-owned.json",
+                         "necola/l4n_bridge.log", "left4dead2_necola.exe", "start.bat"):
+                self.assertNotIn(name, names)
             notices = archive.read("THIRD-PARTY-NOTICES.txt")
             for name in runtime.NOTICE_INPUTS:
                 self.assertIn((self.source / name).read_bytes(), notices)

@@ -1,0 +1,29 @@
+{
+  "InspectInitiative": {
+    "EnableInspect": false,
+    "InspectIgnoreAmmo": false
+  },
+  "AdsSupport": {
+    "EnableAdsSupport": false
+  },
+  "SequenceModify": {
+    "AnimSequenceModify": true,
+    "IgnoreShotgunSequence": true,
+    "SequenceLog": false,
+    "SeqModifyMode": 1
+  },
+  "KillStatistics": {
+    "killCountMode": 2
+  },
+  "WeaponParticle": {
+    "TracerOnlySelf": false
+  },
+  "ModelPolymorphism": {
+    "PolyMode": 1,
+    "NoWorldModelReplace": false,
+    "NoDefaultVModel": false
+  },
+  "ViewModelAddon": {
+    "Enabled": true
+  }
+}

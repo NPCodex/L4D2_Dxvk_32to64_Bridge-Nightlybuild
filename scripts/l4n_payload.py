@@ -10,11 +10,11 @@ AUTHOR = "Starfelll"
 SOURCE_ARCHIVE_SHA256 = "164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f"
 # Canonical JSON digest pins both the file list and its provenance. Text checkout
 # line endings and formatting may differ without altering the recorded identity.
-MANIFEST_SHA256 = "b344eb02f72d997af72b93fadd21e6f2e3b384708833944ed217836ceaceea5d"
+MANIFEST_SHA256 = "127ddae912527f325e74d71c771b56b111eba4a67d9dff568628b8da658ab74a"
 MANIFEST_NAME = "L4N-PAYLOAD.json"
 NOTICE_NAME = "licenses/L4N-NOTICE.txt"
-FILE_COUNT = 79
-TOTAL_SIZE = 23748123
+FILE_COUNT = 94
+TOTAL_SIZE = 32711312
 
 
 def _unique_object(pairs):

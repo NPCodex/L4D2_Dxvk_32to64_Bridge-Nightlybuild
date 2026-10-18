@@ -33,9 +33,17 @@
       "size": 1915904,
       "sha256": "c752ea04fcb864ffbd20abaf39bfb441a18f870822bec974fcc32f0d96a1669b"
     },
+    "bin/neko/necola/necola.dll": {
+      "size": 2155520,
+      "sha256": "9f0ac0ee715bf3f311a77db543183b888165f78320329c5ab7717ef469f96ef4"
+    },
     "bin/neko/other_tools.7z": {
       "size": 6083814,
       "sha256": "f6f5e49b85fc35b9fcb504a6edf8a22075da6da82cd1b91bf29680d7006b47c2"
+    },
+    "bin/neko/plugins/l4n_necola_bridge.dll": {
+      "size": 163840,
+      "sha256": "6f203df97969c86545fe2f81ccc7632d6f7be7de6d7d57404626a5980fe9c584"
     },
     "bin/neko/plugins/l4n_plugin.h": {
       "size": 2207,
@@ -97,6 +105,10 @@
       "size": 654,
       "sha256": "f2c98df4461ab3108db6be00302249f75712b77aec0f0adc18fbc3199e52027f"
     },
+    "kpatch.ini": {
+      "size": 4001,
+      "sha256": "d90b49a3313774881bca2e72f293d4327ddec2a801167fe99bb696823b2b4b3b"
+    },
     "left4dead2 no-insecure.bat": {
       "size": 373,
       "sha256": "67e20f54caf4ee5574588c7fba0c92df3d980095d171dbe3cdb70ba738fa2510"
@@ -104,6 +116,46 @@
     "left4dead2.exe": {
       "size": 142336,
       "sha256": "75dae1b7faa102b97f39cb07e9daf5570e6917f92245d151fb1a214636ccf580"
+    },
+    "left4dead2/addons/l4n_necola_audio_base.vpk": {
+      "size": 612981,
+      "sha256": "ff7f95c5c9d6d9fe4d1217d6a14c45b3f98c474566e1fc7746108c0ae11e59c1"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl10.vpk": {
+      "size": 669588,
+      "sha256": "19aaea2b8666cd4c466922b2ab863dba78c4d1bedffa847e7fdb64776a1b6f2e"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl20.vpk": {
+      "size": 669588,
+      "sha256": "c5050faba4aa1e409cd19bb4218ae75a785f374e7e29789dfd3ea5032da8a33b"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl30.vpk": {
+      "size": 669588,
+      "sha256": "f72b88c9b2e66c5f92cbeecfc754d1a887825f5abf448fb75d1931a6993ffc51"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl40.vpk": {
+      "size": 669588,
+      "sha256": "88115c8871e4048c4ef7b82004766d2a04d111fa6244cad640c2091590ed2c1d"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl50.vpk": {
+      "size": 669588,
+      "sha256": "1b5b2b6d89b2c991c03cae3868b189d52c495407b7798be168ea6c0807eab99d"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl60.vpk": {
+      "size": 669588,
+      "sha256": "3877a4748f426fcaf4aeaf2a531ef1fc54a2b992d27b0b1abb978bac4e78d64a"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl70.vpk": {
+      "size": 669588,
+      "sha256": "990903a2d0b7a1045dda33d20a85864c839792e75e4a83b303107ca16bd88413"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl80.vpk": {
+      "size": 669588,
+      "sha256": "e7dc8020098bb209198583e118cd11c77e7cc66f3335fb568691b2d491ab2b0d"
+    },
+    "left4dead2/addons/l4n_necola_audio_ncl90.vpk": {
+      "size": 669588,
+      "sha256": "248d202742ac4d083a1e2fec184b3bc2b61189895df6366efda07ec9b1e71e77"
     },
     "left4dead2/bin/game_shader_generic_neko": {
       "size": 28,
@@ -316,6 +368,14 @@
     "left4dead2/shaders/fxc/pbr_vs30.vcs": {
       "size": 81447,
       "sha256": "8537cc66d57a3db6fcbe105bdecb11976c089a513888fc4a731f6b0950dda268"
+    },
+    "necola/FeatureConfig.json": {
+      "size": 552,
+      "sha256": "76a4e8cf86850fe33f479db49f691e33bcd1c7f127492f62033103b9802486aa"
+    },
+    "necola/weaponParticles.json": {
+      "size": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
     },
     "readme_l4n.txt": {
       "size": 102118,
@@ -674,6 +734,86 @@
       "Remove obsolete generate_addoninfo setting",
       "Updated VPK Overlay documentation",
       "Commented -nekook launch option"
+    ]
+  },
+  "necola_integration": {
+    "name": "L4N-Necola",
+    "necola_version": "1.4.1",
+    "source_archive_sha256": "b4be6642cab06526238bd1147872af1a6aa54ec5aa22d67264d1ae65c562896d",
+    "source_archive_bytes": 17006203,
+    "files": {
+      "bin/neko/necola/necola.dll": {
+        "size": 2155520,
+        "sha256": "9f0ac0ee715bf3f311a77db543183b888165f78320329c5ab7717ef469f96ef4"
+      },
+      "bin/neko/plugins/l4n_necola_bridge.dll": {
+        "size": 163840,
+        "sha256": "6f203df97969c86545fe2f81ccc7632d6f7be7de6d7d57404626a5980fe9c584"
+      },
+      "kpatch.ini": {
+        "size": 4001,
+        "sha256": "d90b49a3313774881bca2e72f293d4327ddec2a801167fe99bb696823b2b4b3b"
+      },
+      "left4dead2/addons/l4n_necola_audio_base.vpk": {
+        "size": 612981,
+        "sha256": "ff7f95c5c9d6d9fe4d1217d6a14c45b3f98c474566e1fc7746108c0ae11e59c1"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl10.vpk": {
+        "size": 669588,
+        "sha256": "19aaea2b8666cd4c466922b2ab863dba78c4d1bedffa847e7fdb64776a1b6f2e"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl20.vpk": {
+        "size": 669588,
+        "sha256": "c5050faba4aa1e409cd19bb4218ae75a785f374e7e29789dfd3ea5032da8a33b"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl30.vpk": {
+        "size": 669588,
+        "sha256": "f72b88c9b2e66c5f92cbeecfc754d1a887825f5abf448fb75d1931a6993ffc51"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl40.vpk": {
+        "size": 669588,
+        "sha256": "88115c8871e4048c4ef7b82004766d2a04d111fa6244cad640c2091590ed2c1d"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl50.vpk": {
+        "size": 669588,
+        "sha256": "1b5b2b6d89b2c991c03cae3868b189d52c495407b7798be168ea6c0807eab99d"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl60.vpk": {
+        "size": 669588,
+        "sha256": "3877a4748f426fcaf4aeaf2a531ef1fc54a2b992d27b0b1abb978bac4e78d64a"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl70.vpk": {
+        "size": 669588,
+        "sha256": "990903a2d0b7a1045dda33d20a85864c839792e75e4a83b303107ca16bd88413"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl80.vpk": {
+        "size": 669588,
+        "sha256": "e7dc8020098bb209198583e118cd11c77e7cc66f3335fb568691b2d491ab2b0d"
+      },
+      "left4dead2/addons/l4n_necola_audio_ncl90.vpk": {
+        "size": 669588,
+        "sha256": "248d202742ac4d083a1e2fec184b3bc2b61189895df6366efda07ec9b1e71e77"
+      },
+      "necola/FeatureConfig.json": {
+        "size": 552,
+        "sha256": "76a4e8cf86850fe33f479db49f691e33bcd1c7f127492f62033103b9802486aa"
+      },
+      "necola/weaponParticles.json": {
+        "size": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    "excluded_package_paths": [
+      "README_merge.md",
+      "docs/audio-conversion.md",
+      "docs/l4n-feature-audit.md",
+      "docs/necola-static-audit.md",
+      "docs/rea-findings.md",
+      "docs/validation.md",
+      "scripts/install.ps1",
+      "scripts/restore.ps1",
+      "package-manifest.json",
+      "left4dead2/neko/config_template.vdf"
     ]
   }
 }

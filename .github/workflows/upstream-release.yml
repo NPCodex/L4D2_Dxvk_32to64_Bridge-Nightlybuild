@@ -284,6 +284,8 @@ jobs:
           $metadata.l4n_source_archive_sha256 = $l4n.source_archive_sha256
           $metadata.l4n_manifest = 'L4N-PAYLOAD.json'
           $metadata.l4n_user_preset_paths = $l4n.user_preset_paths
+          $metadata.l4n_necola_version = $l4n.necola_integration.necola_version
+          $metadata.l4n_necola_source_archive_sha256 = $l4n.necola_integration.source_archive_sha256
           $metadata | ConvertTo-Json | Set-Content dist/l4d2-bridge/UPSTREAM.json -Encoding utf8
           python scripts/archive_runtime.py dist/l4d2-bridge $env:ARCHIVE_NAME
           if ($LASTEXITCODE -ne 0) { throw 'Archive failed' }

@@ -10,9 +10,11 @@
 
 ## 说明
 
-**v1.5.17 本次修订将完整 L4N 更新为 2.53.0，包含新增的 `bin/left4neko_server.dll`，并合并新版配置模板。** 原作者更新说明涉及本地服务端骨骼动画计算、`l4n_lookat` 打断和模组加载顺序输出修复；整合包未额外启用实验性骨骼计算。本次范围与来源见 [整合包说明](docs/L4N-BUNDLE.md)。
+**v1.5.17 本次修订接入已完成的 L4N-Necola：在 L4N 2.53.0 上通过插件加载 necola 1.4.1 兼容扩展，并附带转换为 L4N 加载路径的 10 个音频库。** 检视、开镜、额外粒子清单和堆内存配置由 L4N 负责；保留 necola 的模型协议及写回接口。整合说明、文件清单、安装脚本和诊断材料不加入玩家包。本次范围与限制见 [整合包说明](docs/L4N-BUNDLE.md)。
 
-**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 89 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
+**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 104 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
+
+已有 necola 配置时，先备份 `kpatch.ini`、`necola/FeatureConfig.json` 和 `necola/weaponParticles.json`，对照合并个人设置；直接解压覆盖不会自动合并。L4N 优先的六个功能开关必须保持关闭，否则扩展在下次启动时拒绝加载。使用 L4N 启动器，不再通过 necola 独立启动器重复加载。兼容扩展仍需配套 MOD 资产；本次未验收它与 Bridge 组合的游戏地图、画质、FPS 或长期稳定性，也不代表旧 Necola 退出问题已修复。
 
 | 游戏 `bin/studiorender.dll` | SHA-256 |
 |---|---|
