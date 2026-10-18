@@ -10,6 +10,8 @@
 
 [简体中文](README.md) | **English**
 
+An optional, source-built [Windows quick tool](docs/QUICK-TOOL.md) provides Bridge/no-Bridge modes, Steam launch options, installation/startup checks and local logs. It does not change release packaging or automatically install components.
+
 ## Information
 
 **This v1.5.17 revision incorporates the completed L4N-necola package: an L4N plugin loads the necola 1.4.1 compatibility extension alongside L4N 2.53.0, with 10 audio libraries converted to L4N loading paths.** L4N retains inspection, ADS, extra particle-manifest and heap configuration; necola retains its model protocols and status writeback interfaces. Merger documentation, manifests, installers and diagnostics are excluded from the player ZIP. See [scope and limitations](docs/L4N-BUNDLE.md).
