@@ -12,7 +12,7 @@
 
 ## 说明
 
-**v1.5.17 本次修订接入已完成的 L4N-necola：在 L4N 2.53.0 上通过插件加载 necola 1.4.1 兼容扩展，并附带转换为 L4N 加载路径的 10 个音频库。** 检视、开镜、额外粒子清单和堆内存配置由 L4N 负责；保留 necola 的模型协议及写回接口。整合说明、文件清单、安装脚本和诊断材料不加入玩家包。本次范围与限制见 [整合包说明](docs/L4N-BUNDLE.md)。
+**v1.5.17 本次修订更新 NVIDIA Bridge 源码至 `cf83c05`，适配材质 API 并加固同版本组件身份校验。** 具体范围和验证门禁见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。完整 L4N-necola 继续随包，来源与配置见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 **[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 104 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 
@@ -35,7 +35,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 当前使用 **完整 IPC v2（ABI 0x00020004）**，`bin/d3d9.dll`、`L4D2Bridge32.exe` 和 `L4D2Bridge64.exe` 必须同批更新，不能混用旧版。回退 Bridge 时同时恢复配对的客户端和 Host；回退 ThinFlex 时恢复本机保存的原始 `studiorender.dll`。卸载时移除本包安装的文件并恢复备份。
 
-本次范围见 [L4N 整合包说明](docs/L4N-BUNDLE.md)；此前 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md) 的机制与验证记录继续保留；v1.5.17 原始 NVIDIA 更新说明保留于 [历史发布记录](docs/RELEASE-HISTORY.md)，源码采用范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。此前 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)、[GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)、[Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 和 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md) 的历史记录继续保留。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
+本次源码更新范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)，L4N 内容见 [整合包说明](docs/L4N-BUNDLE.md)；此前 [ReShade 输入修复](docs/RESHADE-INPUT-20261016.md) 的机制与验证记录继续保留；v1.5.17 原始 NVIDIA 更新说明保留于 [历史发布记录](docs/RELEASE-HISTORY.md)，源码采用范围见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。此前 [设备销毁清理修复](docs/DEVICE-DESTROY-20261015.md)、[GPU 与 IPC 调整](docs/GPU-IPC-20261013.md)、[Steam 选择性更新](docs/UPSTREAM-STEAM-20261013.md) 和 [v1.5.0 整合与验证说明](docs/UPSTREAM-45-INTEGRATION.md) 的历史记录继续保留。[历史 v1.2.3 优化对照](docs/HOT-COMMAND-PACKETS.md) 记录本机 GPLALL + x64 Host 的帧率结果；[此前 IPC 更新对照](docs/UPSTREAM-1.2.2-INTEGRATION.md) 记录升级至 v1.2.2 时的取舍。[手电专项记录](docs/FLASHLIGHT-PERFORMANCE-2026-10-10.md) 和 [早期性能实测](docs/PERFORMANCE-2026-10-10.md) 属于此前版本；更多验证步骤见 [游戏验收与性能基线](docs/GAME-VALIDATION.md)。
 
 基于 [NVIDIA dxvk-remix Bridge](https://github.com/NVIDIAGameWorks/dxvk-remix)，沿用 [L4D2 原项目](https://github.com/yeyunyyds/L4D2_Dxvk_32to64_Bridge) 的补丁，自动构建适用于 32 位《求生之路 2》的 x86 客户端与 x86/x64 Host。
 

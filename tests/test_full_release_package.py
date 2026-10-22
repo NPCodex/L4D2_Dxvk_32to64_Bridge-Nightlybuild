@@ -29,10 +29,11 @@ class FullPackage(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("fixture", encoding="utf-8")
         (self.root / "VERSION").write_text("1.1\n", encoding="utf-8")
-        self.identity = "l4d2-1.1+" + hashlib.sha256(b"fixture").hexdigest()[:16]
+        self.upstream = "a" * 40
+        self.identity = package.runtime_build_id(b"fixture", "1.1", self.upstream)
         stamp = self.source / "bridge/src/util/ipc_v2/ipc_v2_build.h"
         stamp.parent.mkdir(parents=True)
-        self.protocol = package.protocol_digest(b"fixture", "1.1")
+        self.protocol = package.protocol_digest(b"fixture", "1.1", self.upstream)
         stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x{self.protocol[i * 8:i * 8 + 8]}u\n'
                                  for i in range(4)), encoding="utf-8")
         self.client = self.binary("source/bridge/_compRelease_x86/src/client/d3d9.dll", 0x14c)
@@ -80,6 +81,7 @@ class FullPackage(unittest.TestCase):
         receipt = json.loads((self.output / "BUILD-INFO.json").read_text())
         self.assertEqual(receipt["build_id"], self.identity)
         self.assertEqual(receipt["protocol_source_sha256"], self.protocol)
+        self.assertEqual(receipt["nvidia_commit"], self.upstream)
         self.assertFalse(receipt["legacy_data_ring"])
         self.assertEqual(receipt["l4n_author"], "Starfelll")
         self.assertEqual(receipt["l4n_version"], "2.53.0")
@@ -132,6 +134,19 @@ class FullPackage(unittest.TestCase):
         stamp.write_text(''.join(f'#define LDB_IPC_V2_BUILD{i} 0x00000000u\n' for i in range(4)))
         with self.assertRaisesRegex(ValueError, "IPC v2 identity"):
             self.run_package()
+        self.assertFalse(self.output.exists())
+
+    def test_same_version_binary_from_another_pin_is_rejected_before_output(self):
+        other_identity = package.runtime_build_id(b"fixture", "1.1", "b" * 40)
+        self.host64.write_bytes(self.host64.read_bytes().replace(self.identity.encode(), other_identity.encode()))
+        with self.assertRaisesRegex(ValueError, "build identity"):
+            self.run_package()
+        self.assertFalse(self.output.exists())
+
+    def test_source_head_override_must_match_prepared_and_built_identity(self):
+        with mock.patch.object(package.subprocess, "check_output", return_value="b" * 40):
+            with self.assertRaisesRegex(ValueError, "IPC v2 identity"):
+                self.run_package()
         self.assertFalse(self.output.exists())
 
 

@@ -9,10 +9,10 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
-from build_identity import protocol_digest
+from build_identity import protocol_digest, upstream_commit
 
 ROOT = Path(__file__).resolve().parents[1]
-COMMIT = "029602f83a2fdec8f4d4419e1967bf231fb8f0b5"
+COMMIT = "cf83c0514d5690a2e54369ba24a6d044b989e6c8"
 REMOTE = "https://github.com/NVIDIAGameWorks/dxvk-remix.git"
 
 
@@ -20,7 +20,7 @@ def run(*args, cwd=None, env=None):
     subprocess.run(args, cwd=cwd, env=env, check=True)
 
 
-def _render_patch():
+def _render_patch(commit=COMMIT):
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     if not re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version):
         raise ValueError("VERSION must use major.minor or major.minor.patch")
@@ -30,7 +30,7 @@ def _render_patch():
         lambda match: match[1] + version.encode("ascii") + match[2], original)
     if count != 2:
         raise RuntimeError("Expected both project version log lines; checkout preserved")
-    stamp = protocol_digest(original, version)
+    stamp = protocol_digest(original, version, commit)
     for index in range(4):
         rendered, count = re.subn(
             rb'(?m)^\+#define LDB_IPC_V2_BUILD' + str(index).encode() + rb' 0x00000000u(\r?)$',
@@ -77,7 +77,8 @@ def _matches_tree(source, tree, env):
 
 
 def prepare(source, commit=COMMIT):
-    rendered_patch = _render_patch()
+    commit = upstream_commit(commit)
+    rendered_patch = _render_patch(commit)
     if not source.exists():
         source.parent.mkdir(parents=True, exist_ok=True)
         run("git", "init", str(source))

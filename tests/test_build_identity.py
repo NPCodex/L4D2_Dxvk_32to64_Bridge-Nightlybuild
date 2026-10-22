@@ -3,9 +3,27 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parents[1]/"scripts"))
-from build_identity import recipe_digest, INPUT_FILES
+from build_identity import recipe_digest, protocol_digest, runtime_build_id, upstream_commit, INPUT_FILES
 
 class Identity(unittest.TestCase):
+    def test_same_version_distinct_upstream_has_distinct_startup_and_channel_identity(self):
+        patch = b"unchanged cumulative patch\n"
+        old = "029602f83a2fdec8f4d4419e1967bf231fb8f0b5"
+        new = "cf83c0514d5690a2e54369ba24a6d044b989e6c8"
+        digests = [protocol_digest(patch, "1.5.17", pin) for pin in (old, new)]
+        self.assertNotEqual(digests[0][:32], digests[1][:32])
+        for pin, digest in zip((old, new), digests):
+            self.assertEqual(runtime_build_id(patch, "1.5.17", pin), "l4d2-1.5.17+" + digest)
+            self.assertEqual(digest, protocol_digest(patch.replace(b"\n", b"\r\n"), "1.5.17", pin.upper()))
+        self.assertNotEqual(runtime_build_id(patch, "1.5.17", old), runtime_build_id(patch, "1.5.17", new))
+
+    def test_full_sha_required_in_both_runtime_guards(self):
+        for pin in (None, "", "main", "cf83c05", "g" * 40, "a" * 39, "a" * 41, "a" * 40 + "\n"):
+            for function in (protocol_digest, runtime_build_id):
+                with self.subTest(pin=pin, function=function.__name__), self.assertRaises(ValueError):
+                    function(b"patch", "1.5.17", pin)
+        self.assertEqual(upstream_commit("A" * 40), "a" * 40)
+
     def test_runtime_inputs_change_identity_but_docs_and_line_endings_do_not(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)

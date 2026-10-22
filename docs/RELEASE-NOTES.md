@@ -1,12 +1,12 @@
 # v1.5.17
 
-- 本次同版本附件更新将完整 L4N 升级为 2.53.0，包含新增的 `bin/left4neko_server.dll`；原包 77 个文件中 76 个保持原字节，完整玩家包为 89 文件。
-- 唯一模板例外：新版 `config_template.vdf` 三方合并进 `config.vdf`，保留用户预设，合入 VPK Overlay 说明及注释示例，移除原作者已删除的 `generate_addoninfo` 项。
-- 据原作者 Starfelll（@Starfelll）的更新说明，2.53.0 扩展本地服务端动画计算接管，修复右键攻击不能打断 `l4n_lookat` 和 `l4n_show_addon_load_order` 输出崩溃，并移除 `l4n_force_dummy_addoninfo`。整合包未额外启用实验性骨骼计算。
+- NVIDIA Bridge 构建源码更新至 `cf83c0514d5690a2e54369ba24a6d044b989e6c8`，适配 Remix API 0.6.6 的材质扩展和旧 API 调用布局；Client 与两个 Host 成套更新。
+- 将实际 NVIDIA 完整提交号纳入启动与 IPC 身份校验，防止同版本号、同补丁但来自不同上游源码的组件被当作配套构建。
+- 增加旧 API 对象边界、材质字段序列化、跨架构传输及同版本不同源码拒绝的原生回归。
 
-验证范围：原包完整性、逐文件身份、配置合并和完整包校验；发布门禁要求三端 MSVC 14.29 编译、必需原生回归、最终源码收据与发布附件核验通过。本次没有新增游戏、FPS、画质或长期稳定性验收，不将原作者的更新说明视为本项目实机验证。此前独立的 Necola 退出与 Special K 随机崩溃问题不由本次更新判定为已修复。
+发布门禁要求三端 MSVC 14.29 构建、必需原生回归、最终源码收据及 CI/线上附件逐字节核验通过。包内默认关闭 Remix API，渲染后端仍为独立 GPLALL；本次不新增 RTX、DLSS 或已证实的 FPS/画质收益，也没有新增游戏、长稳或退出验收。
 
-[整合来源与配置说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/L4N-BUNDLE.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+[源码范围与验证说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/NVIDIA-UPSTREAM-UPDATES.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
 
 # v1.5.16
 

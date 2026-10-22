@@ -2,6 +2,16 @@
 
 NVIDIA dxvk-remix、L4D2 原项目和独立 GPLALL 后端是三个不同来源；本页仅记录 NVIDIA 源码采用。L4D2 原项目基准继续见 [原项目同步记录](ORIGINAL-PROJECT-UPDATES.md)。
 
+## 2026-10-22：v1.5.17 同版本 NVIDIA 源码更新
+
+经维护者明确授权，源码基准由 `029602f83a2fdec8f4d4419e1967bf231fb8f0b5` 更新至 [`cf83c0514d5690a2e54369ba24a6d044b989e6c8`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/cf83c0514d5690a2e54369ba24a6d044b989e6c8)。完整差异包含 20 个提交、81 个文件，其中最近审查的 6 个提交包含材质纹理变换、表面材质索引和 DLSS 界面文字调整。此前已审查的 14 个提交也随该主线基准包含在源码中。
+
+实际编入 Bridge 的变化是 Client 材质创建、共享材质序列化和公共 C API，API 版本由 0.6.5 改为 0.6.6。不透明与半透明材质扩展分别增加滚动速度/角度、可选缩放、偏移和旋转字段，共增加 32 字节序列化载荷；旧调用者按版本复制原有结构前缀。此次不能使用“整个 Bridge 编译输入未变”的等价结论。
+
+同版本替换仍保留 VERSION 1.5.17 和既有 Release/tag/附件名称。为区分旧新二进制，启动身份和 IPC 四个构建字均绑定实际 NVIDIA 完整提交、项目版本及规范化累计补丁；手动指定已授权源码时同样绑定该实际提交。完整配套 Client/Host 才能连接。旧新 API 对象边界、材质传输和身份拒绝由新增原生回归验证；正式三端 MSVC 14.29、完整项目回归、源码收据和线上附件核验均为发布门禁，具体通过结果与原始失败保留在该次 CI 与 `results/nvidia-update-20261022/`。
+
+`src/dxvk`、RTX 着色器、DLSS、根 Meson/Packman 构建链不进入本包的 Bridge 构建；Detours 及独立 GPLALL 基准保持固定。随包 `exposeRemixApi=False`，普通 D3D9 Draw/Present 路径没有新增材质变换工作，不能据此宣传本包获得 RTX/DLSS/纹理变换功能或帧率、画质提升。无需重复启动游戏验证未编入的渲染器；本轮没有新增游戏、FPS、画质、长稳或退出验收。L4N-necola、用户配置、ThinFlex 及历史失败记录保留。
+
 ## 2026-10-16：运行时初始化更新与全局驱动门槛移除
 
 本次审阅并采用 NVIDIA `main` 的 [`029602f83a2fdec8f4d4419e1967bf231fb8f0b5`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/029602f83a2fdec8f4d4419e1967bf231fb8f0b5)，替代此前固定的 `d2a5033ec79303fffc33ca8e6595dd560162ff69`。编入本包的 Bridge 变化包括运行时缺失时回退 x64、Remix 初始化状态 IPC、Host 初始化状态传播及 Bridge API 初始化顺序适配。Client 与 x86/x64 Host 必须使用同一组配套二进制；本次没有声称修复首次启动或开机冷启动闪退，也没有新增游戏/FPS/画质验收证据。

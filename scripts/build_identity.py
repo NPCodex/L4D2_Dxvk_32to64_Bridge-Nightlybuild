@@ -1,5 +1,6 @@
 """Fingerprint inputs that affect binaries, packages, or their validation."""
 import hashlib
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -8,7 +9,14 @@ INPUT_FILES = ("VERSION", "LICENSE", "THIRD_PARTY.md",
                "docs/THINFLEX-CRASH-FIX.md", "docs/THINFLEX-TEST-README.txt")
 
 
-def protocol_digest(patch, version):
+def upstream_commit(commit):
+    """Require a full immutable Git SHA, including for explicit build overrides."""
+    if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-fA-F]{40}", commit):
+        raise ValueError("Upstream commit must be a full 40-character Git SHA")
+    return commit.lower()
+
+
+def protocol_digest(patch, version, commit):
     """Bind all four IPC directions to the exact cumulative source and version.
 
     Hash the unrendered patch, whose build macros are zero placeholders. This
@@ -16,8 +24,14 @@ def protocol_digest(patch, version):
     """
     digest = hashlib.sha256(b"l4d2-nightly-ipc-v2\0")
     digest.update(version.encode("ascii") + b"\0")
+    digest.update(b"upstream\0" + upstream_commit(commit).encode("ascii") + b"\0")
     digest.update(b"patches/l4d2-bridge.patch\0" + patch.replace(b"\r\n", b"\n"))
     return digest.hexdigest()
+
+
+def runtime_build_id(patch, version, commit):
+    """Use the same immutable inputs for the startup and IPC channel guards."""
+    return f"l4d2-{version}+{protocol_digest(patch, version, commit)}"
 
 
 def recipe_digest(root=ROOT):
@@ -35,3 +49,12 @@ def recipe_digest(root=ROOT):
         digest.update(len(relative).to_bytes(8, "little") + relative)
         digest.update(len(data).to_bytes(8, "little") + data)
     return digest.hexdigest()
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--upstream-commit", required=True)
+    args = parser.parse_args()
+    print(runtime_build_id((ROOT / "patches/l4d2-bridge.patch").read_bytes(),
+                           (ROOT / "VERSION").read_text().strip(), args.upstream_commit))

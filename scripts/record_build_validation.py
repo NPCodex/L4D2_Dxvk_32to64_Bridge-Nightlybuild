@@ -13,13 +13,13 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-from build_identity import protocol_digest, recipe_digest
+from build_identity import protocol_digest, recipe_digest, runtime_build_id, upstream_commit
 from prepare_bridge import ROOT, _check_index, _matches_tree, _render_patch
 
 
 def record(source, output):
-    base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
-    rendered = _render_patch()
+    base = upstream_commit(subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip())
+    rendered = _render_patch(base)
     with tempfile.TemporaryDirectory(prefix="bridge-validation-") as directory:
         patch = Path(directory) / "rendered.patch"
         patch.write_bytes(rendered)
@@ -30,7 +30,8 @@ def record(source, output):
         _check_index(source, base, expected)
         if not _matches_tree(source, expected, env):
             raise RuntimeError("Prepared source drifted from the rendered patch; no validation receipt written")
-        names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", "-z", expected, "--", "bridge"], cwd=source)
+        names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", "-z", expected, "--",
+                                         "bridge", "public/include/remix", "public/include/remixapi"], cwd=source)
         files = {name.decode("utf-8"): hashlib.sha256((source / name.decode("utf-8")).read_bytes()).hexdigest()
                  for name in names.split(b"\0") if name}
     raw = (ROOT / "patches/l4d2-bridge.patch").read_bytes()
@@ -41,13 +42,15 @@ def record(source, output):
         "recipe_digest": recipe_digest(ROOT), "version": version, "nvidia_commit": base,
         "patch_sha256": hashlib.sha256(raw).hexdigest(),
         "rendered_patch_sha256": hashlib.sha256(rendered).hexdigest(),
-        "protocol_source_sha256": protocol_digest(raw, version),
+        "protocol_source_sha256": protocol_digest(raw, version, base),
+        "build_id": runtime_build_id(raw, version, base),
         "expected_git_tree": expected, "source_matches_rendered_patch": True,
-        "bridge_source_files": files,
+        "bridge_source_files": {name: digest for name, digest in files.items() if name.startswith("bridge/")},
+        "public_source_files": {name: digest for name, digest in files.items() if name.startswith("public/")},
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(f"Verified {len(files)} Bridge source files; receipt: {output}")
+    print(f"Verified {len(files)} Bridge/public API source files; receipt: {output}")
 
 
 if __name__ == "__main__":

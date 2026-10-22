@@ -65,7 +65,7 @@ class Preparation(unittest.TestCase):
 
     def prepare(self):
         self.rendered_patch = self.root / "rendered.patch"
-        self.rendered_patch.write_bytes(prepare_bridge._render_patch())
+        self.rendered_patch.write_bytes(prepare_bridge._render_patch(self.commit))
         prepare_bridge.prepare(self.source, self.commit)
 
     def snapshot(self):
@@ -129,13 +129,52 @@ class Preparation(unittest.TestCase):
 
     def test_protocol_stamp_binds_source_and_project_version(self):
         from build_identity import protocol_digest
-        expected = protocol_digest(self.patch_file.read_bytes(), "1.0.0")
+        expected = protocol_digest(self.patch_file.read_bytes(), "1.0.0", self.commit)
         self.prepare()
         for index in range(4):
             self.assertIn(f'0x{expected[index * 8:index * 8 + 8]}u', self.stamp.read_text())
-        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes(), "1.0.1"))
-        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes() + b'\n', "1.0.0"))
-        self.assertEqual(expected, protocol_digest(self.patch_file.read_bytes().replace(b'\n', b'\r\n'), "1.0.0"))
+        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes(), "1.0.1", self.commit))
+        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes() + b'\n', "1.0.0", self.commit))
+        self.assertEqual(expected, protocol_digest(self.patch_file.read_bytes().replace(b'\n', b'\r\n'), "1.0.0", self.commit))
+        self.assertNotEqual(expected, protocol_digest(self.patch_file.read_bytes(), "1.0.0", "0" * 40))
+
+    def test_explicit_commit_override_controls_prepared_stamp(self):
+        from build_identity import protocol_digest
+        self.assertNotEqual(self.commit, prepare_bridge.COMMIT)
+        self.prepare()
+        actual = self.stamp.read_text()
+        override = protocol_digest(self.patch_file.read_bytes(), "1.0.0", self.commit)
+        default = protocol_digest(self.patch_file.read_bytes(), "1.0.0", prepare_bridge.COMMIT)
+        self.assertIn(override[:8], actual)
+        self.assertNotIn(default[:8], actual)
+
+    def test_validation_receipt_uses_actual_override_not_default_pin(self):
+        import json
+        import record_build_validation
+        from build_identity import protocol_digest, runtime_build_id
+        self.prepare()
+        self.git("init", "-q", cwd=self.root)
+        self.git("config", "user.name", "Bridge Test", cwd=self.root)
+        self.git("config", "user.email", "bridge-test@example.invalid", cwd=self.root)
+        self.git("add", "VERSION", "patches", cwd=self.root)
+        self.git("commit", "-qm", "fixture recipe", cwd=self.root)
+        output = self.root / "validation.json"
+        with patch.object(record_build_validation, "ROOT", self.root), \
+                patch.object(record_build_validation, "recipe_digest", return_value="fixture-recipe"):
+            record_build_validation.record(self.source, output)
+        receipt = json.loads(output.read_text())
+        self.assertEqual(receipt["nvidia_commit"], self.commit)
+        self.assertEqual(receipt["protocol_source_sha256"],
+                         protocol_digest(self.patch_file.read_bytes(), "1.0.0", self.commit))
+        self.assertEqual(receipt["build_id"], runtime_build_id(self.patch_file.read_bytes(), "1.0.0", self.commit))
+
+    def test_invalid_or_abbreviated_commit_is_rejected_before_source_changes(self):
+        before = self.snapshot()
+        for commit in ("HEAD", "main", self.commit[:8], self.commit + "\n", "g" * 40):
+            with self.subTest(commit=commit), self.assertRaisesRegex(ValueError, "full 40-character"):
+                prepare_bridge.prepare(self.source, commit)
+            self.assertEqual(before, self.snapshot())
+        self.assertEqual(0, self.submodule_updates)
 
     def test_changed_project_version_preserves_old_applied_checkout(self):
         self.prepare()

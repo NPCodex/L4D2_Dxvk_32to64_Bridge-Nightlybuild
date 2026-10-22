@@ -6,17 +6,18 @@ param(
   [string]$DxvkDll,
   [string]$Dxvk32Dll,
   [string]$VcVarsVer = '14.29',
-  [string]$UpstreamCommit = '029602f83a2fdec8f4d4419e1967bf231fb8f0b5'
+  [string]$UpstreamCommit = 'cf83c0514d5690a2e54369ba24a6d044b989e6c8'
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
+# Validate before fetching a backend or preparing any source. Both runtime guards
+# use the full selected upstream SHA, including explicit validation overrides.
+$env:L4D2_BRIDGE_BUILD_ID = & python "$PSScriptRoot/build_identity.py" --upstream-commit $UpstreamCommit
+if ($LASTEXITCODE -ne 0) { throw 'Invalid upstream build identity' }
 if (-not $DxvkDll) { $DxvkDll = & "$PSScriptRoot/prepare_backend.ps1" -VcVarsVer $VcVarsVer }
 if (-not $Dxvk32Dll) { $Dxvk32Dll = & "$PSScriptRoot/prepare_backend.ps1" -Architecture x86 -VcVarsVer $VcVarsVer }
 $dxvkPath = (Resolve-Path $DxvkDll).Path
 $dxvk32Path = (Resolve-Path $Dxvk32Dll).Path
-$projectVersion = (Get-Content (Join-Path $repoRoot 'VERSION') -Raw).Trim()
-$patchHash = (Get-FileHash (Join-Path $repoRoot 'patches/l4d2-bridge.patch') -Algorithm SHA256).Hash.ToLower().Substring(0, 16)
-$env:L4D2_BRIDGE_BUILD_ID = "l4d2-$projectVersion+$patchHash"
 function Invoke-Checked {
   param([string]$Program, [string[]]$Arguments)
   & $Program @Arguments
