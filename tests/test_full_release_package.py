@@ -84,7 +84,7 @@ class FullPackage(unittest.TestCase):
         self.assertEqual(receipt["nvidia_commit"], self.upstream)
         self.assertFalse(receipt["legacy_data_ring"])
         self.assertEqual(receipt["l4n_author"], "Starfelll")
-        self.assertEqual(receipt["l4n_version"], "2.53.0")
+        self.assertEqual(receipt["l4n_version"], "2.55.0")
         self.assertEqual((self.output / "left4dead2.exe").read_bytes(), b"verified L4N fixture")
         self.assertEqual((self.output / "readme_l4n.txt").read_bytes(), b"Starfelll original")
         manifest = json.loads((self.output / "SHA256.json").read_text())

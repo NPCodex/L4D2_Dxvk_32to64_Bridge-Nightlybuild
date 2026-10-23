@@ -1,52 +1,48 @@
-L4N / Left4Neko 2.53.0
+L4N / Left4Neko 2.55.0
 Original author: Starfelll (original files identify the author as @Starfelll).
 
 L4N is an independent third-party project. Its launcher, modules, shaders,
-materials, conversion tools, SDK and original documentation were supplied by
-the maintainer in L4N_v2.53.0.7z and are preserved byte-for-byte, except for
-the explicit configuration-template merge described below. They are not
-authored by this Bridge project or Codex and are not covered by its MIT license.
-All original author and third-party notices remain applicable.
+materials, conversion tools, SDK and original documentation remain the work
+of their original rightsholders, not this Bridge project or Codex. The root
+MIT license does not relicense these components. All original author and
+third-party notices remain applicable.
 
-Original archive SHA-256:
-164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f
+Input: NPCodex/l4n-necola commit
+ba7104eecc4073f08ab609f87ce05ff50852bae2
+Committed archive: release-assets/L4N-Necola.zip
+SHA-256: 041143bdd3df275af81ac71249fa01d41c73a3d7e6ae3e22e90879a4198c6a79
 
-The original readme_l4n.txt is included unchanged. The reference
-left4dead2/neko/config_template.vdf is merged into the active config.vdf
-using the previous template and maintainer's preset, preserving its existing
-settings while incorporating the new template changes. The template itself
-is the sole original file not shipped separately. All other original files,
-including bin/neko tools, SDK, nested archive and launchers, are included.
-The maintainer's integration preset additionally supplies dxvk.conf and
-left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs.
-These additions and the configuration merge are identified separately in
-the repository's runtime/l4n/manifest.json and must not be
-represented as the original L4N defaults.
+The archive contains 79 original L4N files. All are delivered byte-for-byte
+except left4dead2/neko/config_template.vdf, whose changes are merged into
+the maintainer's active config.vdf. The template is not shipped separately.
+This includes the experimental bin/vphysics_jolt.dll and original tools,
+SDK, nested archive, launchers, crashpad runtime and readme_l4n.txt.
+No separate L4N 2.55.0 original 7z was read for this update.
+The maintainer's preset supplies dxvk.conf, config.vdf and
+left4dead2/shaders/fxc/neko_floattoscreen_ps20b.vcs. At the maintainer's
+request, launch_options adds -l4n_vphysics_jolt. These settings are not
+represented as the original L4N defaults. The manifest records provenance
+and the configuration exception separately.
 
 This repository builds the Bridge Client/Hosts and the separate optional
-L4D2BridgePlugin.dll. Packaging them with L4N does not transfer authorship of
-L4N to this repository or imply endorsement by its original author.
+L4D2BridgePlugin.dll. Packaging them with L4N does not transfer authorship
+or imply endorsement by its original author.
 
 L4N-Necola compatibility extension (necola 1.4.1)
 
-The maintainer supplied the completed L4N-Necola package. This bundle takes
-its l4n_necola_bridge.dll plugin, the unchanged original necola.dll,
-integration settings and ten converted audio-library VPKs. It preserves
-L4N 2.53.0 and loads necola through L4N's plugin interface; this is not a
-transfer of necola authorship or a claim that its original source was merged.
-necola and its original audio-library content remain the work of their
-original rightsholders. The supplied necola archive contains no separate
-license grant; this repository's MIT license does not relicense that content.
-
-Supplied L4N-Necola.zip SHA-256:
-b4be6642cab06526238bd1147872af1a6aa54ec5aa22d67264d1ae65c562896d
+The same committed archive supplies l4n_necola_bridge.dll, original
+necola.dll, integration settings and ten converted audio-library VPKs.
+necola is loaded through L4N's plugin interface. Its original source is not
+claimed to be merged into L4N. necola and its audio-library content remain
+the work of their original rightsholders. The input contains no separate
+necola license grant; this repository's MIT license does not relicense it.
 Original necola.dll SHA-256:
 9f0ac0ee715bf3f311a77db543183b888165f78320329c5ab7717ef469f96ef4
 
-The integration plugin and configuration are distinct from the original
-L4N and necola components. Audio scripts use L4N loading paths; the supplied
-conversion repairs missing closing braces in nine supplemental scripts.
-Their original caches and base script content remain intact. These are
-sound mappings and caches, not additional WAV, PCF or weapon-model assets.
-The standalone necola launcher, merger documentation, file manifests,
-install/restore scripts and diagnostic material are not included.
+The integration plugin/configuration and original components are identified
+separately. Converted audio scripts use L4N loading paths and repair missing
+closing braces in nine supplemental scripts; original caches and base script
+content remain intact. These are sound mappings and caches, not additional
+WAV, PCF or weapon-model assets. The standalone necola launcher, merger
+instructions/manifests, install/restore scripts and private diagnostics are
+not included. Original L4N documentation and runtime tools remain included.

@@ -71,14 +71,13 @@ L4D2 与 Steam 属于 Valve，游戏及平台不包含在本项目的授权范�
 - 使用范围：核对输入窗口所有权检查及 API 10 的公开插件 ABI、overlay 事件编号与签名。只新增独立的动态接口绑定，不复制或分发 SDK 实现、头文件或 ReShade DLL；不把 ReShade 代码归为本项目原创。
 - 窗口/输入方案还参考 TXVK 固定提交 `7d466d794926ce26c113d810172c2abc37058319` 的公开说明与二进制静态分析，参考范围与上文归属一致。
 
-## L4N / Left4Neko 2.53.0 与 necola 兼容扩展
+## L4N / Left4Neko 2.55.0 与 necola 兼容扩展
 
-- 原作者：**Starfelll（原文件署名 @Starfelll）**。感谢原作者提供的 L4N 启动器、模块、着色器与工具；它们不是本项目或 Codex 的原创代码。
-- L4N 来源为维护者提供的原始 `L4N_v2.53.0.7z`，SHA-256 为 `164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f`。原包 77 个文件中，76 个按原路径、原字节完整交付；`config_template.vdf` 的修改合并到用户 `config.vdf`，模板不单独附带。
-- 另附维护者整合目录中的 `dxvk.conf`、`left4dead2/neko/config.vdf` 和 `neko_floattoscreen_ps20b.vcs`，明确区分为用户预设，不冒充 L4N 原版默认配置。
-- 原 `readme_l4n.txt`、原组件声明及 [L4N-NOTICE](licenses/L4N-NOTICE.txt) 的原文合并保留于包内 `THIRD-PARTY-NOTICES.txt`。根 MIT 许可不覆盖 L4N；组合打包不转移作者归属，也不表示原作者认可本构建。
-- 来源与逐文件清单见 [整合包说明](docs/L4N-BUNDLE.md) 和 `runtime/l4n/manifest.json`（仅用于构建校验，不放入玩家 ZIP）。
-- necola 1.4.1 及音频库来源于维护者提供的已完成 `L4N-Necola.zip`，通过独立 L4N 插件加载原始 `necola.dll`。原组件和音频内容的权利仍归原权利人；输入包没有单独许可文本，本仓库不据此推定 MIT 授权。插件、整合配置和音频脚本路径/语法转换与原组件分别记录；必要归属合并入现有 `THIRD-PARTY-NOTICES.txt`，不加入合并项目的说明、文件清单或安装脚本。
+- 原作者：**Starfelll（原文件署名 @Starfelll）**。L4N 启动器、模块、着色器、SDK 和工具不是本项目或 Codex 的原创代码，原组件声明继续适用。
+- 输入为 `NPCodex/l4n-necola` 提交 `ba7104eecc4073f08ab609f87ce05ff50852bae2` 中的 `release-assets/L4N-Necola.zip`，SHA-256 为 `041143bdd3df275af81ac71249fa01d41c73a3d7e6ae3e22e90879a4198c6a79`。其中 79 个 L4N 原件中的 78 个逐字节交付，包括 `vphysics_jolt.dll`；唯一例外为合并到用户 `config.vdf` 的配置模板。未声称读取独立 2.55.0 原始 7z。
+- 用户 `dxvk.conf`、自定义 shader 和既有配置保留；`launch_options` 按维护者要求加入 `-l4n_vphysics_jolt`。它们明确作为用户预设与原版默认值区分。
+- 原 `readme_l4n.txt` 和 [L4N-NOTICE](licenses/L4N-NOTICE.txt) 合并保留于 `THIRD-PARTY-NOTICES.txt`。根 MIT 许可不覆盖 L4N；组合打包不转移归属，也不表示原作者认可本构建。来源见 [整合包说明](docs/L4N-BUNDLE.md) 与构建用 `runtime/l4n/manifest.json`。
+- 同一输入中的 necola 1.4.1 及音频库通过独立 L4N 插件接入，权利仍归原权利人；输入包没有单独 necola 许可文本，本仓库不据此推定 MIT 授权。插件、配置和音频脚本转换与原组件分别记录；必要归属合并入既有通知文件，合并项目的说明、清单及安装脚本不进入玩家 ZIP。
 
 ## 可选 L4N v2 控制插件 SDK
 

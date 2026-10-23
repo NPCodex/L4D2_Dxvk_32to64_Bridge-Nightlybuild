@@ -59,7 +59,7 @@ class Packaging(unittest.TestCase):
             expected.remove("optional/L4N/L4D2BridgePlugin.dll")
             expected.add("bin/neko/plugins/L4D2BridgePlugin.dll")
             self.assertEqual(names, expected)
-            self.assertEqual(len(names), 104)
+            self.assertEqual(len(names), 106)
             for name in runtime.REQUIRED:
                 destination = ("bin/neko/plugins/L4D2BridgePlugin.dll"
                                if name == "optional/L4N/L4D2BridgePlugin.dll" else name)

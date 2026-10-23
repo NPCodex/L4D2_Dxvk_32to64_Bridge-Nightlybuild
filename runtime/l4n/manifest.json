@@ -1,11 +1,11 @@
 {
   "name": "L4N / Left4Neko",
-  "version": "2.53.0",
+  "version": "2.55.0",
   "author": "Starfelll",
   "original_author_signature": "@Starfelll",
-  "source": "User-supplied original L4N_v2.53.0.7z; all original files retained byte-for-byte except config_template.vdf changes merged into config.vdf",
-  "source_archive_sha256": "164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f",
-  "original_file_count": 77,
+  "source": "L4N-Necola release-assets/L4N-Necola.zip at the pinned NPCodex/l4n-necola commit; 79 original L4N files verified against the package manifest, with config_template.vdf merged into the active preset",
+  "source_archive_sha256": "041143bdd3df275af81ac71249fa01d41c73a3d7e6ae3e22e90879a4198c6a79",
+  "original_file_count": 79,
   "user_preset_source": "User-supplied L4N+64-bit Bridge integration folder 10101041",
   "user_preset_paths": [
     "dxvk.conf",
@@ -14,12 +14,12 @@
   ],
   "files": {
     "bin/left4neko.dll": {
-      "size": 2355200,
-      "sha256": "04ee5a2a5b1c7407555b0cb9a6b9652540283dd7785223f705e21b8d0099e17f"
+      "size": 2361856,
+      "sha256": "6b2ecd61413def1b2a001df55be1bfd6b934623534fff186ba5be05020578577"
     },
     "bin/left4neko_server.dll": {
       "size": 341504,
-      "sha256": "46d972e5a10d04b0333f396c9ce079e61c9ee8b4c37dfa18662189e5e61bcd4a"
+      "sha256": "b397a9f0a8e06cc1f215860405cb3d46c632af9366d3a2f68dff4987b34c1c37"
     },
     "bin/neko/build_sound_cache.bat": {
       "size": 325,
@@ -43,7 +43,7 @@
     },
     "bin/neko/plugins/l4n_necola_bridge.dll": {
       "size": 163840,
-      "sha256": "6f203df97969c86545fe2f81ccc7632d6f7be7de6d7d57404626a5980fe9c584"
+      "sha256": "b8936c42f418d0502a814aea733f0e6bafdf6c3e3f866015077bba470a227f9c"
     },
     "bin/neko/plugins/l4n_plugin.h": {
       "size": 2207,
@@ -97,6 +97,14 @@
       "size": 73,
       "sha256": "b7e5ac4b36b19413db8eaafb954c9c99ba5e59c25c45b8e17ef569500ba0c66c"
     },
+    "bin/neko/读我_readme.txt": {
+      "size": 1108,
+      "sha256": "b72a745ef4f3c6fc871d01602b83585566de6c5f9b242a1d3537a4bd3fe7926d"
+    },
+    "bin/vphysics_jolt.dll": {
+      "size": 1433600,
+      "sha256": "740e6cdf30baf9a4f82a1a8dc10c68d8941970d94b5e2ebcba2648247cad31c9"
+    },
     "crash_dumps/crashpad_handler.exe": {
       "size": 768000,
       "sha256": "bbaa2fe0a771aff1112c6dcd8521e71d7dfc9b6825f356e6fd4d577fd86e9301"
@@ -107,7 +115,7 @@
     },
     "kpatch.ini": {
       "size": 4001,
-      "sha256": "d90b49a3313774881bca2e72f293d4327ddec2a801167fe99bb696823b2b4b3b"
+      "sha256": "e113a6fe5c92240ef7daab4c2d904a368feb6e999f47ca3d44cd54790e1e6a5d"
     },
     "left4dead2 no-insecure.bat": {
       "size": 373,
@@ -115,7 +123,7 @@
     },
     "left4dead2.exe": {
       "size": 142336,
-      "sha256": "75dae1b7faa102b97f39cb07e9daf5570e6917f92245d151fb1a214636ccf580"
+      "sha256": "ad1566788b03845cc06a96c4ba501857a655fa7158e181062214fb99e53a349f"
     },
     "left4dead2/addons/l4n_necola_audio_base.vpk": {
       "size": 612981,
@@ -163,7 +171,7 @@
     },
     "left4dead2/bin/game_shader_generic_neko.dll": {
       "size": 337920,
-      "sha256": "db5c8f07cf270100fbcfe510039d5e60c0cfbb48320606f707e772fc0fa18ee2"
+      "sha256": "ff3a6d4928caa2e11f4e3ca9694af17d55321820bc849111b0180104a9ae76f6"
     },
     "left4dead2/materials/l4n/bloom_map.vtf": {
       "size": 1048736,
@@ -182,20 +190,20 @@
       "sha256": "60d6e636d452cfb4476aa905ef7eedf701fe8402b1077afd78a3c3eec9ce928a"
     },
     "left4dead2/neko/config.vdf": {
-      "size": 10187,
-      "sha256": "36f2238e9b1ed0a3f2b69a4888858c7a126353a19331b20aacbf49ce1cdbb3b8"
+      "size": 10539,
+      "sha256": "9d196fa382d723dca64f0c4ebfee24b3214d1b4ebc21f6799684333bee51d557"
     },
     "left4dead2/neko/key_bind_acts.vdf": {
       "size": 663,
       "sha256": "f0bd025876ca082b98f48f4f8961ee186a5b9a85665df3815cbb7f594cf26939"
     },
     "left4dead2/neko/l4ngui_english.vdf": {
-      "size": 26756,
-      "sha256": "edf32badaef635f88bb13f6e4d7cfbd772a11e45ee9acf6a996a3fdbe118f182"
+      "size": 26904,
+      "sha256": "4d129a44c8344215a51ea3594e33b57fa7b76fddb1333623b0ce069b9827a62d"
     },
     "left4dead2/neko/l4ngui_schinese.vdf": {
-      "size": 19500,
-      "sha256": "31cf88ea8c50bd975512b3a28f8fdc620a03717f1d0410a5a768cc462b1a7207"
+      "size": 19624,
+      "sha256": "8a45dc3d1614e550215c16ece9357040a2e29de042d6f4fc4318446268307eb9"
     },
     "left4dead2/neko/localize_overrides_template.vdf": {
       "size": 996,
@@ -378,8 +386,8 @@
       "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
     },
     "readme_l4n.txt": {
-      "size": 102118,
-      "sha256": "5aa22343eb91b0956ef4498da6ff7b18307c7de31f9cc450ad4c72492b0e2817"
+      "size": 101464,
+      "sha256": "03c7aa81a86a238aad7eae43dd88fbe14445a6d06e4a78991d515b21f7574468"
     },
     "reshade-shaders/Shaders/L4N/L4N_Util.fx": {
       "size": 1952,
@@ -387,7 +395,7 @@
     },
     "to_l4n_survivor.exe": {
       "size": 197120,
-      "sha256": "af3879f72a4896d11e4485e403c0c584c59cebbe959a5a54c47a9554f4b5317f"
+      "sha256": "355e093acfb370b8f61cdb615265872a74e62e182ab061e4a9910a37325167cd"
     }
   },
   "excluded_original_paths": [
@@ -395,12 +403,12 @@
   ],
   "source_archive_files": {
     "bin/left4neko.dll": {
-      "size": 2355200,
-      "sha256": "04ee5a2a5b1c7407555b0cb9a6b9652540283dd7785223f705e21b8d0099e17f"
+      "size": 2361856,
+      "sha256": "6b2ecd61413def1b2a001df55be1bfd6b934623534fff186ba5be05020578577"
     },
     "bin/left4neko_server.dll": {
       "size": 341504,
-      "sha256": "46d972e5a10d04b0333f396c9ce079e61c9ee8b4c37dfa18662189e5e61bcd4a"
+      "sha256": "b397a9f0a8e06cc1f215860405cb3d46c632af9366d3a2f68dff4987b34c1c37"
     },
     "bin/neko/build_sound_cache.bat": {
       "size": 325,
@@ -470,6 +478,14 @@
       "size": 73,
       "sha256": "b7e5ac4b36b19413db8eaafb954c9c99ba5e59c25c45b8e17ef569500ba0c66c"
     },
+    "bin/neko/读我_readme.txt": {
+      "size": 1108,
+      "sha256": "b72a745ef4f3c6fc871d01602b83585566de6c5f9b242a1d3537a4bd3fe7926d"
+    },
+    "bin/vphysics_jolt.dll": {
+      "size": 1433600,
+      "sha256": "740e6cdf30baf9a4f82a1a8dc10c68d8941970d94b5e2ebcba2648247cad31c9"
+    },
     "crash_dumps/crashpad_handler.exe": {
       "size": 768000,
       "sha256": "bbaa2fe0a771aff1112c6dcd8521e71d7dfc9b6825f356e6fd4d577fd86e9301"
@@ -480,7 +496,7 @@
     },
     "left4dead2.exe": {
       "size": 142336,
-      "sha256": "75dae1b7faa102b97f39cb07e9daf5570e6917f92245d151fb1a214636ccf580"
+      "sha256": "ad1566788b03845cc06a96c4ba501857a655fa7158e181062214fb99e53a349f"
     },
     "left4dead2/bin/game_shader_generic_neko": {
       "size": 28,
@@ -488,7 +504,7 @@
     },
     "left4dead2/bin/game_shader_generic_neko.dll": {
       "size": 337920,
-      "sha256": "db5c8f07cf270100fbcfe510039d5e60c0cfbb48320606f707e772fc0fa18ee2"
+      "sha256": "ff3a6d4928caa2e11f4e3ca9694af17d55321820bc849111b0180104a9ae76f6"
     },
     "left4dead2/materials/l4n/bloom_map.vtf": {
       "size": 1048736,
@@ -507,20 +523,20 @@
       "sha256": "60d6e636d452cfb4476aa905ef7eedf701fe8402b1077afd78a3c3eec9ce928a"
     },
     "left4dead2/neko/config_template.vdf": {
-      "size": 10109,
-      "sha256": "df42fd171b27857dc7ad742d69904897595f0a1fc19ac3722569ea5305cdce40"
+      "size": 10435,
+      "sha256": "fd4824add1db2cb0dcabc02a1658b062d51a09a231908b0ccab5c2699866328a"
     },
     "left4dead2/neko/key_bind_acts.vdf": {
       "size": 663,
       "sha256": "f0bd025876ca082b98f48f4f8961ee186a5b9a85665df3815cbb7f594cf26939"
     },
     "left4dead2/neko/l4ngui_english.vdf": {
-      "size": 26756,
-      "sha256": "edf32badaef635f88bb13f6e4d7cfbd772a11e45ee9acf6a996a3fdbe118f182"
+      "size": 26904,
+      "sha256": "4d129a44c8344215a51ea3594e33b57fa7b76fddb1333623b0ce069b9827a62d"
     },
     "left4dead2/neko/l4ngui_schinese.vdf": {
-      "size": 19500,
-      "sha256": "31cf88ea8c50bd975512b3a28f8fdc620a03717f1d0410a5a768cc462b1a7207"
+      "size": 19624,
+      "sha256": "8a45dc3d1614e550215c16ece9357040a2e29de042d6f4fc4318446268307eb9"
     },
     "left4dead2/neko/localize_overrides_template.vdf": {
       "size": 996,
@@ -691,8 +707,8 @@
       "sha256": "8537cc66d57a3db6fcbe105bdecb11976c089a513888fc4a731f6b0950dda268"
     },
     "readme_l4n.txt": {
-      "size": 102118,
-      "sha256": "5aa22343eb91b0956ef4498da6ff7b18307c7de31f9cc450ad4c72492b0e2817"
+      "size": 101464,
+      "sha256": "03c7aa81a86a238aad7eae43dd88fbe14445a6d06e4a78991d515b21f7574468"
     },
     "reshade-shaders/Shaders/L4N/L4N_Util.fx": {
       "size": 1952,
@@ -700,28 +716,28 @@
     },
     "to_l4n_survivor.exe": {
       "size": 197120,
-      "sha256": "af3879f72a4896d11e4485e403c0c584c59cebbe959a5a54c47a9554f4b5317f"
+      "sha256": "355e093acfb370b8f61cdb615265872a74e62e182ab061e4a9910a37325167cd"
     }
   },
   "config_merge": {
     "source_path": "left4dead2/neko/config_template.vdf",
     "destination_path": "left4dead2/neko/config.vdf",
-    "method": "Three-way text merge; resolve one whitespace/deletion conflict by accepting upstream removal of obsolete generate_addoninfo; preserve other user values and CRLF",
+    "method": "Conflict-free three-way text merge from the verified 2.53.0 template; preserve all active preset settings and CRLF, then add exactly one user-requested -l4n_vphysics_jolt in launch_options",
     "base_template": {
-      "size": 10125,
-      "sha256": "e6ef6d33df12ae7aa6b7da1e0a8c40f7f04b3bf13560264d8e658f64cad7342f"
-    },
-    "new_template": {
       "size": 10109,
       "sha256": "df42fd171b27857dc7ad742d69904897595f0a1fc19ac3722569ea5305cdce40"
     },
-    "previous_config": {
-      "size": 10199,
-      "sha256": "f9b94b26474a7446712fd6c32fac994f2a0d61d4deab4638720e889bc2147029"
+    "new_template": {
+      "size": 10435,
+      "sha256": "fd4824add1db2cb0dcabc02a1658b062d51a09a231908b0ccab5c2699866328a"
     },
-    "merged_config": {
+    "previous_config": {
       "size": 10187,
       "sha256": "36f2238e9b1ed0a3f2b69a4888858c7a126353a19331b20aacbf49ce1cdbb3b8"
+    },
+    "merged_config": {
+      "size": 10539,
+      "sha256": "9d196fa382d723dca64f0c4ebfee24b3214d1b4ebc21f6799684333bee51d557"
     },
     "preserved_settings": {
       "index_buffer_size": "131072",
@@ -730,17 +746,19 @@
         "-l4n_use_neko_engine_post"
       ]
     },
+    "added_launch_options": [
+      "-l4n_vphysics_jolt"
+    ],
     "template_changes": [
-      "Remove obsolete generate_addoninfo setting",
-      "Updated VPK Overlay documentation",
-      "Commented -nekook launch option"
+      "Update VPK Overlay documentation, including layer groups and current compatibility notes; no active template values changed"
     ]
   },
   "necola_integration": {
     "name": "L4N-Necola",
     "necola_version": "1.4.1",
-    "source_archive_sha256": "b4be6642cab06526238bd1147872af1a6aa54ec5aa22d67264d1ae65c562896d",
-    "source_archive_bytes": 17006203,
+    "source_archive_sha256": "041143bdd3df275af81ac71249fa01d41c73a3d7e6ae3e22e90879a4198c6a79",
+    "source_archive_bytes": 17662400,
+    "source_commit": "ba7104eecc4073f08ab609f87ce05ff50852bae2",
     "files": {
       "bin/neko/necola/necola.dll": {
         "size": 2155520,
@@ -748,11 +766,11 @@
       },
       "bin/neko/plugins/l4n_necola_bridge.dll": {
         "size": 163840,
-        "sha256": "6f203df97969c86545fe2f81ccc7632d6f7be7de6d7d57404626a5980fe9c584"
+        "sha256": "b8936c42f418d0502a814aea733f0e6bafdf6c3e3f866015077bba470a227f9c"
       },
       "kpatch.ini": {
         "size": 4001,
-        "sha256": "d90b49a3313774881bca2e72f293d4327ddec2a801167fe99bb696823b2b4b3b"
+        "sha256": "e113a6fe5c92240ef7daab4c2d904a368feb6e999f47ca3d44cd54790e1e6a5d"
       },
       "left4dead2/addons/l4n_necola_audio_base.vpk": {
         "size": 612981,
@@ -810,10 +828,22 @@
       "docs/necola-static-audit.md",
       "docs/rea-findings.md",
       "docs/validation.md",
-      "scripts/install.ps1",
-      "scripts/restore.ps1",
+      "left4dead2/neko/config_template.vdf",
       "package-manifest.json",
-      "left4dead2/neko/config_template.vdf"
+      "scripts/install.ps1",
+      "scripts/restore.ps1"
     ]
+  },
+  "source_archive_bytes": 17662400,
+  "source_archive_files_scope": "Package-manifest entries whose source starts with originals/L4N/; this is a subset of the integration ZIP, not a separately acquired L4N 7z",
+  "source_repository": {
+    "url": "https://github.com/NPCodex/l4n-necola",
+    "commit": "ba7104eecc4073f08ab609f87ce05ff50852bae2",
+    "archive_path": "release-assets/L4N-Necola.zip",
+    "archive_git_blob": "c1a11b7b6b97709310b9e63633ec4112b43608fd"
+  },
+  "source_package_manifest": {
+    "size": 27659,
+    "sha256": "b702b6efcf65265748acc9044ff5ba643b13b71e08a2c3bae9aa5411301849ba"
   }
 }

@@ -22,3 +22,15 @@
 验证范围：原包完整性、逐文件身份、配置合并和完整包校验；发布门禁要求三端 MSVC 14.29 编译、必需原生回归、最终源码收据与发布附件核验通过。本次没有新增游戏、FPS、画质或长期稳定性验收，不将原作者的更新说明视为本项目实机验证。此前独立的 Necola 退出与 Special K 随机崩溃问题不由本次更新判定为已修复。
 
 [整合来源与配置说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/L4N-BUNDLE.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+
+
+## 2026-10-23 NVIDIA cf83c05 修订说明（历史）
+
+
+- NVIDIA Bridge 构建源码更新至 `cf83c0514d5690a2e54369ba24a6d044b989e6c8`，适配 Remix API 0.6.6 的材质扩展和旧 API 调用布局；Client 与两个 Host 成套更新。
+- 将实际 NVIDIA 完整提交号纳入启动与 IPC 身份校验，防止同版本号、同补丁但来自不同上游源码的组件被当作配套构建。
+- 增加旧 API 对象边界、材质字段序列化、跨架构传输及同版本不同源码拒绝的原生回归。
+
+发布门禁要求三端 MSVC 14.29 构建、必需原生回归、最终源码收据及 CI/线上附件逐字节核验通过。包内默认关闭 Remix API，渲染后端仍为独立 GPLALL；本次不新增 RTX、DLSS 或已证实的 FPS/画质收益，也没有新增游戏、长稳或退出验收。
+
+[源码范围与验证说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/NVIDIA-UPSTREAM-UPDATES.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)

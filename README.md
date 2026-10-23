@@ -2,7 +2,7 @@
 
 > **本构建已包含 DXVK（GPLALL）、L4N-necola 和 Bridge 桥接工具，一体整合，解压覆盖即可一键安装，无需另下这三项组件。请勿与其他同类项目或整合包混合安装。**
 >
-> **L4N-necola：** 基于 L4N 2.53.0，通过插件接入 necola 1.4.1 的模型兼容与状态写回等功能；检视、普通开镜、额外粒子加载和堆配置等重复功能优先由 L4N 负责，并附带 10 个转换为 L4N 加载方式的音频库。
+> **L4N-necola：** 基于 L4N 2.55.0，通过插件接入 necola 1.4.1 的模型兼容与状态写回等功能；检视、普通开镜、额外粒子加载和堆配置等重复功能优先由 L4N 负责，并附带 10 个转换为 L4N 加载方式的音频库。
 >
 > **安装前移除 `-vulkan` 启动参数，并备份移走游戏根目录的 `d3d9.dll`；保留本包的 `bin/d3d9.dll`。** L4N / Left4Neko 原作者为 **Starfelll（@Starfelll）**，感谢原作者的工作。
 >
@@ -12,9 +12,9 @@
 
 ## 说明
 
-**v1.5.17 本次修订更新 NVIDIA Bridge 源码至 `cf83c05`，适配材质 API 并加固同版本组件身份校验。** 具体范围和验证门禁见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。完整 L4N-necola 继续随包，来源与配置见 [整合包说明](docs/L4N-BUNDLE.md)。
+**v1.5.17 本次修订更新 L4N-necola 至 L4N 2.55.0，并在 `config.vdf` 的 `launch_options` 中加入 `-l4n_vphysics_jolt`。** Jolt 是上游标注的实验性物理实现，本次按维护者要求启用；未完成它与 Bridge 组合的实机物理、联机或性能验收。来源与配置见 [整合包说明](docs/L4N-BUNDLE.md)。
 
-**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 104 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
+**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.55.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 106 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 已有 necola 配置时，先备份 `kpatch.ini`、`necola/FeatureConfig.json` 和 `necola/weaponParticles.json`，对照合并个人设置；直接解压覆盖不会自动合并。L4N 优先的六个功能开关必须保持关闭，否则扩展在下次启动时拒绝加载。使用 L4N 启动器，不再通过 necola 独立启动器重复加载。兼容扩展仍需配套 MOD 资产；本次未验收它与 Bridge 组合的游戏地图、画质、FPS 或长期稳定性，也不代表旧 Necola 退出问题已修复。
 
@@ -73,7 +73,7 @@ L4N 本体和 Bridge 常用设置菜单插件一同随包安装，插件直接�
 
 - 项目特有的新增与修改：**MIT**，见 [LICENSE](LICENSE)，保留 `yeyunyyds` 的原版权声明。
 - NVIDIA Bridge：**MIT**，见 [licenses/Bridge-MIT.txt](licenses/Bridge-MIT.txt)。
-- L4N / Left4Neko 2.53.0：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
+- L4N / Left4Neko 2.55.0：原作者 **Starfelll（@Starfelll）**，原文件与说明保留作者归属，不属于本项目原创或根目录 MIT 授权，见 [L4N-NOTICE](licenses/L4N-NOTICE.txt)。
 - DXVK／DXVK-GPLALL：随附 **zlib/libpng** 许可，见 [licenses/DXVK-LICENSE.txt](licenses/DXVK-LICENSE.txt) 和 [licenses/DXVK-GPLALL-LICENSE.txt](licenses/DXVK-GPLALL-LICENSE.txt)。
 - Bridge 所含 Detours、Tracy 等依赖继续遵循各自许可，见 [licenses/Bridge-third-party.txt](licenses/Bridge-third-party.txt)。
 - 包内修改版 `studiorender.dll` 来自维护者本机的匹配游戏文件，按用户要求应用限定 ThinFlex 修复。原引擎归 Valve，不属于根目录 MIT 授权；见 [引擎归属说明](licenses/Valve-engine-NOTICE.txt)。

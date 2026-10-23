@@ -1,20 +1,20 @@
-"""Validate the exact user-provided L4N distribution and approved configuration preset."""
+"""Validate the pinned L4N-Necola package and approved configuration preset."""
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import stat
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "2.53.0"
+VERSION = "2.55.0"
 AUTHOR = "Starfelll"
-SOURCE_ARCHIVE_SHA256 = "164879044ca55907c748ebcabcefb517ab78029b2f9ca190f1d227c5323dfa1f"
+SOURCE_ARCHIVE_SHA256 = "041143bdd3df275af81ac71249fa01d41c73a3d7e6ae3e22e90879a4198c6a79"
 # Canonical JSON digest pins both the file list and its provenance. Text checkout
 # line endings and formatting may differ without altering the recorded identity.
-MANIFEST_SHA256 = "127ddae912527f325e74d71c771b56b111eba4a67d9dff568628b8da658ab74a"
+MANIFEST_SHA256 = "8ce2615091310c8a2b6e308f54e461cd4a48bb50b1cbac1181e010ae5f39fcc3"
 MANIFEST_NAME = "L4N-PAYLOAD.json"
 NOTICE_NAME = "licenses/L4N-NOTICE.txt"
-FILE_COUNT = 94
-TOTAL_SIZE = 32711312
+FILE_COUNT = 96
+TOTAL_SIZE = 34152646
 
 
 def _unique_object(pairs):

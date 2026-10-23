@@ -1,22 +1,9 @@
 ﻿本文档会随版本更新，部分功能会添加进hud菜单里方便使用
 
-[2.53.0]
-修改：l4n_bonesetup_patch能够接管本地服务端的动画计算
-修复：右键攻击不能打断l4n_lookat
-修复：l4n_show_addon_load_order输出内容时崩溃
-移除：convar l4n_force_dummy_addoninfo
-移除：generate_addoninfo
-
-[2.52.1]
-修改：l4n_bonesetup_patch能够接管实体的hitbox计算，防止超128骨骼的溢出问题
-
-[2.52.0] - 2026-10-14
-新增：convar l4n_bonesetup_force_threaded
-新增：convar l4n_bonesetup_patch
-新增：convar l4n_vpkoverlay
-修改：修复自定义命令菜单的重复加载问题
-新增：concmd l4n_show_addon_load_order
-修改：优化更新失败后的收尾
+[2.55.0]
+修改：vpk overlay支持层文件夹分组
+修复：witch实体不能使用player_foot
+新增：convar l4n_loading_boost
 
 
 ======== 接管骨骼变换计算(实验性) ========
@@ -34,8 +21,7 @@
     该实现能够正常处理256骨骼的mdl模型
 
     注意：
-        对于目前想尝试256骨骼上限的用户，请连接到其它服务器，或者使用类似l4n_surrivor这种仅替换客户端实体模型的功能
-        其它的未适配256骨骼的情况：
+        部分未适配256骨骼的情况：
             实体粒子消散效果
             客户端处理布娃娃数据的逻辑
             模型批渲染
@@ -77,7 +63,6 @@
 
 ======== 待办清单 ========
     有一部分还处在可行性验证阶段
-    提供Jolt物理引擎替代起源VPhysics引擎的功能
     基于l4n_bonesetup_patch：
         修复原生Jiggle飘骨算法的一些鬼畜BUG
         使网络同步的角色布娃娃能够应用pps(骨架比例修正动画/Proportiontrick)
@@ -238,7 +223,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     着色器缓存：
         不同版本的l4n着色器功能会有差别，安装/更新/切换版本后可能会触发着色器缓存编译
         显卡驱动版本变动或者dxvk版本变动时，着色器缓存可能命中失败，需要编译新的着色器缓存(包括引擎自带的着色器)
-        着色器编译时可能出现掉帧，内存占用高的情况，如果很长一段时间后问题依旧，尝试按照以下指南清除着色器缓存
+        着色器编译时可能出现掉帧，内存占用高的情况，如果出现异常很长一段时间后问题依旧，尝试按照以下指南清除着色器缓存
             控制台运行l4n_open_shader_cache_dir打开着色器缓存目录后关闭游戏
             如果是550文件夹，删除目录下的所有文件夹
             如果是AMD或NVIDIA文件夹，某些厂商的命名会有出路，删除所有Cache结尾的文件夹最稳妥
@@ -384,7 +369,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
             多人联机可能会出现多个玩家都是zoey模型的情况，不应该通过实体所用的幸存者模型来判定所属玩家，这样又会被困到八个的维度里
     安装包里的to_l4n_survivor工具使用说明
         用于将普通角色mod转换成支持l4n_survivor的mod
-        推荐使用八人包，同时选中八人包里的替换八个幸存者角色的vpk，一同拖动到to_l4n_survivor.exe上即可开始转换
+        推荐使用八人包，同时选中八人包里的替换八个幸存者角色的vpk，一同拖动到to_l4n_survivor.bat上即可开始转换
         没有条件的情况下，用替换某个幸存者角色的vpk也可以转换，此功能目前是实验性的
         材质vpk或其它依赖性vpk也可以一并拖进去合并
         注意不要混合别的mod同时转换，比如拿a角色替换bill和b角色替换zoey(以此类推)的vpk一起
@@ -539,6 +524,7 @@ l4n能对部分引擎bug进行修复，其它已知bug因为触发条件低等�
     l4n_vm_dual_quaternion_skinning             为v模材质添加"$DualQuatSkinning 1"
     l4nsv_steam_auth_bypass                     是否绕过玩家的steam验证，可以避免"No Steam Logon"问题
     l4n_bonesetup_force_threaded                是否使用多线程骨骼变换计算
+    l4n_loading_boost                           是否在地图加载阶段使用多线程
 【ConCommand】
     l4n_vm_offset2 [x/dx/y/dy/z/dz/reset] [value], 为当前使用的v模设置位置偏移，带d的是增量；参数reset归零xyz
     l4n_menu                                显示l4n主菜单
@@ -612,9 +598,6 @@ l4n各种配置文件的模版(使用记事本打开来查看具体作用)：
     config_template.vdf
     server_name_filter_template.txt
 
-【other_tools.7z/VPKShellExtensions】
-    Windows资源管理器显示vpk文件略缩图和mod标题元信息的插件
-
 
 
 ============For Modder==========
@@ -632,8 +615,6 @@ l4n各种配置文件的模版(使用记事本打开来查看具体作用)：
         https://developer.valvesoftware.com/wiki/Looping_a_sound
         https://developer.valvesoftware.com/wiki/Soundscripts
 
-【source_nekomimi.exe】        
-    音频工具，用于在wav语音之间复制口型数据，或者生成sound.cache(目前不支持带口型数据的sound.cache生成)
 
 pcf粒子文件加载:
     "l4n/particles"目录下的任意的pcf文件会被粒子系统加载(文件名"!"前缀有对应的效果)，用于扩充粒子特效。
@@ -641,20 +622,32 @@ pcf粒子文件加载:
 【mdl_extension.qc】            
     mdl适配l4n的qc示例
 
-【other_tools.7z/nekomdl.exe】  
-    更好，更快，更强大的mdl编译器
-
-【other_tools.7z/nekook.exe】   
-    根据配置启动游戏或者引擎工具，同时将当前目录挂载到引擎的文件系统里，使当前目录的游戏资产能以最高优先级被引擎读取
-
-【copy_sentence.bat】
-    从游戏原版语音文件复制口型数据到自定义语音文件的预设
-
-【build_sound_cache.bat】
-    用于快速生成sound.cache，主要用于音效，不适合带口型数据的语音
+【更多工具】
+    详见bin\neko目录下的内容
 
 
 ===========历史更新日志==========
+[2.54.0]
+新增：VPhysics物理引擎的实验性替代，启动项添加-l4n_vphysics_jolt来启用
+
+[2.53.0]
+修改：l4n_bonesetup_patch能够接管本地服务端的动画计算
+修复：右键攻击不能打断l4n_lookat
+修复：l4n_show_addon_load_order输出内容时崩溃
+移除：convar l4n_force_dummy_addoninfo
+移除：generate_addoninfo
+
+[2.52.1]
+修改：l4n_bonesetup_patch能够接管实体的hitbox计算，防止超128骨骼的溢出问题
+
+[2.52.0] - 2026-10-14
+新增：convar l4n_bonesetup_force_threaded
+新增：convar l4n_bonesetup_patch
+新增：convar l4n_vpkoverlay
+修改：修复自定义命令菜单的重复加载问题
+新增：concmd l4n_show_addon_load_order
+修改：优化更新失败后的收尾
+
 [2.51.0]
 新增：VPK Overlay功能
 新增：cvar l4n_vm_allow_movex

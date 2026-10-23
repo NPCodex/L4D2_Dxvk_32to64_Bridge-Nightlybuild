@@ -1,12 +1,12 @@
 # v1.5.17
 
-- NVIDIA Bridge 构建源码更新至 `cf83c0514d5690a2e54369ba24a6d044b989e6c8`，适配 Remix API 0.6.6 的材质扩展和旧 API 调用布局；Client 与两个 Host 成套更新。
-- 将实际 NVIDIA 完整提交号纳入启动与 IPC 身份校验，防止同版本号、同补丁但来自不同上游源码的组件被当作配套构建。
-- 增加旧 API 对象边界、材质字段序列化、跨架构传输及同版本不同源码拒绝的原生回归。
+- L4N-necola 更新至 L4N 2.55.0，完整保留新版原始运行文件、SDK、工具及 Starfelll（@Starfelll）署名。上游更新包括 VPK Overlay 层文件夹分组、witch 的 `player_foot` 修复及 `l4n_loading_boost` 控制台变量。
+- 按维护者要求，在 `left4dead2/neko/config.vdf` 的 `launch_options` 中加入 `-l4n_vphysics_jolt`，并附带对应 `bin/vphysics_jolt.dll`。合并新版模板，保留既有用户配置、`dxvk.conf` 和自定义 shader；未额外开启加载加速或骨骼计算。
+- 更新随包 necola 兼容插件，保留原 necola 1.4.1、两份运行 JSON、10 个音频库及 L4N 优先的功能开关。现有 v1.5.17 的 ZIP/SHA 原位替换，完整包为 106 文件。
 
-发布门禁要求三端 MSVC 14.29 构建、必需原生回归、最终源码收据及 CI/线上附件逐字节核验通过。包内默认关闭 Remix API，渲染后端仍为独立 GPLALL；本次不新增 RTX、DLSS 或已证实的 FPS/画质收益，也没有新增游戏、长稳或退出验收。
+发布门禁要求载荷与配置校验、三端 MSVC 14.29 构建、必需原生回归、最终源码收据及 CI/线上附件逐字节核验通过。Jolt 为上游实验性实现，本次没有新增它与 Bridge 组合的物理、联机、地图、FPS、画质、长稳或退出验收；不据此认定旧 Necola 退出或 Special K 随机崩溃已修复。
 
-[源码范围与验证说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/NVIDIA-UPSTREAM-UPDATES.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+[整合来源与配置说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/L4N-BUNDLE.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
 
 # v1.5.16
 

@@ -2,7 +2,7 @@
 
 > **This build includes DXVK (GPLALL), L4N-necola and the Bridge tools in one package. Extract and copy to install; no separate component downloads are needed. Do not mix it with other similar projects or bundles.**
 >
-> **L4N-necola:** Based on L4N 2.53.0, with a plugin that loads necola 1.4.1 model compatibility and status writeback features. L4N handles overlapping inspection, standard ADS, extra particle loading and heap settings. The bundle includes 10 audio libraries converted to L4N loading paths.
+> **L4N-necola:** Based on L4N 2.55.0, with a plugin that loads necola 1.4.1 model compatibility and status writeback features. L4N handles overlapping inspection, standard ADS, extra particle loading and heap settings. The bundle includes 10 audio libraries converted to L4N loading paths.
 >
 > **Remove the `-vulkan` launch option and back up/move away `d3d9.dll` from the game root; keep this package's `bin/d3d9.dll`.** L4N / Left4Neko is the work of **Starfelll (@Starfelll)**, with thanks to its original author.
 >
@@ -12,9 +12,9 @@
 
 ## Information
 
-**This v1.5.17 revision updates the NVIDIA Bridge source to `cf83c05`, adapts the material API and strengthens component identity checks within the same project version.** See [source scope and validation gates](docs/NVIDIA-UPSTREAM-UPDATES.md). The complete L4N-necola bundle remains included; see [bundle provenance and configuration](docs/L4N-BUNDLE.md).
+**This v1.5.17 revision updates L4N-necola to L4N 2.55.0 and adds `-l4n_vphysics_jolt` to `launch_options` in `config.vdf`.** Jolt is an experimental physics implementation, enabled here at the maintainer’s request. Its physics, multiplayer behavior and performance with Bridge have not received runtime validation. See [bundle provenance and configuration](docs/L4N-BUNDLE.md).
 
-**[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.53.0, the necola 1.4.1 compatibility extension, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 104 files; see [bundle provenance](docs/L4N-BUNDLE.md).
+**[Download the full package from Releases](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**. Each release has one `l4d2-bridge-*.zip` and its `.sha256` checksum. The v1.5.17 package includes **complete L4N 2.55.0, the necola 1.4.1 compatibility extension, DXVK-GPLALL, Bridge, `dxvk.conf`, L4N's `left4dead2/neko/config.vdf`**, and the repaired `bin/studiorender.dll`. All L4N files ship, including `bin/neko`, the SDK, converters, embedded `other_tools.7z`, `to_l4n_survivor.exe`, `left4dead2 no-insecure.bat` and original `readme_l4n.txt`. The sole exception is `config_template.vdf`: its changes are merged into the active `config.vdf`, without shipping a separate template. There are 106 files; see [bundle provenance](docs/L4N-BUNDLE.md).
 
 If you already use necola, back up `kpatch.ini`, `necola/FeatureConfig.json` and `necola/weaponParticles.json`, then merge your settings before copying files. Extraction does not merge them automatically. Keep the six L4N-owned feature switches disabled or the extension rejects loading on the next launch. Use the L4N launcher and avoid loading necola again through its standalone launcher. Compatible MOD assets are still required. This revision has no new gameplay, visual, FPS or long-term stability validation of the extension with Bridge, and does not establish a fix for the previous Necola exit issue.
 
@@ -71,7 +71,7 @@ When reusing a local source checkout, the build script verifies the complete pat
 
 - Project-specific additions and modifications: **MIT**, see [LICENSE](LICENSE). The original copyright notice for `yeyunyyds` is retained.
 - NVIDIA Bridge: **MIT**, see [licenses/Bridge-MIT.txt](licenses/Bridge-MIT.txt).
-- L4N / Left4Neko 2.53.0: original author **Starfelll (@Starfelll)**. Original files and documentation retain their attribution and are outside this project's root MIT license; see [L4N-NOTICE](licenses/L4N-NOTICE.txt).
+- L4N / Left4Neko 2.55.0: original author **Starfelll (@Starfelll)**. Original files and documentation retain their attribution and are outside this project's root MIT license; see [L4N-NOTICE](licenses/L4N-NOTICE.txt).
 - DXVK / DXVK-GPLALL: distributed with the **zlib/libpng** license; see [licenses/DXVK-LICENSE.txt](licenses/DXVK-LICENSE.txt) and [licenses/DXVK-GPLALL-LICENSE.txt](licenses/DXVK-GPLALL-LICENSE.txt).
 - Dependencies included in Bridge, such as Detours and Tracy, retain their respective licenses. See [licenses/Bridge-third-party.txt](licenses/Bridge-third-party.txt).
 - The modified `studiorender.dll` comes from the maintainer's matching local game file, with the limited ThinFlex repair applied at the user's request. The original engine belongs to Valve and is outside the root MIT license; see [engine attribution](licenses/Valve-engine-NOTICE.txt).
