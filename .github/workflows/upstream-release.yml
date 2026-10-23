@@ -120,6 +120,9 @@ jobs:
       - name: Test diagnostics and shadow eviction
         shell: powershell
         run: ./scripts/test_diagnostics.ps1
+      - name: Build and test the player quick tool
+        shell: powershell
+        run: ./scripts/test_quick_tool.ps1 -BridgeClient dist/l4d2-bridge/bin/d3d9.dll -BridgePlugin dist/l4d2-bridge/optional/L4N/L4D2BridgePlugin.dll
       - name: Test resource creation cleanup and buffer lock bounds
         shell: powershell
         run: ./scripts/test_resource_lifecycle.ps1
@@ -294,8 +297,11 @@ jobs:
           $metadata.l4n_user_preset_paths = $l4n.user_preset_paths
           $metadata.l4n_necola_version = $l4n.necola_integration.necola_version
           $metadata.l4n_necola_source_archive_sha256 = $l4n.necola_integration.source_archive_sha256
+          $quickTool = Get-Content dist/quick-tool/quick-tool-build.json -Raw -Encoding utf8 | ConvertFrom-Json
+          $metadata.quick_tool_version = $quickTool.version
+          $metadata.quick_tool_sha256 = $quickTool.exe_sha256
           $metadata | ConvertTo-Json | Set-Content dist/l4d2-bridge/UPSTREAM.json -Encoding utf8
-          python scripts/archive_runtime.py dist/l4d2-bridge $env:ARCHIVE_NAME
+          python scripts/archive_runtime.py dist/l4d2-bridge $env:ARCHIVE_NAME --quick-tool dist/quick-tool
           if ($LASTEXITCODE -ne 0) { throw 'Archive failed' }
           "$((Get-FileHash $env:ARCHIVE_NAME -Algorithm SHA256).Hash.ToLower())  $env:ARCHIVE_NAME" | Set-Content "$env:ARCHIVE_NAME.sha256" -Encoding ascii
       - name: Save exact build delivery provenance

@@ -10,6 +10,7 @@ from archive_release import archive
 from engine_payload import (staged_engine_files, read_regular, ORIGINAL_SHA256,
                             PATCHED_SHA256)
 from l4n_payload import staged_l4n_files, manifest_metadata, MANIFEST_NAME, VERSION as L4N_VERSION
+from quick_tool_payload import quick_tool_files
 
 PLUGIN_SOURCE = "optional/L4N/L4D2BridgePlugin.dll"
 PLUGIN_DESTINATION = "bin/neko/plugins/L4D2BridgePlugin.dll"
@@ -49,7 +50,7 @@ def combined_notices(source, verified):
     return b"".join(sections)
 
 
-def runtime_archive(source, output):
+def runtime_archive(source, output, quick_tool):
     source, output = Path(source), Path(output)
     if output.exists():
         raise FileExistsError(f"Archive already exists: {output}")
@@ -60,10 +61,11 @@ def runtime_archive(source, output):
     engine_files = staged_engine_files(source)
     l4n_files = staged_l4n_files(source)
     bridge_files = {name: read_regular(source / name) for name in REQUIRED}
+    tool_files = quick_tool_files(quick_tool)
     # Windows paths are case-insensitive. Reject collisions before any union or
     # plugin relocation can silently replace a supplied or generated file.
     occupied = {}
-    for group in (engine_files, l4n_files, bridge_files,
+    for group in (engine_files, l4n_files, bridge_files, tool_files,
                   (PLUGIN_DESTINATION, "README.txt", "THIRD-PARTY-NOTICES.txt")):
         for name in group:
             key = name.casefold()
@@ -82,7 +84,7 @@ def runtime_archive(source, output):
             if hashes.get(name) != hashlib.sha256(verified[name]).hexdigest():
                 raise ValueError(f"Runtime binary differs from the source package receipt: {name}")
     notices = combined_notices(source, verified)
-    files = {**bridge_files, "bin/studiorender.dll": engine_files["bin/studiorender.dll"],
+    files = {**bridge_files, **tool_files, "bin/studiorender.dll": engine_files["bin/studiorender.dll"],
              **select_l4n_runtime(l4n_files)}
     # The original build receipt verifies the plugin at its staging path;
     # the player ZIP installs that same verified snapshot into L4N directly.
@@ -90,6 +92,9 @@ def runtime_archive(source, output):
     files["THIRD-PARTY-NOTICES.txt"] = notices
     files["README.txt"] = (
         f"L4D2 Bridge v{version} runtime package\n\n"
+        "管理工具 / Quick tool: 解压后双击游戏根目录 L4D2-Quick-Tool.cmd；无需自行编译。\n"
+        "支持 Bridge / 无 Bridge（保留独立优化）模式、Steam 启动项、自检和日志；说明见 tools/BridgeQuickTool/README.txt。\n"
+        "After extraction, double-click L4D2-Quick-Tool.cmd. No compiler/Python required; Windows 10/11 + .NET Framework 4.8.\n\n"
         "已包含 DXVK（GPLALL）、L4N 和桥接工具；退出游戏后备份原文件，将本包解压覆盖到游戏根目录即可安装。请勿与其他类似整合项目混装。\n"
         f"完整保留 L4N {L4N_VERSION} 的运行文件、bin/neko 工具与 SDK、to_l4n_survivor.exe、left4dead2 no-insecure.bat 和原作者 readme_l4n.txt；config_template.vdf 的更新已合并到实际 config.vdf，模板不单独附带。\n"
         "已整合 L4N-Necola 兼容插件及音频库；检视、普通开镜、额外粒子加载与堆配置由 L4N 负责。不要再通过独立启动器重复加载 necola.dll。\n"
@@ -131,5 +136,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--quick-tool", type=Path, required=True,
+                        help="Build directory containing BridgeQuickTool.exe and its source/hash receipt")
     args = parser.parse_args()
-    runtime_archive(args.source.resolve(), args.output.resolve())
+    runtime_archive(args.source.resolve(), args.output.resolve(), args.quick_tool.resolve())

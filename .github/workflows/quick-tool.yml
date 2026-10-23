@@ -1,0 +1,49 @@
+name: Build player quick tool
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tools/quick-tool/**'
+      - 'scripts/*quick_tool*'
+      - 'scripts/archive_runtime.py'
+      - 'tests/test_archive_runtime.py'
+      - 'tests/test_build_identity.py'
+      - '.github/workflows/quick-tool.yml'
+  pull_request:
+    paths:
+      - 'tools/quick-tool/**'
+      - 'scripts/*quick_tool*'
+      - 'scripts/archive_runtime.py'
+      - 'tests/test_archive_runtime.py'
+      - 'tests/test_build_identity.py'
+      - '.github/workflows/quick-tool.yml'
+permissions:
+  contents: read
+jobs:
+  quick-tool:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile the player tool and test programs
+        shell: powershell
+        run: ./scripts/build_quick_tool.ps1 -Tests
+      - name: Test exact player-ZIP contents and package rejection rules
+        run: python -m unittest discover -s tests -p test_archive_runtime.py
+      - name: Test release recipe fingerprints
+        run: python -m unittest discover -s tests -p test_build_identity.py
+      - name: Test UI and bounded live logs without launching a game
+        shell: powershell
+        run: ./scripts/test_quick_tool_ui.ps1 -Executable dist/quick-tool/BridgeQuickTool.exe -EvidenceDirectory "$env:RUNNER_TEMP/quick-tool-ui"
+      - name: Create the ready-to-extract player download
+        run: python scripts/package_quick_tool.py --build dist/quick-tool --output dist/L4D2-Quick-Tool.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: L4D2-Quick-Tool
+          path: |
+            dist/L4D2-Quick-Tool.zip
+            dist/L4D2-Quick-Tool.zip.sha256
+          if-no-files-found: error

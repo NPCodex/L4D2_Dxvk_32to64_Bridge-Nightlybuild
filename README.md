@@ -10,11 +10,13 @@
 
 **简体中文** | [English](README.en.md)
 
+完整 ZIP 已附带 Windows [运行管理工具](docs/QUICK-TOOL.md)：解压后双击游戏根目录的 **`L4D2-Quick-Tool.cmd`**，无需自己编译。支持 Bridge / 无 Bridge 模式、Steam 启动项、安装与启动检查，以及本地日志查看/打包；不自动安装缺失组件。
+
 ## 说明
 
 **v1.5.17 本次修订更新 NVIDIA Bridge 源码至 `cf83c05`，适配材质 API 并加固同版本组件身份校验。** 具体范围和验证门禁见 [NVIDIA 基准更新](docs/NVIDIA-UPSTREAM-UPDATES.md)。完整 L4N-necola 继续随包，来源与配置见 [整合包说明](docs/L4N-BUNDLE.md)。
 
-**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。现有 v1.5.17 包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。共 104 文件，来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
+**[前往 Releases 下载完整包](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/releases)**。每次发布只提供一个 `l4d2-bridge-*.zip`，另附 `.sha256` 校验文件。包含 **完整 L4N 2.53.0、necola 1.4.1 兼容扩展、DXVK-GPLALL、Bridge、`dxvk.conf`、L4N 的 `left4dead2/neko/config.vdf`** 和修复后的 `bin/studiorender.dll`。L4N 的 `bin/neko`、SDK、全部转换工具、内嵌 `other_tools.7z`、`to_l4n_survivor.exe`、`left4dead2 no-insecure.bat` 与原始 `readme_l4n.txt` 均完整随包。唯一例外：新版 `config_template.vdf` 的修改已合并进 `config.vdf`，模板不单独附带。带管理工具的新构建共 107 文件（原 104 项加工具、启动入口与说明）；已发布的旧 ZIP 不会自动更新。来源与合并细节见 [整合包说明](docs/L4N-BUNDLE.md)。
 
 已有 necola 配置时，先备份 `kpatch.ini`、`necola/FeatureConfig.json` 和 `necola/weaponParticles.json`，对照合并个人设置；直接解压覆盖不会自动合并。L4N 优先的六个功能开关必须保持关闭，否则扩展在下次启动时拒绝加载。使用 L4N 启动器，不再通过 necola 独立启动器重复加载。兼容扩展仍需配套 MOD 资产；本次未验收它与 Bridge 组合的游戏地图、画质、FPS 或长期稳定性，也不代表旧 Necola 退出问题已修复。
 

@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INPUT_DIRS = ("patches", "config", "scripts", "tests", "licenses", "runtime", "plugins", "experiments", "docs", ".github/workflows")
+INPUT_DIRS = ("patches", "config", "scripts", "tests", "licenses", "runtime", "plugins", "experiments", "docs", ".github/workflows", "tools/quick-tool")
 INPUT_FILES = ("VERSION", "LICENSE", "THIRD_PARTY.md",
                "docs/THINFLEX-CRASH-FIX.md", "docs/THINFLEX-TEST-README.txt")
 
