@@ -12,7 +12,7 @@ import tempfile
 from build_identity import protocol_digest, upstream_commit
 
 ROOT = Path(__file__).resolve().parents[1]
-COMMIT = "cf83c0514d5690a2e54369ba24a6d044b989e6c8"
+COMMIT = "bbd74a1287c2fa887f4a2b0e46a1530177890b64"
 REMOTE = "https://github.com/NVIDIAGameWorks/dxvk-remix.git"
 
 

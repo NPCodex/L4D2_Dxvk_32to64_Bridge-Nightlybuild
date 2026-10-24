@@ -1,12 +1,12 @@
 # v1.5.17
 
-- L4N-necola 更新至 L4N 2.55.0，完整保留新版原始运行文件、SDK、工具及 Starfelll（@Starfelll）署名。上游更新包括 VPK Overlay 层文件夹分组、witch 的 `player_foot` 修复及 `l4n_loading_boost` 控制台变量。
-- 按维护者要求，在 `left4dead2/neko/config.vdf` 的 `launch_options` 中加入 `-l4n_vphysics_jolt`，并附带对应 `bin/vphysics_jolt.dll`。合并新版模板，保留既有用户配置、`dxvk.conf` 和自定义 shader；未额外开启加载加速或骨骼计算。
-- 更新随包 necola 兼容插件，保留原 necola 1.4.1、两份运行 JSON、10 个音频库及 L4N 优先的功能开关。现有 v1.5.17 的 ZIP/SHA 原位替换，完整包为 106 文件。
+- 按维护者授权，将 NVIDIA 源码基准由 `cf83c051` 更新至 [`bbd74a12`](https://github.com/NVIDIAGameWorks/dxvk-remix/commit/bbd74a1287c2fa887f4a2b0e46a1530177890b64)，完整包含 8 个提交、18 个文件的上游增量。
+- 本次增量涉及 RTX 辐射缓存选项、Portal RTX 资产热重载、Remix API 配置锁和 Packman。它们未编入本包的 Bridge＋独立 GPLALL 渲染路径；不将其表述为本包新增 RTX/DLSS、FPS、画质或崩溃修复。
+- Client 与 x86/x64 Host 按新完整源码 SHA 重建配套身份；继续使用现有 v1.5.17 Release、tag 和 ZIP/SHA 文件名。L4N 2.55.0、necola、Jolt 启动选项、用户预设和 GPLALL 固定来源保留。
 
-发布门禁要求载荷与配置校验、三端 MSVC 14.29 构建、必需原生回归、最终源码收据及 CI/线上附件逐字节核验通过。Jolt 为上游实验性实现，本次没有新增它与 Bridge 组合的物理、联机、地图、FPS、画质、长稳或退出验收；不据此认定旧 Necola 退出或 Special K 随机崩溃已修复。
+交付要求三端 MSVC 14.29、必需原生回归、源码/构建身份及 CI 与线上附件逐字节校验通过。本次没有新增实机地图、物理/联机、FPS、画质、长稳或退出验收；既有 Necola/Special K 问题不视为已修复。
 
-[整合来源与配置说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/docs/L4N-BUNDLE.md) · [安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
+[安装说明](https://github.com/NPCodex/L4D2_Dxvk_32to64_Bridge-Nightlybuild/blob/main/README.md)
 
 # v1.5.16
 
